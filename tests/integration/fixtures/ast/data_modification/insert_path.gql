@@ -1,0 +1,2 @@
+INSERT (person:Person {name: 'Alice'})-[knows:KNOWS]->(friend:Person {name: 'Bob'})
+

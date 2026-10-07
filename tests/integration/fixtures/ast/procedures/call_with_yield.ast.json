@@ -1,0 +1,100 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "Call": {
+              "arguments": [
+                {
+                  "Literal": {
+                    "Integer": 1
+                  }
+                }
+              ],
+              "inline_procedure_body": null,
+              "inline_procedure_statement": null,
+              "is_optional": false,
+              "procedure_name": "analytics.score",
+              "span": {
+                "end_col": 45,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
+              },
+              "yield_items": {
+                "items": [
+                  {
+                    "alias": "score",
+                    "column_name": "result",
+                    "span": {
+                      "end_col": 45,
+                      "end_line": 1,
+                      "start_col": 24,
+                      "start_line": 1
+                    }
+                  }
+                ],
+                "span": {
+                  "end_col": 45,
+                  "end_line": 1,
+                  "start_col": 24,
+                  "start_line": 1
+                }
+              }
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "items": [
+                {
+                  "alias": null,
+                  "expression": {
+                    "Variable": {
+                      "name": "score",
+                      "span": {
+                        "end_col": 58,
+                        "end_line": 1,
+                        "start_col": 53,
+                        "start_line": 1
+                      }
+                    }
+                  },
+                  "span": {
+                    "end_col": 58,
+                    "end_line": 1,
+                    "start_col": 53,
+                    "start_line": 1
+                  }
+                }
+              ],
+              "span": {
+                "end_col": 58,
+                "end_line": 1,
+                "start_col": 46,
+                "start_line": 1
+              }
+            },
+            "span": {
+              "end_col": 58,
+              "end_line": 1,
+              "start_col": 46,
+              "start_line": 1
+            }
+          }
+        },
+        "span": {
+          "end_col": 58,
+          "end_line": 1,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

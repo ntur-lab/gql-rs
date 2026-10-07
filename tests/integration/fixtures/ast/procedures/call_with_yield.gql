@@ -1,0 +1,2 @@
+CALL analytics.score(1) YIELD result AS score RETURN score
+

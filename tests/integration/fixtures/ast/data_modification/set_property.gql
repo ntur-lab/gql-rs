@@ -1,0 +1,2 @@
+MATCH (n:Person) SET n.active = TRUE RETURN n
+
