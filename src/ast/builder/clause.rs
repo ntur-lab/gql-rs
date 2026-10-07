@@ -38,7 +38,7 @@ impl GQLAstBuilder {
         let alias = item_ctx.returnItemAlias().and_then(|alias_ctx| {
             alias_ctx
                 .identifier()
-                .map(|identifier| identifier.get_text())
+                .map(|identifier| Self::identifier_text(&identifier.get_text()))
         });
 
         Ok(ReturnItem { expression, alias, span })
