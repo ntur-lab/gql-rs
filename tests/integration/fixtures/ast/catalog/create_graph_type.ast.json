@@ -1,0 +1,61 @@
+{
+  "statement": {
+    "Catalog": {
+      "statements": [
+        {
+          "CreateGraphType": {
+            "if_not_exists": false,
+            "or_replace": false,
+            "property_graph_keyword": false,
+            "source": {
+              "NestedSpecification": {
+                "nested_graph_type_specification": {
+                  "element_type_specifications": [
+                    {
+                      "Node": {
+                        "local_alias": "p",
+                        "property_types": {
+                          "properties": [
+                            {
+                              "name": "name",
+                              "parsed_value_type": {
+                                "String": {
+                                  "max_length": null
+                                }
+                              },
+                              "span": {
+                                "end_col": 73,
+                                "end_line": 1,
+                                "start_col": 60,
+                                "start_line": 1
+                              },
+                              "typed": false,
+                              "value_type": "STRING"
+                            }
+                          ]
+                        },
+                        "text": "NODETYPEPerson(pLABELPerson{nameSTRING})",
+                        "type_name": "Person"
+                      }
+                    }
+                  ]
+                },
+                "with_as_keyword": false
+              }
+            },
+            "target": {
+              "name": "social",
+              "parent": null,
+              "span": {
+                "end_col": 24,
+                "end_line": 1,
+                "start_col": 18,
+                "start_line": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

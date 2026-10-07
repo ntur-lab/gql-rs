@@ -1,0 +1,113 @@
+{
+  "statement": {
+    "Query": {
+      "SetOperation": {
+        "left": {
+          "Basic": {
+            "pipeline": [],
+            "result_statement": {
+              "Return": {
+                "group_clause": null,
+                "page_clause": null,
+                "return_clause": {
+                  "distinct": "None",
+                  "items": [
+                    {
+                      "alias": "result",
+                      "expression": {
+                        "Literal": {
+                          "Integer": 1
+                        }
+                      },
+                      "span": {
+                        "end_col": 18,
+                        "end_line": 1,
+                        "start_col": 7,
+                        "start_line": 1
+                      }
+                    }
+                  ],
+                  "span": {
+                    "end_col": 18,
+                    "end_line": 1,
+                    "start_col": 0,
+                    "start_line": 1
+                  }
+                },
+                "span": {
+                  "end_col": 18,
+                  "end_line": 1,
+                  "start_col": 0,
+                  "start_line": 1
+                }
+              }
+            },
+            "span": {
+              "end_col": 18,
+              "end_line": 1,
+              "start_col": 0,
+              "start_line": 1
+            }
+          }
+        },
+        "limit_clause": null,
+        "operation": "UnionAll",
+        "order_clause": null,
+        "right": {
+          "Basic": {
+            "pipeline": [],
+            "result_statement": {
+              "Return": {
+                "group_clause": null,
+                "page_clause": null,
+                "return_clause": {
+                  "distinct": "None",
+                  "items": [
+                    {
+                      "alias": "result",
+                      "expression": {
+                        "Literal": {
+                          "Integer": 2
+                        }
+                      },
+                      "span": {
+                        "end_col": 47,
+                        "end_line": 1,
+                        "start_col": 36,
+                        "start_line": 1
+                      }
+                    }
+                  ],
+                  "span": {
+                    "end_col": 47,
+                    "end_line": 1,
+                    "start_col": 29,
+                    "start_line": 1
+                  }
+                },
+                "span": {
+                  "end_col": 47,
+                  "end_line": 1,
+                  "start_col": 29,
+                  "start_line": 1
+                }
+              }
+            },
+            "span": {
+              "end_col": 47,
+              "end_line": 1,
+              "start_col": 29,
+              "start_line": 1
+            }
+          }
+        },
+        "span": {
+          "end_col": 47,
+          "end_line": 1,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

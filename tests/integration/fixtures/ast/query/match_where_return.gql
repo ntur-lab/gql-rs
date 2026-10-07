@@ -1,0 +1,4 @@
+MATCH (person:Person)-[knows:KNOWS]->(friend:Person)
+WHERE person.age >= 18
+RETURN person.name AS name, friend.name AS friendName
+
