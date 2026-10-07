@@ -572,6 +572,7 @@ impl GQLAstBuilder {
             .schemaName()
             .ok_or_else(|| Self::parse_err("CST not valid: missing schemaName".into()))?
             .get_text();
+        let schema_name = Self::identifier_text(&schema_name);
 
         Ok(CatalogSchemaName {
             absolute_directory_path,
@@ -590,7 +591,8 @@ impl GQLAstBuilder {
             .graphName()
             .ok_or_else(|| Self::parse_err("CST not valid: missing graphName".into()))?
             .get_text();
-        let parent = cst.catalogObjectParentReference().map(|p| p.get_text());
+        let name = Self::identifier_text(&name);
+        let parent = cst.catalogObjectParentReference().map(|p| Self::identifiers_text(&p.get_text()));
 
         Ok(CatalogObjectName {
             parent,
@@ -609,7 +611,8 @@ impl GQLAstBuilder {
             .graphTypeName()
             .ok_or_else(|| Self::parse_err("CST not valid: missing graphTypeName".into()))?
             .get_text();
-        let parent = cst.catalogObjectParentReference().map(|p| p.get_text());
+        let name = Self::identifier_text(&name);
+        let parent = cst.catalogObjectParentReference().map(|p| Self::identifiers_text(&p.get_text()));
 
         Ok(CatalogObjectName {
             parent,
@@ -804,12 +807,12 @@ impl GQLAstBuilder {
     pub(super) fn extract_node_type_name(cst: &NodeTypeSpecificationContextAll) -> Option<String> {
         cst.nodeTypePattern()
             .and_then(|pattern| pattern.nodeTypeName())
-            .map(|name| name.get_text())
+            .map(|name| Self::identifier_text(&name.get_text()))
             .or_else(|| {
                 cst.nodeTypePhrase()
                     .and_then(|phrase| phrase.nodeTypePhraseFiller())
                     .and_then(|filler| filler.nodeTypeName())
-                    .map(|name| name.get_text())
+                    .map(|name| Self::identifier_text(&name.get_text()))
             })
     }
 
@@ -817,12 +820,12 @@ impl GQLAstBuilder {
     pub(super) fn extract_edge_type_name(cst: &EdgeTypeSpecificationContextAll) -> Option<String> {
         cst.edgeTypePattern()
             .and_then(|pattern| pattern.edgeTypeName())
-            .map(|name| name.get_text())
+            .map(|name| Self::identifier_text(&name.get_text()))
             .or_else(|| {
                 cst.edgeTypePhrase()
                     .and_then(|phrase| phrase.edgeTypePhraseFiller())
                     .and_then(|filler| filler.edgeTypeName())
-                    .map(|name| name.get_text())
+                    .map(|name| Self::identifier_text(&name.get_text()))
             })
     }
 
@@ -1008,7 +1011,7 @@ impl GQLAstBuilder {
                         PropertyTypeSpecification {
                             name: property
                                 .propertyName()
-                                .map(|name| name.get_text())
+                                .map(|name| Self::identifier_text(&name.get_text()))
                                 .unwrap_or_default(),
                             typed: property.typed().is_some(),
                             value_type: property
@@ -1045,7 +1048,7 @@ impl GQLAstBuilder {
         GraphExpressionClause {
             kind,
             text: cst.get_text(),
-            graph_reference: cst.graphReference().map(|x| x.get_text()),
+            graph_reference: cst.graphReference().map(|x| Self::identifiers_text(&x.get_text())),
             object_name_or_binding_variable: cst
                 .objectNameOrBindingVariable()
                 .map(|x| x.get_text()),
@@ -1578,7 +1581,7 @@ impl GQLAstBuilder {
                     let alias = item
                         .selectItemAlias()
                         .and_then(|alias_ctx| alias_ctx.identifier())
-                        .map(|id| id.get_text());
+                        .map(|id| Self::identifier_text(&id.get_text()));
 
                     Ok(ReturnItem {
                         expression,
@@ -1766,7 +1769,7 @@ impl GQLAstBuilder {
         if let Some(named_call) = proc_call.namedProcedureCall() {
             let procedure_name = named_call
                 .procedureReference()
-                .map(|pr| pr.get_text())
+                .map(|pr| Self::identifiers_text(&pr.get_text()))
                 .ok_or_else(|| {
                     Self::parse_err("CST not valid: missing procedureReference".into())
                 })?;
@@ -1949,7 +1952,7 @@ impl GQLAstBuilder {
                 let column_name = it
                     .yieldItemName()
                     .and_then(|n| n.fieldName())
-                    .map(|f| f.get_text().trim().to_string())
+                    .map(|f| Self::identifier_text(f.get_text().trim()))
                     .ok_or_else(|| {
                         Self::parse_err("CST not valid: yieldItemName missing".into())
                     })?;

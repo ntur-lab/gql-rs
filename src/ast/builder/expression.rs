@@ -321,7 +321,7 @@ impl GQLAstBuilder {
                 {
                     let variable = property_exists_predicate
                         .elementVariableReference()
-                        .map(|ctx| ctx.get_text())
+                        .map(|ctx| Self::identifier_text(&ctx.get_text()))
                         .ok_or_else(|| {
                             Self::parse_err(
                                 "CST not valid: elementVariableReference missing in PROPERTY_EXISTS"
@@ -331,7 +331,7 @@ impl GQLAstBuilder {
 
                     let property = property_exists_predicate
                         .propertyName()
-                        .map(|ctx| ctx.get_text())
+                        .map(|ctx| Self::identifier_text(&ctx.get_text()))
                         .ok_or_else(|| {
                             Self::parse_err(
                                 "CST not valid: propertyName missing in PROPERTY_EXISTS".into(),
@@ -1350,13 +1350,13 @@ impl GQLAstBuilder {
                     let mut name_parts: Vec<String> = udf
                         .objectName_all()
                         .into_iter()
-                        .map(|obj| obj.get_text())
+                        .map(|obj| Self::identifier_text(&obj.get_text()))
                         .collect();
 
                     let fn_identifier = udf.identifier().ok_or_else(|| {
                         Self::parse_err("CST not valid: identifier missing in userDefinedFunction".into())
                     })?;
-                    name_parts.push(fn_identifier.get_text());
+                    name_parts.push(Self::identifier_text(&fn_identifier.get_text()));
 
                     let arguments = udf
                         .valueExpression_all()
@@ -1917,13 +1917,13 @@ impl GQLAstBuilder {
         if let Some(pattern) = cst.nodeTypePattern() {
             if let Some(name) = pattern.nodeTypeName() {
                 if let Some(identifier) = name.identifier() {
-                    return Some(identifier.get_text());
+                    return Some(Self::identifier_text(&identifier.get_text()));
                 }
             }
 
             if let Some(alias) = pattern.localNodeTypeAlias() {
                 if let Some(identifier) = alias.regularIdentifier() {
-                    return Some(identifier.get_text());
+                    return Some(Self::identifier_text(&identifier.get_text()));
                 }
             }
         }
@@ -1932,14 +1932,14 @@ impl GQLAstBuilder {
             if let Some(filler) = phrase.nodeTypePhraseFiller() {
                 if let Some(name) = filler.nodeTypeName() {
                     if let Some(identifier) = name.identifier() {
-                        return Some(identifier.get_text());
+                        return Some(Self::identifier_text(&identifier.get_text()));
                     }
                 }
             }
 
             if let Some(alias) = phrase.localNodeTypeAlias() {
                 if let Some(identifier) = alias.regularIdentifier() {
-                    return Some(identifier.get_text());
+                    return Some(Self::identifier_text(&identifier.get_text()));
                 }
             }
         }
@@ -1961,7 +1961,7 @@ impl GQLAstBuilder {
             if let Some(filler) = phrase.edgeTypePhraseFiller() {
                 if let Some(name) = filler.edgeTypeName() {
                     if let Some(identifier) = name.identifier() {
-                        return Some(identifier.get_text());
+                        return Some(Self::identifier_text(&identifier.get_text()));
                     }
                 }
             }
@@ -2086,7 +2086,7 @@ impl GQLAstBuilder {
             let name = property
                 .propertyName()
                 .and_then(|name| name.identifier())
-                .map(|identifier| identifier.get_text())
+                .map(|identifier| Self::identifier_text(&identifier.get_text()))
                 .ok_or_else(|| {
                     Self::parse_err("CST not valid: missing property name in propertyType".into())
                 })?;
@@ -2658,7 +2658,7 @@ impl GQLAstBuilder {
             return Ok(Expression::WhenOperand(WhenOperandExpression {
                 kind: WhenOperandKind::LabeledPredicate {
                     negated,
-                    label_expression: label_part.labelExpression().map(|le| le.get_text()),
+                    label_expression: label_part.labelExpression().map(|le| Self::identifiers_text(&le.get_text())),
                 },
                 span: span.clone(),
             }));
@@ -2733,7 +2733,7 @@ impl GQLAstBuilder {
                 if let Some(property_name) = special.propertyName() {
                     return Ok(Expression::PropertyAccess(PropertyAccess {
                         object: base_primary.get_text(),
-                        property: property_name.get_text(),
+                        property: Self::identifier_text(&property_name.get_text()),
                         span: span.clone(),
                     }));
                 }
@@ -2877,7 +2877,7 @@ impl GQLAstBuilder {
             if !object.is_empty() && !property.is_empty() {
                 return Ok(Expression::PropertyAccess(PropertyAccess {
                     object: object.to_string(),
-                    property: property.to_string(),
+                    property: Self::identifier_text(property),
                     span: span.clone(),
                 }));
             }
@@ -2984,7 +2984,7 @@ impl GQLAstBuilder {
 
         let property = value_expression_primary
             .propertyName()
-            .map(|property_name| property_name.get_text())
+            .map(|property_name| Self::identifier_text(&property_name.get_text()))
             .ok_or_else(|| {
                 Self::parse_err("CST not valid: propertyName missing in property access".into())
             })?;
@@ -3067,7 +3067,7 @@ impl GQLAstBuilder {
                         let key =
                             field
                                 .fieldName()
-                                .map(|name| name.get_text())
+                                .map(|name| Self::identifier_text(&name.get_text()))
                                 .ok_or_else(|| {
                                     Self::parse_err(
                                         "CST not valid: fieldName missing in record field".into(),
