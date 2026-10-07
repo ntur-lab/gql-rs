@@ -1,0 +1,2 @@
+FOR x IN [1, 2, 3] FILTER WHERE x > 1 LET doubled = x * 2 RETURN doubled
+

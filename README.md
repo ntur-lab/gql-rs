@@ -1,93 +1,110 @@
-# gql-rs
+# gql-parser
 
+`gql-parser` is a Rust crate for parsing and semantic validation of GQL programs.
 
+The crate transforms GQL text into a typed AST, using ANTLR for lexical and syntactic
+analysis and a dedicated validation phase for the semantic rules implemented by the crate.
 
-## Getting started
+## Goal
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Provide a clear and reusable pipeline:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+1. GQL textual query
+2. CST (ANTLR)
+3. AST (`QueryAST`)
+4. Semantic validation (`validate_query_ast`)
 
-## Add your files
+This separation makes the crate suitable for both query execution and static analysis, tooling, and tests.
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Crate Architecture
 
+- `resources/GQL.g4`
+  - Source GQL grammar.
+- `src/antlr/`
+  - ANTLR-generated lexer/parser.
+- `src/ast/`
+  - AST model (`model/`).
+  - CST -> AST builder modules (`builder/`).
+  - Semantic validator modules (`validator/`).
+- `src/query_analyzer.rs`
+  - High-level entry point with the `GQLQueryAnalyzer` trait and `DefaultGQLQueryAnalyzer` implementation.
+- `src/error_handler/`
+  - Error types (`GqlError`).
+- `tests/`
+  - Unit tests for AST model types.
+  - Integration tests for parser, AST builder, validator, golden AST fixtures, and TCK.
+
+## Public API
+
+The following symbols are re-exported from the crate root:
+
+- `QueryAST`
+- `GQLQueryAnalyzer`
+- `DefaultGQLQueryAnalyzer`
+- `GqlError`
+- `GqlResult<T>`
+
+The full AST model is also available through the public `ast` module re-exports.
+
+## Documentation
+
+Detailed technical documentation is available in `docs/`:
+
+- [ANTLR and Grammar Guide](docs/antlr_grammar.md)
+- [Parser Generation Guide](docs/generating_parser.md)
+- [AST Structural Guide](docs/gql_query_ast.md)
+- [AST Builder Operational Guide](docs/gql_ast_builder.md)
+- [Validator Operational Guide](docs/gql_validator.md)
+- [Validator Rules Guide](docs/gql_validation_rules.md)
+- [Query Analyzer Guide](docs/query_analyzer.md)
+- [Test Suite Guide](docs/tests.md)
+
+## Quick Example
+
+```rust
+use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+
+fn main() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    let query = "MATCH (a:Actor)-[:ACTED_IN]->(m:Movie) RETURN a.name, m.title";
+
+    match analyzer.exec(query) {
+        Ok(ast) => {
+            println!("Valid query");
+            println!("AST: {:?}", ast);
+        }
+        Err(err) => {
+            eprintln!("Error: {}", err);
+        }
+    }
+}
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/inserpio/gql-rs.git
-git branch -M main
-git push -uf origin main
+
+## Build and Test
+
+From the repository root:
+
+```bash
+cargo test
 ```
 
-## Integrate with your tools
+Run the three suites independently:
 
-* [Set up project integrations](https://gitlab.com/inserpio/gql-rs/-/settings/integrations)
+```bash
+cargo test --test gql_tck
+cargo test --lib --test unit
+cargo test --test integration --test ast_conformance
+```
 
-## Collaborate with your team
+To build only the crate:
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+```bash
+cargo build
+```
 
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+The grammar accepts keywords case-insensitively while preserving the original spelling of
+identifiers and literal values. The implementation does not normalize the complete input.
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Licensed under the [European Union Public Licence 1.2](LICENSE.txt).

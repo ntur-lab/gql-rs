@@ -1,0 +1,183 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "For": {
+              "expression": {
+                "Array": {
+                  "elements": [
+                    {
+                      "Literal": {
+                        "Integer": 1
+                      }
+                    },
+                    {
+                      "Literal": {
+                        "Integer": 2
+                      }
+                    },
+                    {
+                      "Literal": {
+                        "Integer": 3
+                      }
+                    }
+                  ],
+                  "span": {
+                    "end_col": 18,
+                    "end_line": 1,
+                    "start_col": 9,
+                    "start_line": 1
+                  }
+                }
+              },
+              "ordinality_or_offset_variable": null,
+              "span": {
+                "end_col": 18,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
+              },
+              "variable": "x"
+            }
+          },
+          {
+            "Filter": {
+              "condition": {
+                "Binary": {
+                  "left": {
+                    "Variable": {
+                      "name": "x",
+                      "span": {
+                        "end_col": 33,
+                        "end_line": 1,
+                        "start_col": 32,
+                        "start_line": 1
+                      }
+                    }
+                  },
+                  "operator": "GreaterThan",
+                  "right": {
+                    "Literal": {
+                      "Integer": 1
+                    }
+                  },
+                  "span": {
+                    "end_col": 37,
+                    "end_line": 1,
+                    "start_col": 32,
+                    "start_line": 1
+                  }
+                }
+              },
+              "span": {
+                "end_col": 37,
+                "end_line": 1,
+                "start_col": 19,
+                "start_line": 1
+              }
+            }
+          },
+          {
+            "Let": {
+              "span": {
+                "end_col": 57,
+                "end_line": 1,
+                "start_col": 38,
+                "start_line": 1
+              },
+              "variable_definitions": [
+                {
+                  "expression": {
+                    "Binary": {
+                      "left": {
+                        "Variable": {
+                          "name": "x",
+                          "span": {
+                            "end_col": 53,
+                            "end_line": 1,
+                            "start_col": 52,
+                            "start_line": 1
+                          }
+                        }
+                      },
+                      "operator": "Star",
+                      "right": {
+                        "Literal": {
+                          "Integer": 2
+                        }
+                      },
+                      "span": {
+                        "end_col": 57,
+                        "end_line": 1,
+                        "start_col": 52,
+                        "start_line": 1
+                      }
+                    }
+                  },
+                  "span": {
+                    "end_col": 57,
+                    "end_line": 1,
+                    "start_col": 42,
+                    "start_line": 1
+                  },
+                  "variable_name": "doubled"
+                }
+              ]
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "items": [
+                {
+                  "alias": null,
+                  "expression": {
+                    "Variable": {
+                      "name": "doubled",
+                      "span": {
+                        "end_col": 72,
+                        "end_line": 1,
+                        "start_col": 65,
+                        "start_line": 1
+                      }
+                    }
+                  },
+                  "span": {
+                    "end_col": 72,
+                    "end_line": 1,
+                    "start_col": 65,
+                    "start_line": 1
+                  }
+                }
+              ],
+              "span": {
+                "end_col": 72,
+                "end_line": 1,
+                "start_col": 58,
+                "start_line": 1
+              }
+            },
+            "span": {
+              "end_col": 72,
+              "end_line": 1,
+              "start_col": 58,
+              "start_line": 1
+            }
+          }
+        },
+        "span": {
+          "end_col": 72,
+          "end_line": 1,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

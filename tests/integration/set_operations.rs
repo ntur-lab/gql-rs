@@ -1,0 +1,42 @@
+// Copyright (c) 2026 NTUR LAB S.r.l.
+//
+// This file is part of NTURDB.
+//
+// Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
+// the European Commission - subsequent versions of the EUPL (the "Licence");
+// You may not use this work except in compliance with the Licence.
+// You may obtain a copy of the Licence at:
+//
+// https://joinup.ec.europa.eu/software/page/eupl
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the Licence is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the Licence for the specific language governing permissions and
+// limitations under the Licence.
+
+use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
+
+mod set_operation_tests {
+    use super::*;
+
+
+
+
+    #[test]
+    fn test_set_operation_rejects_incompatible_column_types() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let result = analyzer.exec("RETURN 1 AS result_value UNION RETURN 'x' AS result_value");
+
+        match result {
+            Err(GqlError::Validation { message: msg, .. }) => {
+                assert!(
+                    msg.contains("Set operation column 1 has incompatible types"),
+                    "Unexpected validation error: {}",
+                    msg
+                );
+            }
+            other => panic!("Expected validation error, got: {:?}", other),
+        }
+    }
+}

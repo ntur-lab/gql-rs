@@ -1,0 +1,1 @@
+RETURN 1 AS result UNION ALL RETURN 2 AS result

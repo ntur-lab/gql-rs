@@ -1,0 +1,169 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "Match": {
+              "match_clause": {
+                "patterns": [
+                  {
+                    "alternation": null,
+                    "elements": [
+                      {
+                        "Node": {
+                          "id": "n",
+                          "labels": {
+                            "Literal": {
+                              "String": "Person"
+                            }
+                          },
+                          "properties": null,
+                          "span": {
+                            "end_col": 16,
+                            "end_line": 1,
+                            "start_col": 6,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      }
+                    ],
+                    "path_mode": null,
+                    "path_search": null,
+                    "simplified_pattern": null,
+                    "span": {
+                      "end_col": 16,
+                      "end_line": 1,
+                      "start_col": 6,
+                      "start_line": 1
+                    },
+                    "variable": null
+                  }
+                ],
+                "span": {
+                  "end_col": 16,
+                  "end_line": 1,
+                  "start_col": 6,
+                  "start_line": 1
+                }
+              },
+              "optional": false,
+              "span": {
+                "end_col": 16,
+                "end_line": 1,
+                "start_col": 6,
+                "start_line": 1
+              }
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "items": [
+                {
+                  "alias": "displayName",
+                  "expression": {
+                    "Case": {
+                      "case_type": {
+                        "Searched": {
+                          "else_expression": {
+                            "Literal": {
+                              "String": "inactive"
+                            }
+                          },
+                          "when_branches": [
+                            {
+                              "condition": {
+                                "PropertyAccess": {
+                                  "object": "n",
+                                  "property": "active",
+                                  "span": {
+                                    "end_col": 25,
+                                    "end_line": 2,
+                                    "start_col": 17,
+                                    "start_line": 2
+                                  }
+                                }
+                              },
+                              "span": {
+                                "end_col": 44,
+                                "end_line": 2,
+                                "start_col": 12,
+                                "start_line": 2
+                              },
+                              "then_expression": {
+                                "FunctionCall": {
+                                  "arguments": [
+                                    {
+                                      "PropertyAccess": {
+                                        "object": "n",
+                                        "property": "name",
+                                        "span": {
+                                          "end_col": 43,
+                                          "end_line": 2,
+                                          "start_col": 37,
+                                          "start_line": 2
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "distinct": "None",
+                                  "name": "UPPER",
+                                  "span": {
+                                    "end_col": 44,
+                                    "end_line": 2,
+                                    "start_col": 31,
+                                    "start_line": 2
+                                  }
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      },
+                      "span": {
+                        "end_col": 64,
+                        "end_line": 2,
+                        "start_col": 7,
+                        "start_line": 2
+                      }
+                    }
+                  },
+                  "span": {
+                    "end_col": 79,
+                    "end_line": 2,
+                    "start_col": 7,
+                    "start_line": 2
+                  }
+                }
+              ],
+              "span": {
+                "end_col": 79,
+                "end_line": 2,
+                "start_col": 0,
+                "start_line": 2
+              }
+            },
+            "span": {
+              "end_col": 79,
+              "end_line": 2,
+              "start_col": 0,
+              "start_line": 2
+            }
+          }
+        },
+        "span": {
+          "end_col": 79,
+          "end_line": 2,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}
