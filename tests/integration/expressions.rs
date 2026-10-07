@@ -22,6 +22,138 @@ mod expression_tests {
     use super::*;
 
 
+    #[test]
+    fn test_delimited_property_names_are_unquoted_in_property_access() {
+        for (query_text, expected_property) in [
+            ("MATCH (n) RETURN n.\"year\"", "year"),
+            ("MATCH (n) RETURN n.`year`", "year"),
+            ("MATCH (n) RETURN n.\"release\"\"year\"", "release\"year"),
+            ("MATCH (n) RETURN n.`release``year`", "release`year"),
+            ("MATCH (n) RETURN n.\"release\\u005Fyear\"", "release_year"),
+        ] {
+            let mut analyzer = DefaultGQLQueryAnalyzer::new();
+            analyzer.exec(query_text).expect("query should parse");
+
+            let ast = analyzer.get_ast().expect("ast must be available");
+            let Statement::Query(Query::Basic(query)) = &ast.statement else {
+                panic!("expected basic query statement");
+            };
+
+            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
+                panic!("expected RETURN result statement");
+            };
+
+            let Expression::PropertyAccess(property_access) = &return_clause.items[0].expression else {
+                panic!("expected property access expression");
+            };
+
+            assert_eq!(property_access.property, expected_property, "query: {query_text}");
+        }
+    }
+
+    #[test]
+    fn test_delimited_property_names_are_unquoted_in_data_modification() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH (n) SET n.\"year\" = 2020")
+            .expect("SET query should parse");
+
+        let ast = analyzer.get_ast().expect("SET AST must be available");
+        let Statement::Data(DataStatement::MatchSet(statement)) = &ast.statement else {
+            panic!("expected MATCH SET statement");
+        };
+        let SetItem::Property { property, .. } = &statement.items[0] else {
+            panic!("expected SET property item");
+        };
+        assert_eq!(property.property, "year");
+
+        analyzer
+            .exec("MATCH (n) REMOVE n.`year`")
+            .expect("REMOVE query should parse");
+
+        let ast = analyzer.get_ast().expect("REMOVE AST must be available");
+        let Statement::Data(DataStatement::MatchRemove(statement)) = &ast.statement else {
+            panic!("expected MATCH REMOVE statement");
+        };
+        let RemoveItem::Property { property, .. } = &statement.remove_clause[0] else {
+            panic!("expected REMOVE property item");
+        };
+        assert_eq!(property.property, "year");
+    }
+
+    #[test]
+    fn test_delimited_record_fields_and_return_aliases_are_unquoted() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("RETURN {\"year\": 2020} AS `result`")
+            .expect("query should parse");
+
+        let ast = analyzer.get_ast().expect("AST must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
+        let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
+            panic!("expected RETURN result statement");
+        };
+        assert_eq!(return_clause.items[0].alias.as_deref(), Some("result"));
+        let Expression::Map(properties) = &return_clause.items[0].expression else {
+            panic!("expected record literal");
+        };
+        assert_eq!(properties[0].key, "year");
+    }
+
+    #[test]
+    fn test_delimited_pattern_labels_and_property_keys_are_unquoted() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH (n:\"select\" {`year`: 2020}) RETURN n")
+            .expect("query should parse");
+
+        let ast = analyzer.get_ast().expect("AST must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
+        let QueryStep::Match(match_clause) = &query.pipeline[0] else {
+            panic!("expected MATCH query step");
+        };
+        let PatternElement::Node(node) = &match_clause.match_clause.patterns[0].elements[0] else {
+            panic!("expected node pattern");
+        };
+        let Some(Expression::Literal(Literal::String(label))) = &node.labels else {
+            panic!("expected literal node label");
+        };
+        assert_eq!(label, "select");
+        assert_eq!(node.properties.as_ref().expect("properties must exist").properties[0].key, "year");
+    }
+
+    #[test]
+    fn test_delimited_qualified_procedure_names_are_unquoted() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("CALL \"db\".`labels`()")
+            .expect("CALL query should parse");
+
+        let ast = analyzer.get_ast().expect("AST must be available");
+        match &ast.statement {
+            Statement::Query(Query::Basic(query)) => {
+                let QueryStep::Call(call) = &query.pipeline[0] else {
+                    panic!("expected CALL query step");
+                };
+                assert_eq!(call.procedure_name, "db.labels");
+            }
+            Statement::Data(DataStatement::Call(statement)) => {
+                assert_eq!(statement.call_clause.procedure_name, "db.labels");
+            }
+            Statement::Catalog(block) => {
+                let CatalogStatement::Call(statement) = &block.statements[0] else {
+                    panic!("expected catalog CALL statement");
+                };
+                assert_eq!(statement.call_clause.procedure_name, "db.labels");
+            }
+            other => panic!("expected CALL statement, got: {other:?}"),
+        }
+    }
+
 
     #[test]
     fn test_return_record_literal_maps_to_expression_map() {

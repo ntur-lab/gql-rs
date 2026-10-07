@@ -504,12 +504,12 @@ impl GQLAstBuilder {
             return Self::parse_error("Empty labelSetSpecification in INSERT");
         }
 
-        let mut expr = Expression::Literal(Literal::String(labels[0].get_text()));
+        let mut expr = Expression::Literal(Literal::String(Self::identifier_text(&labels[0].get_text())));
         for label in labels.into_iter().skip(1) {
             expr = Expression::Binary(BinaryExpression {
                 left: Box::new(expr),
                 operator: Operator::And,
-                right: Box::new(Expression::Literal(Literal::String(label.get_text()))),
+                right: Box::new(Expression::Literal(Literal::String(Self::identifier_text(&label.get_text())))),
                 span: span.clone(),
             });
         }
@@ -542,6 +542,7 @@ impl GQLAstBuilder {
                 .propertyName()
                 .ok_or_else(|| Self::parse_err("Expected propertyName".to_string()))?
                 .get_text();
+            let prop_name = Self::identifier_text(&prop_name);
             let value_expr = prop
                 .valueExpression()
                 .ok_or_else(|| Self::parse_err("Expected valueExpression".to_string()))?;
@@ -564,6 +565,7 @@ impl GQLAstBuilder {
                 .labelName()
                 .ok_or_else(|| Self::parse_err("Expected labelName".to_string()))?
                 .get_text();
+            let label_name = Self::identifier_text(&label_name);
             let labels = Expression::Literal(Literal::String(label_name));
             Ok(SetItem::Label { variable, labels, span: span.clone() })
         } else if let Some(all_prop) = cst.setAllPropertiesItem() {
@@ -622,6 +624,7 @@ impl GQLAstBuilder {
                 .propertyName()
                 .ok_or_else(|| Self::parse_err("Expected propertyName".to_string()))?
                 .get_text();
+            let prop_name = Self::identifier_text(&prop_name);
             Ok(RemoveItem::Property{
                 property: PropertyAccess {
                     object: binding,
@@ -639,6 +642,7 @@ impl GQLAstBuilder {
                 .labelName()
                 .ok_or_else(|| Self::parse_err("Expected labelName".to_string()))?
                 .get_text();
+            let label_name = Self::identifier_text(&label_name);
             let labels = Expression::Literal(Literal::String(label_name));
             Ok(RemoveItem::Label { variable, labels, span: span.clone() })
         } else {
@@ -676,6 +680,7 @@ impl GQLAstBuilder {
                     .propertyName()
                     .ok_or_else(|| Self::parse_err("Expected propertyName".to_string()))?
                     .get_text();
+                let key = Self::identifier_text(&key);
                 let value_expr = pair
                     .valueExpression()
                     .ok_or_else(|| Self::parse_err("Expected valueExpression".to_string()))?;

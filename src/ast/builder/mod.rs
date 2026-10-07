@@ -59,6 +59,117 @@ pub(super) enum PathExpressionFlavor {
 }
 
 impl GQLAstBuilder {
+    /// Returns the semantic value of an identifier without source delimiters.
+    pub(super) fn identifier_text(text: &str) -> String {
+        let (no_escape, text) = match text.strip_prefix('@') {
+            Some(text) => (true, text),
+            None => (false, text),
+        };
+        let Some(delimiter) = text.chars().next() else {
+            return String::new();
+        };
+
+        if !matches!(delimiter, '"' | '`') || !text.ends_with(delimiter) {
+            return text.to_string();
+        }
+
+        let delimiter_len = delimiter.len_utf8();
+        let inner = &text[delimiter_len..text.len() - delimiter_len];
+        let mut chars = inner.chars().peekable();
+        let mut decoded = String::with_capacity(inner.len());
+
+        while let Some(ch) = chars.next() {
+            if ch == delimiter && chars.peek() == Some(&delimiter) {
+                chars.next();
+                decoded.push(delimiter);
+                continue;
+            }
+
+            if ch != '\\' || no_escape {
+                decoded.push(ch);
+                continue;
+            }
+
+            let Some(escaped) = chars.next() else {
+                decoded.push(ch);
+                break;
+            };
+
+            match escaped {
+                '\\' | '\'' | '"' | '`' => decoded.push(escaped),
+                't' => decoded.push('\t'),
+                'b' => decoded.push('\u{0008}'),
+                'n' => decoded.push('\n'),
+                'r' => decoded.push('\r'),
+                'f' => decoded.push('\u{000C}'),
+                'u' | 'U' => {
+                    let digits = if escaped == 'u' { 4 } else { 6 };
+                    let hex: String = chars.by_ref().take(digits).collect();
+                    match u32::from_str_radix(&hex, 16).ok().and_then(char::from_u32) {
+                        Some(value) => decoded.push(value),
+                        None => {
+                            decoded.push('\\');
+                            decoded.push(escaped);
+                            decoded.push_str(&hex);
+                        }
+                    }
+                }
+                other => {
+                    decoded.push('\\');
+                    decoded.push(other);
+                }
+            }
+        }
+
+        decoded
+    }
+
+    /// Decodes every delimited identifier in a qualified name or identifier expression,
+    /// preserving separators such as `.`, `/`, `&`, and `|`.
+    pub(super) fn identifiers_text(text: &str) -> String {
+        let chars: Vec<char> = text.chars().collect();
+        let mut decoded = String::with_capacity(text.len());
+        let mut index = 0;
+
+        while index < chars.len() {
+            let segment_start = index;
+            let quote_index = if chars[index] == '@'
+                && chars.get(index + 1).is_some_and(|ch| matches!(ch, '"' | '`'))
+            {
+                index + 1
+            } else if matches!(chars[index], '"' | '`') {
+                index
+            } else {
+                decoded.push(chars[index]);
+                index += 1;
+                continue;
+            };
+
+            let delimiter = chars[quote_index];
+            index = quote_index + 1;
+            while index < chars.len() {
+                if chars[index] == '\\' && chars[segment_start] != '@' {
+                    index = (index + 2).min(chars.len());
+                    continue;
+                }
+                if chars[index] == delimiter {
+                    if chars.get(index + 1) == Some(&delimiter) {
+                        index += 2;
+                        continue;
+                    }
+                    index += 1;
+                    break;
+                }
+                index += 1;
+            }
+
+            let segment: String = chars[segment_start..index].iter().collect();
+            decoded.push_str(&Self::identifier_text(&segment));
+        }
+
+        decoded
+    }
+
     /// Builds a QueryAST from the CST root and dispatches top-level statement families.
     pub(crate) fn build_from_cst_root(cst_root: &GqlProgramContextAll) -> GqlResult<QueryAST> {
         if let Some(_session_close) = cst_root.sessionCloseCommand() {

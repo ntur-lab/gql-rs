@@ -694,7 +694,7 @@ impl GQLAstBuilder {
         primary: &SimplifiedPrimaryContextAll,
     ) -> Option<Expression> {
         if let Some(label) = primary.labelName() {
-            return Some(Expression::Literal(Literal::String(label.get_text())));
+            return Some(Expression::Literal(Literal::String(Self::identifier_text(&label.get_text()))));
         }
 
         if let Some(contents) = primary.simplifiedContents() {
@@ -1157,7 +1157,7 @@ impl GQLAstBuilder {
             .map(|pair| {
                 let key = pair
                     .propertyName()
-                    .map(|name| name.get_text())
+                    .map(|name| Self::identifier_text(&name.get_text()))
                     .ok_or_else(|| {
                         Self::parse_err(
                             "CST non valido: propertyName mancante in propertyKeyValuePair".into(),
@@ -1240,7 +1240,7 @@ impl GQLAstBuilder {
             LabelExpressionContextAll::LabelExpressionNameContext(ctx) => {
                 let label = ctx
                     .labelName()
-                    .map(|name| name.get_text())
+                    .map(|name| Self::identifier_text(&name.get_text()))
                     .ok_or_else(|| Self::parse_err("CST not valid: labelName missing".into()))?;
                 Ok(Expression::Literal(Literal::String(label)))
             }
