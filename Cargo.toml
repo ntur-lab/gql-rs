@@ -23,7 +23,6 @@ authors = ["NTUR-LAB s.r.l."]
 description = "GQL parser, typed AST builder, and semantic validator"
 readme = "README.md"
 license = "EUPL-1.2"
-license-file = "LICENSE.txt"
 keywords = ["gql", "graph", "parser", "ast"]
 categories = ["parsing"]
 
