@@ -32,7 +32,7 @@ impl GQLAstBuilder {
             .unwrap_or_else(|| {
                 Ok(Expression::Literal(Self::build_literal_from_leaf_text(
                     &aggregating_expression.get_text(),
-                )))
+                )?))
             })?;
 
         let alias = item_ctx.returnItemAlias().and_then(|alias_ctx| {
@@ -191,7 +191,7 @@ impl GQLAstBuilder {
             .unwrap_or_else(|| {
                 Ok(Expression::Literal(Self::build_literal_from_leaf_text(
                     &aggregating_expression.get_text(),
-                )))
+                )?))
             })
     }
 

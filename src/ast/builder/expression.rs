@@ -30,6 +30,12 @@ impl GQLAstBuilder {
                     Self::parse_err("CST not valid: operand missing in signed expression".into())
                 })?;
 
+                // The magnitude of i64::MIN is not a valid positive i64 literal.
+                if signed.MINUS_SIGN().is_some()
+                    && inner.get_text().trim_start_matches('0') == "9223372036854775808"
+                {
+                    return Ok(Expression::Literal(Literal::Integer(i64::MIN)));
+                }
                 let expression = Self::build_expression_from_context(&inner)?;
                 let operator = if signed.MINUS_SIGN().is_some() {
                     Operator::Minus
@@ -2852,6 +2858,8 @@ impl GQLAstBuilder {
     pub(super) fn build_expression_from_leaf_text(text: &str, span: Span) -> GqlResult<Expression> {
         let trimmed = text.trim();
 
+        Self::validate_integer_literal_range(trimmed)?;
+
         if trimmed.eq_ignore_ascii_case("true") {
             return Ok(Expression::Literal(Literal::Boolean(true)));
         }
@@ -2896,7 +2904,7 @@ impl GQLAstBuilder {
 
         Ok(Expression::Literal(Self::build_literal_from_leaf_text(
             trimmed,
-        )))
+        )?))
     }
 
     /// Function to build a FunctionCall expression from an AggregateFunctionContext, handling various forms of aggregate functions such as COUNT(*), general set functions, and binary set functions, extracting the function name, distinct qualifier, and arguments as needed, and returning the corresponding Expression::FunctionCall. If the aggregate function context does not match any recognized form, it returns a parse error.
@@ -2954,14 +2962,14 @@ impl GQLAstBuilder {
                 if let Some(expr) = left.numericValueExpression() {
                     arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
                         &expr.get_text(),
-                    )));
+                    )?));
                 }
             }
             if let Some(right) = binary_set_function.independentValueExpression() {
                 if let Some(expr) = right.numericValueExpression() {
                     arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
                         &expr.get_text(),
-                    )));
+                    )?));
                 }
             }
 
@@ -3120,21 +3128,21 @@ impl GQLAstBuilder {
         unsigned_literal: &UnsignedLiteralContextAll,
     ) -> GqlResult<Literal> {
         if let Some(unsigned_numeric_literal) = unsigned_literal.unsignedNumericLiteral() {
-            return Ok(Self::build_literal_from_leaf_text(
+            return Self::build_literal_from_leaf_text(
                 &unsigned_numeric_literal.get_text(),
-            ));
+            );
         }
 
         if let Some(general_literal) = unsigned_literal.generalLiteral() {
-            return Ok(Self::build_literal_from_general_literal(&general_literal));
+            return Self::build_literal_from_general_literal(&general_literal);
         }
 
         Self::parse_error("CST not valid: unsignedLiteral without supported literal")
     }
 
-    fn build_literal_from_general_literal(general_literal: &GeneralLiteralContextAll) -> Literal {
+    fn build_literal_from_general_literal(general_literal: &GeneralLiteralContextAll) -> GqlResult<Literal> {
         if let Some(boolean_literal) = general_literal.BOOLEAN_LITERAL() {
-            return Literal::Boolean(boolean_literal.get_text().eq_ignore_ascii_case("true"));
+            return Ok(Literal::Boolean(boolean_literal.get_text().eq_ignore_ascii_case("true")));
         }
 
         if let Some(character_string_literal) = general_literal.characterStringLiteral() {
@@ -3142,10 +3150,10 @@ impl GQLAstBuilder {
         }
 
         if general_literal.nullLiteral().is_some() {
-            return Literal::Null;
+            return Ok(Literal::Null);
         }
 
-        Literal::String(general_literal.get_text())
+        Ok(Literal::String(general_literal.get_text()))
     }
 
     fn build_literal_from_general_value_specification(
@@ -3161,10 +3169,24 @@ impl GQLAstBuilder {
         Literal::String(general_value_specification.get_text())
     }
 
+    /// Rejects integer syntax outside i64 without reinterpreting it as floating point.
+    pub(super) fn validate_integer_literal_range(text: &str) -> GqlResult<()> {
+        let digits = text.strip_prefix('-').or_else(|| text.strip_prefix('+')).unwrap_or(text);
+        if !digits.is_empty() && digits.bytes().all(|byte| byte.is_ascii_digit())
+            && text.parse::<i64>().is_err()
+        {
+            return Self::parse_error(format!(
+                "Integer literal '{}' is outside the signed 64-bit range", text
+            ));
+        }
+        Ok(())
+    }
+
     /// Function to build a Literal from a leaf text string, handling various cases such as quoted strings, numeric literals, boolean literals, null literals, and defaulting to treating the text as a string literal if none of the other cases match.
-    pub(super) fn build_literal_from_leaf_text(text: &str) -> Literal {
+    pub(super) fn build_literal_from_leaf_text(text: &str) -> GqlResult<Literal> {
         let trimmed = text.trim();
-        if (trimmed.starts_with('\'') && trimmed.ends_with('\''))
+        Self::validate_integer_literal_range(trimmed)?;
+        Ok(if (trimmed.starts_with('\'') && trimmed.ends_with('\''))
             || (trimmed.starts_with('"') && trimmed.ends_with('"'))
         {
             // Remove exactly the enclosing pair: quotes at the edges of the
@@ -3188,7 +3210,7 @@ impl GQLAstBuilder {
             Literal::Null
         } else {
             Literal::String(trimmed.to_string())
-        }
+        })
     }
 
     /// Helper function to map a CompOpContext to the corresponding Operator enum variant, checking for each possible operator type in the context and returning the appropriate Operator. If the context does not match any recognized comparison operator, it returns a parse error indicating that the CST is not valid for a comparison operator.

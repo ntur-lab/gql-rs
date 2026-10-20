@@ -22,6 +22,38 @@ mod expression_tests {
     use super::*;
 
     #[test]
+    fn rejects_integer_literals_outside_signed_64_bit_range() {
+        for query in [
+            "RETURN 9223372036854775808 AS a",
+            "RETURN -9223372036854775809 AS a",
+            "RETURN +9223372036854775808 AS a",
+            "RETURN [9223372036854775808] AS a",
+            "RETURN {a: 9223372036854775808} AS a",
+            "RETURN 9999999999999999999999999999999999999999 AS a",
+        ] {
+            let mut analyzer = DefaultGQLQueryAnalyzer::new();
+            let error = analyzer.exec(query).expect_err("out-of-range integer must fail");
+            assert!(error.to_string().contains("outside the signed 64-bit range"),
+                "query: {query}, error: {error}");
+        }
+    }
+
+    #[test]
+    fn accepts_integer_boundaries_and_floating_point_syntax() {
+        for query in [
+            "RETURN 9223372036854775807 AS a",
+            "RETURN -9223372036854775808 AS a",
+            "RETURN -009223372036854775808 AS a",
+            "RETURN 3.14 AS a, 1e3 AS b",
+            "RETURN 9223372036854775808.0 AS a",
+            "RETURN '9223372036854775808' AS a",
+        ] {
+            let mut analyzer = DefaultGQLQueryAnalyzer::new();
+            analyzer.exec(query).unwrap_or_else(|error| panic!("query: {query}, error: {error}"));
+        }
+    }
+
+    #[test]
     fn test_string_literals_decode_doubled_delimiters_and_preserve_content() {
         for (literal, expected) in [
             ("'it''s'", "it's"),
