@@ -20,7 +20,7 @@ default:
   cache: &cargo_cache
     key:
       files:
-        - Cargo.lock
+        - Cargo.toml
       prefix: cargo-${CI_COMMIT_REF_SLUG}
     paths:
       - .cargo/registry/
@@ -42,8 +42,8 @@ build:release:
     <<: *cargo_cache
     policy: pull-push
   script:
-    - cargo build --release --locked
-    - cargo test --release --no-run --locked
+    - cargo build --release
+    - cargo test --release --no-run
   artifacts:
     name: release-${CI_COMMIT_SHORT_SHA}
     paths:
@@ -62,14 +62,14 @@ build:release:
 test:tck:
   extends: .test:release
   script:
-    - cargo test --release --locked --test gql_tck
+    - cargo test --release --test gql_tck
 
 test:unit:
   extends: .test:release
   script:
-    - cargo test --release --locked --lib --test unit
+    - cargo test --release --lib --test unit
 
 test:integration:
   extends: .test:release
   script:
-    - cargo test --release --locked --test integration --test ast_conformance
+    - cargo test --release --test integration --test ast_conformance
