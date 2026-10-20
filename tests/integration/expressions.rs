@@ -21,6 +21,34 @@ use gql_parser::ast::model::*;
 mod expression_tests {
     use super::*;
 
+    #[test]
+    fn accepts_null_and_nested_lists_without_flattening_the_ast() {
+        for query in [
+            "RETURN [1, null, [2, 3]] AS l",
+            "RETURN [[2, 3], null, 1] AS l",
+            "RETURN [1, [], [[2]]] AS l",
+        ] {
+            let mut analyzer = DefaultGQLQueryAnalyzer::new();
+            analyzer.exec(query).unwrap_or_else(|error| panic!("{query}: {error}"));
+            let ast = analyzer.get_ast().unwrap();
+            let Statement::Query(Query::Basic(query)) = &ast.statement else { panic!("expected query") };
+            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
+                panic!("expected RETURN");
+            };
+            let Expression::Array(array) = &return_clause.items[0].expression else { panic!("expected list") };
+            assert_eq!(array.elements.len(), 3);
+            assert!(array.elements.iter().any(|item| matches!(item, Expression::Array(_))));
+        }
+    }
+
+    #[test]
+    fn rejects_nested_list_when_cast_to_scalar_element_list() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let error = analyzer.exec("RETURN CAST([1, null, [2, 3]] AS LIST<INTEGER>)")
+            .expect_err("a nested list is not an integer element");
+        assert!(matches!(error, GqlError::Validation { .. }));
+    }
+
 
     #[test]
     fn test_delimited_property_names_are_unquoted_in_property_access() {
