@@ -1349,6 +1349,9 @@ pub(super) fn are_array_element_types_compatible(left: &TypeSpec, right: &TypeSp
                 element_type: r, ..
             },
         ) => are_array_element_types_compatible(l, r),
+        // A nested list is a value, not a flattened sequence of outer elements.
+        // Its own contents are validated recursively before this check.
+        (TypeSpec::List { .. }, _) | (_, TypeSpec::List { .. }) => true,
         _ => false,
     }
 }
