@@ -282,9 +282,9 @@ impl GQLAstBuilder {
                 let predicate_part =
                     normalized_expr.normalizedPredicatePart2().ok_or_else(|| {
                         Self::parse_err(
-                        "CST not valid: normalizedPredicatePart2 missing in normalized predicate"
-                            .into(),
-                    )
+                            "CST not valid: normalizedPredicatePart2 missing in normalized predicate"
+                                .into(),
+                        )
                     })?;
 
                 let mut arguments = vec![expression];
@@ -377,9 +377,9 @@ impl GQLAstBuilder {
                             .valueExpressionPrimary()
                             .ok_or_else(|| {
                                 Self::parse_err(
-                            "CST not valid: valueExpressionPrimary missing in valueTypePredicate"
-                                .into(),
-                        )
+                                    "CST not valid: valueExpressionPrimary missing in valueTypePredicate"
+                                        .into(),
+                                )
                             })?;
                     let expression = Self::build_primary_expression_from_context(&primary)?;
 
@@ -388,9 +388,9 @@ impl GQLAstBuilder {
                             .valueTypePredicatePart2()
                             .ok_or_else(|| {
                                 Self::parse_err(
-                            "CST not valid: valueTypePredicatePart2 missing in valueTypePredicate"
-                                .into(),
-                        )
+                                    "CST not valid: valueTypePredicatePart2 missing in valueTypePredicate"
+                                        .into(),
+                                )
                             })?;
 
                     let value_type = part2.valueType().ok_or_else(|| {
@@ -800,14 +800,14 @@ impl GQLAstBuilder {
 
                         let inner = if cardinality_expr.SIZE().is_some() {
                             cardinality_expr
-                            .listValueExpression()
-                            .and_then(|e| e.valueExpression())
-                            .ok_or_else(|| {Self::parse_err("CST not valid: valueExpression missing in listValueExpression of cardinalityExpression".to_string())})?
+                                .listValueExpression()
+                                .and_then(|e| e.valueExpression())
+                                .ok_or_else(|| {Self::parse_err("CST not valid: valueExpression missing in listValueExpression of cardinalityExpression".to_string())})?
                         } else {
                             cardinality_expr
-                            .cardinalityExpressionArgument()
-                            .and_then(|a| a.valueExpression())
-                            .ok_or_else(|| {Self::parse_err("CST not valid: valueExpression missing in cardinalityExpressionArgument".to_string())})?
+                                .cardinalityExpressionArgument()
+                                .and_then(|a| a.valueExpression())
+                                .ok_or_else(|| {Self::parse_err("CST not valid: valueExpression missing in cardinalityExpressionArgument".to_string())})?
                         };
 
                         let arg = Self::build_expression_from_context(&inner)?;
@@ -2861,7 +2861,7 @@ impl GQLAstBuilder {
         if trimmed.eq_ignore_ascii_case("null") {
             return Ok(Expression::Literal(Literal::Null));
         }
-        
+
         if let Ok(i) = trimmed.parse::<i64>() {
             return Ok(Expression::Literal(Literal::Integer(i)));
         }
@@ -3164,10 +3164,8 @@ impl GQLAstBuilder {
     /// Function to build a Literal from a leaf text string, handling various cases such as quoted strings, numeric literals, boolean literals, null literals, and defaulting to treating the text as a string literal if none of the other cases match.
     pub(super) fn build_literal_from_leaf_text(text: &str) -> Literal {
         let trimmed = text.trim();
-        if (trimmed.starts_with('\'') && trimmed.ends_with('\''))
-            || (trimmed.starts_with('"') && trimmed.ends_with('"'))
-        {
-            Literal::String(trimmed.trim_matches(|c| c == '\'' || c == '"').to_string())
+        if let Some(value) = Self::string_literal_text(trimmed) {
+            Literal::String(value)
         } else if let Ok(i) = trimmed.parse::<i64>() {
             Literal::Integer(i)
         } else if let Ok(f) = trimmed.parse::<f64>() {
