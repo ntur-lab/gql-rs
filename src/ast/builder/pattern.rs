@@ -54,7 +54,9 @@ impl GQLAstBuilder {
         if let Some(match_block) = operand.matchStatementBlock() {
             let nested_matches = match_block.matchStatement_all();
             if nested_matches.is_empty() {
-                return Self::parse_error("CST not valid: empty matchStatementBlock in OPTIONAL MATCH");
+                return Self::parse_error(
+                    "CST not valid: empty matchStatementBlock in OPTIONAL MATCH",
+                );
             }
 
             let mut flattened = Vec::new();
@@ -104,7 +106,10 @@ impl GQLAstBuilder {
 
         Ok(MatchClause {
             optional,
-            match_clause: MatchClauseItem { patterns, span: span.clone() },
+            match_clause: MatchClauseItem {
+                patterns,
+                span: span.clone(),
+            },
             span: span.clone(),
         })
     }
@@ -144,7 +149,9 @@ impl GQLAstBuilder {
                     PathMode::Acyclic
                 }
             })
-            .or_else(|| search_prefix.and_then(|sp| Self::extract_path_mode_from_search_prefix(&sp)));
+            .or_else(|| {
+                search_prefix.and_then(|sp| Self::extract_path_mode_from_search_prefix(&sp))
+            });
 
         let mut alternatives: Vec<Vec<PatternElement>> = Vec::new();
         for path_term in Self::extract_path_terms(path_pattern)? {
@@ -159,10 +166,7 @@ impl GQLAstBuilder {
             return Self::parse_error("CST not valid: pathPatternExpression has no path terms");
         }
 
-        let elements = alternatives
-            .first()
-            .cloned()
-            .unwrap_or_default();
+        let elements = alternatives.first().cloned().unwrap_or_default();
 
         let alternation = match expression_flavor {
             PathExpressionFlavor::Single => None,
@@ -222,12 +226,18 @@ impl GQLAstBuilder {
             return Ok(());
         }
 
-        path_pattern.elements = Self::normalize_simplified_path_elements(std::mem::take(&mut path_pattern.elements), path_pattern.span.clone());
+        path_pattern.elements = Self::normalize_simplified_path_elements(
+            std::mem::take(&mut path_pattern.elements),
+            path_pattern.span.clone(),
+        );
         Self::validate_alternating_node_edge(&path_pattern.elements)?;
 
         if let Some(alternation) = &mut path_pattern.alternation {
             for elements in &mut alternation.alternatives {
-                *elements = Self::normalize_simplified_path_elements(std::mem::take(elements), path_pattern.span.clone());
+                *elements = Self::normalize_simplified_path_elements(
+                    std::mem::take(elements),
+                    path_pattern.span.clone(),
+                );
                 Self::validate_alternating_node_edge(elements)?;
             }
         }
@@ -263,7 +273,10 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to determine the flavor of a path expression based on its structure, classifying it as Single, Union, or MultisetAlternation depending on the presence of union or alternation operators in the expression. This classification is used to preserve the semantics of path expressions during AST construction and validation.
-    pub(super) fn normalize_simplified_path_elements(elements: Vec<PatternElement>, span: Span) -> Vec<PatternElement> {
+    pub(super) fn normalize_simplified_path_elements(
+        elements: Vec<PatternElement>,
+        span: Span,
+    ) -> Vec<PatternElement> {
         let mut normalized = Vec::new();
 
         for element in elements {
@@ -303,7 +316,9 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to determine the flavor of a path expression based on its structure, classifying it as Single, Union, or MultisetAlternation depending on the presence of union or alternation operators in the expression. This classification is used to preserve the semantics of path expressions during AST construction and validation.
-    pub(super) fn extract_simplified_pattern_text(path_pattern: &PathPatternContextAll) -> Option<String> {
+    pub(super) fn extract_simplified_pattern_text(
+        path_pattern: &PathPatternContextAll,
+    ) -> Option<String> {
         let path_expression = path_pattern.pathPatternExpression()?;
         let path_terms = Self::extract_path_terms_from_expression(&path_expression).ok()?;
 
@@ -315,33 +330,33 @@ impl GQLAstBuilder {
                             && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
                                 simplified_ctx,
                             ) = &*path_primary
-                                && let Some(simplified_expr) =
-                                    simplified_ctx.simplifiedPathPatternExpression()
-                                {
-                                    return Some(simplified_expr.get_text());
-                                }
+                            && let Some(simplified_expr) =
+                                simplified_ctx.simplifiedPathPatternExpression()
+                        {
+                            return Some(simplified_expr.get_text());
+                        }
                     }
                     PathFactorContextAll::PfQuantifiedPathPrimaryContext(ctx) => {
                         if let Some(path_primary) = ctx.pathPrimary()
                             && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
                                 simplified_ctx,
                             ) = &*path_primary
-                                && let Some(simplified_expr) =
-                                    simplified_ctx.simplifiedPathPatternExpression()
-                                {
-                                    return Some(simplified_expr.get_text());
-                                }
+                            && let Some(simplified_expr) =
+                                simplified_ctx.simplifiedPathPatternExpression()
+                        {
+                            return Some(simplified_expr.get_text());
+                        }
                     }
                     PathFactorContextAll::PfQuestionedPathPrimaryContext(ctx) => {
                         if let Some(path_primary) = ctx.pathPrimary()
                             && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
                                 simplified_ctx,
                             ) = &*path_primary
-                                && let Some(simplified_expr) =
-                                    simplified_ctx.simplifiedPathPatternExpression()
-                                {
-                                    return Some(simplified_expr.get_text());
-                                }
+                            && let Some(simplified_expr) =
+                                simplified_ctx.simplifiedPathPatternExpression()
+                        {
+                            return Some(simplified_expr.get_text());
+                        }
                     }
                     _ => {}
                 }
@@ -352,7 +367,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a PathSearch from a PathSearchPrefixContext
-    pub(super) fn build_path_search_from_prefix(prefix: &PathSearchPrefixContextAll) -> Option<PathSearch> {
+    pub(super) fn build_path_search_from_prefix(
+        prefix: &PathSearchPrefixContextAll,
+    ) -> Option<PathSearch> {
         if prefix.allPathSearch().is_some() {
             return Some(PathSearch::All);
         }
@@ -667,13 +684,14 @@ impl GQLAstBuilder {
 
         if let Some(neg) = sec.simplifiedNegation()
             && let Some(primary) = neg.simplifiedPrimary()
-                && let Some(label_expr) = Self::label_expr_from_simplified_primary(&primary) {
-                    return Some(Expression::Unary(UnaryExpression {
-                        operator: Operator::Not,
-                        expression: Box::new(label_expr),
-                        span: span.clone(),
-                    }));
-                }
+            && let Some(label_expr) = Self::label_expr_from_simplified_primary(&primary)
+        {
+            return Some(Expression::Unary(UnaryExpression {
+                operator: Operator::Not,
+                expression: Box::new(label_expr),
+                span: span.clone(),
+            }));
+        }
 
         None
     }
@@ -683,12 +701,14 @@ impl GQLAstBuilder {
         primary: &SimplifiedPrimaryContextAll,
     ) -> Option<Expression> {
         if let Some(label) = primary.labelName() {
-            return Some(Expression::Literal(Literal::String(Self::identifier_text(&label.get_text()))));
+            return Some(Expression::Literal(Literal::String(Self::identifier_text(
+                &label.get_text(),
+            ))));
         }
 
         if let Some(contents) = primary.simplifiedContents() {
-            let atoms = Self::build_simplified_atoms_from_contents(&contents, EdgeDirection::Both)
-                .ok()?;
+            let atoms =
+                Self::build_simplified_atoms_from_contents(&contents, EdgeDirection::Both).ok()?;
 
             if atoms.len() != 1 {
                 return None;
@@ -779,7 +799,11 @@ impl GQLAstBuilder {
                     );
                 }
 
-                left_atom.labels = Self::merge_conjunctive_labels(left_atom.labels, right_atom.labels, span.clone());
+                left_atom.labels = Self::merge_conjunctive_labels(
+                    left_atom.labels,
+                    right_atom.labels,
+                    span.clone(),
+                );
 
                 Ok(vec![left_atom])
             }
@@ -853,7 +877,10 @@ impl GQLAstBuilder {
         }
 
         let expected_hops = alternatives.first().map(|atoms| atoms.len()).unwrap_or(0);
-        if alternatives.iter().any(|atoms| atoms.len() != expected_hops) {
+        if alternatives
+            .iter()
+            .any(|atoms| atoms.len() != expected_hops)
+        {
             return Self::parse_error(format!(
                 "{} requires alternatives with equal hop length",
                 family_name
@@ -942,7 +969,9 @@ impl GQLAstBuilder {
     ) -> PathExpressionFlavor {
         match path_expression {
             PathPatternExpressionContextAll::PpePathTermContext(_) => PathExpressionFlavor::Single,
-            PathPatternExpressionContextAll::PpePatternUnionContext(_) => PathExpressionFlavor::Union,
+            PathPatternExpressionContextAll::PpePatternUnionContext(_) => {
+                PathExpressionFlavor::Union
+            }
             PathPatternExpressionContextAll::PpeMultisetAlternationContext(_) => {
                 PathExpressionFlavor::MultisetAlternation
             }
@@ -1160,11 +1189,18 @@ impl GQLAstBuilder {
                 })?;
 
                 let value = Self::build_expression_from_context(&value_ctx)?;
-                Ok(PropertyItem { key, value, span: span.clone(), })
+                Ok(PropertyItem {
+                    key,
+                    value,
+                    span: span.clone(),
+                })
             })
             .collect::<GqlResult<Vec<_>>>()?;
 
-        Ok(PropertyMap { properties, span: span.clone(), })
+        Ok(PropertyMap {
+            properties,
+            span: span.clone(),
+        })
     }
 
     /// Function to extract an edge pattern filler from an edge pattern context
@@ -1315,7 +1351,10 @@ impl GQLAstBuilder {
                 )
             })??;
 
-        Ok(WhereClause { condition, span: span.clone(),})
+        Ok(WhereClause {
+            condition,
+            span: span.clone(),
+        })
     }
 
     /// Function to build a FilterClause from a FilterStatementContext
@@ -1338,7 +1377,10 @@ impl GQLAstBuilder {
                         "CST not valid: booleanValueExpression missing in whereClause".into(),
                     )
                 })??;
-            return Ok(FilterClause { condition, span: span.clone(),});
+            return Ok(FilterClause {
+                condition,
+                span: span.clone(),
+            });
         }
 
         let condition = filter
@@ -1355,13 +1397,18 @@ impl GQLAstBuilder {
                 )
             })??;
 
-        Ok(FilterClause { condition, span: span.clone(), })
+        Ok(FilterClause {
+            condition,
+            span: span.clone(),
+        })
     }
 
     /// Function to build a ForClause from a ForStatementContext, extracting the variable and expression components from the CST and constructing the corresponding AST node.
-    pub(super) fn build_for_clause_from_context(for_stmt: &ForStatementContextAll) -> GqlResult<ForClause> {
+    pub(super) fn build_for_clause_from_context(
+        for_stmt: &ForStatementContextAll,
+    ) -> GqlResult<ForClause> {
         let span = Self::extract_span(for_stmt);
-        
+
         let for_item: Rc<
             antlr_rust::parser_rule_context::BaseParserRuleContext<'_, ForItemContextExt<'_>>,
         > = for_stmt.forItem().ok_or_else(|| {

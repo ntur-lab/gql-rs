@@ -20,686 +20,1716 @@
 #![allow(nonstandard_style)]
 #![allow(unused_imports)]
 #![allow(unused_variables)]
+use antlr_rust::PredictionContextCache;
+use antlr_rust::TokenSource;
 use antlr_rust::atn::ATN;
+use antlr_rust::atn_deserializer::ATNDeserializer;
 use antlr_rust::char_stream::CharStream;
+use antlr_rust::dfa::DFA;
+use antlr_rust::error_listener::ErrorListener;
 use antlr_rust::int_stream::IntStream;
 use antlr_rust::lexer::{BaseLexer, Lexer, LexerRecog};
-use antlr_rust::atn_deserializer::ATNDeserializer;
-use antlr_rust::dfa::DFA;
-use antlr_rust::lexer_atn_simulator::{LexerATNSimulator, ILexerATNSimulator};
-use antlr_rust::PredictionContextCache;
-use antlr_rust::recognizer::{Recognizer,Actions};
-use antlr_rust::error_listener::ErrorListener;
-use antlr_rust::TokenSource;
-use antlr_rust::token_factory::{TokenFactory,CommonTokenFactory,TokenAware};
+use antlr_rust::lexer_atn_simulator::{ILexerATNSimulator, LexerATNSimulator};
+use antlr_rust::parser_rule_context::{BaseParserRuleContext, ParserRuleContext, cast};
+use antlr_rust::recognizer::{Actions, Recognizer};
+use antlr_rust::rule_context::{BaseRuleContext, EmptyContext, EmptyCustomRuleContext};
 use antlr_rust::token::*;
-use antlr_rust::rule_context::{BaseRuleContext,EmptyCustomRuleContext,EmptyContext};
-use antlr_rust::parser_rule_context::{ParserRuleContext,BaseParserRuleContext,cast};
-use antlr_rust::vocabulary::{Vocabulary,VocabularyImpl};
+use antlr_rust::token_factory::{CommonTokenFactory, TokenAware, TokenFactory};
+use antlr_rust::vocabulary::{Vocabulary, VocabularyImpl};
 
-use antlr_rust::{lazy_static,Tid,TidAble,TidExt};
+use antlr_rust::{Tid, TidAble, TidExt, lazy_static};
 
-use std::sync::Arc;
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
+use std::rc::Rc;
+use std::sync::Arc;
 
+pub const IMPLIES: isize = 1;
+pub const BOOLEAN_LITERAL: isize = 2;
+pub const SINGLE_QUOTED_CHARACTER_SEQUENCE: isize = 3;
+pub const DOUBLE_QUOTED_CHARACTER_SEQUENCE: isize = 4;
+pub const ACCENT_QUOTED_CHARACTER_SEQUENCE: isize = 5;
+pub const NO_ESCAPE: isize = 6;
+pub const BYTE_STRING_LITERAL: isize = 7;
+pub const UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_EXACT_NUMBER_SUFFIX: isize = 8;
+pub const UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITHOUT_SUFFIX: isize = 9;
+pub const UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX: isize = 10;
+pub const UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_EXACT_NUMBER_SUFFIX: isize = 11;
+pub const UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITHOUT_SUFFIX: isize = 12;
+pub const UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX: isize = 13;
+pub const UNSIGNED_DECIMAL_INTEGER_WITH_EXACT_NUMBER_SUFFIX: isize = 14;
+pub const UNSIGNED_DECIMAL_INTEGER_WITH_APPROXIMATE_NUMBER_SUFFIX: isize = 15;
+pub const UNSIGNED_DECIMAL_INTEGER: isize = 16;
+pub const UNSIGNED_HEXADECIMAL_INTEGER: isize = 17;
+pub const UNSIGNED_OCTAL_INTEGER: isize = 18;
+pub const UNSIGNED_BINARY_INTEGER: isize = 19;
+pub const ABS: isize = 20;
+pub const ACOS: isize = 21;
+pub const ALL: isize = 22;
+pub const ALL_DIFFERENT: isize = 23;
+pub const AND: isize = 24;
+pub const ANY: isize = 25;
+pub const ARRAY: isize = 26;
+pub const AS: isize = 27;
+pub const ASC: isize = 28;
+pub const ASCENDING: isize = 29;
+pub const ASIN: isize = 30;
+pub const AT: isize = 31;
+pub const ATAN: isize = 32;
+pub const AVG: isize = 33;
+pub const BIG: isize = 34;
+pub const BIGINT: isize = 35;
+pub const BINARY: isize = 36;
+pub const BOOL: isize = 37;
+pub const BOOLEAN: isize = 38;
+pub const BOTH: isize = 39;
+pub const BTRIM: isize = 40;
+pub const BY: isize = 41;
+pub const BYTE_LENGTH: isize = 42;
+pub const BYTES: isize = 43;
+pub const CALL: isize = 44;
+pub const CARDINALITY: isize = 45;
+pub const CASE: isize = 46;
+pub const CAST: isize = 47;
+pub const CEIL: isize = 48;
+pub const CEILING: isize = 49;
+pub const CHAR: isize = 50;
+pub const CHAR_LENGTH: isize = 51;
+pub const CHARACTER_LENGTH: isize = 52;
+pub const CHARACTERISTICS: isize = 53;
+pub const CLOSE: isize = 54;
+pub const COALESCE: isize = 55;
+pub const COLLECT_LIST: isize = 56;
+pub const COMMIT: isize = 57;
+pub const COPY: isize = 58;
+pub const COS: isize = 59;
+pub const COSH: isize = 60;
+pub const COT: isize = 61;
+pub const COUNT: isize = 62;
+pub const CREATE: isize = 63;
+pub const CURRENT_DATE: isize = 64;
+pub const CURRENT_GRAPH: isize = 65;
+pub const CURRENT_PROPERTY_GRAPH: isize = 66;
+pub const CURRENT_SCHEMA: isize = 67;
+pub const CURRENT_TIME: isize = 68;
+pub const CURRENT_TIMESTAMP: isize = 69;
+pub const DATE: isize = 70;
+pub const DATETIME: isize = 71;
+pub const DAY: isize = 72;
+pub const DEC: isize = 73;
+pub const DECIMAL: isize = 74;
+pub const DEGREES: isize = 75;
+pub const DELETE: isize = 76;
+pub const DESC: isize = 77;
+pub const DESCENDING: isize = 78;
+pub const DETACH: isize = 79;
+pub const DISTINCT: isize = 80;
+pub const DOUBLE: isize = 81;
+pub const DROP: isize = 82;
+pub const DURATION: isize = 83;
+pub const DURATION_BETWEEN: isize = 84;
+pub const ELEMENT_ID: isize = 85;
+pub const ELSE: isize = 86;
+pub const END: isize = 87;
+pub const EXCEPT: isize = 88;
+pub const EXISTS: isize = 89;
+pub const EXP: isize = 90;
+pub const FILTER: isize = 91;
+pub const FINISH: isize = 92;
+pub const FLOAT: isize = 93;
+pub const FLOAT16: isize = 94;
+pub const FLOAT32: isize = 95;
+pub const FLOAT64: isize = 96;
+pub const FLOAT128: isize = 97;
+pub const FLOAT256: isize = 98;
+pub const FLOOR: isize = 99;
+pub const FOR: isize = 100;
+pub const FROM: isize = 101;
+pub const GROUP: isize = 102;
+pub const HAVING: isize = 103;
+pub const HOME_GRAPH: isize = 104;
+pub const HOME_PROPERTY_GRAPH: isize = 105;
+pub const HOME_SCHEMA: isize = 106;
+pub const HOUR: isize = 107;
+pub const IF: isize = 108;
+pub const IN: isize = 109;
+pub const INSERT: isize = 110;
+pub const INT: isize = 111;
+pub const INTEGER: isize = 112;
+pub const INT8: isize = 113;
+pub const INTEGER8: isize = 114;
+pub const INT16: isize = 115;
+pub const INTEGER16: isize = 116;
+pub const INT32: isize = 117;
+pub const INTEGER32: isize = 118;
+pub const INT64: isize = 119;
+pub const INTEGER64: isize = 120;
+pub const INT128: isize = 121;
+pub const INTEGER128: isize = 122;
+pub const INT256: isize = 123;
+pub const INTEGER256: isize = 124;
+pub const INTERSECT: isize = 125;
+pub const INTERVAL: isize = 126;
+pub const IS: isize = 127;
+pub const LEADING: isize = 128;
+pub const LEFT: isize = 129;
+pub const LET: isize = 130;
+pub const LIKE: isize = 131;
+pub const LIMIT: isize = 132;
+pub const LIST: isize = 133;
+pub const LN: isize = 134;
+pub const LOCAL: isize = 135;
+pub const LOCAL_DATETIME: isize = 136;
+pub const LOCAL_TIME: isize = 137;
+pub const LOCAL_TIMESTAMP: isize = 138;
+pub const LOG_KW: isize = 139;
+pub const LOG10: isize = 140;
+pub const LOWER: isize = 141;
+pub const LTRIM: isize = 142;
+pub const MATCH: isize = 143;
+pub const MAX: isize = 144;
+pub const MIN: isize = 145;
+pub const MINUTE: isize = 146;
+pub const MOD: isize = 147;
+pub const MONTH: isize = 148;
+pub const NEXT: isize = 149;
+pub const NODETACH: isize = 150;
+pub const NORMALIZE: isize = 151;
+pub const NOT: isize = 152;
+pub const NOTHING: isize = 153;
+pub const NULL_KW: isize = 154;
+pub const NULLS: isize = 155;
+pub const NULLIF: isize = 156;
+pub const OCTET_LENGTH: isize = 157;
+pub const OF: isize = 158;
+pub const OFFSET: isize = 159;
+pub const OPTIONAL: isize = 160;
+pub const OR: isize = 161;
+pub const ORDER: isize = 162;
+pub const OTHERWISE: isize = 163;
+pub const PARAMETER: isize = 164;
+pub const PARAMETERS: isize = 165;
+pub const PATH: isize = 166;
+pub const PATH_LENGTH: isize = 167;
+pub const PATHS: isize = 168;
+pub const PERCENTILE_CONT: isize = 169;
+pub const PERCENTILE_DISC: isize = 170;
+pub const POWER: isize = 171;
+pub const PRECISION: isize = 172;
+pub const PROPERTY_EXISTS: isize = 173;
+pub const RADIANS: isize = 174;
+pub const REAL: isize = 175;
+pub const RECORD: isize = 176;
+pub const REMOVE: isize = 177;
+pub const REPLACE: isize = 178;
+pub const RESET: isize = 179;
+pub const RETURN: isize = 180;
+pub const RIGHT: isize = 181;
+pub const ROLLBACK: isize = 182;
+pub const RTRIM: isize = 183;
+pub const SAME: isize = 184;
+pub const SCHEMA: isize = 185;
+pub const SECOND: isize = 186;
+pub const SELECT: isize = 187;
+pub const SESSION: isize = 188;
+pub const SESSION_USER: isize = 189;
+pub const SET: isize = 190;
+pub const SIGNED: isize = 191;
+pub const SIN: isize = 192;
+pub const SINH: isize = 193;
+pub const SIZE: isize = 194;
+pub const SKIP_RESERVED_WORD: isize = 195;
+pub const SMALL: isize = 196;
+pub const SMALLINT: isize = 197;
+pub const SQRT: isize = 198;
+pub const START: isize = 199;
+pub const STDDEV_POP: isize = 200;
+pub const STDDEV_SAMP: isize = 201;
+pub const STRING: isize = 202;
+pub const SUM: isize = 203;
+pub const TAN: isize = 204;
+pub const TANH: isize = 205;
+pub const THEN: isize = 206;
+pub const TIME: isize = 207;
+pub const TIMESTAMP: isize = 208;
+pub const TRAILING: isize = 209;
+pub const TRIM: isize = 210;
+pub const TYPED: isize = 211;
+pub const UBIGINT: isize = 212;
+pub const UINT: isize = 213;
+pub const UINT8: isize = 214;
+pub const UINT16: isize = 215;
+pub const UINT32: isize = 216;
+pub const UINT64: isize = 217;
+pub const UINT128: isize = 218;
+pub const UINT256: isize = 219;
+pub const UNION: isize = 220;
+pub const UNSIGNED: isize = 221;
+pub const UPPER: isize = 222;
+pub const USE: isize = 223;
+pub const USMALLINT: isize = 224;
+pub const VALUE: isize = 225;
+pub const VARBINARY: isize = 226;
+pub const VARCHAR: isize = 227;
+pub const VARIABLE: isize = 228;
+pub const WHEN: isize = 229;
+pub const WHERE: isize = 230;
+pub const WITH: isize = 231;
+pub const XOR: isize = 232;
+pub const YEAR: isize = 233;
+pub const YIELD: isize = 234;
+pub const ZONED: isize = 235;
+pub const ZONED_DATETIME: isize = 236;
+pub const ZONED_TIME: isize = 237;
+pub const ABSTRACT: isize = 238;
+pub const AGGREGATE: isize = 239;
+pub const AGGREGATES: isize = 240;
+pub const ALTER: isize = 241;
+pub const CATALOG: isize = 242;
+pub const CLEAR: isize = 243;
+pub const CLONE: isize = 244;
+pub const CONSTRAINT: isize = 245;
+pub const CURRENT_ROLE: isize = 246;
+pub const CURRENT_USER: isize = 247;
+pub const DATA: isize = 248;
+pub const DIRECTORY: isize = 249;
+pub const DRYRUN: isize = 250;
+pub const EXACT: isize = 251;
+pub const EXISTING: isize = 252;
+pub const FUNCTION: isize = 253;
+pub const GQLSTATUS: isize = 254;
+pub const GRANT: isize = 255;
+pub const INSTANT: isize = 256;
+pub const INFINITY_KW: isize = 257;
+pub const NUMBER: isize = 258;
+pub const NUMERIC: isize = 259;
+pub const ON: isize = 260;
+pub const OPEN: isize = 261;
+pub const PARTITION: isize = 262;
+pub const PROCEDURE: isize = 263;
+pub const PRODUCT: isize = 264;
+pub const PROJECT: isize = 265;
+pub const QUERY: isize = 266;
+pub const RECORDS: isize = 267;
+pub const REFERENCE: isize = 268;
+pub const RENAME: isize = 269;
+pub const REVOKE: isize = 270;
+pub const SUBSTRING: isize = 271;
+pub const SYSTEM_USER: isize = 272;
+pub const TEMPORAL: isize = 273;
+pub const UNIQUE: isize = 274;
+pub const UNIT: isize = 275;
+pub const VALUES: isize = 276;
+pub const ACYCLIC: isize = 277;
+pub const BINDING: isize = 278;
+pub const BINDINGS: isize = 279;
+pub const CONNECTING: isize = 280;
+pub const DESTINATION: isize = 281;
+pub const DIFFERENT: isize = 282;
+pub const DIRECTED: isize = 283;
+pub const EDGE: isize = 284;
+pub const EDGES: isize = 285;
+pub const ELEMENT: isize = 286;
+pub const ELEMENTS: isize = 287;
+pub const FIRST: isize = 288;
+pub const GRAPH: isize = 289;
+pub const GROUPS: isize = 290;
+pub const KEEP: isize = 291;
+pub const LABEL: isize = 292;
+pub const LABELED: isize = 293;
+pub const LABELS: isize = 294;
+pub const LAST: isize = 295;
+pub const NFC: isize = 296;
+pub const NFD: isize = 297;
+pub const NFKC: isize = 298;
+pub const NFKD: isize = 299;
+pub const NO: isize = 300;
+pub const NODE: isize = 301;
+pub const NORMALIZED: isize = 302;
+pub const ONLY: isize = 303;
+pub const ORDINALITY: isize = 304;
+pub const PROPERTY: isize = 305;
+pub const READ: isize = 306;
+pub const RELATIONSHIP: isize = 307;
+pub const RELATIONSHIPS: isize = 308;
+pub const REPEATABLE: isize = 309;
+pub const SHORTEST: isize = 310;
+pub const SIMPLE: isize = 311;
+pub const SOURCE: isize = 312;
+pub const TABLE: isize = 313;
+pub const TO: isize = 314;
+pub const TRAIL: isize = 315;
+pub const TRANSACTION: isize = 316;
+pub const TYPE: isize = 317;
+pub const UNDIRECTED: isize = 318;
+pub const VERTEX: isize = 319;
+pub const WALK: isize = 320;
+pub const WITHOUT: isize = 321;
+pub const WRITE: isize = 322;
+pub const ZONE: isize = 323;
+pub const REGULAR_IDENTIFIER: isize = 324;
+pub const SUBSTITUTED_PARAMETER_REFERENCE: isize = 325;
+pub const GENERAL_PARAMETER_REFERENCE: isize = 326;
+pub const MULTISET_ALTERNATION_OPERATOR: isize = 327;
+pub const BRACKET_RIGHT_ARROW: isize = 328;
+pub const BRACKET_TILDE_RIGHT_ARROW: isize = 329;
+pub const CONCATENATION_OPERATOR: isize = 330;
+pub const DOUBLE_COLON: isize = 331;
+pub const DOUBLE_DOLLAR_SIGN: isize = 332;
+pub const DOUBLE_PERIOD: isize = 333;
+pub const GREATER_THAN_OR_EQUALS_OPERATOR: isize = 334;
+pub const LEFT_ARROW: isize = 335;
+pub const LEFT_ARROW_TILDE: isize = 336;
+pub const LEFT_ARROW_BRACKET: isize = 337;
+pub const LEFT_ARROW_TILDE_BRACKET: isize = 338;
+pub const LEFT_MINUS_RIGHT: isize = 339;
+pub const LEFT_MINUS_SLASH: isize = 340;
+pub const LEFT_TILDE_SLASH: isize = 341;
+pub const LESS_THAN_OR_EQUALS_OPERATOR: isize = 342;
+pub const MINUS_LEFT_BRACKET: isize = 343;
+pub const MINUS_SLASH: isize = 344;
+pub const NOT_EQUALS_OPERATOR: isize = 345;
+pub const RIGHT_ARROW: isize = 346;
+pub const RIGHT_BRACKET_MINUS: isize = 347;
+pub const RIGHT_BRACKET_TILDE: isize = 348;
+pub const RIGHT_DOUBLE_ARROW: isize = 349;
+pub const SLASH_MINUS: isize = 350;
+pub const SLASH_MINUS_RIGHT: isize = 351;
+pub const SLASH_TILDE: isize = 352;
+pub const SLASH_TILDE_RIGHT: isize = 353;
+pub const TILDE_LEFT_BRACKET: isize = 354;
+pub const TILDE_RIGHT_ARROW: isize = 355;
+pub const TILDE_SLASH: isize = 356;
+pub const AMPERSAND: isize = 357;
+pub const ASTERISK: isize = 358;
+pub const COLON: isize = 359;
+pub const COMMA: isize = 360;
+pub const COMMERCIAL_AT: isize = 361;
+pub const DOLLAR_SIGN: isize = 362;
+pub const DOUBLE_QUOTE: isize = 363;
+pub const EQUALS_OPERATOR: isize = 364;
+pub const EXCLAMATION_MARK: isize = 365;
+pub const RIGHT_ANGLE_BRACKET: isize = 366;
+pub const GRAVE_ACCENT: isize = 367;
+pub const LEFT_BRACE: isize = 368;
+pub const LEFT_BRACKET: isize = 369;
+pub const LEFT_PAREN: isize = 370;
+pub const LEFT_ANGLE_BRACKET: isize = 371;
+pub const MINUS_SIGN: isize = 372;
+pub const PERCENT: isize = 373;
+pub const PERIOD: isize = 374;
+pub const PLUS_SIGN: isize = 375;
+pub const QUESTION_MARK: isize = 376;
+pub const QUOTE: isize = 377;
+pub const REVERSE_SOLIDUS: isize = 378;
+pub const RIGHT_BRACE: isize = 379;
+pub const RIGHT_BRACKET: isize = 380;
+pub const RIGHT_PAREN: isize = 381;
+pub const SOLIDUS: isize = 382;
+pub const TILDE: isize = 383;
+pub const UNDERSCORE: isize = 384;
+pub const VERTICAL_BAR: isize = 385;
+pub const SP: isize = 386;
+pub const WHITESPACE: isize = 387;
+pub const BRACKETED_COMMENT: isize = 388;
+pub const SIMPLE_COMMENT_SOLIDUS: isize = 389;
+pub const SIMPLE_COMMENT_MINUS: isize = 390;
+pub const channelNames: [&'static str; 0 + 2] = ["DEFAULT_TOKEN_CHANNEL", "HIDDEN"];
 
-	pub const IMPLIES:isize=1; 
-	pub const BOOLEAN_LITERAL:isize=2; 
-	pub const SINGLE_QUOTED_CHARACTER_SEQUENCE:isize=3; 
-	pub const DOUBLE_QUOTED_CHARACTER_SEQUENCE:isize=4; 
-	pub const ACCENT_QUOTED_CHARACTER_SEQUENCE:isize=5; 
-	pub const NO_ESCAPE:isize=6; 
-	pub const BYTE_STRING_LITERAL:isize=7; 
-	pub const UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_EXACT_NUMBER_SUFFIX:isize=8; 
-	pub const UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITHOUT_SUFFIX:isize=9; 
-	pub const UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX:isize=10; 
-	pub const UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_EXACT_NUMBER_SUFFIX:isize=11; 
-	pub const UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITHOUT_SUFFIX:isize=12; 
-	pub const UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX:isize=13; 
-	pub const UNSIGNED_DECIMAL_INTEGER_WITH_EXACT_NUMBER_SUFFIX:isize=14; 
-	pub const UNSIGNED_DECIMAL_INTEGER_WITH_APPROXIMATE_NUMBER_SUFFIX:isize=15; 
-	pub const UNSIGNED_DECIMAL_INTEGER:isize=16; 
-	pub const UNSIGNED_HEXADECIMAL_INTEGER:isize=17; 
-	pub const UNSIGNED_OCTAL_INTEGER:isize=18; 
-	pub const UNSIGNED_BINARY_INTEGER:isize=19; 
-	pub const ABS:isize=20; 
-	pub const ACOS:isize=21; 
-	pub const ALL:isize=22; 
-	pub const ALL_DIFFERENT:isize=23; 
-	pub const AND:isize=24; 
-	pub const ANY:isize=25; 
-	pub const ARRAY:isize=26; 
-	pub const AS:isize=27; 
-	pub const ASC:isize=28; 
-	pub const ASCENDING:isize=29; 
-	pub const ASIN:isize=30; 
-	pub const AT:isize=31; 
-	pub const ATAN:isize=32; 
-	pub const AVG:isize=33; 
-	pub const BIG:isize=34; 
-	pub const BIGINT:isize=35; 
-	pub const BINARY:isize=36; 
-	pub const BOOL:isize=37; 
-	pub const BOOLEAN:isize=38; 
-	pub const BOTH:isize=39; 
-	pub const BTRIM:isize=40; 
-	pub const BY:isize=41; 
-	pub const BYTE_LENGTH:isize=42; 
-	pub const BYTES:isize=43; 
-	pub const CALL:isize=44; 
-	pub const CARDINALITY:isize=45; 
-	pub const CASE:isize=46; 
-	pub const CAST:isize=47; 
-	pub const CEIL:isize=48; 
-	pub const CEILING:isize=49; 
-	pub const CHAR:isize=50; 
-	pub const CHAR_LENGTH:isize=51; 
-	pub const CHARACTER_LENGTH:isize=52; 
-	pub const CHARACTERISTICS:isize=53; 
-	pub const CLOSE:isize=54; 
-	pub const COALESCE:isize=55; 
-	pub const COLLECT_LIST:isize=56; 
-	pub const COMMIT:isize=57; 
-	pub const COPY:isize=58; 
-	pub const COS:isize=59; 
-	pub const COSH:isize=60; 
-	pub const COT:isize=61; 
-	pub const COUNT:isize=62; 
-	pub const CREATE:isize=63; 
-	pub const CURRENT_DATE:isize=64; 
-	pub const CURRENT_GRAPH:isize=65; 
-	pub const CURRENT_PROPERTY_GRAPH:isize=66; 
-	pub const CURRENT_SCHEMA:isize=67; 
-	pub const CURRENT_TIME:isize=68; 
-	pub const CURRENT_TIMESTAMP:isize=69; 
-	pub const DATE:isize=70; 
-	pub const DATETIME:isize=71; 
-	pub const DAY:isize=72; 
-	pub const DEC:isize=73; 
-	pub const DECIMAL:isize=74; 
-	pub const DEGREES:isize=75; 
-	pub const DELETE:isize=76; 
-	pub const DESC:isize=77; 
-	pub const DESCENDING:isize=78; 
-	pub const DETACH:isize=79; 
-	pub const DISTINCT:isize=80; 
-	pub const DOUBLE:isize=81; 
-	pub const DROP:isize=82; 
-	pub const DURATION:isize=83; 
-	pub const DURATION_BETWEEN:isize=84; 
-	pub const ELEMENT_ID:isize=85; 
-	pub const ELSE:isize=86; 
-	pub const END:isize=87; 
-	pub const EXCEPT:isize=88; 
-	pub const EXISTS:isize=89; 
-	pub const EXP:isize=90; 
-	pub const FILTER:isize=91; 
-	pub const FINISH:isize=92; 
-	pub const FLOAT:isize=93; 
-	pub const FLOAT16:isize=94; 
-	pub const FLOAT32:isize=95; 
-	pub const FLOAT64:isize=96; 
-	pub const FLOAT128:isize=97; 
-	pub const FLOAT256:isize=98; 
-	pub const FLOOR:isize=99; 
-	pub const FOR:isize=100; 
-	pub const FROM:isize=101; 
-	pub const GROUP:isize=102; 
-	pub const HAVING:isize=103; 
-	pub const HOME_GRAPH:isize=104; 
-	pub const HOME_PROPERTY_GRAPH:isize=105; 
-	pub const HOME_SCHEMA:isize=106; 
-	pub const HOUR:isize=107; 
-	pub const IF:isize=108; 
-	pub const IN:isize=109; 
-	pub const INSERT:isize=110; 
-	pub const INT:isize=111; 
-	pub const INTEGER:isize=112; 
-	pub const INT8:isize=113; 
-	pub const INTEGER8:isize=114; 
-	pub const INT16:isize=115; 
-	pub const INTEGER16:isize=116; 
-	pub const INT32:isize=117; 
-	pub const INTEGER32:isize=118; 
-	pub const INT64:isize=119; 
-	pub const INTEGER64:isize=120; 
-	pub const INT128:isize=121; 
-	pub const INTEGER128:isize=122; 
-	pub const INT256:isize=123; 
-	pub const INTEGER256:isize=124; 
-	pub const INTERSECT:isize=125; 
-	pub const INTERVAL:isize=126; 
-	pub const IS:isize=127; 
-	pub const LEADING:isize=128; 
-	pub const LEFT:isize=129; 
-	pub const LET:isize=130; 
-	pub const LIKE:isize=131; 
-	pub const LIMIT:isize=132; 
-	pub const LIST:isize=133; 
-	pub const LN:isize=134; 
-	pub const LOCAL:isize=135; 
-	pub const LOCAL_DATETIME:isize=136; 
-	pub const LOCAL_TIME:isize=137; 
-	pub const LOCAL_TIMESTAMP:isize=138; 
-	pub const LOG_KW:isize=139; 
-	pub const LOG10:isize=140; 
-	pub const LOWER:isize=141; 
-	pub const LTRIM:isize=142; 
-	pub const MATCH:isize=143; 
-	pub const MAX:isize=144; 
-	pub const MIN:isize=145; 
-	pub const MINUTE:isize=146; 
-	pub const MOD:isize=147; 
-	pub const MONTH:isize=148; 
-	pub const NEXT:isize=149; 
-	pub const NODETACH:isize=150; 
-	pub const NORMALIZE:isize=151; 
-	pub const NOT:isize=152; 
-	pub const NOTHING:isize=153; 
-	pub const NULL_KW:isize=154; 
-	pub const NULLS:isize=155; 
-	pub const NULLIF:isize=156; 
-	pub const OCTET_LENGTH:isize=157; 
-	pub const OF:isize=158; 
-	pub const OFFSET:isize=159; 
-	pub const OPTIONAL:isize=160; 
-	pub const OR:isize=161; 
-	pub const ORDER:isize=162; 
-	pub const OTHERWISE:isize=163; 
-	pub const PARAMETER:isize=164; 
-	pub const PARAMETERS:isize=165; 
-	pub const PATH:isize=166; 
-	pub const PATH_LENGTH:isize=167; 
-	pub const PATHS:isize=168; 
-	pub const PERCENTILE_CONT:isize=169; 
-	pub const PERCENTILE_DISC:isize=170; 
-	pub const POWER:isize=171; 
-	pub const PRECISION:isize=172; 
-	pub const PROPERTY_EXISTS:isize=173; 
-	pub const RADIANS:isize=174; 
-	pub const REAL:isize=175; 
-	pub const RECORD:isize=176; 
-	pub const REMOVE:isize=177; 
-	pub const REPLACE:isize=178; 
-	pub const RESET:isize=179; 
-	pub const RETURN:isize=180; 
-	pub const RIGHT:isize=181; 
-	pub const ROLLBACK:isize=182; 
-	pub const RTRIM:isize=183; 
-	pub const SAME:isize=184; 
-	pub const SCHEMA:isize=185; 
-	pub const SECOND:isize=186; 
-	pub const SELECT:isize=187; 
-	pub const SESSION:isize=188; 
-	pub const SESSION_USER:isize=189; 
-	pub const SET:isize=190; 
-	pub const SIGNED:isize=191; 
-	pub const SIN:isize=192; 
-	pub const SINH:isize=193; 
-	pub const SIZE:isize=194; 
-	pub const SKIP_RESERVED_WORD:isize=195; 
-	pub const SMALL:isize=196; 
-	pub const SMALLINT:isize=197; 
-	pub const SQRT:isize=198; 
-	pub const START:isize=199; 
-	pub const STDDEV_POP:isize=200; 
-	pub const STDDEV_SAMP:isize=201; 
-	pub const STRING:isize=202; 
-	pub const SUM:isize=203; 
-	pub const TAN:isize=204; 
-	pub const TANH:isize=205; 
-	pub const THEN:isize=206; 
-	pub const TIME:isize=207; 
-	pub const TIMESTAMP:isize=208; 
-	pub const TRAILING:isize=209; 
-	pub const TRIM:isize=210; 
-	pub const TYPED:isize=211; 
-	pub const UBIGINT:isize=212; 
-	pub const UINT:isize=213; 
-	pub const UINT8:isize=214; 
-	pub const UINT16:isize=215; 
-	pub const UINT32:isize=216; 
-	pub const UINT64:isize=217; 
-	pub const UINT128:isize=218; 
-	pub const UINT256:isize=219; 
-	pub const UNION:isize=220; 
-	pub const UNSIGNED:isize=221; 
-	pub const UPPER:isize=222; 
-	pub const USE:isize=223; 
-	pub const USMALLINT:isize=224; 
-	pub const VALUE:isize=225; 
-	pub const VARBINARY:isize=226; 
-	pub const VARCHAR:isize=227; 
-	pub const VARIABLE:isize=228; 
-	pub const WHEN:isize=229; 
-	pub const WHERE:isize=230; 
-	pub const WITH:isize=231; 
-	pub const XOR:isize=232; 
-	pub const YEAR:isize=233; 
-	pub const YIELD:isize=234; 
-	pub const ZONED:isize=235; 
-	pub const ZONED_DATETIME:isize=236; 
-	pub const ZONED_TIME:isize=237; 
-	pub const ABSTRACT:isize=238; 
-	pub const AGGREGATE:isize=239; 
-	pub const AGGREGATES:isize=240; 
-	pub const ALTER:isize=241; 
-	pub const CATALOG:isize=242; 
-	pub const CLEAR:isize=243; 
-	pub const CLONE:isize=244; 
-	pub const CONSTRAINT:isize=245; 
-	pub const CURRENT_ROLE:isize=246; 
-	pub const CURRENT_USER:isize=247; 
-	pub const DATA:isize=248; 
-	pub const DIRECTORY:isize=249; 
-	pub const DRYRUN:isize=250; 
-	pub const EXACT:isize=251; 
-	pub const EXISTING:isize=252; 
-	pub const FUNCTION:isize=253; 
-	pub const GQLSTATUS:isize=254; 
-	pub const GRANT:isize=255; 
-	pub const INSTANT:isize=256; 
-	pub const INFINITY_KW:isize=257; 
-	pub const NUMBER:isize=258; 
-	pub const NUMERIC:isize=259; 
-	pub const ON:isize=260; 
-	pub const OPEN:isize=261; 
-	pub const PARTITION:isize=262; 
-	pub const PROCEDURE:isize=263; 
-	pub const PRODUCT:isize=264; 
-	pub const PROJECT:isize=265; 
-	pub const QUERY:isize=266; 
-	pub const RECORDS:isize=267; 
-	pub const REFERENCE:isize=268; 
-	pub const RENAME:isize=269; 
-	pub const REVOKE:isize=270; 
-	pub const SUBSTRING:isize=271; 
-	pub const SYSTEM_USER:isize=272; 
-	pub const TEMPORAL:isize=273; 
-	pub const UNIQUE:isize=274; 
-	pub const UNIT:isize=275; 
-	pub const VALUES:isize=276; 
-	pub const ACYCLIC:isize=277; 
-	pub const BINDING:isize=278; 
-	pub const BINDINGS:isize=279; 
-	pub const CONNECTING:isize=280; 
-	pub const DESTINATION:isize=281; 
-	pub const DIFFERENT:isize=282; 
-	pub const DIRECTED:isize=283; 
-	pub const EDGE:isize=284; 
-	pub const EDGES:isize=285; 
-	pub const ELEMENT:isize=286; 
-	pub const ELEMENTS:isize=287; 
-	pub const FIRST:isize=288; 
-	pub const GRAPH:isize=289; 
-	pub const GROUPS:isize=290; 
-	pub const KEEP:isize=291; 
-	pub const LABEL:isize=292; 
-	pub const LABELED:isize=293; 
-	pub const LABELS:isize=294; 
-	pub const LAST:isize=295; 
-	pub const NFC:isize=296; 
-	pub const NFD:isize=297; 
-	pub const NFKC:isize=298; 
-	pub const NFKD:isize=299; 
-	pub const NO:isize=300; 
-	pub const NODE:isize=301; 
-	pub const NORMALIZED:isize=302; 
-	pub const ONLY:isize=303; 
-	pub const ORDINALITY:isize=304; 
-	pub const PROPERTY:isize=305; 
-	pub const READ:isize=306; 
-	pub const RELATIONSHIP:isize=307; 
-	pub const RELATIONSHIPS:isize=308; 
-	pub const REPEATABLE:isize=309; 
-	pub const SHORTEST:isize=310; 
-	pub const SIMPLE:isize=311; 
-	pub const SOURCE:isize=312; 
-	pub const TABLE:isize=313; 
-	pub const TO:isize=314; 
-	pub const TRAIL:isize=315; 
-	pub const TRANSACTION:isize=316; 
-	pub const TYPE:isize=317; 
-	pub const UNDIRECTED:isize=318; 
-	pub const VERTEX:isize=319; 
-	pub const WALK:isize=320; 
-	pub const WITHOUT:isize=321; 
-	pub const WRITE:isize=322; 
-	pub const ZONE:isize=323; 
-	pub const REGULAR_IDENTIFIER:isize=324; 
-	pub const SUBSTITUTED_PARAMETER_REFERENCE:isize=325; 
-	pub const GENERAL_PARAMETER_REFERENCE:isize=326; 
-	pub const MULTISET_ALTERNATION_OPERATOR:isize=327; 
-	pub const BRACKET_RIGHT_ARROW:isize=328; 
-	pub const BRACKET_TILDE_RIGHT_ARROW:isize=329; 
-	pub const CONCATENATION_OPERATOR:isize=330; 
-	pub const DOUBLE_COLON:isize=331; 
-	pub const DOUBLE_DOLLAR_SIGN:isize=332; 
-	pub const DOUBLE_PERIOD:isize=333; 
-	pub const GREATER_THAN_OR_EQUALS_OPERATOR:isize=334; 
-	pub const LEFT_ARROW:isize=335; 
-	pub const LEFT_ARROW_TILDE:isize=336; 
-	pub const LEFT_ARROW_BRACKET:isize=337; 
-	pub const LEFT_ARROW_TILDE_BRACKET:isize=338; 
-	pub const LEFT_MINUS_RIGHT:isize=339; 
-	pub const LEFT_MINUS_SLASH:isize=340; 
-	pub const LEFT_TILDE_SLASH:isize=341; 
-	pub const LESS_THAN_OR_EQUALS_OPERATOR:isize=342; 
-	pub const MINUS_LEFT_BRACKET:isize=343; 
-	pub const MINUS_SLASH:isize=344; 
-	pub const NOT_EQUALS_OPERATOR:isize=345; 
-	pub const RIGHT_ARROW:isize=346; 
-	pub const RIGHT_BRACKET_MINUS:isize=347; 
-	pub const RIGHT_BRACKET_TILDE:isize=348; 
-	pub const RIGHT_DOUBLE_ARROW:isize=349; 
-	pub const SLASH_MINUS:isize=350; 
-	pub const SLASH_MINUS_RIGHT:isize=351; 
-	pub const SLASH_TILDE:isize=352; 
-	pub const SLASH_TILDE_RIGHT:isize=353; 
-	pub const TILDE_LEFT_BRACKET:isize=354; 
-	pub const TILDE_RIGHT_ARROW:isize=355; 
-	pub const TILDE_SLASH:isize=356; 
-	pub const AMPERSAND:isize=357; 
-	pub const ASTERISK:isize=358; 
-	pub const COLON:isize=359; 
-	pub const COMMA:isize=360; 
-	pub const COMMERCIAL_AT:isize=361; 
-	pub const DOLLAR_SIGN:isize=362; 
-	pub const DOUBLE_QUOTE:isize=363; 
-	pub const EQUALS_OPERATOR:isize=364; 
-	pub const EXCLAMATION_MARK:isize=365; 
-	pub const RIGHT_ANGLE_BRACKET:isize=366; 
-	pub const GRAVE_ACCENT:isize=367; 
-	pub const LEFT_BRACE:isize=368; 
-	pub const LEFT_BRACKET:isize=369; 
-	pub const LEFT_PAREN:isize=370; 
-	pub const LEFT_ANGLE_BRACKET:isize=371; 
-	pub const MINUS_SIGN:isize=372; 
-	pub const PERCENT:isize=373; 
-	pub const PERIOD:isize=374; 
-	pub const PLUS_SIGN:isize=375; 
-	pub const QUESTION_MARK:isize=376; 
-	pub const QUOTE:isize=377; 
-	pub const REVERSE_SOLIDUS:isize=378; 
-	pub const RIGHT_BRACE:isize=379; 
-	pub const RIGHT_BRACKET:isize=380; 
-	pub const RIGHT_PAREN:isize=381; 
-	pub const SOLIDUS:isize=382; 
-	pub const TILDE:isize=383; 
-	pub const UNDERSCORE:isize=384; 
-	pub const VERTICAL_BAR:isize=385; 
-	pub const SP:isize=386; 
-	pub const WHITESPACE:isize=387; 
-	pub const BRACKETED_COMMENT:isize=388; 
-	pub const SIMPLE_COMMENT_SOLIDUS:isize=389; 
-	pub const SIMPLE_COMMENT_MINUS:isize=390;
-	pub const channelNames: [&'static str;0+2] = [
-		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
-	];
+pub const modeNames: [&'static str; 1] = ["DEFAULT_MODE"];
 
-	pub const modeNames: [&'static str;1] = [
-		"DEFAULT_MODE"
-	];
+pub const ruleNames: [&'static str; 470] = [
+    "IMPLIES",
+    "PARAMETER_NAME",
+    "BOOLEAN_LITERAL",
+    "SINGLE_QUOTED_CHARACTER_SEQUENCE",
+    "DOUBLE_QUOTED_CHARACTER_SEQUENCE",
+    "ACCENT_QUOTED_CHARACTER_SEQUENCE",
+    "NO_ESCAPE",
+    "UNBROKEN_SINGLE_QUOTED_CHARACTER_SEQUENCE",
+    "UNBROKEN_DOUBLE_QUOTED_CHARACTER_SEQUENCE",
+    "UNBROKEN_ACCENT_QUOTED_CHARACTER_SEQUENCE",
+    "SINGLE_QUOTED_CHARACTER_REPRESENTATION",
+    "DOUBLE_QUOTED_CHARACTER_REPRESENTATION",
+    "ACCENT_QUOTED_CHARACTER_REPRESENTATION",
+    "ESCAPED_CHARACTER",
+    "ESCAPED_REVERSE_SOLIDUS",
+    "ESCAPED_QUOTE",
+    "ESCAPED_DOUBLE_QUOTE",
+    "ESCAPED_GRAVE_ACCENT",
+    "ESCAPED_TAB",
+    "ESCAPED_BACKSPACE",
+    "ESCAPED_NEW_LINE",
+    "ESCAPED_CARRIAGE_RETURN",
+    "ESCAPED_FORM_FEED",
+    "ESCAPED_UNICODE4_DIGIT_VALUE",
+    "ESCAPED_UNICODE6_DIGIT_VALUE",
+    "START_UNICODE4",
+    "START_UNICODE6",
+    "BYTE_STRING_LITERAL",
+    "UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_EXACT_NUMBER_SUFFIX",
+    "UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITHOUT_SUFFIX",
+    "UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX",
+    "UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_EXACT_NUMBER_SUFFIX",
+    "UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITHOUT_SUFFIX",
+    "UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX",
+    "UNSIGNED_DECIMAL_INTEGER_WITH_EXACT_NUMBER_SUFFIX",
+    "UNSIGNED_DECIMAL_INTEGER_WITH_APPROXIMATE_NUMBER_SUFFIX",
+    "UNSIGNED_DECIMAL_INTEGER",
+    "EXACT_NUMBER_SUFFIX",
+    "UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION",
+    "MANTISSA",
+    "EXPONENT",
+    "UNSIGNED_DECIMAL_IN_COMMON_NOTATION",
+    "SIGNED_DECIMAL_INTEGER",
+    "UNSIGNED_HEXADECIMAL_INTEGER",
+    "START_HEX",
+    "UNSIGNED_OCTAL_INTEGER",
+    "START_OCTAL",
+    "UNSIGNED_BINARY_INTEGER",
+    "START_BIN",
+    "APPROXIMATE_NUMBER_SUFFIX",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "Q",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+    "ABS",
+    "ACOS",
+    "ALL",
+    "ALL_DIFFERENT",
+    "AND",
+    "ANY",
+    "ARRAY",
+    "AS",
+    "ASC",
+    "ASCENDING",
+    "ASIN",
+    "AT",
+    "ATAN",
+    "AVG",
+    "BIG",
+    "BIGINT",
+    "BINARY",
+    "BOOL",
+    "BOOLEAN",
+    "BOTH",
+    "BTRIM",
+    "BY",
+    "BYTE_LENGTH",
+    "BYTES",
+    "CALL",
+    "CARDINALITY",
+    "CASE",
+    "CAST",
+    "CEIL",
+    "CEILING",
+    "CHAR",
+    "CHAR_LENGTH",
+    "CHARACTER_LENGTH",
+    "CHARACTERISTICS",
+    "CLOSE",
+    "COALESCE",
+    "COLLECT_LIST",
+    "COMMIT",
+    "COPY",
+    "COS",
+    "COSH",
+    "COT",
+    "COUNT",
+    "CREATE",
+    "CURRENT_DATE",
+    "CURRENT_GRAPH",
+    "CURRENT_PROPERTY_GRAPH",
+    "CURRENT_SCHEMA",
+    "CURRENT_TIME",
+    "CURRENT_TIMESTAMP",
+    "DATE",
+    "DATETIME",
+    "DAY",
+    "DEC",
+    "DECIMAL",
+    "DEGREES",
+    "DELETE",
+    "DESC",
+    "DESCENDING",
+    "DETACH",
+    "DISTINCT",
+    "DOUBLE",
+    "DROP",
+    "DURATION",
+    "DURATION_BETWEEN",
+    "ELEMENT_ID",
+    "ELSE",
+    "END",
+    "EXCEPT",
+    "EXISTS",
+    "EXP",
+    "FILTER",
+    "FINISH",
+    "FLOAT",
+    "FLOAT16",
+    "FLOAT32",
+    "FLOAT64",
+    "FLOAT128",
+    "FLOAT256",
+    "FLOOR",
+    "FOR",
+    "FROM",
+    "GROUP",
+    "HAVING",
+    "HOME_GRAPH",
+    "HOME_PROPERTY_GRAPH",
+    "HOME_SCHEMA",
+    "HOUR",
+    "IF",
+    "IN",
+    "INSERT",
+    "INT",
+    "INTEGER",
+    "INT8",
+    "INTEGER8",
+    "INT16",
+    "INTEGER16",
+    "INT32",
+    "INTEGER32",
+    "INT64",
+    "INTEGER64",
+    "INT128",
+    "INTEGER128",
+    "INT256",
+    "INTEGER256",
+    "INTERSECT",
+    "INTERVAL",
+    "IS",
+    "LEADING",
+    "LEFT",
+    "LET",
+    "LIKE",
+    "LIMIT",
+    "LIST",
+    "LN",
+    "LOCAL",
+    "LOCAL_DATETIME",
+    "LOCAL_TIME",
+    "LOCAL_TIMESTAMP",
+    "LOG_KW",
+    "LOG10",
+    "LOWER",
+    "LTRIM",
+    "MATCH",
+    "MAX",
+    "MIN",
+    "MINUTE",
+    "MOD",
+    "MONTH",
+    "NEXT",
+    "NODETACH",
+    "NORMALIZE",
+    "NOT",
+    "NOTHING",
+    "NULL_KW",
+    "NULLS",
+    "NULLIF",
+    "OCTET_LENGTH",
+    "OF",
+    "OFFSET",
+    "OPTIONAL",
+    "OR",
+    "ORDER",
+    "OTHERWISE",
+    "PARAMETER",
+    "PARAMETERS",
+    "PATH",
+    "PATH_LENGTH",
+    "PATHS",
+    "PERCENTILE_CONT",
+    "PERCENTILE_DISC",
+    "POWER",
+    "PRECISION",
+    "PROPERTY_EXISTS",
+    "RADIANS",
+    "REAL",
+    "RECORD",
+    "REMOVE",
+    "REPLACE",
+    "RESET",
+    "RETURN",
+    "RIGHT",
+    "ROLLBACK",
+    "RTRIM",
+    "SAME",
+    "SCHEMA",
+    "SECOND",
+    "SELECT",
+    "SESSION",
+    "SESSION_USER",
+    "SET",
+    "SIGNED",
+    "SIN",
+    "SINH",
+    "SIZE",
+    "SKIP_RESERVED_WORD",
+    "SMALL",
+    "SMALLINT",
+    "SQRT",
+    "START",
+    "STDDEV_POP",
+    "STDDEV_SAMP",
+    "STRING",
+    "SUM",
+    "TAN",
+    "TANH",
+    "THEN",
+    "TIME",
+    "TIMESTAMP",
+    "TRAILING",
+    "TRIM",
+    "TYPED",
+    "UBIGINT",
+    "UINT",
+    "UINT8",
+    "UINT16",
+    "UINT32",
+    "UINT64",
+    "UINT128",
+    "UINT256",
+    "UNION",
+    "UNSIGNED",
+    "UPPER",
+    "USE",
+    "USMALLINT",
+    "VALUE",
+    "VARBINARY",
+    "VARCHAR",
+    "VARIABLE",
+    "WHEN",
+    "WHERE",
+    "WITH",
+    "XOR",
+    "YEAR",
+    "YIELD",
+    "ZONED",
+    "ZONED_DATETIME",
+    "ZONED_TIME",
+    "ABSTRACT",
+    "AGGREGATE",
+    "AGGREGATES",
+    "ALTER",
+    "CATALOG",
+    "CLEAR",
+    "CLONE",
+    "CONSTRAINT",
+    "CURRENT_ROLE",
+    "CURRENT_USER",
+    "DATA",
+    "DIRECTORY",
+    "DRYRUN",
+    "EXACT",
+    "EXISTING",
+    "FUNCTION",
+    "GQLSTATUS",
+    "GRANT",
+    "INSTANT",
+    "INFINITY_KW",
+    "NUMBER",
+    "NUMERIC",
+    "ON",
+    "OPEN",
+    "PARTITION",
+    "PROCEDURE",
+    "PRODUCT",
+    "PROJECT",
+    "QUERY",
+    "RECORDS",
+    "REFERENCE",
+    "RENAME",
+    "REVOKE",
+    "SUBSTRING",
+    "SYSTEM_USER",
+    "TEMPORAL",
+    "UNIQUE",
+    "UNIT",
+    "VALUES",
+    "ACYCLIC",
+    "BINDING",
+    "BINDINGS",
+    "CONNECTING",
+    "DESTINATION",
+    "DIFFERENT",
+    "DIRECTED",
+    "EDGE",
+    "EDGES",
+    "ELEMENT",
+    "ELEMENTS",
+    "FIRST",
+    "GRAPH",
+    "GROUPS",
+    "KEEP",
+    "LABEL",
+    "LABELED",
+    "LABELS",
+    "LAST",
+    "NFC",
+    "NFD",
+    "NFKC",
+    "NFKD",
+    "NO",
+    "NODE",
+    "NORMALIZED",
+    "ONLY",
+    "ORDINALITY",
+    "PROPERTY",
+    "READ",
+    "RELATIONSHIP",
+    "RELATIONSHIPS",
+    "REPEATABLE",
+    "SHORTEST",
+    "SIMPLE",
+    "SOURCE",
+    "TABLE",
+    "TO",
+    "TRAIL",
+    "TRANSACTION",
+    "TYPE",
+    "UNDIRECTED",
+    "VERTEX",
+    "WALK",
+    "WITHOUT",
+    "WRITE",
+    "ZONE",
+    "SEPARATED_IDENTIFIER",
+    "REGULAR_IDENTIFIER",
+    "EXTENDED_IDENTIFIER",
+    "DELIMITED_IDENTIFIER",
+    "SUBSTITUTED_PARAMETER_REFERENCE",
+    "GENERAL_PARAMETER_REFERENCE",
+    "IDENTIFIER_START",
+    "IDENTIFIER_EXTEND",
+    "ID_Start",
+    "ID_Continue",
+    "MULTISET_ALTERNATION_OPERATOR",
+    "BRACKET_RIGHT_ARROW",
+    "BRACKET_TILDE_RIGHT_ARROW",
+    "CONCATENATION_OPERATOR",
+    "DOUBLE_COLON",
+    "DOUBLE_DOLLAR_SIGN",
+    "DOUBLE_PERIOD",
+    "GREATER_THAN_OR_EQUALS_OPERATOR",
+    "LEFT_ARROW",
+    "LEFT_ARROW_TILDE",
+    "LEFT_ARROW_BRACKET",
+    "LEFT_ARROW_TILDE_BRACKET",
+    "LEFT_MINUS_RIGHT",
+    "LEFT_MINUS_SLASH",
+    "LEFT_TILDE_SLASH",
+    "LESS_THAN_OR_EQUALS_OPERATOR",
+    "MINUS_LEFT_BRACKET",
+    "MINUS_SLASH",
+    "NOT_EQUALS_OPERATOR",
+    "RIGHT_ARROW",
+    "RIGHT_BRACKET_MINUS",
+    "RIGHT_BRACKET_TILDE",
+    "RIGHT_DOUBLE_ARROW",
+    "SLASH_MINUS",
+    "SLASH_MINUS_RIGHT",
+    "SLASH_TILDE",
+    "SLASH_TILDE_RIGHT",
+    "TILDE_LEFT_BRACKET",
+    "TILDE_RIGHT_ARROW",
+    "TILDE_SLASH",
+    "AMPERSAND",
+    "ASTERISK",
+    "COLON",
+    "COMMA",
+    "COMMERCIAL_AT",
+    "DOLLAR_SIGN",
+    "DOUBLE_QUOTE",
+    "EQUALS_OPERATOR",
+    "EXCLAMATION_MARK",
+    "RIGHT_ANGLE_BRACKET",
+    "GRAVE_ACCENT",
+    "LEFT_BRACE",
+    "LEFT_BRACKET",
+    "LEFT_PAREN",
+    "LEFT_ANGLE_BRACKET",
+    "MINUS_SIGN",
+    "PERCENT",
+    "PERIOD",
+    "PLUS_SIGN",
+    "QUESTION_MARK",
+    "QUOTE",
+    "REVERSE_SOLIDUS",
+    "RIGHT_BRACE",
+    "RIGHT_BRACKET",
+    "RIGHT_PAREN",
+    "SOLIDUS",
+    "TILDE",
+    "UNDERSCORE",
+    "VERTICAL_BAR",
+    "HEX_DIGIT",
+    "DIGIT",
+    "OCTAL_DIGIT",
+    "BINARY_DIGIT",
+    "SP",
+    "WHITESPACE",
+    "BRACKETED_COMMENT",
+    "SIMPLE_COMMENT_SOLIDUS",
+    "SIMPLE_COMMENT_MINUS",
+    "GS",
+    "FS",
+    "CR",
+    "Sc",
+    "SPACE",
+    "Pc",
+    "TAB",
+    "LF",
+    "VT",
+    "US",
+    "FF",
+    "RS",
+];
 
-	pub const ruleNames: [&'static str;470] = [
-		"IMPLIES", "PARAMETER_NAME", "BOOLEAN_LITERAL", "SINGLE_QUOTED_CHARACTER_SEQUENCE", 
-		"DOUBLE_QUOTED_CHARACTER_SEQUENCE", "ACCENT_QUOTED_CHARACTER_SEQUENCE", 
-		"NO_ESCAPE", "UNBROKEN_SINGLE_QUOTED_CHARACTER_SEQUENCE", "UNBROKEN_DOUBLE_QUOTED_CHARACTER_SEQUENCE", 
-		"UNBROKEN_ACCENT_QUOTED_CHARACTER_SEQUENCE", "SINGLE_QUOTED_CHARACTER_REPRESENTATION", 
-		"DOUBLE_QUOTED_CHARACTER_REPRESENTATION", "ACCENT_QUOTED_CHARACTER_REPRESENTATION", 
-		"ESCAPED_CHARACTER", "ESCAPED_REVERSE_SOLIDUS", "ESCAPED_QUOTE", "ESCAPED_DOUBLE_QUOTE", 
-		"ESCAPED_GRAVE_ACCENT", "ESCAPED_TAB", "ESCAPED_BACKSPACE", "ESCAPED_NEW_LINE", 
-		"ESCAPED_CARRIAGE_RETURN", "ESCAPED_FORM_FEED", "ESCAPED_UNICODE4_DIGIT_VALUE", 
-		"ESCAPED_UNICODE6_DIGIT_VALUE", "START_UNICODE4", "START_UNICODE6", "BYTE_STRING_LITERAL", 
-		"UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_EXACT_NUMBER_SUFFIX", "UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITHOUT_SUFFIX", 
-		"UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX", 
-		"UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_EXACT_NUMBER_SUFFIX", "UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITHOUT_SUFFIX", 
-		"UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX", 
-		"UNSIGNED_DECIMAL_INTEGER_WITH_EXACT_NUMBER_SUFFIX", "UNSIGNED_DECIMAL_INTEGER_WITH_APPROXIMATE_NUMBER_SUFFIX", 
-		"UNSIGNED_DECIMAL_INTEGER", "EXACT_NUMBER_SUFFIX", "UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION", 
-		"MANTISSA", "EXPONENT", "UNSIGNED_DECIMAL_IN_COMMON_NOTATION", "SIGNED_DECIMAL_INTEGER", 
-		"UNSIGNED_HEXADECIMAL_INTEGER", "START_HEX", "UNSIGNED_OCTAL_INTEGER", 
-		"START_OCTAL", "UNSIGNED_BINARY_INTEGER", "START_BIN", "APPROXIMATE_NUMBER_SUFFIX", 
-		"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", 
-		"O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "ABS", "ACOS", 
-		"ALL", "ALL_DIFFERENT", "AND", "ANY", "ARRAY", "AS", "ASC", "ASCENDING", 
-		"ASIN", "AT", "ATAN", "AVG", "BIG", "BIGINT", "BINARY", "BOOL", "BOOLEAN", 
-		"BOTH", "BTRIM", "BY", "BYTE_LENGTH", "BYTES", "CALL", "CARDINALITY", 
-		"CASE", "CAST", "CEIL", "CEILING", "CHAR", "CHAR_LENGTH", "CHARACTER_LENGTH", 
-		"CHARACTERISTICS", "CLOSE", "COALESCE", "COLLECT_LIST", "COMMIT", "COPY", 
-		"COS", "COSH", "COT", "COUNT", "CREATE", "CURRENT_DATE", "CURRENT_GRAPH", 
-		"CURRENT_PROPERTY_GRAPH", "CURRENT_SCHEMA", "CURRENT_TIME", "CURRENT_TIMESTAMP", 
-		"DATE", "DATETIME", "DAY", "DEC", "DECIMAL", "DEGREES", "DELETE", "DESC", 
-		"DESCENDING", "DETACH", "DISTINCT", "DOUBLE", "DROP", "DURATION", "DURATION_BETWEEN", 
-		"ELEMENT_ID", "ELSE", "END", "EXCEPT", "EXISTS", "EXP", "FILTER", "FINISH", 
-		"FLOAT", "FLOAT16", "FLOAT32", "FLOAT64", "FLOAT128", "FLOAT256", "FLOOR", 
-		"FOR", "FROM", "GROUP", "HAVING", "HOME_GRAPH", "HOME_PROPERTY_GRAPH", 
-		"HOME_SCHEMA", "HOUR", "IF", "IN", "INSERT", "INT", "INTEGER", "INT8", 
-		"INTEGER8", "INT16", "INTEGER16", "INT32", "INTEGER32", "INT64", "INTEGER64", 
-		"INT128", "INTEGER128", "INT256", "INTEGER256", "INTERSECT", "INTERVAL", 
-		"IS", "LEADING", "LEFT", "LET", "LIKE", "LIMIT", "LIST", "LN", "LOCAL", 
-		"LOCAL_DATETIME", "LOCAL_TIME", "LOCAL_TIMESTAMP", "LOG_KW", "LOG10", 
-		"LOWER", "LTRIM", "MATCH", "MAX", "MIN", "MINUTE", "MOD", "MONTH", "NEXT", 
-		"NODETACH", "NORMALIZE", "NOT", "NOTHING", "NULL_KW", "NULLS", "NULLIF", 
-		"OCTET_LENGTH", "OF", "OFFSET", "OPTIONAL", "OR", "ORDER", "OTHERWISE", 
-		"PARAMETER", "PARAMETERS", "PATH", "PATH_LENGTH", "PATHS", "PERCENTILE_CONT", 
-		"PERCENTILE_DISC", "POWER", "PRECISION", "PROPERTY_EXISTS", "RADIANS", 
-		"REAL", "RECORD", "REMOVE", "REPLACE", "RESET", "RETURN", "RIGHT", "ROLLBACK", 
-		"RTRIM", "SAME", "SCHEMA", "SECOND", "SELECT", "SESSION", "SESSION_USER", 
-		"SET", "SIGNED", "SIN", "SINH", "SIZE", "SKIP_RESERVED_WORD", "SMALL", 
-		"SMALLINT", "SQRT", "START", "STDDEV_POP", "STDDEV_SAMP", "STRING", "SUM", 
-		"TAN", "TANH", "THEN", "TIME", "TIMESTAMP", "TRAILING", "TRIM", "TYPED", 
-		"UBIGINT", "UINT", "UINT8", "UINT16", "UINT32", "UINT64", "UINT128", "UINT256", 
-		"UNION", "UNSIGNED", "UPPER", "USE", "USMALLINT", "VALUE", "VARBINARY", 
-		"VARCHAR", "VARIABLE", "WHEN", "WHERE", "WITH", "XOR", "YEAR", "YIELD", 
-		"ZONED", "ZONED_DATETIME", "ZONED_TIME", "ABSTRACT", "AGGREGATE", "AGGREGATES", 
-		"ALTER", "CATALOG", "CLEAR", "CLONE", "CONSTRAINT", "CURRENT_ROLE", "CURRENT_USER", 
-		"DATA", "DIRECTORY", "DRYRUN", "EXACT", "EXISTING", "FUNCTION", "GQLSTATUS", 
-		"GRANT", "INSTANT", "INFINITY_KW", "NUMBER", "NUMERIC", "ON", "OPEN", 
-		"PARTITION", "PROCEDURE", "PRODUCT", "PROJECT", "QUERY", "RECORDS", "REFERENCE", 
-		"RENAME", "REVOKE", "SUBSTRING", "SYSTEM_USER", "TEMPORAL", "UNIQUE", 
-		"UNIT", "VALUES", "ACYCLIC", "BINDING", "BINDINGS", "CONNECTING", "DESTINATION", 
-		"DIFFERENT", "DIRECTED", "EDGE", "EDGES", "ELEMENT", "ELEMENTS", "FIRST", 
-		"GRAPH", "GROUPS", "KEEP", "LABEL", "LABELED", "LABELS", "LAST", "NFC", 
-		"NFD", "NFKC", "NFKD", "NO", "NODE", "NORMALIZED", "ONLY", "ORDINALITY", 
-		"PROPERTY", "READ", "RELATIONSHIP", "RELATIONSHIPS", "REPEATABLE", "SHORTEST", 
-		"SIMPLE", "SOURCE", "TABLE", "TO", "TRAIL", "TRANSACTION", "TYPE", "UNDIRECTED", 
-		"VERTEX", "WALK", "WITHOUT", "WRITE", "ZONE", "SEPARATED_IDENTIFIER", 
-		"REGULAR_IDENTIFIER", "EXTENDED_IDENTIFIER", "DELIMITED_IDENTIFIER", "SUBSTITUTED_PARAMETER_REFERENCE", 
-		"GENERAL_PARAMETER_REFERENCE", "IDENTIFIER_START", "IDENTIFIER_EXTEND", 
-		"ID_Start", "ID_Continue", "MULTISET_ALTERNATION_OPERATOR", "BRACKET_RIGHT_ARROW", 
-		"BRACKET_TILDE_RIGHT_ARROW", "CONCATENATION_OPERATOR", "DOUBLE_COLON", 
-		"DOUBLE_DOLLAR_SIGN", "DOUBLE_PERIOD", "GREATER_THAN_OR_EQUALS_OPERATOR", 
-		"LEFT_ARROW", "LEFT_ARROW_TILDE", "LEFT_ARROW_BRACKET", "LEFT_ARROW_TILDE_BRACKET", 
-		"LEFT_MINUS_RIGHT", "LEFT_MINUS_SLASH", "LEFT_TILDE_SLASH", "LESS_THAN_OR_EQUALS_OPERATOR", 
-		"MINUS_LEFT_BRACKET", "MINUS_SLASH", "NOT_EQUALS_OPERATOR", "RIGHT_ARROW", 
-		"RIGHT_BRACKET_MINUS", "RIGHT_BRACKET_TILDE", "RIGHT_DOUBLE_ARROW", "SLASH_MINUS", 
-		"SLASH_MINUS_RIGHT", "SLASH_TILDE", "SLASH_TILDE_RIGHT", "TILDE_LEFT_BRACKET", 
-		"TILDE_RIGHT_ARROW", "TILDE_SLASH", "AMPERSAND", "ASTERISK", "COLON", 
-		"COMMA", "COMMERCIAL_AT", "DOLLAR_SIGN", "DOUBLE_QUOTE", "EQUALS_OPERATOR", 
-		"EXCLAMATION_MARK", "RIGHT_ANGLE_BRACKET", "GRAVE_ACCENT", "LEFT_BRACE", 
-		"LEFT_BRACKET", "LEFT_PAREN", "LEFT_ANGLE_BRACKET", "MINUS_SIGN", "PERCENT", 
-		"PERIOD", "PLUS_SIGN", "QUESTION_MARK", "QUOTE", "REVERSE_SOLIDUS", "RIGHT_BRACE", 
-		"RIGHT_BRACKET", "RIGHT_PAREN", "SOLIDUS", "TILDE", "UNDERSCORE", "VERTICAL_BAR", 
-		"HEX_DIGIT", "DIGIT", "OCTAL_DIGIT", "BINARY_DIGIT", "SP", "WHITESPACE", 
-		"BRACKETED_COMMENT", "SIMPLE_COMMENT_SOLIDUS", "SIMPLE_COMMENT_MINUS", 
-		"GS", "FS", "CR", "Sc", "SPACE", "Pc", "TAB", "LF", "VT", "US", "FF", 
-		"RS"
-	];
+pub const _LITERAL_NAMES: [Option<&'static str>; 386] = [
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    Some("'|+|'"),
+    Some("']->'"),
+    Some("']~>'"),
+    Some("'||'"),
+    Some("'::'"),
+    Some("'$$'"),
+    Some("'..'"),
+    Some("'>='"),
+    Some("'<-'"),
+    Some("'<~'"),
+    Some("'<-['"),
+    Some("'<~['"),
+    Some("'<->'"),
+    Some("'<-/'"),
+    Some("'<~/'"),
+    Some("'<='"),
+    Some("'-['"),
+    Some("'-/'"),
+    Some("'<>'"),
+    Some("'->'"),
+    Some("']-'"),
+    Some("']~'"),
+    Some("'=>'"),
+    Some("'/-'"),
+    Some("'/->'"),
+    Some("'/~'"),
+    Some("'/~>'"),
+    Some("'~['"),
+    Some("'~>'"),
+    Some("'~/'"),
+    Some("'&'"),
+    Some("'*'"),
+    Some("':'"),
+    Some("','"),
+    Some("'@'"),
+    Some("'$'"),
+    Some("'\"'"),
+    Some("'='"),
+    Some("'!'"),
+    Some("'>'"),
+    Some("'`'"),
+    Some("'{'"),
+    Some("'['"),
+    Some("'('"),
+    Some("'<'"),
+    Some("'-'"),
+    Some("'%'"),
+    Some("'.'"),
+    Some("'+'"),
+    Some("'?'"),
+    Some("'''"),
+    Some("'\\'"),
+    Some("'}'"),
+    Some("']'"),
+    Some("')'"),
+    Some("'/'"),
+    Some("'~'"),
+    Some("'_'"),
+    Some("'|'"),
+];
+pub const _SYMBOLIC_NAMES: [Option<&'static str>; 391] = [
+    None,
+    Some("IMPLIES"),
+    Some("BOOLEAN_LITERAL"),
+    Some("SINGLE_QUOTED_CHARACTER_SEQUENCE"),
+    Some("DOUBLE_QUOTED_CHARACTER_SEQUENCE"),
+    Some("ACCENT_QUOTED_CHARACTER_SEQUENCE"),
+    Some("NO_ESCAPE"),
+    Some("BYTE_STRING_LITERAL"),
+    Some("UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_EXACT_NUMBER_SUFFIX"),
+    Some("UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITHOUT_SUFFIX"),
+    Some("UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX"),
+    Some("UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_EXACT_NUMBER_SUFFIX"),
+    Some("UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITHOUT_SUFFIX"),
+    Some("UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX"),
+    Some("UNSIGNED_DECIMAL_INTEGER_WITH_EXACT_NUMBER_SUFFIX"),
+    Some("UNSIGNED_DECIMAL_INTEGER_WITH_APPROXIMATE_NUMBER_SUFFIX"),
+    Some("UNSIGNED_DECIMAL_INTEGER"),
+    Some("UNSIGNED_HEXADECIMAL_INTEGER"),
+    Some("UNSIGNED_OCTAL_INTEGER"),
+    Some("UNSIGNED_BINARY_INTEGER"),
+    Some("ABS"),
+    Some("ACOS"),
+    Some("ALL"),
+    Some("ALL_DIFFERENT"),
+    Some("AND"),
+    Some("ANY"),
+    Some("ARRAY"),
+    Some("AS"),
+    Some("ASC"),
+    Some("ASCENDING"),
+    Some("ASIN"),
+    Some("AT"),
+    Some("ATAN"),
+    Some("AVG"),
+    Some("BIG"),
+    Some("BIGINT"),
+    Some("BINARY"),
+    Some("BOOL"),
+    Some("BOOLEAN"),
+    Some("BOTH"),
+    Some("BTRIM"),
+    Some("BY"),
+    Some("BYTE_LENGTH"),
+    Some("BYTES"),
+    Some("CALL"),
+    Some("CARDINALITY"),
+    Some("CASE"),
+    Some("CAST"),
+    Some("CEIL"),
+    Some("CEILING"),
+    Some("CHAR"),
+    Some("CHAR_LENGTH"),
+    Some("CHARACTER_LENGTH"),
+    Some("CHARACTERISTICS"),
+    Some("CLOSE"),
+    Some("COALESCE"),
+    Some("COLLECT_LIST"),
+    Some("COMMIT"),
+    Some("COPY"),
+    Some("COS"),
+    Some("COSH"),
+    Some("COT"),
+    Some("COUNT"),
+    Some("CREATE"),
+    Some("CURRENT_DATE"),
+    Some("CURRENT_GRAPH"),
+    Some("CURRENT_PROPERTY_GRAPH"),
+    Some("CURRENT_SCHEMA"),
+    Some("CURRENT_TIME"),
+    Some("CURRENT_TIMESTAMP"),
+    Some("DATE"),
+    Some("DATETIME"),
+    Some("DAY"),
+    Some("DEC"),
+    Some("DECIMAL"),
+    Some("DEGREES"),
+    Some("DELETE"),
+    Some("DESC"),
+    Some("DESCENDING"),
+    Some("DETACH"),
+    Some("DISTINCT"),
+    Some("DOUBLE"),
+    Some("DROP"),
+    Some("DURATION"),
+    Some("DURATION_BETWEEN"),
+    Some("ELEMENT_ID"),
+    Some("ELSE"),
+    Some("END"),
+    Some("EXCEPT"),
+    Some("EXISTS"),
+    Some("EXP"),
+    Some("FILTER"),
+    Some("FINISH"),
+    Some("FLOAT"),
+    Some("FLOAT16"),
+    Some("FLOAT32"),
+    Some("FLOAT64"),
+    Some("FLOAT128"),
+    Some("FLOAT256"),
+    Some("FLOOR"),
+    Some("FOR"),
+    Some("FROM"),
+    Some("GROUP"),
+    Some("HAVING"),
+    Some("HOME_GRAPH"),
+    Some("HOME_PROPERTY_GRAPH"),
+    Some("HOME_SCHEMA"),
+    Some("HOUR"),
+    Some("IF"),
+    Some("IN"),
+    Some("INSERT"),
+    Some("INT"),
+    Some("INTEGER"),
+    Some("INT8"),
+    Some("INTEGER8"),
+    Some("INT16"),
+    Some("INTEGER16"),
+    Some("INT32"),
+    Some("INTEGER32"),
+    Some("INT64"),
+    Some("INTEGER64"),
+    Some("INT128"),
+    Some("INTEGER128"),
+    Some("INT256"),
+    Some("INTEGER256"),
+    Some("INTERSECT"),
+    Some("INTERVAL"),
+    Some("IS"),
+    Some("LEADING"),
+    Some("LEFT"),
+    Some("LET"),
+    Some("LIKE"),
+    Some("LIMIT"),
+    Some("LIST"),
+    Some("LN"),
+    Some("LOCAL"),
+    Some("LOCAL_DATETIME"),
+    Some("LOCAL_TIME"),
+    Some("LOCAL_TIMESTAMP"),
+    Some("LOG_KW"),
+    Some("LOG10"),
+    Some("LOWER"),
+    Some("LTRIM"),
+    Some("MATCH"),
+    Some("MAX"),
+    Some("MIN"),
+    Some("MINUTE"),
+    Some("MOD"),
+    Some("MONTH"),
+    Some("NEXT"),
+    Some("NODETACH"),
+    Some("NORMALIZE"),
+    Some("NOT"),
+    Some("NOTHING"),
+    Some("NULL_KW"),
+    Some("NULLS"),
+    Some("NULLIF"),
+    Some("OCTET_LENGTH"),
+    Some("OF"),
+    Some("OFFSET"),
+    Some("OPTIONAL"),
+    Some("OR"),
+    Some("ORDER"),
+    Some("OTHERWISE"),
+    Some("PARAMETER"),
+    Some("PARAMETERS"),
+    Some("PATH"),
+    Some("PATH_LENGTH"),
+    Some("PATHS"),
+    Some("PERCENTILE_CONT"),
+    Some("PERCENTILE_DISC"),
+    Some("POWER"),
+    Some("PRECISION"),
+    Some("PROPERTY_EXISTS"),
+    Some("RADIANS"),
+    Some("REAL"),
+    Some("RECORD"),
+    Some("REMOVE"),
+    Some("REPLACE"),
+    Some("RESET"),
+    Some("RETURN"),
+    Some("RIGHT"),
+    Some("ROLLBACK"),
+    Some("RTRIM"),
+    Some("SAME"),
+    Some("SCHEMA"),
+    Some("SECOND"),
+    Some("SELECT"),
+    Some("SESSION"),
+    Some("SESSION_USER"),
+    Some("SET"),
+    Some("SIGNED"),
+    Some("SIN"),
+    Some("SINH"),
+    Some("SIZE"),
+    Some("SKIP_RESERVED_WORD"),
+    Some("SMALL"),
+    Some("SMALLINT"),
+    Some("SQRT"),
+    Some("START"),
+    Some("STDDEV_POP"),
+    Some("STDDEV_SAMP"),
+    Some("STRING"),
+    Some("SUM"),
+    Some("TAN"),
+    Some("TANH"),
+    Some("THEN"),
+    Some("TIME"),
+    Some("TIMESTAMP"),
+    Some("TRAILING"),
+    Some("TRIM"),
+    Some("TYPED"),
+    Some("UBIGINT"),
+    Some("UINT"),
+    Some("UINT8"),
+    Some("UINT16"),
+    Some("UINT32"),
+    Some("UINT64"),
+    Some("UINT128"),
+    Some("UINT256"),
+    Some("UNION"),
+    Some("UNSIGNED"),
+    Some("UPPER"),
+    Some("USE"),
+    Some("USMALLINT"),
+    Some("VALUE"),
+    Some("VARBINARY"),
+    Some("VARCHAR"),
+    Some("VARIABLE"),
+    Some("WHEN"),
+    Some("WHERE"),
+    Some("WITH"),
+    Some("XOR"),
+    Some("YEAR"),
+    Some("YIELD"),
+    Some("ZONED"),
+    Some("ZONED_DATETIME"),
+    Some("ZONED_TIME"),
+    Some("ABSTRACT"),
+    Some("AGGREGATE"),
+    Some("AGGREGATES"),
+    Some("ALTER"),
+    Some("CATALOG"),
+    Some("CLEAR"),
+    Some("CLONE"),
+    Some("CONSTRAINT"),
+    Some("CURRENT_ROLE"),
+    Some("CURRENT_USER"),
+    Some("DATA"),
+    Some("DIRECTORY"),
+    Some("DRYRUN"),
+    Some("EXACT"),
+    Some("EXISTING"),
+    Some("FUNCTION"),
+    Some("GQLSTATUS"),
+    Some("GRANT"),
+    Some("INSTANT"),
+    Some("INFINITY_KW"),
+    Some("NUMBER"),
+    Some("NUMERIC"),
+    Some("ON"),
+    Some("OPEN"),
+    Some("PARTITION"),
+    Some("PROCEDURE"),
+    Some("PRODUCT"),
+    Some("PROJECT"),
+    Some("QUERY"),
+    Some("RECORDS"),
+    Some("REFERENCE"),
+    Some("RENAME"),
+    Some("REVOKE"),
+    Some("SUBSTRING"),
+    Some("SYSTEM_USER"),
+    Some("TEMPORAL"),
+    Some("UNIQUE"),
+    Some("UNIT"),
+    Some("VALUES"),
+    Some("ACYCLIC"),
+    Some("BINDING"),
+    Some("BINDINGS"),
+    Some("CONNECTING"),
+    Some("DESTINATION"),
+    Some("DIFFERENT"),
+    Some("DIRECTED"),
+    Some("EDGE"),
+    Some("EDGES"),
+    Some("ELEMENT"),
+    Some("ELEMENTS"),
+    Some("FIRST"),
+    Some("GRAPH"),
+    Some("GROUPS"),
+    Some("KEEP"),
+    Some("LABEL"),
+    Some("LABELED"),
+    Some("LABELS"),
+    Some("LAST"),
+    Some("NFC"),
+    Some("NFD"),
+    Some("NFKC"),
+    Some("NFKD"),
+    Some("NO"),
+    Some("NODE"),
+    Some("NORMALIZED"),
+    Some("ONLY"),
+    Some("ORDINALITY"),
+    Some("PROPERTY"),
+    Some("READ"),
+    Some("RELATIONSHIP"),
+    Some("RELATIONSHIPS"),
+    Some("REPEATABLE"),
+    Some("SHORTEST"),
+    Some("SIMPLE"),
+    Some("SOURCE"),
+    Some("TABLE"),
+    Some("TO"),
+    Some("TRAIL"),
+    Some("TRANSACTION"),
+    Some("TYPE"),
+    Some("UNDIRECTED"),
+    Some("VERTEX"),
+    Some("WALK"),
+    Some("WITHOUT"),
+    Some("WRITE"),
+    Some("ZONE"),
+    Some("REGULAR_IDENTIFIER"),
+    Some("SUBSTITUTED_PARAMETER_REFERENCE"),
+    Some("GENERAL_PARAMETER_REFERENCE"),
+    Some("MULTISET_ALTERNATION_OPERATOR"),
+    Some("BRACKET_RIGHT_ARROW"),
+    Some("BRACKET_TILDE_RIGHT_ARROW"),
+    Some("CONCATENATION_OPERATOR"),
+    Some("DOUBLE_COLON"),
+    Some("DOUBLE_DOLLAR_SIGN"),
+    Some("DOUBLE_PERIOD"),
+    Some("GREATER_THAN_OR_EQUALS_OPERATOR"),
+    Some("LEFT_ARROW"),
+    Some("LEFT_ARROW_TILDE"),
+    Some("LEFT_ARROW_BRACKET"),
+    Some("LEFT_ARROW_TILDE_BRACKET"),
+    Some("LEFT_MINUS_RIGHT"),
+    Some("LEFT_MINUS_SLASH"),
+    Some("LEFT_TILDE_SLASH"),
+    Some("LESS_THAN_OR_EQUALS_OPERATOR"),
+    Some("MINUS_LEFT_BRACKET"),
+    Some("MINUS_SLASH"),
+    Some("NOT_EQUALS_OPERATOR"),
+    Some("RIGHT_ARROW"),
+    Some("RIGHT_BRACKET_MINUS"),
+    Some("RIGHT_BRACKET_TILDE"),
+    Some("RIGHT_DOUBLE_ARROW"),
+    Some("SLASH_MINUS"),
+    Some("SLASH_MINUS_RIGHT"),
+    Some("SLASH_TILDE"),
+    Some("SLASH_TILDE_RIGHT"),
+    Some("TILDE_LEFT_BRACKET"),
+    Some("TILDE_RIGHT_ARROW"),
+    Some("TILDE_SLASH"),
+    Some("AMPERSAND"),
+    Some("ASTERISK"),
+    Some("COLON"),
+    Some("COMMA"),
+    Some("COMMERCIAL_AT"),
+    Some("DOLLAR_SIGN"),
+    Some("DOUBLE_QUOTE"),
+    Some("EQUALS_OPERATOR"),
+    Some("EXCLAMATION_MARK"),
+    Some("RIGHT_ANGLE_BRACKET"),
+    Some("GRAVE_ACCENT"),
+    Some("LEFT_BRACE"),
+    Some("LEFT_BRACKET"),
+    Some("LEFT_PAREN"),
+    Some("LEFT_ANGLE_BRACKET"),
+    Some("MINUS_SIGN"),
+    Some("PERCENT"),
+    Some("PERIOD"),
+    Some("PLUS_SIGN"),
+    Some("QUESTION_MARK"),
+    Some("QUOTE"),
+    Some("REVERSE_SOLIDUS"),
+    Some("RIGHT_BRACE"),
+    Some("RIGHT_BRACKET"),
+    Some("RIGHT_PAREN"),
+    Some("SOLIDUS"),
+    Some("TILDE"),
+    Some("UNDERSCORE"),
+    Some("VERTICAL_BAR"),
+    Some("SP"),
+    Some("WHITESPACE"),
+    Some("BRACKETED_COMMENT"),
+    Some("SIMPLE_COMMENT_SOLIDUS"),
+    Some("SIMPLE_COMMENT_MINUS"),
+];
+lazy_static! {
+    static ref _shared_context_cache: Arc<PredictionContextCache> =
+        Arc::new(PredictionContextCache::new());
+    static ref VOCABULARY: Box<dyn Vocabulary> = Box::new(VocabularyImpl::new(
+        _LITERAL_NAMES.iter(),
+        _SYMBOLIC_NAMES.iter(),
+        None
+    ));
+}
 
-
-	pub const _LITERAL_NAMES: [Option<&'static str>;386] = [
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, None, None, None, None, None, None, None, None, None, 
-		None, None, None, Some("'|+|'"), Some("']->'"), Some("']~>'"), Some("'||'"), 
-		Some("'::'"), Some("'$$'"), Some("'..'"), Some("'>='"), Some("'<-'"), 
-		Some("'<~'"), Some("'<-['"), Some("'<~['"), Some("'<->'"), Some("'<-/'"), 
-		Some("'<~/'"), Some("'<='"), Some("'-['"), Some("'-/'"), Some("'<>'"), 
-		Some("'->'"), Some("']-'"), Some("']~'"), Some("'=>'"), Some("'/-'"), 
-		Some("'/->'"), Some("'/~'"), Some("'/~>'"), Some("'~['"), Some("'~>'"), 
-		Some("'~/'"), Some("'&'"), Some("'*'"), Some("':'"), Some("','"), Some("'@'"), 
-		Some("'$'"), Some("'\"'"), Some("'='"), Some("'!'"), Some("'>'"), Some("'`'"), 
-		Some("'{'"), Some("'['"), Some("'('"), Some("'<'"), Some("'-'"), Some("'%'"), 
-		Some("'.'"), Some("'+'"), Some("'?'"), Some("'''"), Some("'\\'"), Some("'}'"), 
-		Some("']'"), Some("')'"), Some("'/'"), Some("'~'"), Some("'_'"), Some("'|'")
-	];
-	pub const _SYMBOLIC_NAMES: [Option<&'static str>;391]  = [
-		None, Some("IMPLIES"), Some("BOOLEAN_LITERAL"), Some("SINGLE_QUOTED_CHARACTER_SEQUENCE"), 
-		Some("DOUBLE_QUOTED_CHARACTER_SEQUENCE"), Some("ACCENT_QUOTED_CHARACTER_SEQUENCE"), 
-		Some("NO_ESCAPE"), Some("BYTE_STRING_LITERAL"), Some("UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_EXACT_NUMBER_SUFFIX"), 
-		Some("UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITHOUT_SUFFIX"), Some("UNSIGNED_DECIMAL_IN_SCIENTIFIC_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX"), 
-		Some("UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_EXACT_NUMBER_SUFFIX"), 
-		Some("UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITHOUT_SUFFIX"), Some("UNSIGNED_DECIMAL_IN_COMMON_NOTATION_WITH_APPROXIMATE_NUMBER_SUFFIX"), 
-		Some("UNSIGNED_DECIMAL_INTEGER_WITH_EXACT_NUMBER_SUFFIX"), Some("UNSIGNED_DECIMAL_INTEGER_WITH_APPROXIMATE_NUMBER_SUFFIX"), 
-		Some("UNSIGNED_DECIMAL_INTEGER"), Some("UNSIGNED_HEXADECIMAL_INTEGER"), 
-		Some("UNSIGNED_OCTAL_INTEGER"), Some("UNSIGNED_BINARY_INTEGER"), Some("ABS"), 
-		Some("ACOS"), Some("ALL"), Some("ALL_DIFFERENT"), Some("AND"), Some("ANY"), 
-		Some("ARRAY"), Some("AS"), Some("ASC"), Some("ASCENDING"), Some("ASIN"), 
-		Some("AT"), Some("ATAN"), Some("AVG"), Some("BIG"), Some("BIGINT"), Some("BINARY"), 
-		Some("BOOL"), Some("BOOLEAN"), Some("BOTH"), Some("BTRIM"), Some("BY"), 
-		Some("BYTE_LENGTH"), Some("BYTES"), Some("CALL"), Some("CARDINALITY"), 
-		Some("CASE"), Some("CAST"), Some("CEIL"), Some("CEILING"), Some("CHAR"), 
-		Some("CHAR_LENGTH"), Some("CHARACTER_LENGTH"), Some("CHARACTERISTICS"), 
-		Some("CLOSE"), Some("COALESCE"), Some("COLLECT_LIST"), Some("COMMIT"), 
-		Some("COPY"), Some("COS"), Some("COSH"), Some("COT"), Some("COUNT"), Some("CREATE"), 
-		Some("CURRENT_DATE"), Some("CURRENT_GRAPH"), Some("CURRENT_PROPERTY_GRAPH"), 
-		Some("CURRENT_SCHEMA"), Some("CURRENT_TIME"), Some("CURRENT_TIMESTAMP"), 
-		Some("DATE"), Some("DATETIME"), Some("DAY"), Some("DEC"), Some("DECIMAL"), 
-		Some("DEGREES"), Some("DELETE"), Some("DESC"), Some("DESCENDING"), Some("DETACH"), 
-		Some("DISTINCT"), Some("DOUBLE"), Some("DROP"), Some("DURATION"), Some("DURATION_BETWEEN"), 
-		Some("ELEMENT_ID"), Some("ELSE"), Some("END"), Some("EXCEPT"), Some("EXISTS"), 
-		Some("EXP"), Some("FILTER"), Some("FINISH"), Some("FLOAT"), Some("FLOAT16"), 
-		Some("FLOAT32"), Some("FLOAT64"), Some("FLOAT128"), Some("FLOAT256"), 
-		Some("FLOOR"), Some("FOR"), Some("FROM"), Some("GROUP"), Some("HAVING"), 
-		Some("HOME_GRAPH"), Some("HOME_PROPERTY_GRAPH"), Some("HOME_SCHEMA"), 
-		Some("HOUR"), Some("IF"), Some("IN"), Some("INSERT"), Some("INT"), Some("INTEGER"), 
-		Some("INT8"), Some("INTEGER8"), Some("INT16"), Some("INTEGER16"), Some("INT32"), 
-		Some("INTEGER32"), Some("INT64"), Some("INTEGER64"), Some("INT128"), Some("INTEGER128"), 
-		Some("INT256"), Some("INTEGER256"), Some("INTERSECT"), Some("INTERVAL"), 
-		Some("IS"), Some("LEADING"), Some("LEFT"), Some("LET"), Some("LIKE"), 
-		Some("LIMIT"), Some("LIST"), Some("LN"), Some("LOCAL"), Some("LOCAL_DATETIME"), 
-		Some("LOCAL_TIME"), Some("LOCAL_TIMESTAMP"), Some("LOG_KW"), Some("LOG10"), 
-		Some("LOWER"), Some("LTRIM"), Some("MATCH"), Some("MAX"), Some("MIN"), 
-		Some("MINUTE"), Some("MOD"), Some("MONTH"), Some("NEXT"), Some("NODETACH"), 
-		Some("NORMALIZE"), Some("NOT"), Some("NOTHING"), Some("NULL_KW"), Some("NULLS"), 
-		Some("NULLIF"), Some("OCTET_LENGTH"), Some("OF"), Some("OFFSET"), Some("OPTIONAL"), 
-		Some("OR"), Some("ORDER"), Some("OTHERWISE"), Some("PARAMETER"), Some("PARAMETERS"), 
-		Some("PATH"), Some("PATH_LENGTH"), Some("PATHS"), Some("PERCENTILE_CONT"), 
-		Some("PERCENTILE_DISC"), Some("POWER"), Some("PRECISION"), Some("PROPERTY_EXISTS"), 
-		Some("RADIANS"), Some("REAL"), Some("RECORD"), Some("REMOVE"), Some("REPLACE"), 
-		Some("RESET"), Some("RETURN"), Some("RIGHT"), Some("ROLLBACK"), Some("RTRIM"), 
-		Some("SAME"), Some("SCHEMA"), Some("SECOND"), Some("SELECT"), Some("SESSION"), 
-		Some("SESSION_USER"), Some("SET"), Some("SIGNED"), Some("SIN"), Some("SINH"), 
-		Some("SIZE"), Some("SKIP_RESERVED_WORD"), Some("SMALL"), Some("SMALLINT"), 
-		Some("SQRT"), Some("START"), Some("STDDEV_POP"), Some("STDDEV_SAMP"), 
-		Some("STRING"), Some("SUM"), Some("TAN"), Some("TANH"), Some("THEN"), 
-		Some("TIME"), Some("TIMESTAMP"), Some("TRAILING"), Some("TRIM"), Some("TYPED"), 
-		Some("UBIGINT"), Some("UINT"), Some("UINT8"), Some("UINT16"), Some("UINT32"), 
-		Some("UINT64"), Some("UINT128"), Some("UINT256"), Some("UNION"), Some("UNSIGNED"), 
-		Some("UPPER"), Some("USE"), Some("USMALLINT"), Some("VALUE"), Some("VARBINARY"), 
-		Some("VARCHAR"), Some("VARIABLE"), Some("WHEN"), Some("WHERE"), Some("WITH"), 
-		Some("XOR"), Some("YEAR"), Some("YIELD"), Some("ZONED"), Some("ZONED_DATETIME"), 
-		Some("ZONED_TIME"), Some("ABSTRACT"), Some("AGGREGATE"), Some("AGGREGATES"), 
-		Some("ALTER"), Some("CATALOG"), Some("CLEAR"), Some("CLONE"), Some("CONSTRAINT"), 
-		Some("CURRENT_ROLE"), Some("CURRENT_USER"), Some("DATA"), Some("DIRECTORY"), 
-		Some("DRYRUN"), Some("EXACT"), Some("EXISTING"), Some("FUNCTION"), Some("GQLSTATUS"), 
-		Some("GRANT"), Some("INSTANT"), Some("INFINITY_KW"), Some("NUMBER"), Some("NUMERIC"), 
-		Some("ON"), Some("OPEN"), Some("PARTITION"), Some("PROCEDURE"), Some("PRODUCT"), 
-		Some("PROJECT"), Some("QUERY"), Some("RECORDS"), Some("REFERENCE"), Some("RENAME"), 
-		Some("REVOKE"), Some("SUBSTRING"), Some("SYSTEM_USER"), Some("TEMPORAL"), 
-		Some("UNIQUE"), Some("UNIT"), Some("VALUES"), Some("ACYCLIC"), Some("BINDING"), 
-		Some("BINDINGS"), Some("CONNECTING"), Some("DESTINATION"), Some("DIFFERENT"), 
-		Some("DIRECTED"), Some("EDGE"), Some("EDGES"), Some("ELEMENT"), Some("ELEMENTS"), 
-		Some("FIRST"), Some("GRAPH"), Some("GROUPS"), Some("KEEP"), Some("LABEL"), 
-		Some("LABELED"), Some("LABELS"), Some("LAST"), Some("NFC"), Some("NFD"), 
-		Some("NFKC"), Some("NFKD"), Some("NO"), Some("NODE"), Some("NORMALIZED"), 
-		Some("ONLY"), Some("ORDINALITY"), Some("PROPERTY"), Some("READ"), Some("RELATIONSHIP"), 
-		Some("RELATIONSHIPS"), Some("REPEATABLE"), Some("SHORTEST"), Some("SIMPLE"), 
-		Some("SOURCE"), Some("TABLE"), Some("TO"), Some("TRAIL"), Some("TRANSACTION"), 
-		Some("TYPE"), Some("UNDIRECTED"), Some("VERTEX"), Some("WALK"), Some("WITHOUT"), 
-		Some("WRITE"), Some("ZONE"), Some("REGULAR_IDENTIFIER"), Some("SUBSTITUTED_PARAMETER_REFERENCE"), 
-		Some("GENERAL_PARAMETER_REFERENCE"), Some("MULTISET_ALTERNATION_OPERATOR"), 
-		Some("BRACKET_RIGHT_ARROW"), Some("BRACKET_TILDE_RIGHT_ARROW"), Some("CONCATENATION_OPERATOR"), 
-		Some("DOUBLE_COLON"), Some("DOUBLE_DOLLAR_SIGN"), Some("DOUBLE_PERIOD"), 
-		Some("GREATER_THAN_OR_EQUALS_OPERATOR"), Some("LEFT_ARROW"), Some("LEFT_ARROW_TILDE"), 
-		Some("LEFT_ARROW_BRACKET"), Some("LEFT_ARROW_TILDE_BRACKET"), Some("LEFT_MINUS_RIGHT"), 
-		Some("LEFT_MINUS_SLASH"), Some("LEFT_TILDE_SLASH"), Some("LESS_THAN_OR_EQUALS_OPERATOR"), 
-		Some("MINUS_LEFT_BRACKET"), Some("MINUS_SLASH"), Some("NOT_EQUALS_OPERATOR"), 
-		Some("RIGHT_ARROW"), Some("RIGHT_BRACKET_MINUS"), Some("RIGHT_BRACKET_TILDE"), 
-		Some("RIGHT_DOUBLE_ARROW"), Some("SLASH_MINUS"), Some("SLASH_MINUS_RIGHT"), 
-		Some("SLASH_TILDE"), Some("SLASH_TILDE_RIGHT"), Some("TILDE_LEFT_BRACKET"), 
-		Some("TILDE_RIGHT_ARROW"), Some("TILDE_SLASH"), Some("AMPERSAND"), Some("ASTERISK"), 
-		Some("COLON"), Some("COMMA"), Some("COMMERCIAL_AT"), Some("DOLLAR_SIGN"), 
-		Some("DOUBLE_QUOTE"), Some("EQUALS_OPERATOR"), Some("EXCLAMATION_MARK"), 
-		Some("RIGHT_ANGLE_BRACKET"), Some("GRAVE_ACCENT"), Some("LEFT_BRACE"), 
-		Some("LEFT_BRACKET"), Some("LEFT_PAREN"), Some("LEFT_ANGLE_BRACKET"), 
-		Some("MINUS_SIGN"), Some("PERCENT"), Some("PERIOD"), Some("PLUS_SIGN"), 
-		Some("QUESTION_MARK"), Some("QUOTE"), Some("REVERSE_SOLIDUS"), Some("RIGHT_BRACE"), 
-		Some("RIGHT_BRACKET"), Some("RIGHT_PAREN"), Some("SOLIDUS"), Some("TILDE"), 
-		Some("UNDERSCORE"), Some("VERTICAL_BAR"), Some("SP"), Some("WHITESPACE"), 
-		Some("BRACKETED_COMMENT"), Some("SIMPLE_COMMENT_SOLIDUS"), Some("SIMPLE_COMMENT_MINUS")
-	];
-	lazy_static!{
-	    static ref _shared_context_cache: Arc<PredictionContextCache> = Arc::new(PredictionContextCache::new());
-		static ref VOCABULARY: Box<dyn Vocabulary> = Box::new(VocabularyImpl::new(_LITERAL_NAMES.iter(), _SYMBOLIC_NAMES.iter(), None));
-	}
-
-
-pub type LexerContext<'input> = BaseRuleContext<'input,EmptyCustomRuleContext<'input,LocalTokenFactory<'input> >>;
+pub type LexerContext<'input> =
+    BaseRuleContext<'input, EmptyCustomRuleContext<'input, LocalTokenFactory<'input>>>;
 pub type LocalTokenFactory<'input> = CommonTokenFactory;
 
-type From<'a> = <LocalTokenFactory<'a> as TokenFactory<'a> >::From;
+type From<'a> = <LocalTokenFactory<'a> as TokenFactory<'a>>::From;
 
-pub struct GQLLexer<'input, Input:CharStream<From<'input> >> {
-	base: BaseLexer<'input,GQLLexerActions,Input,LocalTokenFactory<'input>>,
+pub struct GQLLexer<'input, Input: CharStream<From<'input>>> {
+    base: BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>,
 }
 
 antlr_rust::tid! { impl<'input,Input> TidAble<'input> for GQLLexer<'input,Input> where Input:CharStream<From<'input> > }
 
-impl<'input, Input:CharStream<From<'input> >> Deref for GQLLexer<'input,Input>{
-	type Target = BaseLexer<'input,GQLLexerActions,Input,LocalTokenFactory<'input>>;
+impl<'input, Input: CharStream<From<'input>>> Deref for GQLLexer<'input, Input> {
+    type Target = BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>;
 
-	fn deref(&self) -> &Self::Target {
-		&self.base
-	}
+    fn deref(&self) -> &Self::Target {
+        &self.base
+    }
 }
 
-impl<'input, Input:CharStream<From<'input> >> DerefMut for GQLLexer<'input,Input>{
-	fn deref_mut(&mut self) -> &mut Self::Target {
-		&mut self.base
-	}
+impl<'input, Input: CharStream<From<'input>>> DerefMut for GQLLexer<'input, Input> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.base
+    }
 }
 
-
-impl<'input, Input:CharStream<From<'input> >> GQLLexer<'input,Input>{
+impl<'input, Input: CharStream<From<'input>>> GQLLexer<'input, Input> {
     fn get_rule_names(&self) -> &'static [&'static str] {
         &ruleNames
     }
@@ -715,50 +1745,55 @@ impl<'input, Input:CharStream<From<'input> >> GQLLexer<'input,Input>{
         "GQLLexer.g4"
     }
 
-	pub fn new_with_token_factory(input: Input, tf: &'input LocalTokenFactory<'input>) -> Self {
-		antlr_rust::recognizer::check_version("0","3");
-    	Self {
-			base: BaseLexer::new_base_lexer(
-				input,
-				LexerATNSimulator::new_lexer_atnsimulator(
-					_ATN.clone(),
-					_decision_to_DFA.clone(),
-					_shared_context_cache.clone(),
-				),
-				GQLLexerActions{},
-				tf
-			)
-	    }
-	}
+    pub fn new_with_token_factory(input: Input, tf: &'input LocalTokenFactory<'input>) -> Self {
+        antlr_rust::recognizer::check_version("0", "3");
+        Self {
+            base: BaseLexer::new_base_lexer(
+                input,
+                LexerATNSimulator::new_lexer_atnsimulator(
+                    _ATN.clone(),
+                    _decision_to_DFA.clone(),
+                    _shared_context_cache.clone(),
+                ),
+                GQLLexerActions {},
+                tf,
+            ),
+        }
+    }
 }
 
-impl<'input, Input:CharStream<From<'input> >> GQLLexer<'input,Input> where &'input LocalTokenFactory<'input>:Default{
-	pub fn new(input: Input) -> Self{
-		GQLLexer::new_with_token_factory(input, <&LocalTokenFactory<'input> as Default>::default())
-	}
+impl<'input, Input: CharStream<From<'input>>> GQLLexer<'input, Input>
+where
+    &'input LocalTokenFactory<'input>: Default,
+{
+    pub fn new(input: Input) -> Self {
+        GQLLexer::new_with_token_factory(input, <&LocalTokenFactory<'input> as Default>::default())
+    }
 }
 
-pub struct GQLLexerActions {
+pub struct GQLLexerActions {}
+
+impl GQLLexerActions {}
+
+impl<'input, Input: CharStream<From<'input>>>
+    Actions<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>>
+    for GQLLexerActions
+{
 }
 
-impl GQLLexerActions{
+impl<'input, Input: CharStream<From<'input>>> GQLLexer<'input, Input> {}
+
+impl<'input, Input: CharStream<From<'input>>>
+    LexerRecog<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>>
+    for GQLLexerActions
+{
+}
+impl<'input> TokenAware<'input> for GQLLexerActions {
+    type TF = LocalTokenFactory<'input>;
 }
 
-impl<'input, Input:CharStream<From<'input> >> Actions<'input,BaseLexer<'input,GQLLexerActions,Input,LocalTokenFactory<'input>>> for GQLLexerActions{
-	}
-
-	impl<'input, Input:CharStream<From<'input> >> GQLLexer<'input,Input>{
-
-}
-
-impl<'input, Input:CharStream<From<'input> >> LexerRecog<'input,BaseLexer<'input,GQLLexerActions,Input,LocalTokenFactory<'input>>> for GQLLexerActions{
-}
-impl<'input> TokenAware<'input> for GQLLexerActions{
-	type TF = LocalTokenFactory<'input>;
-}
-
-impl<'input, Input:CharStream<From<'input> >> TokenSource<'input> for GQLLexer<'input,Input>{
-	type TF = LocalTokenFactory<'input>;
+impl<'input, Input: CharStream<From<'input>>> TokenSource<'input> for GQLLexer<'input, Input> {
+    type TF = LocalTokenFactory<'input>;
 
     fn next_token(&mut self) -> <Self::TF as TokenFactory<'input>>::Tok {
         self.base.next_token()
@@ -776,38 +1811,29 @@ impl<'input, Input:CharStream<From<'input> >> TokenSource<'input> for GQLLexer<'
         self.base.get_input_stream()
     }
 
-	fn get_source_name(&self) -> String {
-		self.base.get_source_name()
-	}
+    fn get_source_name(&self) -> String {
+        self.base.get_source_name()
+    }
 
     fn get_token_factory(&self) -> &'input Self::TF {
         self.base.get_token_factory()
     }
 }
 
+lazy_static! {
+    static ref _ATN: Arc<ATN> =
+        Arc::new(ATNDeserializer::new(None).deserialize(_serializedATN.chars()));
+    static ref _decision_to_DFA: Arc<Vec<antlr_rust::RwLock<DFA>>> = {
+        let mut dfa = Vec::new();
+        let size = _ATN.decision_to_state.len();
+        for i in 0..size {
+            dfa.push(DFA::new(_ATN.clone(), _ATN.get_decision_state(i), i as isize).into())
+        }
+        Arc::new(dfa)
+    };
+}
 
-
-	lazy_static! {
-	    static ref _ATN: Arc<ATN> =
-	        Arc::new(ATNDeserializer::new(None).deserialize(_serializedATN.chars()));
-	    static ref _decision_to_DFA: Arc<Vec<antlr_rust::RwLock<DFA>>> = {
-	        let mut dfa = Vec::new();
-	        let size = _ATN.decision_to_state.len();
-	        for i in 0..size {
-	            dfa.push(DFA::new(
-	                _ATN.clone(),
-	                _ATN.get_decision_state(i),
-	                i as isize,
-	            ).into())
-	        }
-	        Arc::new(dfa)
-	    };
-	}
-
-
-
-	const _serializedATN:&'static str =
-		"\x03\u{608b}\u{a72a}\u{8133}\u{b9ed}\u{417c}\u{3be7}\u{7786}\u{5964}\x02\
+const _serializedATN: &'static str = "\x03\u{608b}\u{a72a}\u{8133}\u{b9ed}\u{417c}\u{3be7}\u{7786}\u{5964}\x02\
 		\u{188}\u{f0c}\x08\x01\x04\x02\x09\x02\x04\x03\x09\x03\x04\x04\x09\x04\
 		\x04\x05\x09\x05\x04\x06\x09\x06\x04\x07\x09\x07\x04\x08\x09\x08\x04\x09\
 		\x09\x09\x04\x0a\x09\x0a\x04\x0b\x09\x0b\x04\x0c\x09\x0c\x04\x0d\x09\x0d\

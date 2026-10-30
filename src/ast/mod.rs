@@ -41,5 +41,4 @@ pub(crate) mod builder;
 // Internal semantic validation layer.
 pub(crate) mod validator;
 
-
 pub use model::*;

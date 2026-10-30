@@ -15,10 +15,10 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use antlr_rust::error_listener::ErrorListener;
-use antlr_rust::recognizer::Recognizer;
-use antlr_rust::errors::ANTLRError;
 use crate::error_handler::error::GqlError;
+use antlr_rust::error_listener::ErrorListener;
+use antlr_rust::errors::ANTLRError;
+use antlr_rust::recognizer::Recognizer;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -39,7 +39,9 @@ impl<'input, T: Recognizer<'input>> ErrorListener<'input, T> for GqlErrorListene
     fn syntax_error(
         &self,
         _recognizer: &T,
-        _offending_symbol: Option<&<T::TF as antlr_rust::token_factory::TokenFactory<'input>>::Inner>,
+        _offending_symbol: Option<
+            &<T::TF as antlr_rust::token_factory::TokenFactory<'input>>::Inner,
+        >,
         line: isize,
         column: isize,
         msg: &str,

@@ -164,10 +164,10 @@ impl GqlError {
                 || span.end_line != 0
                 || span.end_col != 0;
             if has_real_position {
-            parts.push(format!(
-                "line {}:{} to {}:{}",
-                span.start_line, span.start_col, span.end_line, span.end_col
-            ));
+                parts.push(format!(
+                    "line {}:{} to {}:{}",
+                    span.start_line, span.start_col, span.end_line, span.end_col
+                ));
             }
         }
 
@@ -187,7 +187,12 @@ impl fmt::Display for GqlError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             GqlError::Parse { message, context } => {
-                write!(f, "Parse error: {}{}", message, Self::render_context(context))
+                write!(
+                    f,
+                    "Parse error: {}{}",
+                    message,
+                    Self::render_context(context)
+                )
             }
             GqlError::Validation { message, context } => {
                 write!(

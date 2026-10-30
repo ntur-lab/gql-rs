@@ -89,7 +89,9 @@ pub(super) fn validate_session_statement(session: &SessionStatement) -> Result<(
 }
 
 /// Function to validate Catalog statements, ensuring that each statement in the block is semantically correct according to the GQL specification. This includes validating schema and graph names, checking for consistency in CREATE GRAPH clauses, and ensuring that raw Catalog statements are not empty.
-pub(super) fn validate_catalog_statement_block(block: &CatalogStatementBlock) -> Result<(), GqlError> {
+pub(super) fn validate_catalog_statement_block(
+    block: &CatalogStatementBlock,
+) -> Result<(), GqlError> {
     if block.statements.is_empty() {
         return Err(validation_err(
             "Catalog block cannot be empty".to_string(),
@@ -213,12 +215,13 @@ pub(super) fn validate_catalog_object_name(name: &CatalogObjectName) -> Result<(
     }
 
     if let Some(parent) = &name.parent
-        && parent.trim().is_empty() {
-            return Err(validation_err(
-                "Catalog object parent cannot be empty".to_string(),
-                Some(&name.span.clone()),
-            ));
-        }
+        && parent.trim().is_empty()
+    {
+        return Err(validation_err(
+            "Catalog object parent cannot be empty".to_string(),
+            Some(&name.span.clone()),
+        ));
+    }
 
     Ok(())
 }
@@ -319,13 +322,13 @@ pub(super) fn validate_session_set_clause(clause: &SessionSetClause) -> Result<(
             }
 
             if let Some(initializer) = &parameter.initializer
-                && initializer.trim().is_empty() {
-                    return Err(validation_err(
-                        "SESSION SET parameter initializer cannot be empty when present"
-                            .to_string(),
-                        Some(&parameter.parameter_name.span.clone()),
-                    ));
-                }
+                && initializer.trim().is_empty()
+            {
+                return Err(validation_err(
+                    "SESSION SET parameter initializer cannot be empty when present".to_string(),
+                    Some(&parameter.parameter_name.span.clone()),
+                ));
+            }
         }
     }
 

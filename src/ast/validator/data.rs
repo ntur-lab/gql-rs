@@ -173,28 +173,30 @@ pub(super) fn validate_set_operation_query(
     let left_arity = infer_query_projection_arity(&set_op.left);
     let right_arity = infer_query_projection_arity(&set_op.right);
     if let (Some(left), Some(right)) = (left_arity, right_arity)
-        && left != right {
-            return Err(validation_err(
-                format!(
-                    "Set operation branches must project the same number of columns (left={}, right={})",
-                    left, right
-                ),
-                Some(&set_op.span.clone()),
-            ));
-        }
+        && left != right
+    {
+        return Err(validation_err(
+            format!(
+                "Set operation branches must project the same number of columns (left={}, right={})",
+                left, right
+            ),
+            Some(&set_op.span.clone()),
+        ));
+    }
 
     let left_signature = infer_query_projection_signature(&set_op.left);
     let right_signature = infer_query_projection_signature(&set_op.right);
     if let (Some(left_sig), Some(right_sig)) = (left_signature, right_signature)
-        && left_sig != right_sig {
-            return Err(validation_err(
-                format!(
-                    "Set operation branches must expose compatible projected aliases (left={:?}, right={:?})",
-                    left_sig, right_sig
-                ),
-                Some(&set_op.span.clone()),
-            ));
-        }
+        && left_sig != right_sig
+    {
+        return Err(validation_err(
+            format!(
+                "Set operation branches must expose compatible projected aliases (left={:?}, right={:?})",
+                left_sig, right_sig
+            ),
+            Some(&set_op.span.clone()),
+        ));
+    }
 
     let left_types = infer_query_projection_types(&set_op.left);
     let right_types = infer_query_projection_types(&set_op.right);
@@ -498,12 +500,13 @@ pub(super) fn validate_set_item(
             let inferred = HashMap::new();
             if let Some(value_type) =
                 infer_expression_type(value, &inferred, Some(declared_variables))
-                && matches!(value_type, TypeSpec::BindingTable | TypeSpec::Graph { .. }) {
-                    return Err(validation_err(
-                        "SET property cannot assign binding-table/graph values".to_string(),
-                        Some(&span.clone()),
-                    ));
-                }
+                && matches!(value_type, TypeSpec::BindingTable | TypeSpec::Graph { .. })
+            {
+                return Err(validation_err(
+                    "SET property cannot assign binding-table/graph values".to_string(),
+                    Some(&span.clone()),
+                ));
+            }
 
             Ok(())
         }
@@ -525,13 +528,13 @@ pub(super) fn validate_set_item(
             if let Some(label_type) =
                 infer_expression_type(labels, &inferred, Some(declared_variables))
                 && !is_string_like_type(&label_type)
-                    && !matches!(label_type, TypeSpec::Any | TypeSpec::List { .. })
-                {
-                    return Err(validation_err(
-                        "SET label expects string-like or list-like expression".to_string(),
-                        Some(&span.clone()),
-                    ));
-                }
+                && !matches!(label_type, TypeSpec::Any | TypeSpec::List { .. })
+            {
+                return Err(validation_err(
+                    "SET label expects string-like or list-like expression".to_string(),
+                    Some(&span.clone()),
+                ));
+            }
 
             Ok(())
         }
@@ -552,12 +555,13 @@ pub(super) fn validate_set_item(
             let inferred = HashMap::new();
             if let Some(value_type) =
                 infer_expression_type(value, &inferred, Some(declared_variables))
-                && matches!(value_type, TypeSpec::BindingTable) {
-                    return Err(validation_err(
-                        "SET variable cannot assign binding-table values".to_string(),
-                        Some(&span.clone()),
-                    ));
-                }
+                && matches!(value_type, TypeSpec::BindingTable)
+            {
+                return Err(validation_err(
+                    "SET variable cannot assign binding-table values".to_string(),
+                    Some(&span.clone()),
+                ));
+            }
 
             Ok(())
         }

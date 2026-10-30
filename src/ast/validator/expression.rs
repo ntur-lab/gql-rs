@@ -71,7 +71,10 @@ pub(super) fn validate_expression_with_types(
                 ));
             } else if !declared_variables.contains(property_access.object.as_str()) {
                 return Err(validation_err(
-                    format!("Unknown variable '{}' in property access", property_access.object),
+                    format!(
+                        "Unknown variable '{}' in property access",
+                        property_access.object
+                    ),
                     Some(&property_access.span.clone()),
                 ));
             }
@@ -101,12 +104,13 @@ pub(super) fn validate_expression_with_types(
                     ));
                 } else if let Some(Expression::Variable { name: var, span }) =
                     function_call.arguments.first()
-                    && !declared_variables.contains(var.as_str()) {
-                        return Err(validation_err(
-                            format!("ELEMENT_ID argument '{}' is not a declared variable", var),
-                            Some(&span.clone()),
-                        ));
-                    }
+                    && !declared_variables.contains(var.as_str())
+                {
+                    return Err(validation_err(
+                        format!("ELEMENT_ID argument '{}' is not a declared variable", var),
+                        Some(&span.clone()),
+                    ));
+                }
             }
 
             if name == "LEFT" || name == "RIGHT" {
@@ -357,16 +361,17 @@ pub(super) fn validate_unary_operator_type(
             }
         }
         Operator::Plus | Operator::Minus
-            if !is_numeric_type(&operand_type) && !matches!(operand_type, TypeSpec::Any) => {
-                return Err(validation_err(
-                    format!(
-                        "Unary operator '{:?}' requires numeric operand, got {}",
-                        unary.operator,
-                        type_name(&operand_type)
-                    ),
-                    Some(&unary.span.clone()),
-                ));
-            }
+            if !is_numeric_type(&operand_type) && !matches!(operand_type, TypeSpec::Any) =>
+        {
+            return Err(validation_err(
+                format!(
+                    "Unary operator '{:?}' requires numeric operand, got {}",
+                    unary.operator,
+                    type_name(&operand_type)
+                ),
+                Some(&unary.span.clone()),
+            ));
+        }
         _ => {}
     }
 
@@ -379,9 +384,11 @@ pub(super) fn validate_is_predicate_types(
     declared_variables: &HashSet<String>,
     inferred_types: &HashMap<String, TypeSpec>,
 ) -> Result<(), GqlError> {
-    let Some(expr_type) =
-        infer_expression_type(&predicate.expression, inferred_types, Some(declared_variables))
-    else {
+    let Some(expr_type) = infer_expression_type(
+        &predicate.expression,
+        inferred_types,
+        Some(declared_variables),
+    ) else {
         return Ok(());
     };
 
@@ -454,12 +461,14 @@ pub(super) fn validate_function_call_signature(
                 ));
             }
             if let Some(t) = arg_type(0)
-                && !is_string_like_type(&t) && !matches!(t, TypeSpec::Any) {
-                    return Err(validation_err(
-                        format!("{} requires a string-like argument", name),
-                        Some(&function_call.span.clone()),
-                    ));
-                }
+                && !is_string_like_type(&t)
+                && !matches!(t, TypeSpec::Any)
+            {
+                return Err(validation_err(
+                    format!("{} requires a string-like argument", name),
+                    Some(&function_call.span.clone()),
+                ));
+            }
         }
         "TRIM" => {
             if !(1..=3).contains(&function_call.arguments.len()) {
@@ -477,12 +486,14 @@ pub(super) fn validate_function_call_signature(
                 ));
             }
             if let Some(t) = arg_type(0)
-                && !is_numeric_type(&t) && !matches!(t, TypeSpec::Any) {
-                    return Err(validation_err(
-                        format!("{} requires a numeric argument", name),
-                        Some(&function_call.span.clone()),
-                    ));
-                }
+                && !is_numeric_type(&t)
+                && !matches!(t, TypeSpec::Any)
+            {
+                return Err(validation_err(
+                    format!("{} requires a numeric argument", name),
+                    Some(&function_call.span.clone()),
+                ));
+            }
         }
         "SIZE" | "CARDINALITY" => {
             if function_call.arguments.len() != 1 {
@@ -533,14 +544,14 @@ pub(super) fn validate_function_call_signature(
 
                 if let Some(prev) = &acc
                     && !are_comparison_types_compatible(prev, &t)
-                        && !matches!(prev, TypeSpec::Any)
-                        && !matches!(t, TypeSpec::Any)
-                    {
-                        return Err(validation_err(
-                            "COALESCE arguments must be mutually compatible".to_string(),
-                            Some(&function_call.span.clone()),
-                        ));
-                    }
+                    && !matches!(prev, TypeSpec::Any)
+                    && !matches!(t, TypeSpec::Any)
+                {
+                    return Err(validation_err(
+                        "COALESCE arguments must be mutually compatible".to_string(),
+                        Some(&function_call.span.clone()),
+                    ));
+                }
 
                 acc = Some(t);
             }
@@ -635,8 +646,7 @@ pub(super) fn contains_aggregate_function(expression: &Expression) -> bool {
                 || func.arguments.iter().any(contains_aggregate_function)
         }
         Expression::Binary(binary) => {
-            contains_aggregate_function(&binary.left)
-                || contains_aggregate_function(&binary.right)
+            contains_aggregate_function(&binary.left) || contains_aggregate_function(&binary.right)
         }
         Expression::Unary(unary) => contains_aggregate_function(&unary.expression),
         Expression::IsPredicate(pred) => contains_aggregate_function(&pred.expression),
@@ -647,13 +657,10 @@ pub(super) fn contains_aggregate_function(expression: &Expression) -> bool {
         Expression::Case(case_expr) => match &case_expr.case_type {
             CaseType::Simple(simple) => {
                 contains_aggregate_function(&simple.test_expression)
-                    || simple
-                        .when_branches
-                        .iter()
-                        .any(|b| {
-                            b.when_values.iter().any(contains_aggregate_function)
-                                || contains_aggregate_function(&b.then_expression)
-                        })
+                    || simple.when_branches.iter().any(|b| {
+                        b.when_values.iter().any(contains_aggregate_function)
+                            || contains_aggregate_function(&b.then_expression)
+                    })
                     || simple
                         .else_expression
                         .as_ref()
@@ -661,18 +668,14 @@ pub(super) fn contains_aggregate_function(expression: &Expression) -> bool {
                         .unwrap_or(false)
             }
             CaseType::Searched(searched) => {
-                searched
-                    .when_branches
-                    .iter()
-                    .any(|b| {
-                        contains_aggregate_function(&b.condition)
-                            || contains_aggregate_function(&b.then_expression)
-                    })
-                    || searched
-                        .else_expression
-                        .as_ref()
-                        .map(|e| contains_aggregate_function(e))
-                        .unwrap_or(false)
+                searched.when_branches.iter().any(|b| {
+                    contains_aggregate_function(&b.condition)
+                        || contains_aggregate_function(&b.then_expression)
+                }) || searched
+                    .else_expression
+                    .as_ref()
+                    .map(|e| contains_aggregate_function(e))
+                    .unwrap_or(false)
             }
         },
         Expression::Cast(cast_expr) => contains_aggregate_function(&cast_expr.expression),
@@ -749,12 +752,15 @@ pub(super) fn validate_binary_operator_types(
                 && right_known
                 && (!is_boolean_type(&left_type) || !is_boolean_type(&right_type))
             {
-                return Err(validation_err(format!(
-                    "Logical operator '{:?}' requires BOOLEAN operands, got {} and {}",
-                    binary.operator,
-                    type_name(&left_type),
-                    type_name(&right_type)
-                ), Some(&binary.span.clone())));
+                return Err(validation_err(
+                    format!(
+                        "Logical operator '{:?}' requires BOOLEAN operands, got {} and {}",
+                        binary.operator,
+                        type_name(&left_type),
+                        type_name(&right_type)
+                    ),
+                    Some(&binary.span.clone()),
+                ));
             }
         }
         Operator::Plus
@@ -793,7 +799,7 @@ pub(super) fn validate_binary_operator_types(
                                 type_name(&left_type),
                                 type_name(&right_type)
                             ),
-                            Some(&binary.span.clone())
+                            Some(&binary.span.clone()),
                         ));
                     }
                 }
@@ -808,7 +814,7 @@ pub(super) fn validate_binary_operator_types(
                                 type_name(&left_type),
                                 type_name(&right_type)
                             ),
-                            Some(&binary.span.clone())
+                            Some(&binary.span.clone()),
                         ));
                     }
                 }
@@ -826,7 +832,7 @@ pub(super) fn validate_binary_operator_types(
                         type_name(&left_type),
                         type_name(&right_type)
                     ),
-                    Some(&binary.span.clone())
+                    Some(&binary.span.clone()),
                 ));
             }
         }
@@ -876,21 +882,19 @@ pub(super) fn validate_cast_target(
 ) -> Result<(), GqlError> {
     if let TypeSpec::List { element_type, .. } = &cast_expression.target_type
         && !matches!(element_type.as_ref(), TypeSpec::Any)
-            && contains_dynamic_parameter_reference(&cast_expression.expression)
-        {
-            return Err(validation_err(
-                "Typed LIST cast with dynamic parameters cannot be validated statically"
-                    .to_string(),
-                Some(&cast_expression.span.clone())
-            ));
-        }
+        && contains_dynamic_parameter_reference(&cast_expression.expression)
+    {
+        return Err(validation_err(
+            "Typed LIST cast with dynamic parameters cannot be validated statically".to_string(),
+            Some(&cast_expression.span.clone()),
+        ));
+    }
 
     let Some(source_type) = infer_expression_type(
         &cast_expression.expression,
         inferred_types,
         Some(declared_variables),
-    )
-    else {
+    ) else {
         return Ok(());
     };
 
@@ -904,7 +908,7 @@ pub(super) fn validate_cast_target(
             type_name(&source_type),
             type_name(&cast_expression.target_type)
         ),
-        Some(&cast_expression.span.clone())
+        Some(&cast_expression.span.clone()),
     ))
 }
 
@@ -1007,15 +1011,17 @@ pub(super) fn infer_expression_type(
         Expression::InlineLet(inline_let) => {
             let mut local = inferred_types.clone();
             for def in &inline_let.variable_definitions {
-                if let Some(def_type) = infer_expression_type(
-                    &def.expression,
-                    &local,
-                    declared_variables,
-                ) {
+                if let Some(def_type) =
+                    infer_expression_type(&def.expression, &local, declared_variables)
+                {
                     local.insert(def.variable_name.trim().to_string(), def_type);
                 }
             }
-            infer_expression_type(&inline_let.evaluation_expression, &local, declared_variables)
+            infer_expression_type(
+                &inline_let.evaluation_expression,
+                &local,
+                declared_variables,
+            )
         }
         Expression::PathConstructor(_) => Some(TypeSpec::Path),
         Expression::Unary(unary) => {
@@ -1034,7 +1040,8 @@ pub(super) fn infer_expression_type(
             }
         }
         Expression::Binary(binary) => {
-            let left_type = infer_expression_type(&binary.left, inferred_types, declared_variables)?;
+            let left_type =
+                infer_expression_type(&binary.left, inferred_types, declared_variables)?;
             let right_type =
                 infer_expression_type(&binary.right, inferred_types, declared_variables)?;
 
@@ -1083,7 +1090,8 @@ fn infer_scalar_subquery_type(
 ) -> Option<TypeSpec> {
     match query {
         Query::Basic(basic) => {
-            let PrimitiveResultStatement::Return { return_clause, .. } = &basic.result_statement else {
+            let PrimitiveResultStatement::Return { return_clause, .. } = &basic.result_statement
+            else {
                 return None;
             };
 
@@ -1100,7 +1108,8 @@ fn infer_scalar_subquery_type(
         }
         Query::SetOperation(set_op) => {
             let left = infer_scalar_subquery_type(&set_op.left, inferred_types, declared_variables);
-            let right = infer_scalar_subquery_type(&set_op.right, inferred_types, declared_variables);
+            let right =
+                infer_scalar_subquery_type(&set_op.right, inferred_types, declared_variables);
 
             match (left, right) {
                 (Some(left_type), Some(right_type)) if left_type == right_type => Some(left_type),
@@ -1133,10 +1142,11 @@ pub(super) fn infer_case_type(
                 }
             }
             if let Some(else_expr) = &simple_case.else_expression
-                && let Some(t) = infer_expression_type(else_expr, inferred_types, declared_variables)
-                {
-                    candidates.push(t);
-                }
+                && let Some(t) =
+                    infer_expression_type(else_expr, inferred_types, declared_variables)
+            {
+                candidates.push(t);
+            }
         }
         CaseType::Searched(searched_case) => {
             for branch in &searched_case.when_branches {
@@ -1149,10 +1159,11 @@ pub(super) fn infer_case_type(
                 }
             }
             if let Some(else_expr) = &searched_case.else_expression
-                && let Some(t) = infer_expression_type(else_expr, inferred_types, declared_variables)
-                {
-                    candidates.push(t);
-                }
+                && let Some(t) =
+                    infer_expression_type(else_expr, inferred_types, declared_variables)
+            {
+                candidates.push(t);
+            }
         }
     }
 
@@ -1275,8 +1286,8 @@ pub(super) fn type_from_literal(literal: &Literal) -> TypeSpec {
                 element_type: Box::new(inferred.unwrap_or(TypeSpec::Any)),
                 max_length: None,
             }
-        },
-        Literal::Parameter(_) => TypeSpec::Any
+        }
+        Literal::Parameter(_) => TypeSpec::Any,
     }
 }
 
@@ -1289,23 +1300,23 @@ pub(super) fn validate_array_element_consistency(
     let mut inferred_element: Option<TypeSpec> = None;
 
     for item in &array.elements {
-        let Some(item_type) =
-            infer_expression_type(item, inferred_types, Some(declared_variables))
+        let Some(item_type) = infer_expression_type(item, inferred_types, Some(declared_variables))
         else {
             continue;
         };
 
         if let Some(prev) = &inferred_element
-            && !are_array_element_types_compatible(prev, &item_type) {
-                return Err(validation_err(
-                    format!(
-                        "Array literal contains incompatible element types: {} and {}",
-                        type_name(prev),
-                        type_name(&item_type)
-                    ),
-                    Some(&array.span.clone())
-                ));
-            }
+            && !are_array_element_types_compatible(prev, &item_type)
+        {
+            return Err(validation_err(
+                format!(
+                    "Array literal contains incompatible element types: {} and {}",
+                    type_name(prev),
+                    type_name(&item_type)
+                ),
+                Some(&array.span.clone()),
+            ));
+        }
 
         inferred_element = match inferred_element {
             None => Some(item_type),
@@ -1649,7 +1660,7 @@ pub(super) fn validate_call_clause(
     if call_clause.procedure_name.trim().is_empty() {
         return Err(validation_err(
             "CALL procedure name cannot be empty".to_string(),
-            Some(&call_clause.span.clone())
+            Some(&call_clause.span.clone()),
         ));
     }
 
@@ -1657,7 +1668,7 @@ pub(super) fn validate_call_clause(
         if call_clause.yield_items.is_some() {
             return Err(validation_err(
                 "Inline CALL cannot define YIELD items".to_string(),
-                Some(&call_clause.span.clone())
+                Some(&call_clause.span.clone()),
             ));
         }
 
@@ -1665,7 +1676,10 @@ pub(super) fn validate_call_clause(
             .inline_procedure_statement
             .as_ref()
             .ok_or_else(|| {
-                validation_err("Inline CALL must preserve structured nested statement".to_string(), Some(&call_clause.span.clone()))
+                validation_err(
+                    "Inline CALL must preserve structured nested statement".to_string(),
+                    Some(&call_clause.span.clone()),
+                )
             })?;
 
         let mut nested_scope = declared_variables.clone();
@@ -1687,7 +1701,7 @@ pub(super) fn validate_call_clause(
             } else {
                 return Err(validation_err(
                     "Inline CALL scope arguments must be binding variables".to_string(),
-                    Some(&call_clause.span.clone())
+                    Some(&call_clause.span.clone()),
                 ));
             }
         }
@@ -1705,7 +1719,7 @@ pub(super) fn validate_call_clause(
     } else if call_clause.inline_procedure_statement.is_some() {
         return Err(validation_err(
             "Named CALL cannot preserve inline procedure statement".to_string(),
-            Some(&call_clause.span.clone())
+            Some(&call_clause.span.clone()),
         ));
     }
 

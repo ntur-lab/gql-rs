@@ -42,25 +42,23 @@
 //! # }
 //! ```
 
-/// This module contains the error handling logic for the GQL parser.
-pub mod error_handler;
 /// This module defines the AST layer for representing GQL queries.
 pub mod ast;
+/// This module contains the error handling logic for the GQL parser.
+pub mod error_handler;
 /// This module contains the query analyzer logic for the GQL parser.
 pub mod query_analyzer;
 
-
-/// Public error type returned by parsing and validation flows.
-pub use error_handler::error::GqlError;
-/// Public result alias used by crate APIs.
-pub use types::GqlResult;
 /// Flattened public AST surface (includes `QueryAST` and all AST nodes).
 pub use ast::*;
+/// Public error type returned by parsing and validation flows.
+pub use error_handler::error::GqlError;
 /// Public query analyzer trait and default implementation.
-pub use query_analyzer::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer};
-
+pub use query_analyzer::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+/// Public result alias used by crate APIs.
+pub use types::GqlResult;
 
 // Internal crate modules.
-pub(crate) mod types;
-pub(crate) mod constants;
 pub(crate) mod antlr;
+pub(crate) mod constants;
+pub(crate) mod types;

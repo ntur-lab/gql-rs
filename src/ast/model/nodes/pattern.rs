@@ -16,8 +16,8 @@
 // limitations under the Licence.
 
 use super::*;
-use serde::{Deserialize, Serialize};
 use crate::ast::model::Span;
+use serde::{Deserialize, Serialize};
 
 /// Represents a pattern.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -96,7 +96,7 @@ pub enum PathMode {
     Acyclic,
 }
 
-/// Represents an element in a Path pattern, 
+/// Represents an element in a Path pattern,
 /// basic building block of a pattern which can be either a node or an edge.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum PatternElement {

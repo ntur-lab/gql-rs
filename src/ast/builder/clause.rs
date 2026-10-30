@@ -41,7 +41,11 @@ impl GQLAstBuilder {
                 .map(|identifier| Self::identifier_text(&identifier.get_text()))
         });
 
-        Ok(ReturnItem { expression, alias, span })
+        Ok(ReturnItem {
+            expression,
+            alias,
+            span,
+        })
     }
 
     /// Function to build a ReturnClause from a ReturnStatementContext
@@ -73,8 +77,12 @@ impl GQLAstBuilder {
             })
             .transpose()?
             .unwrap_or_default();
-        
-        Ok(ReturnClause { distinct, items, span })
+
+        Ok(ReturnClause {
+            distinct,
+            items,
+            span,
+        })
     }
 
     /// Function to build a GroupClause from a GroupByClauseContext
@@ -112,14 +120,17 @@ impl GQLAstBuilder {
         grouping_element: &GroupingElementContextAll,
     ) -> GqlResult<GroupKey> {
         let span = Self::extract_span(grouping_element);
-        
+
         let binding_ref = grouping_element.bindingVariableReference().ok_or_else(|| {
             Self::parse_err(
                 "CST not valid: bindingVariableReference missing in groupingElement".into(),
             )
         })?;
 
-        Ok(GroupKey::BindingVariable{ name: binding_ref.get_text(), span })
+        Ok(GroupKey::BindingVariable {
+            name: binding_ref.get_text(),
+            span,
+        })
     }
 
     /// Function to build an OrderClause from an OrderByClauseContext, extracting the list of sort specifications and building the corresponding OrderItems.
@@ -217,7 +228,11 @@ impl GQLAstBuilder {
             return Ok(None);
         }
 
-        Ok(Some(LimitClause { count, offset, span }))
+        Ok(Some(LimitClause {
+            count,
+            offset,
+            span,
+        }))
     }
 
     /// Function to parse a nonNegativeIntegerSpecification, which can be either a literal unsigned integer or a dynamic parameter, and return the corresponding PageValue.
@@ -231,7 +246,10 @@ impl GQLAstBuilder {
                 .get_text()
                 .parse::<usize>()
                 .map_err(|_| Self::parse_err("Invalid unsigned integer in LIMIT/OFFSET".into()))?;
-            return Ok(PageValue::Number{ value: parsed, span });
+            return Ok(PageValue::Number {
+                value: parsed,
+                span,
+            });
         }
 
         if let Some(param) = spec.dynamicParameterSpecification() {
@@ -239,7 +257,7 @@ impl GQLAstBuilder {
                 .GENERAL_PARAMETER_REFERENCE()
                 .map(|t| t.get_text())
                 .unwrap_or_else(|| param.get_text());
-            return Ok(PageValue::Parameter{ name, span });
+            return Ok(PageValue::Parameter { name, span });
         }
 
         Self::parse_error("CST not valid: nonNegativeIntegerSpecification without value")

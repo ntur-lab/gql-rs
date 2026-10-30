@@ -23,8 +23,7 @@ use std::path::{Path, PathBuf};
 
 fn main() {
     let args = Arguments::from_args();
-    let fixture_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/fixtures/ast");
+    let fixture_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/ast");
     let trials = load_trials(&fixture_root).unwrap_or_else(|error| {
         eprintln!("Unable to load AST fixtures: {error}");
         std::process::exit(2);

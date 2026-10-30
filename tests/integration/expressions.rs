@@ -16,7 +16,7 @@
 // limitations under the Licence.
 
 mod expression_tests {
-    use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer, ast::{model::*}, GqlError};
+    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError, ast::model::*};
     #[test]
     fn rejects_integer_literals_outside_signed_64_bit_range() {
         for query in [
@@ -28,9 +28,15 @@ mod expression_tests {
             "RETURN 9999999999999999999999999999999999999999 AS a",
         ] {
             let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            let error = analyzer.exec(query).expect_err("out-of-range integer must fail");
-            assert!(error.to_string().contains("outside the signed 64-bit range"),
-                "query: {query}, error: {error}");
+            let error = analyzer
+                .exec(query)
+                .expect_err("out-of-range integer must fail");
+            assert!(
+                error
+                    .to_string()
+                    .contains("outside the signed 64-bit range"),
+                "query: {query}, error: {error}"
+            );
         }
     }
 
@@ -45,7 +51,9 @@ mod expression_tests {
             "RETURN '9223372036854775808' AS a",
         ] {
             let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer.exec(query).unwrap_or_else(|error| panic!("query: {query}, error: {error}"));
+            analyzer
+                .exec(query)
+                .unwrap_or_else(|error| panic!("query: {query}, error: {error}"));
         }
     }
 
@@ -64,16 +72,20 @@ mod expression_tests {
         ] {
             let query_text = format!("RETURN {literal} AS a");
             let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer.exec(&query_text).expect("string query should parse");
+            analyzer
+                .exec(&query_text)
+                .expect("string query should parse");
 
             let ast = analyzer.get_ast().expect("AST must be available");
             let Statement::Query(Query::Basic(query)) = &ast.statement else {
                 panic!("expected basic query statement");
             };
-            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
+            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement
+            else {
                 panic!("expected RETURN result statement");
             };
-            let Expression::Literal(Literal::String(value)) = &return_clause.items[0].expression else {
+            let Expression::Literal(Literal::String(value)) = &return_clause.items[0].expression
+            else {
                 panic!("expected string literal for {query_text}");
             };
             assert_eq!(value, expected, "query: {query_text}");
@@ -88,22 +100,35 @@ mod expression_tests {
             "RETURN [1, [], [[2]]] AS l",
         ] {
             let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer.exec(query).unwrap_or_else(|error| panic!("{query}: {error}"));
+            analyzer
+                .exec(query)
+                .unwrap_or_else(|error| panic!("{query}: {error}"));
             let ast = analyzer.get_ast().unwrap();
-            let Statement::Query(Query::Basic(query)) = &ast.statement else { panic!("expected query") };
-            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
+            let Statement::Query(Query::Basic(query)) = &ast.statement else {
+                panic!("expected query")
+            };
+            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement
+            else {
                 panic!("expected RETURN");
             };
-            let Expression::Array(array) = &return_clause.items[0].expression else { panic!("expected list") };
+            let Expression::Array(array) = &return_clause.items[0].expression else {
+                panic!("expected list")
+            };
             assert_eq!(array.elements.len(), 3);
-            assert!(array.elements.iter().any(|item| matches!(item, Expression::Array(_))));
+            assert!(
+                array
+                    .elements
+                    .iter()
+                    .any(|item| matches!(item, Expression::Array(_)))
+            );
         }
     }
 
     #[test]
     fn rejects_nested_list_when_cast_to_scalar_element_list() {
         let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        let error = analyzer.exec("RETURN CAST([1, null, [2, 3]] AS LIST<INTEGER>)")
+        let error = analyzer
+            .exec("RETURN CAST([1, null, [2, 3]] AS LIST<INTEGER>)")
             .expect_err("a nested list is not an integer element");
         assert!(matches!(error, GqlError::Validation { .. }));
     }
@@ -125,15 +150,20 @@ mod expression_tests {
                 panic!("expected basic query statement");
             };
 
-            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
+            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement
+            else {
                 panic!("expected RETURN result statement");
             };
 
-            let Expression::PropertyAccess(property_access) = &return_clause.items[0].expression else {
+            let Expression::PropertyAccess(property_access) = &return_clause.items[0].expression
+            else {
                 panic!("expected property access expression");
             };
 
-            assert_eq!(property_access.property, expected_property, "query: {query_text}");
+            assert_eq!(
+                property_access.property, expected_property,
+                "query: {query_text}"
+            );
         }
     }
 
@@ -209,7 +239,14 @@ mod expression_tests {
             panic!("expected literal node label");
         };
         assert_eq!(label, "select");
-        assert_eq!(node.properties.as_ref().expect("properties must exist").properties[0].key, "year");
+        assert_eq!(
+            node.properties
+                .as_ref()
+                .expect("properties must exist")
+                .properties[0]
+                .key,
+            "year"
+        );
     }
 
     #[test]
@@ -239,7 +276,6 @@ mod expression_tests {
             other => panic!("expected CALL statement, got: {other:?}"),
         }
     }
-
 
     #[test]
     fn test_return_record_literal_maps_to_expression_map() {
@@ -465,7 +501,10 @@ mod expression_tests {
         let result = analyzer.exec("RETURN CAST([1, 2, 3] AS LIST<INTEGER>)");
 
         if let Err(err) = result {
-            panic!("Expected successful cast for homogeneous list, got: {:?}", err);
+            panic!(
+                "Expected successful cast for homogeneous list, got: {:?}",
+                err
+            );
         }
     }
 

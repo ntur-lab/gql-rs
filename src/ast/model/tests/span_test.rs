@@ -41,4 +41,3 @@ fn span_json_round_trip_preserves_every_coordinate() {
 
     assert_eq!(decoded, span);
 }
-

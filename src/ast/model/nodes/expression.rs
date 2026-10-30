@@ -16,8 +16,8 @@
 // limitations under the Licence.
 
 use super::*;
-use serde::{Deserialize, Serialize};
 use crate::ast::model::Span;
+use serde::{Deserialize, Serialize};
 
 /// Represents an expression.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -68,7 +68,7 @@ pub struct WhenOperandExpression {
     pub span: Span,
 }
 
-/// Represents the different kinds of operands 
+/// Represents the different kinds of operands
 /// that can be used in a WHEN clause of a CASE expression.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum WhenOperandKind {

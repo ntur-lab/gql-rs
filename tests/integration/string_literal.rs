@@ -37,7 +37,10 @@ mod string_literal_tests {
             panic!("expected RETURN result statement");
         };
         let Expression::Literal(Literal::String(value)) = &return_clause.items[0].expression else {
-            panic!("expected string literal, got {:?}", return_clause.items[0].expression);
+            panic!(
+                "expected string literal, got {:?}",
+                return_clause.items[0].expression
+            );
         };
         value.clone()
     }

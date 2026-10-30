@@ -15,11 +15,11 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
+use super::{Statement, TransactionIntent};
 use crate::antlr::gqlparser::GqlProgramContextAll;
 use crate::ast::builder::GQLAstBuilder;
 use crate::ast::validator::validate_query_ast;
 use crate::types::GqlResult;
-use super::{Statement, TransactionIntent};
 use serde::{Deserialize, Serialize};
 
 /// Root AST node for a parsed GQL program.
@@ -48,4 +48,3 @@ impl QueryAST {
         self.statement.transaction_intent()
     }
 }
-

@@ -43,14 +43,14 @@
 //! # }
 //! ```
 
-use crate::error_handler::error_listener::GqlErrorListener;
-use crate::types::GqlResult;
+use crate::antlr::gqllexer::GQLLexer;
+use crate::antlr::gqlparser::GQLParser;
 use crate::ast::model::QueryAST;
 use crate::error_handler::error::GqlError;
-use crate::antlr::gqlparser::GQLParser;
-use crate::antlr::gqllexer::GQLLexer;
-use antlr_rust::{InputStream, Parser};
+use crate::error_handler::error_listener::GqlErrorListener;
+use crate::types::GqlResult;
 use antlr_rust::common_token_stream::CommonTokenStream;
+use antlr_rust::{InputStream, Parser};
 
 /// Trait for analyzing GQL queries and converting them to Abstract Syntax Trees (AST).
 /// This trait defines the interface for query analysis functionality, allowing implementations
@@ -80,11 +80,11 @@ pub trait GQLQueryAnalyzer {
 
 /// Default implementation of GQLQueryAnalyzer that stores the query string and resulting AST
 /// in internal state after parsing and validation.
-/// 
+///
 /// # Example
 /// ```
 /// use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer};
-/// 
+///
 /// let mut analyzer = DefaultGQLQueryAnalyzer::new();
 /// let query = "MATCH (a:Actor)-[:ACTED_IN]->(m:Movie) WHERE m.title = 'The Matrix' RETURN a.name";
 /// match analyzer.exec(query) {
@@ -158,7 +158,8 @@ impl GQLQueryAnalyzer for DefaultGQLQueryAnalyzer {
         }
 
         // Convert CST -> AST and run semantic validation on the resulting model.
-        let cst_root = cst_root_result.map_err(|e| GqlError::parse(format!("ANTLR parsing failed: {:?}", e)))?;
+        let cst_root = cst_root_result
+            .map_err(|e| GqlError::parse(format!("ANTLR parsing failed: {:?}", e)))?;
         let ast = QueryAST::build(&cst_root)?;
         ast.validate()?;
 

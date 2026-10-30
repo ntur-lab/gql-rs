@@ -17,6 +17,7 @@
 
 use super::model::*;
 use crate::antlr::gqlparser::*;
+use crate::ast::model::Span;
 use crate::constants::function_names as fn_names;
 use crate::constants::keywords as kw;
 use crate::error_handler::error::GqlError;
@@ -25,7 +26,6 @@ use antlr_rust::parser_rule_context::ParserRuleContext;
 use antlr_rust::token::Token;
 use antlr_rust::tree::ParseTree;
 use std::rc::Rc;
-use crate::ast::model::Span;
 
 // Statement-level CST -> AST mapping helpers.
 mod statement;
@@ -37,7 +37,6 @@ mod pattern;
 mod clause;
 // Expression CST -> AST mapping helpers.
 mod expression;
-
 
 // Internal AST builder entrypoint.
 pub(crate) struct GQLAstBuilder;
@@ -161,7 +160,9 @@ impl GQLAstBuilder {
         while index < chars.len() {
             let segment_start = index;
             let quote_index = if chars[index] == '@'
-                && chars.get(index + 1).is_some_and(|ch| matches!(ch, '"' | '`'))
+                && chars
+                    .get(index + 1)
+                    .is_some_and(|ch| matches!(ch, '"' | '`'))
             {
                 index + 1
             } else if matches!(chars[index], '"' | '`') {

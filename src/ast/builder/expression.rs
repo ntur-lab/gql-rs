@@ -1360,7 +1360,9 @@ impl GQLAstBuilder {
                         .collect();
 
                     let fn_identifier = udf.identifier().ok_or_else(|| {
-                        Self::parse_err("CST not valid: identifier missing in userDefinedFunction".into())
+                        Self::parse_err(
+                            "CST not valid: identifier missing in userDefinedFunction".into(),
+                        )
                     })?;
                     name_parts.push(Self::identifier_text(&fn_identifier.get_text()));
 
@@ -1492,14 +1494,15 @@ impl GQLAstBuilder {
             value_expression_primary.unsignedValueSpecification()
         {
             if let Some(unsigned_literal) = unsigned_value_specification.unsignedLiteral()
-                && let Some(general_literal) = unsigned_literal.generalLiteral() {
-                    if let Some(list_literal) = general_literal.listLiteral() {
-                        return Self::build_array_expression_from_list_literal(&list_literal);
-                    }
-                    if let Some(record_literal) = general_literal.recordLiteral() {
-                        return Self::build_map_expression_from_record_literal(&record_literal);
-                    }
+                && let Some(general_literal) = unsigned_literal.generalLiteral()
+            {
+                if let Some(list_literal) = general_literal.listLiteral() {
+                    return Self::build_array_expression_from_list_literal(&list_literal);
                 }
+                if let Some(record_literal) = general_literal.recordLiteral() {
+                    return Self::build_map_expression_from_record_literal(&record_literal);
+                }
+            }
             return Ok(Expression::Literal(Self::build_literal_from_context(
                 &unsigned_value_specification,
             )?));
@@ -1536,28 +1539,30 @@ impl GQLAstBuilder {
         }
 
         if let Some(paren) = value_expression_primary.parenthesizedValueExpression()
-            && let Some(inner) = paren.valueExpression() {
-                return Self::build_expression_from_context(&inner);
-            }
+            && let Some(inner) = paren.valueExpression()
+        {
+            return Self::build_expression_from_context(&inner);
+        }
         if let Some(case_expr) = value_expression_primary.caseExpression()
-            && let Some(abbreviation) = case_expr.caseAbbreviation() {
-                let name = if abbreviation.COALESCE().is_some() {
-                    "COALESCE"
-                } else {
-                    "NULLIF"
-                };
-                let arguments = abbreviation
-                    .valueExpression_all()
-                    .into_iter()
-                    .map(|e| Self::build_expression_from_context(&e))
-                    .collect::<GqlResult<Vec<_>>>()?;
-                return Ok(Expression::FunctionCall(FunctionCall {
-                    name: name.to_string(),
-                    distinct: DistinctQualifier::None,
-                    arguments,
-                    span: span.clone(),
-                }));
-            }
+            && let Some(abbreviation) = case_expr.caseAbbreviation()
+        {
+            let name = if abbreviation.COALESCE().is_some() {
+                "COALESCE"
+            } else {
+                "NULLIF"
+            };
+            let arguments = abbreviation
+                .valueExpression_all()
+                .into_iter()
+                .map(|e| Self::build_expression_from_context(&e))
+                .collect::<GqlResult<Vec<_>>>()?;
+            return Ok(Expression::FunctionCall(FunctionCall {
+                name: name.to_string(),
+                distinct: DistinctQualifier::None,
+                arguments,
+                span: span.clone(),
+            }));
+        }
 
         if let Some(element_id_fn) = value_expression_primary.element_idFunction() {
             let element_ref = element_id_fn.elementVariableReference().ok_or_else(|| {
@@ -1919,27 +1924,31 @@ impl GQLAstBuilder {
     fn extract_node_type_identifier(cst: &NodeTypeSpecificationContextAll) -> Option<String> {
         if let Some(pattern) = cst.nodeTypePattern() {
             if let Some(name) = pattern.nodeTypeName()
-                && let Some(identifier) = name.identifier() {
-                    return Some(Self::identifier_text(&identifier.get_text()));
-                }
+                && let Some(identifier) = name.identifier()
+            {
+                return Some(Self::identifier_text(&identifier.get_text()));
+            }
 
             if let Some(alias) = pattern.localNodeTypeAlias()
-                && let Some(identifier) = alias.regularIdentifier() {
-                    return Some(Self::identifier_text(&identifier.get_text()));
-                }
+                && let Some(identifier) = alias.regularIdentifier()
+            {
+                return Some(Self::identifier_text(&identifier.get_text()));
+            }
         }
 
         if let Some(phrase) = cst.nodeTypePhrase() {
             if let Some(filler) = phrase.nodeTypePhraseFiller()
                 && let Some(name) = filler.nodeTypeName()
-                    && let Some(identifier) = name.identifier() {
-                        return Some(Self::identifier_text(&identifier.get_text()));
-                    }
+                && let Some(identifier) = name.identifier()
+            {
+                return Some(Self::identifier_text(&identifier.get_text()));
+            }
 
             if let Some(alias) = phrase.localNodeTypeAlias()
-                && let Some(identifier) = alias.regularIdentifier() {
-                    return Some(Self::identifier_text(&identifier.get_text()));
-                }
+                && let Some(identifier) = alias.regularIdentifier()
+            {
+                return Some(Self::identifier_text(&identifier.get_text()));
+            }
         }
 
         None
@@ -1949,16 +1958,18 @@ impl GQLAstBuilder {
     fn extract_edge_type_identifier(cst: &EdgeTypeSpecificationContextAll) -> Option<String> {
         if let Some(pattern) = cst.edgeTypePattern()
             && let Some(name) = pattern.edgeTypeName()
-                && let Some(identifier) = name.identifier() {
-                    return Some(identifier.get_text());
-                }
+            && let Some(identifier) = name.identifier()
+        {
+            return Some(identifier.get_text());
+        }
 
         if let Some(phrase) = cst.edgeTypePhrase()
             && let Some(filler) = phrase.edgeTypePhraseFiller()
-                && let Some(name) = filler.edgeTypeName()
-                    && let Some(identifier) = name.identifier() {
-                        return Some(Self::identifier_text(&identifier.get_text()));
-                    }
+            && let Some(name) = filler.edgeTypeName()
+            && let Some(identifier) = name.identifier()
+        {
+            return Some(Self::identifier_text(&identifier.get_text()));
+        }
 
         None
     }
@@ -2651,7 +2662,9 @@ impl GQLAstBuilder {
             return Ok(Expression::WhenOperand(WhenOperandExpression {
                 kind: WhenOperandKind::LabeledPredicate {
                     negated,
-                    label_expression: label_part.labelExpression().map(|le| Self::identifiers_text(&le.get_text())),
+                    label_expression: label_part
+                        .labelExpression()
+                        .map(|le| Self::identifiers_text(&le.get_text())),
                 },
                 span: span.clone(),
             }));
@@ -2814,24 +2827,28 @@ impl GQLAstBuilder {
         let mut elements = Vec::new();
 
         if let Some(by_enum) = path_constructor.pathValueConstructorByEnumeration()
-            && let Some(list) = by_enum.pathElementList() {
-                if let Some(start) = list.pathElementListStart()
-                    && let Some(node_ref) = start.nodeReferenceValueExpression()
-                        && let Some(prim) = node_ref.valueExpressionPrimary() {
-                            elements.push(Self::build_primary_expression_from_context(&prim)?);
-                        }
+            && let Some(list) = by_enum.pathElementList()
+        {
+            if let Some(start) = list.pathElementListStart()
+                && let Some(node_ref) = start.nodeReferenceValueExpression()
+                && let Some(prim) = node_ref.valueExpressionPrimary()
+            {
+                elements.push(Self::build_primary_expression_from_context(&prim)?);
+            }
 
-                for step in list.pathElementListStep_all() {
-                    if let Some(edge_ref) = step.edgeReferenceValueExpression()
-                        && let Some(prim) = edge_ref.valueExpressionPrimary() {
-                            elements.push(Self::build_primary_expression_from_context(&prim)?);
-                        }
-                    if let Some(node_ref) = step.nodeReferenceValueExpression()
-                        && let Some(prim) = node_ref.valueExpressionPrimary() {
-                            elements.push(Self::build_primary_expression_from_context(&prim)?);
-                        }
+            for step in list.pathElementListStep_all() {
+                if let Some(edge_ref) = step.edgeReferenceValueExpression()
+                    && let Some(prim) = edge_ref.valueExpressionPrimary()
+                {
+                    elements.push(Self::build_primary_expression_from_context(&prim)?);
+                }
+                if let Some(node_ref) = step.nodeReferenceValueExpression()
+                    && let Some(prim) = node_ref.valueExpressionPrimary()
+                {
+                    elements.push(Self::build_primary_expression_from_context(&prim)?);
                 }
             }
+        }
 
         Ok(Expression::PathConstructor(elements))
     }
@@ -2941,17 +2958,19 @@ impl GQLAstBuilder {
 
             let mut arguments = Vec::new();
             if let Some(left) = binary_set_function.dependentValueExpression()
-                && let Some(expr) = left.numericValueExpression() {
-                    arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
-                        &expr.get_text(),
-                    )?));
-                }
+                && let Some(expr) = left.numericValueExpression()
+            {
+                arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
+                    &expr.get_text(),
+                )?));
+            }
             if let Some(right) = binary_set_function.independentValueExpression()
-                && let Some(expr) = right.numericValueExpression() {
-                    arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
-                        &expr.get_text(),
-                    )?));
-                }
+                && let Some(expr) = right.numericValueExpression()
+            {
+                arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
+                    &expr.get_text(),
+                )?));
+            }
 
             return Ok(Expression::FunctionCall(FunctionCall {
                 name,
@@ -3052,15 +3071,14 @@ impl GQLAstBuilder {
                 list.field_all()
                     .into_iter()
                     .map(|field| {
-                        let key =
-                            field
-                                .fieldName()
-                                .map(|name| Self::identifier_text(&name.get_text()))
-                                .ok_or_else(|| {
-                                    Self::parse_err(
-                                        "CST not valid: fieldName missing in record field".into(),
-                                    )
-                                })?;
+                        let key = field
+                            .fieldName()
+                            .map(|name| Self::identifier_text(&name.get_text()))
+                            .ok_or_else(|| {
+                                Self::parse_err(
+                                    "CST not valid: fieldName missing in record field".into(),
+                                )
+                            })?;
 
                         let value_ctx = field.valueExpression().ok_or_else(|| {
                             Self::parse_err(
@@ -3108,9 +3126,7 @@ impl GQLAstBuilder {
         unsigned_literal: &UnsignedLiteralContextAll,
     ) -> GqlResult<Literal> {
         if let Some(unsigned_numeric_literal) = unsigned_literal.unsignedNumericLiteral() {
-            return Self::build_literal_from_leaf_text(
-                &unsigned_numeric_literal.get_text(),
-            );
+            return Self::build_literal_from_leaf_text(&unsigned_numeric_literal.get_text());
         }
 
         if let Some(general_literal) = unsigned_literal.generalLiteral() {
@@ -3120,9 +3136,13 @@ impl GQLAstBuilder {
         Self::parse_error("CST not valid: unsignedLiteral without supported literal")
     }
 
-    fn build_literal_from_general_literal(general_literal: &GeneralLiteralContextAll) -> GqlResult<Literal> {
+    fn build_literal_from_general_literal(
+        general_literal: &GeneralLiteralContextAll,
+    ) -> GqlResult<Literal> {
         if let Some(boolean_literal) = general_literal.BOOLEAN_LITERAL() {
-            return Ok(Literal::Boolean(boolean_literal.get_text().eq_ignore_ascii_case("true")));
+            return Ok(Literal::Boolean(
+                boolean_literal.get_text().eq_ignore_ascii_case("true"),
+            ));
         }
 
         if let Some(character_string_literal) = general_literal.characterStringLiteral() {
@@ -3151,12 +3171,17 @@ impl GQLAstBuilder {
 
     /// Rejects integer syntax outside i64 without reinterpreting it as floating point.
     pub(super) fn validate_integer_literal_range(text: &str) -> GqlResult<()> {
-        let digits = text.strip_prefix('-').or_else(|| text.strip_prefix('+')).unwrap_or(text);
-        if !digits.is_empty() && digits.bytes().all(|byte| byte.is_ascii_digit())
+        let digits = text
+            .strip_prefix('-')
+            .or_else(|| text.strip_prefix('+'))
+            .unwrap_or(text);
+        if !digits.is_empty()
+            && digits.bytes().all(|byte| byte.is_ascii_digit())
             && text.parse::<i64>().is_err()
         {
             return Self::parse_error(format!(
-                "Integer literal '{}' is outside the signed 64-bit range", text
+                "Integer literal '{}' is outside the signed 64-bit range",
+                text
             ));
         }
         Ok(())
