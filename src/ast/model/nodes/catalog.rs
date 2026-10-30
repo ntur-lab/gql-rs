@@ -16,8 +16,8 @@
 // limitations under the Licence.
 
 use super::*;
-use serde::{Deserialize, Serialize};
 use crate::ast::model::Span;
+use serde::{Deserialize, Serialize};
 
 /// Top-level GQL statement categories represented by this AST.
 #[derive(Debug, Clone, Serialize, Deserialize)]

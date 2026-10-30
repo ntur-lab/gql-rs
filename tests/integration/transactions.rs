@@ -16,7 +16,10 @@
 // limitations under the Licence.
 
 pub mod test_query_transaction {
-    use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer, ast::{Query, Statement, TransactionCommandKind}};
+    use gql_rs::{
+        DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
+        ast::{Query, Statement, TransactionCommandKind},
+    };
 
     test_transaction_statement!(
         test_start_txn_read_only_typed,

@@ -378,11 +378,7 @@ pub(super) fn validate_node(
 
     if let Some(where_clause) = &node.where_clause {
         validate_expression(where_clause, declared_variables)?;
-        validate_predicate_condition_type(
-            where_clause,
-            declared_variables,
-            "Node WHERE clause",
-        )?;
+        validate_predicate_condition_type(where_clause, declared_variables, "Node WHERE clause")?;
         check_no_aggregates_in_where(where_clause)?;
     }
     Ok(())
@@ -455,11 +451,7 @@ pub(super) fn validate_edge(
 
     if let Some(where_clause) = &edge.where_clause {
         validate_expression(where_clause, declared_variables)?;
-        validate_predicate_condition_type(
-            where_clause,
-            declared_variables,
-            "Edge WHERE clause",
-        )?;
+        validate_predicate_condition_type(where_clause, declared_variables, "Edge WHERE clause")?;
         check_no_aggregates_in_where(where_clause)?;
     }
     Ok(())
@@ -475,15 +467,16 @@ pub(super) fn validate_edge_quantifier(
     };
 
     if let PathQuantifier::Range { min, max } = quantifier
-        && min > max {
-            return Err(validation_err(
-                format!(
-                    "Invalid path quantifier range: lower bound {} is greater than upper bound {}",
-                    min, max
-                ),
-                Some(&edge.span.clone()),
-            ));
-        }
+        && min > max
+    {
+        return Err(validation_err(
+            format!(
+                "Invalid path quantifier range: lower bound {} is greater than upper bound {}",
+                min, max
+            ),
+            Some(&edge.span.clone()),
+        ));
+    }
 
     if matches!(path_mode, Some(PathMode::Simple | PathMode::Acyclic)) {
         let is_open = match quantifier {
@@ -563,12 +556,13 @@ pub(super) fn validate_group_clause(
 ) -> Result<(), GqlError> {
     if group_clause.is_empty_grouping_set {
         if let Some(keys) = &group_clause.keys
-            && !keys.is_empty() {
-                return Err(validation_err(
-                    "GROUP BY () cannot contain grouping keys".to_string(),
-                    Some(&group_clause.span.clone()),
-                ));
-            }
+            && !keys.is_empty()
+        {
+            return Err(validation_err(
+                "GROUP BY () cannot contain grouping keys".to_string(),
+                Some(&group_clause.span.clone()),
+            ));
+        }
         return Ok(());
     }
 
@@ -849,17 +843,17 @@ pub(super) fn validate_case_expression(
                     if let (Some(t), Some(w)) = (
                         test_type.clone(),
                         infer_expression_type(when_value, &inferred, Some(declared_variables)),
-                    )
-                        && !are_comparison_types_compatible(&t, &w) {
-                            return Err(validation_err(
-                                format!(
-                                    "CASE simple WHEN value type {} is incompatible with test expression type {}",
-                                    type_name(&w),
-                                    type_name(&t)
-                                ),
-                                Some(&branch.span.clone()),
-                            ));
-                        }
+                    ) && !are_comparison_types_compatible(&t, &w)
+                    {
+                        return Err(validation_err(
+                            format!(
+                                "CASE simple WHEN value type {} is incompatible with test expression type {}",
+                                type_name(&w),
+                                type_name(&t)
+                            ),
+                            Some(&branch.span.clone()),
+                        ));
+                    }
                 }
                 validate_expression(&branch.then_expression, declared_variables)?;
             }

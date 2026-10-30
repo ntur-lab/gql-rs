@@ -39,17 +39,17 @@
 //! crate is in alpha, the serialized AST representation may change between
 //! releases.
 
-mod query_ast;
 mod nodes;
+mod query_ast;
 #[cfg(test)]
 mod tests;
 
-pub use query_ast::*;
 pub use nodes::*;
+pub use query_ast::*;
 use serde::{Deserialize, Serialize};
 
-/// This struct represents a span in the source code, 
-/// with start and end line and column information. 
+/// This struct represents a span in the source code,
+/// with start and end line and column information.
 /// It is used to track the location of AST nodes for error reporting and debugging purposes.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Span {

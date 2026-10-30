@@ -50,9 +50,10 @@ impl GQLAstBuilder {
                     opt_primitive_result = body.primitiveResultStatement();
                 }
             } else if let Some(focused) = linear_data.focusedLinearDataModifyingStatement()
-                && let Some(body) = focused.focusedLinearDataModifyingStatementBody() {
-                    opt_primitive_result = body.primitiveResultStatement();
-                }
+                && let Some(body) = focused.focusedLinearDataModifyingStatementBody()
+            {
+                opt_primitive_result = body.primitiveResultStatement();
+            }
 
             if let Some(prim_res_ctx) = opt_primitive_result {
                 let result_statement =
@@ -75,10 +76,7 @@ impl GQLAstBuilder {
                 return Self::wrap_focused_linear_data_statement(&linear_data, statement);
             }
 
-            Self::wrap_focused_linear_data_statement(
-                &linear_data,
-                Statement::Data(data_statement),
-            )
+            Self::wrap_focused_linear_data_statement(&linear_data, Statement::Data(data_statement))
         } else if let Some(linear_catalog) = statement.linearCatalogModifyingStatement() {
             let stmts = linear_catalog.simpleCatalogModifyingStatement_all();
             if !stmts.is_empty() {
@@ -162,8 +160,7 @@ impl GQLAstBuilder {
         };
         let nested = focused_nested.nestedQuerySpecification().ok_or_else(|| {
             Self::parse_err(
-                "Query not valid: missing nestedQuerySpecification in focused nested query"
-                    .into(),
+                "Query not valid: missing nestedQuerySpecification in focused nested query".into(),
             )
         })?;
         let statement = Self::build_statement_from_nested_query_spec(&nested)?;
@@ -270,27 +267,31 @@ impl GQLAstBuilder {
         };
 
         let body = if let Some(procedure) = cst.procedureSpecification() {
-            let procedure_body = procedure.procedureBody().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing procedureBody".into())
-            })?;
-            let statement_block = procedure_body.statementBlock().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing statementBlock".into())
-            })?;
+            let procedure_body = procedure
+                .procedureBody()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing procedureBody".into()))?;
+            let statement_block = procedure_body
+                .statementBlock()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing statementBlock".into()))?;
 
-            Some(Box::new(Self::build_statement_block_from_context(&statement_block)?))
+            Some(Box::new(Self::build_statement_block_from_context(
+                &statement_block,
+            )?))
         } else {
             None
         };
 
-        if cst.startTransactionCommand().is_none() && body.is_none()
-            && let Some(end_kind) = end_command {
-                return Ok(Statement::Transaction(TransactionStatement {
-                    kind: end_kind,
-                    mode: None,
-                    body: None,
-                    end_command: None,
-                }));
-            }
+        if cst.startTransactionCommand().is_none()
+            && body.is_none()
+            && let Some(end_kind) = end_command
+        {
+            return Ok(Statement::Transaction(TransactionStatement {
+                kind: end_kind,
+                mode: None,
+                body: None,
+                end_command: None,
+            }));
+        }
 
         if kind == TransactionCommandKind::Activity && body.is_none() && end_command.is_none() {
             return Self::parse_error(format!(
@@ -685,7 +686,9 @@ impl GQLAstBuilder {
             .ok_or_else(|| Self::parse_err("CST not valid: missing graphName".into()))?
             .get_text();
         let name = Self::identifier_text(&name);
-        let parent = cst.catalogObjectParentReference().map(|p| Self::identifiers_text(&p.get_text()));
+        let parent = cst
+            .catalogObjectParentReference()
+            .map(|p| Self::identifiers_text(&p.get_text()));
 
         Ok(CatalogObjectName {
             parent,
@@ -705,7 +708,9 @@ impl GQLAstBuilder {
             .ok_or_else(|| Self::parse_err("CST not valid: missing graphTypeName".into()))?
             .get_text();
         let name = Self::identifier_text(&name);
-        let parent = cst.catalogObjectParentReference().map(|p| Self::identifiers_text(&p.get_text()));
+        let parent = cst
+            .catalogObjectParentReference()
+            .map(|p| Self::identifiers_text(&p.get_text()));
 
         Ok(CatalogObjectName {
             parent,
@@ -1141,7 +1146,9 @@ impl GQLAstBuilder {
         GraphExpressionClause {
             kind,
             text: cst.get_text(),
-            graph_reference: cst.graphReference().map(|x| Self::identifiers_text(&x.get_text())),
+            graph_reference: cst
+                .graphReference()
+                .map(|x| Self::identifiers_text(&x.get_text())),
             object_name_or_binding_variable: cst
                 .objectNameOrBindingVariable()
                 .map(|x| x.get_text()),
@@ -1325,10 +1332,11 @@ impl GQLAstBuilder {
             let mut query = Self::build_query_from_nested_query_spec(&nested)?;
 
             if let Some(use_clause) = focused_nested.useGraphClause()
-                && let Some(graph_expr) = use_clause.graphExpression() {
-                    let graph_clause = Self::build_graph_expression_clause(&graph_expr);
-                    Self::inject_use_graph_into_query(&mut query, &graph_clause);
-                }
+                && let Some(graph_expr) = use_clause.graphExpression()
+            {
+                let graph_clause = Self::build_graph_expression_clause(&graph_expr);
+                Self::inject_use_graph_into_query(&mut query, &graph_clause);
+            }
 
             return Ok(query);
         }
@@ -1337,11 +1345,12 @@ impl GQLAstBuilder {
             let mut pipeline: Vec<QueryStep> = Vec::new();
 
             if let Some(use_clause) = focused_primitive.useGraphClause()
-                && let Some(graph_expr) = use_clause.graphExpression() {
-                    pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
-                        &graph_expr,
-                    )));
-                }
+                && let Some(graph_expr) = use_clause.graphExpression()
+            {
+                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
+                    &graph_expr,
+                )));
+            }
 
             let primitive_result_statement = focused_primitive
                 .primitiveResultStatement()
@@ -1365,11 +1374,12 @@ impl GQLAstBuilder {
         let mut pipeline: Vec<QueryStep> = Vec::new();
         for part in focused.focusedLinearQueryStatementPart_all() {
             if let Some(use_clause) = part.useGraphClause()
-                && let Some(graph_expr) = use_clause.graphExpression() {
-                    pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
-                        &graph_expr,
-                    )));
-                }
+                && let Some(graph_expr) = use_clause.graphExpression()
+            {
+                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
+                    &graph_expr,
+                )));
+            }
 
             if let Some(simple_linear) = part.simpleLinearQueryStatement() {
                 pipeline.extend(Self::build_pipeline_from_simple_linear_query_statement(
@@ -1385,11 +1395,12 @@ impl GQLAstBuilder {
             })?;
 
         if let Some(use_clause) = final_part.useGraphClause()
-            && let Some(graph_expr) = use_clause.graphExpression() {
-                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
-                    &graph_expr,
-                )));
-            }
+            && let Some(graph_expr) = use_clause.graphExpression()
+        {
+            pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
+                &graph_expr,
+            )));
+        }
 
         if let Some(simple_linear) = final_part.simpleLinearQueryStatement() {
             pipeline.extend(Self::build_pipeline_from_simple_linear_query_statement(
@@ -1930,14 +1941,15 @@ impl GQLAstBuilder {
             let mut arguments = Vec::new();
 
             if let Some(scope_clause) = inline_call.variableScopeClause()
-                && let Some(ref_list) = scope_clause.bindingVariableReferenceList() {
-                    for scoped_var in ref_list.bindingVariableReference_all() {
-                        arguments.push(Expression::Variable {
-                            name: scoped_var.get_text(),
-                            span: span.clone(),
-                        });
-                    }
+                && let Some(ref_list) = scope_clause.bindingVariableReferenceList()
+            {
+                for scoped_var in ref_list.bindingVariableReference_all() {
+                    arguments.push(Expression::Variable {
+                        name: scoped_var.get_text(),
+                        span: span.clone(),
+                    });
                 }
+            }
 
             Ok(CallClause {
                 procedure_name: "__INLINE_CALL__".to_string(),

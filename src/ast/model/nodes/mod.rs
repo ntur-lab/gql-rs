@@ -21,9 +21,9 @@ mod data;
 mod expression;
 mod pattern;
 mod query;
-mod transaction_intent;
 #[cfg(test)]
 mod tests;
+mod transaction_intent;
 
 pub use catalog::*;
 pub use data::*;

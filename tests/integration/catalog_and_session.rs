@@ -16,8 +16,10 @@
 // limitations under the Licence.
 
 mod catalog_and_session_tests {
-    use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer, ast::{CatalogStatement, Statement}};
-
+    use gql_rs::{
+        DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
+        ast::{CatalogStatement, Statement},
+    };
 
     test_session_statement!(
         test_session_set_schema_struct,
@@ -185,7 +187,8 @@ mod catalog_and_session_tests {
             panic!("expected catalog statement block");
         };
 
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
+        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first()
+        else {
             panic!("expected CreateGraphType statement");
         };
 
@@ -207,7 +210,8 @@ mod catalog_and_session_tests {
             panic!("expected catalog statement block");
         };
 
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
+        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first()
+        else {
             panic!("expected CreateGraphType statement");
         };
 
@@ -229,7 +233,8 @@ mod catalog_and_session_tests {
             panic!("expected catalog statement block");
         };
 
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
+        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first()
+        else {
             panic!("expected CreateGraphType statement");
         };
 
@@ -251,7 +256,8 @@ mod catalog_and_session_tests {
             panic!("expected catalog statement block");
         };
 
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
+        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first()
+        else {
             panic!("expected CreateGraphType statement");
         };
 

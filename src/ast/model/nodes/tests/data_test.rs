@@ -18,44 +18,47 @@
 use crate::ast::*;
 
 fn span() -> Span {
-	Span {
-		start_line: 1,
-		start_col: 1,
-		end_line: 1,
-		end_col: 1,
-	}
+    Span {
+        start_line: 1,
+        start_col: 1,
+        end_line: 1,
+        end_col: 1,
+    }
 }
 
 fn nested_next_statement() -> NextStatement {
-	NextStatement {
-		source_statement: Box::new(Statement::Session(SessionStatement {
-			kind: SessionCommandKind::Activity,
-			set_clauses: vec![],
-			reset_clauses: vec![],
-		})),
-		target_statement: Box::new(Statement::Let(LetStatement {
-			variable_definitions: vec![],
-			span: span(),
-		})),
-		yield_clause: None,
-		next: Some(Box::new(NextStatement {
-			source_statement: Box::new(Statement::Query(Query::Basic(BasicQuery {
-				pipeline: vec![],
-				result_statement: PrimitiveResultStatement::Finish { span: span() },
-				span: span(),
-			}))),
-			target_statement: Box::new(Statement::Catalog(CatalogStatementBlock {
-				statements: vec![],
-			})),
-			yield_clause: None,
-			next: None,
-			span: span(),
-		})),
-		span: span(),
-	}
+    NextStatement {
+        source_statement: Box::new(Statement::Session(SessionStatement {
+            kind: SessionCommandKind::Activity,
+            set_clauses: vec![],
+            reset_clauses: vec![],
+        })),
+        target_statement: Box::new(Statement::Let(LetStatement {
+            variable_definitions: vec![],
+            span: span(),
+        })),
+        yield_clause: None,
+        next: Some(Box::new(NextStatement {
+            source_statement: Box::new(Statement::Query(Query::Basic(BasicQuery {
+                pipeline: vec![],
+                result_statement: PrimitiveResultStatement::Finish { span: span() },
+                span: span(),
+            }))),
+            target_statement: Box::new(Statement::Catalog(CatalogStatementBlock {
+                statements: vec![],
+            })),
+            yield_clause: None,
+            next: None,
+            span: span(),
+        })),
+        span: span(),
+    }
 }
 
 #[test]
 fn next_statement_transaction_intent_merges_recursive_chains() {
-	assert_eq!(nested_next_statement().transaction_intent(), TransactionIntent::CatalogWrite);
+    assert_eq!(
+        nested_next_statement().transaction_intent(),
+        TransactionIntent::CatalogWrite
+    );
 }

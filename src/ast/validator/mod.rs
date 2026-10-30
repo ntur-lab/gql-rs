@@ -21,10 +21,10 @@ use crate::error_handler::error::GqlError;
 use std::collections::{HashMap, HashSet};
 
 // Internal crate modules.
-mod statements;
 mod data;
-mod query;
 mod expression;
+mod query;
+mod statements;
 
 use data::*;
 use expression::*;

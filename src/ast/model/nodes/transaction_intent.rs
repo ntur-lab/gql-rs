@@ -20,34 +20,34 @@ use serde::{Deserialize, Serialize};
 /// GQL statement access intent inferred from AST semantics.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TransactionIntent {
-	/// Statement can safely run in read-only mode.
-	ReadOnly,
-	/// Statement modifies graph data.
-	DataWrite,
-	/// Statement modifies catalog/schema metadata.
-	CatalogWrite,
-	/// Statement modifies both graph data and catalog/schema metadata.
-	DataAndCatalogWrite,
+    /// Statement can safely run in read-only mode.
+    ReadOnly,
+    /// Statement modifies graph data.
+    DataWrite,
+    /// Statement modifies catalog/schema metadata.
+    CatalogWrite,
+    /// Statement modifies both graph data and catalog/schema metadata.
+    DataAndCatalogWrite,
 }
 
 impl TransactionIntent {
-	/// Combines two intents, preserving the strongest requirement.
-	pub fn merge(self, other: Self) -> Self {
-		match (self, other) {
-			(Self::DataAndCatalogWrite, _) | (_, Self::DataAndCatalogWrite) => {
-				Self::DataAndCatalogWrite
-			}
-			(Self::DataWrite, Self::CatalogWrite) | (Self::CatalogWrite, Self::DataWrite) => {
-				Self::DataAndCatalogWrite
-			}
-			(Self::DataWrite, _) | (_, Self::DataWrite) => Self::DataWrite,
-			(Self::CatalogWrite, _) | (_, Self::CatalogWrite) => Self::CatalogWrite,
-			(Self::ReadOnly, Self::ReadOnly) => Self::ReadOnly,
-		}
-	}
+    /// Combines two intents, preserving the strongest requirement.
+    pub fn merge(self, other: Self) -> Self {
+        match (self, other) {
+            (Self::DataAndCatalogWrite, _) | (_, Self::DataAndCatalogWrite) => {
+                Self::DataAndCatalogWrite
+            }
+            (Self::DataWrite, Self::CatalogWrite) | (Self::CatalogWrite, Self::DataWrite) => {
+                Self::DataAndCatalogWrite
+            }
+            (Self::DataWrite, _) | (_, Self::DataWrite) => Self::DataWrite,
+            (Self::CatalogWrite, _) | (_, Self::CatalogWrite) => Self::CatalogWrite,
+            (Self::ReadOnly, Self::ReadOnly) => Self::ReadOnly,
+        }
+    }
 
-	/// Returns true when the statement needs a write-capable storage transaction.
-	pub fn requires_write_tx(self) -> bool {
-		!matches!(self, Self::ReadOnly)
-	}
+    /// Returns true when the statement needs a write-capable storage transaction.
+    pub fn requires_write_tx(self) -> bool {
+        !matches!(self, Self::ReadOnly)
+    }
 }

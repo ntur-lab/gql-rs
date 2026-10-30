@@ -16,8 +16,8 @@
 // limitations under the Licence.
 
 use super::*;
-use serde::{Deserialize, Serialize};
 use crate::ast::model::Span;
+use serde::{Deserialize, Serialize};
 
 /// Represents a GQL query statement.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -195,8 +195,8 @@ impl CallClause {
 }
 
 /// Represents a set operation,
-/// combining two subqueries with a set operation 
-/// and optional LIMIT and ORDER BY clauses to control 
+/// combining two subqueries with a set operation
+/// and optional LIMIT and ORDER BY clauses to control
 /// the final result of the set operation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SetOperation {

@@ -16,8 +16,8 @@
 // limitations under the Licence.
 
 use super::*;
-use serde::{Deserialize, Serialize};
 use crate::ast::model::Span;
+use serde::{Deserialize, Serialize};
 
 /// Represents the different types of data manipulation statements.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -75,31 +75,31 @@ pub struct SetStatement {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SetItem {
     /// Property assignment.
-    Property { 
+    Property {
         /// Target property access.
-        property: PropertyAccess, 
+        property: PropertyAccess,
         /// Assigned value expression.
         value: Expression,
         /// Source span for the assignment.
         span: Span,
     },
     /// Variable assignment.
-    Variable { 
+    Variable {
         /// Target variable name.
-        variable: String, 
+        variable: String,
         /// Assigned value expression.
         value: Expression,
         /// Source span for the variable assignment.
         span: Span,
     },
     /// Label assignment.
-    Label { 
+    Label {
         /// Target variable name.
-        variable: String, 
+        variable: String,
         /// Label expression to assign.
         labels: Expression,
         /// Source span for the label assignment.
-        span: Span, 
+        span: Span,
     },
 }
 

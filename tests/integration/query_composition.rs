@@ -39,7 +39,10 @@ mod query_composition_tests {
             next.source_statement.as_ref(),
             Statement::Data(DataStatement::MatchSet(_))
         ));
-        assert!(matches!(next.target_statement.as_ref(), Statement::Query(_)));
+        assert!(matches!(
+            next.target_statement.as_ref(),
+            Statement::Query(_)
+        ));
     }
 
     #[test]

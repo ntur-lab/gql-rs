@@ -17,7 +17,7 @@
 
 use super::gqllexer::GQLLexer;
 use super::gqllistener::GQLListener;
-use super::gqlparser::{ruleNames, GQLParser, GQLParserContext, GQLParserContextType};
+use super::gqlparser::{GQLParser, GQLParserContext, GQLParserContextType, ruleNames};
 use antlr_rust::common_token_stream::CommonTokenStream;
 use antlr_rust::tree::{ParseTreeListener, ParseTreeWalker};
 use antlr_rust::{InputStream, Parser};
@@ -44,8 +44,7 @@ impl<'input> GQLListener<'input> for RuleCoverage {}
 
 #[test]
 fn tck_covers_all_reachable_parser_rules() {
-    let feature_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/tck/features");
+    let feature_root = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/tck/features");
     let mut feature_paths = Vec::new();
     collect_feature_paths(&feature_root, &mut feature_paths);
     feature_paths.sort();
@@ -61,7 +60,11 @@ fn tck_covers_all_reachable_parser_rules() {
             .iter()
             .chain(feature.rules.iter().flat_map(|rule| rule.scenarios.iter()))
         {
-            for query in scenario.steps.iter().filter_map(|step| step.docstring.as_deref()) {
+            for query in scenario
+                .steps
+                .iter()
+                .filter_map(|step| step.docstring.as_deref())
+            {
                 query_count += 1;
                 let input = InputStream::new(query.trim());
                 let lexer = GQLLexer::new(input);
@@ -71,10 +74,10 @@ fn tck_covers_all_reachable_parser_rules() {
                 let tree = parser
                     .gqlProgram()
                     .unwrap_or_else(|error| panic!("cannot parse TCK query: {error:?}\n{query}"));
-                coverage = *ParseTreeWalker::<
-                    GQLParserContextType,
-                    dyn GQLListener<'_>,
-                >::walk(Box::new(coverage), tree.as_ref());
+                coverage = *ParseTreeWalker::<GQLParserContextType, dyn GQLListener<'_>>::walk(
+                    Box::new(coverage),
+                    tree.as_ref(),
+                );
             }
         }
     }
@@ -100,11 +103,14 @@ fn tck_covers_all_reachable_parser_rules() {
         ruleNames.len(),
         query_count
     );
-    eprintln!("Uncovered parser rules ({}): {}", missing.len(), missing.join(", "));
+    eprintln!(
+        "Uncovered parser rules ({}): {}",
+        missing.len(),
+        missing.join(", ")
+    );
 
     assert_eq!(
-        missing,
-        structurally_unreachable,
+        missing, structurally_unreachable,
         "the set of uncovered parser rules changed; update the TCK or justify the grammar rule as structurally unreachable"
     );
 }

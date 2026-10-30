@@ -19,6 +19,8 @@
 #[path = "support.rs"]
 mod support;
 
+#[path = "catalog_and_session.rs"]
+mod catalog_and_session;
 #[path = "expressions.rs"]
 mod expressions;
 #[path = "graph_patterns.rs"]
@@ -27,11 +29,9 @@ mod graph_patterns;
 mod query_composition;
 #[path = "set_operations.rs"]
 mod set_operations;
-#[path = "catalog_and_session.rs"]
-mod catalog_and_session;
-#[path = "transactions.rs"]
-mod transactions;
-#[path = "syntax_errors.rs"]
-mod syntax_errors;
 #[path = "string_literal.rs"]
 mod string_literal;
+#[path = "syntax_errors.rs"]
+mod syntax_errors;
+#[path = "transactions.rs"]
+mod transactions;
