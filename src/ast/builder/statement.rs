@@ -28,6 +28,11 @@ impl GQLAstBuilder {
             let composite_expr = composite_query.compositeQueryExpression().ok_or_else(|| {
                 Self::parse_err("Query not valid: missing compositeQueryExpression".into())
             })?;
+            if let Some(nested_statement) =
+                Self::try_build_statement_from_ambiguous_nested_query(&composite_expr)?
+            {
+                return Ok(nested_statement);
+            }
             let query = Self::build_query_from_composite_expression(&composite_expr)?;
             Ok(Statement::Query(query))
         } else if let Some(linear_data) = statement.linearDataModifyingStatement() {
@@ -61,16 +66,20 @@ impl GQLAstBuilder {
                     span: prim_span,
                 });
 
-                return Ok(Statement::Next(NextStatement {
+                let statement = Statement::Next(NextStatement {
                     source_statement: Box::new(Statement::Data(data_statement)),
                     target_statement: Box::new(Statement::Query(query)),
                     yield_clause: None,
                     next: None,
                     span: span.clone(),
-                }));
+                });
+                return Self::wrap_focused_linear_data_statement(&linear_data, statement);
             }
 
-            Ok(Statement::Data(data_statement))
+            Self::wrap_focused_linear_data_statement(
+                &linear_data,
+                Statement::Data(data_statement),
+            )
         } else if let Some(linear_catalog) = statement.linearCatalogModifyingStatement() {
             let stmts = linear_catalog.simpleCatalogModifyingStatement_all();
             if !stmts.is_empty() {
@@ -116,6 +125,92 @@ impl GQLAstBuilder {
         } else {
             Self::parse_error("Unsupported statement variant for AST builder")
         }
+    }
+
+    /// Classifies nested procedure syntax after inspecting its body.
+    ///
+    /// Nested query and nested data-modifying procedure specifications have
+    /// identical concrete syntax. ANTLR therefore resolves both through the
+    /// query production, and the AST builder must recover the semantic variant
+    /// from the statement contained in the procedure body.
+    fn try_build_statement_from_ambiguous_nested_query(
+        expression: &CompositeQueryExpressionContextAll,
+    ) -> GqlResult<Option<Statement>> {
+        if expression.compositeQueryExpression().is_some() {
+            return Ok(None);
+        }
+
+        let Some(primary) = expression.compositeQueryPrimary() else {
+            return Ok(None);
+        };
+        let Some(linear) = primary.linearQueryStatement() else {
+            return Ok(None);
+        };
+
+        if let Some(ambient) = linear.ambientLinearQueryStatement() {
+            let Some(nested) = ambient.nestedQuerySpecification() else {
+                return Ok(None);
+            };
+            let statement = Self::build_statement_from_nested_query_spec(&nested)?;
+            return Ok(Some(statement));
+        }
+
+        let Some(focused) = linear.focusedLinearQueryStatement() else {
+            return Ok(None);
+        };
+        let Some(focused_nested) = focused.focusedNestedQuerySpecification() else {
+            return Ok(None);
+        };
+        let nested = focused_nested.nestedQuerySpecification().ok_or_else(|| {
+            Self::parse_err(
+                "Query not valid: missing nestedQuerySpecification in focused nested query"
+                    .into(),
+            )
+        })?;
+        let statement = Self::build_statement_from_nested_query_spec(&nested)?;
+        let use_clause = focused_nested.useGraphClause().ok_or_else(|| {
+            Self::parse_err("Focused nested statement is missing useGraphClause".into())
+        })?;
+        let graph_expression = use_clause.graphExpression().ok_or_else(|| {
+            Self::parse_err("Focused nested statement is missing graphExpression".into())
+        })?;
+        let graph_clause = Self::build_graph_expression_clause(&graph_expression);
+
+        if let Statement::Query(mut query) = statement {
+            Self::inject_use_graph_into_query(&mut query, &graph_clause);
+            return Ok(Some(Statement::Query(query)));
+        }
+
+        Ok(Some(Statement::Focused(FocusedStatement {
+            graph_expression: graph_clause,
+            statement: Box::new(statement),
+            span: Self::extract_span(&*focused_nested),
+        })))
+    }
+
+    /// Preserves the graph selected by a focused data-modifying statement.
+    fn wrap_focused_linear_data_statement(
+        linear_data: &LinearDataModifyingStatementContextAll,
+        statement: Statement,
+    ) -> GqlResult<Statement> {
+        let Some(focused) = linear_data.focusedLinearDataModifyingStatement() else {
+            return Ok(statement);
+        };
+        let Some(body) = focused.focusedLinearDataModifyingStatementBody() else {
+            return Ok(statement);
+        };
+        let use_clause = body.useGraphClause().ok_or_else(|| {
+            Self::parse_err("Focused data-modifying statement is missing useGraphClause".into())
+        })?;
+        let graph_expression = use_clause.graphExpression().ok_or_else(|| {
+            Self::parse_err("Focused data-modifying statement is missing graphExpression".into())
+        })?;
+
+        Ok(Statement::Focused(FocusedStatement {
+            graph_expression: Self::build_graph_expression_clause(&graph_expression),
+            statement: Box::new(statement),
+            span: Self::extract_span(&*focused),
+        }))
     }
 
     /// Builds a SessionStatement from a SessionActivityContext and preserves typed SET/RESET payloads.
@@ -1331,6 +1426,17 @@ impl GQLAstBuilder {
     pub(super) fn build_query_from_nested_query_spec(
         nested: &NestedQuerySpecificationContextAll,
     ) -> GqlResult<Query> {
+        let statement = Self::build_statement_from_nested_query_spec(nested)?;
+        match statement {
+            Statement::Query(query) => Ok(query),
+            _ => Self::parse_error("Nested query specification must contain a query statement"),
+        }
+    }
+
+    /// Builds the statement contained in syntactically ambiguous nested procedure syntax.
+    fn build_statement_from_nested_query_spec(
+        nested: &NestedQuerySpecificationContextAll,
+    ) -> GqlResult<Statement> {
         let procedure_body = nested.procedureBody().ok_or_else(|| {
             Self::parse_err("Query not valid: missing procedureBody in nested query".into())
         })?;
@@ -1339,11 +1445,7 @@ impl GQLAstBuilder {
             Self::parse_err("Query not valid: missing statementBlock in nested query".into())
         })?;
 
-        let statement = Self::build_statement_block_from_context(&statement_block)?;
-        match statement {
-            Statement::Query(query) => Ok(query),
-            _ => Self::parse_error("Nested query specification must contain a query statement"),
-        }
+        Self::build_statement_block_from_context(&statement_block)
     }
 
     /// Helper function to inject a UseGraph clause into a Query, recursively traversing the structure of the query to find the appropriate location to insert the UseGraph step at the beginning of the pipeline for basic queries, or to propagate it down to both sides of a set operation for composite queries. It modifies the query in place and does not return a value.

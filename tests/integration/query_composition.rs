@@ -16,7 +16,31 @@
 // limitations under the Licence.
 
 mod query_composition_tests {
+    use gql_rs::ast::{DataStatement, Statement};
     use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
+
+    #[test]
+    fn focused_nested_data_modifying_procedure_preserves_graph_scope() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("USE social { MATCH (n) SET n.active = TRUE FINISH }")
+            .expect("focused nested data-modifying procedure should analyze");
+
+        let ast = analyzer.get_ast().expect("analysis should produce an AST");
+        let Statement::Focused(focused) = &ast.statement else {
+            panic!("expected focused statement, got: {:?}", ast.statement);
+        };
+        assert_eq!(focused.graph_expression.text, "social");
+
+        let Statement::Next(next) = focused.statement.as_ref() else {
+            panic!("expected data statement followed by FINISH");
+        };
+        assert!(matches!(
+            next.source_statement.as_ref(),
+            Statement::Data(DataStatement::MatchSet(_))
+        ));
+        assert!(matches!(next.target_statement.as_ref(), Statement::Query(_)));
+    }
 
     #[test]
     fn test_value_subquery_rejects_multi_column_projection() {

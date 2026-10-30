@@ -26,6 +26,8 @@ pub enum Statement {
     Query(Query),
     /// Data manipulation statement tree.
     Data(DataStatement),
+    /// Statement evaluated against an explicitly selected graph.
+    Focused(FocusedStatement),
     /// NEXT chained statement.
     Next(NextStatement),
     /// LET variable-definition statement.
@@ -44,6 +46,7 @@ impl Statement {
         match self {
             Statement::Query(query) => query.transaction_intent(),
             Statement::Data(_) => TransactionIntent::DataWrite,
+            Statement::Focused(focused) => focused.statement.transaction_intent(),
             Statement::Next(next) => next.transaction_intent(),
             Statement::Let(_) => TransactionIntent::ReadOnly,
             Statement::Session(_) => TransactionIntent::ReadOnly,
@@ -56,6 +59,17 @@ impl Statement {
     pub fn requires_write_tx(&self) -> bool {
         self.transaction_intent().requires_write_tx()
     }
+}
+
+/// Wraps a statement whose graph is selected by a leading `USE` clause.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FocusedStatement {
+    /// Graph expression selected for the wrapped statement.
+    pub graph_expression: GraphExpressionClause,
+    /// Statement evaluated against the selected graph.
+    pub statement: Box<Statement>,
+    /// Source range covered by the focused statement.
+    pub span: Span,
 }
 
 /// Represents a block of catalog statements.
