@@ -15,13 +15,23 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
+//! Typed abstract syntax tree for analyzed GQL programs.
+//!
+//! The root type is [`QueryAST`]. Its [`Statement`] value identifies the
+//! top-level statement category:
+//!
+//! - [`Statement::Query`] for query pipelines and set operations;
+//! - [`Statement::Data`] for data-modifying statements;
+//! - [`Statement::Catalog`] for catalog and DDL statements;
+//! - session and transaction variants for administrative commands.
+//!
+//! AST nodes preserve source spans where available and support Serde
+//! serialization and deserialization.
+//!
+//! Application code normally obtains an AST through
+//! [`crate::DefaultGQLQueryAnalyzer`] rather than constructing one directly.
 
-/// This module exposes the AST model and the internal CST-to-AST and validation layers.
-///
-/// The public entry point is `QueryAST`, while the implementation is split into:
-/// - `model/` for the typed AST structures;
-/// - `builder/` for CST-to-AST conversion;
-/// - `validator/` for semantic validation.
+/// Public types that compose the GQL abstract syntax tree.
 pub mod model;
 
 // Internal crate modules.

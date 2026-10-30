@@ -15,6 +15,34 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
+//! High-level interface for parsing and validating GQL source text.
+//!
+//! [`DefaultGQLQueryAnalyzer`] is the recommended application-facing entry
+//! point. Calling [`GQLQueryAnalyzer::exec`] performs the complete pipeline:
+//!
+//! 1. lexical and syntactic analysis;
+//! 2. CST-to-AST conversion;
+//! 3. semantic validation.
+//!
+//! A successful execution returns a [`QueryAST`] and stores the query and AST
+//! in the analyzer. The stored state is cleared before each execution, so a
+//! failed analysis never exposes a previous successful result.
+//!
+//! # Example
+//!
+//! ```rust
+//! use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+//!
+//! # fn main() -> Result<(), gql_rs::GqlError> {
+//! let mut analyzer = DefaultGQLQueryAnalyzer::new();
+//! let ast = analyzer.exec("MATCH (n) RETURN n")?;
+//!
+//! assert_eq!(analyzer.get_query(), Some("MATCH (n) RETURN n"));
+//! println!("{ast:#?}");
+//! # Ok(())
+//! # }
+//! ```
+
 use crate::error_handler::error_listener::GqlErrorListener;
 use crate::types::GqlResult;
 use crate::ast::model::QueryAST;
@@ -55,7 +83,7 @@ pub trait GQLQueryAnalyzer {
 /// 
 /// # Example
 /// ```
-/// use gql_parser::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer};
+/// use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer};
 /// 
 /// let mut analyzer = DefaultGQLQueryAnalyzer::new();
 /// let query = "MATCH (a:Actor)-[:ACTED_IN]->(m:Movie) WHERE m.title = 'The Matrix' RETURN a.name";

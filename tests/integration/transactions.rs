@@ -15,18 +15,14 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer};
-
 pub mod test_query_transaction {
-    use super::*;
-    use gql_parser::ast::{Query, Statement, TransactionCommandKind};
-
+    use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer, ast::{Query, Statement, TransactionCommandKind}};
 
     test_transaction_statement!(
         test_start_txn_read_only_typed,
         "START TRANSACTION READ ONLY",
-        expected_mode: |txn: &gql_parser::ast::TransactionStatement| {
-            use gql_parser::ast::TransactionMode;
+        expected_mode: |txn: &gql_rs::ast::TransactionStatement| {
+            use gql_rs::ast::TransactionMode;
             txn.mode.as_ref().map(|m| matches!(m, TransactionMode::ReadOnly)).unwrap_or(false)
         }
     );
@@ -34,8 +30,8 @@ pub mod test_query_transaction {
     test_transaction_statement!(
         test_start_txn_read_write_typed,
         "START TRANSACTION READ WRITE",
-        expected_mode: |txn: &gql_parser::ast::TransactionStatement| {
-            use gql_parser::ast::TransactionMode;
+        expected_mode: |txn: &gql_rs::ast::TransactionStatement| {
+            use gql_rs::ast::TransactionMode;
             txn.mode.as_ref().map(|m| matches!(m, TransactionMode::ReadWrite)).unwrap_or(false)
         }
     );
@@ -43,7 +39,7 @@ pub mod test_query_transaction {
     test_transaction_statement!(
         test_commit_no_mode,
         "COMMIT",
-        expected_mode: |txn: &gql_parser::ast::TransactionStatement| {
+        expected_mode: |txn: &gql_rs::ast::TransactionStatement| {
             txn.mode.is_none()
         }
     );
@@ -51,7 +47,7 @@ pub mod test_query_transaction {
     test_transaction_statement!(
         test_rollback_no_mode,
         "ROLLBACK",
-        expected_mode: |txn: &gql_parser::ast::TransactionStatement| {
+        expected_mode: |txn: &gql_rs::ast::TransactionStatement| {
             txn.mode.is_none()
         }
     );

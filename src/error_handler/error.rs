@@ -15,13 +15,37 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
+//! Structured error values returned by `gql-rs`.
+//!
+//! Errors can be displayed directly for users or inspected by matching on
+//! [`crate::GqlError`].
+//!
+//! # Example
+//!
+//! ```rust
+//! use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
+//!
+//! let mut analyzer = DefaultGQLQueryAnalyzer::new();
+//!
+//! match analyzer.exec("MATCH (") {
+//!     Err(GqlError::Parse { message, context }) => {
+//!         eprintln!("{message}");
+//!         eprintln!("source span: {:?}", context.span);
+//!     }
+//!     Err(other) => eprintln!("{other}"),
+//!     Ok(_) => unreachable!(),
+//! }
+//! ```
+//!
 use crate::ast::model::Span;
 use std::fmt;
 
 /// Extra metadata attached to parser/validator errors.
 #[derive(Debug, Clone, PartialEq, Eq, Default)]
 pub struct ErrorContext {
+    /// Source range associated with the diagnostic, when available.
     pub span: Option<Span>,
+    /// Optional machine-readable diagnostic code.
     pub code: Option<String>,
 }
 
@@ -30,17 +54,23 @@ pub struct ErrorContext {
 pub enum GqlError {
     /// Error produced by syntax/CST parsing.
     Parse {
+        /// Human-readable description of the parsing failure.
         message: String,
+        /// Structured diagnostic context associated with the failure.
         context: ErrorContext,
     },
     /// Error produced by semantic validation.
     Validation {
+        /// Human-readable description of the validation failure.
         message: String,
+        /// Structured diagnostic context associated with the failure.
         context: ErrorContext,
     },
     /// Generic fallback error.
     Generic {
+        /// Human-readable description of the failure.
         message: String,
+        /// Structured diagnostic context associated with the failure.
         context: ErrorContext,
     },
 }

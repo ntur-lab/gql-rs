@@ -15,12 +15,8 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer};
-
 mod catalog_and_session_tests {
-    use super::*;
-    use gql_parser::ast::{CatalogStatement, Statement};
-
+    use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer, ast::{CatalogStatement, Statement}};
 
 
     test_session_statement!(
@@ -171,8 +167,8 @@ mod catalog_and_session_tests {
 
         assert!(matches!(
             &create_graph.graph_type_clause,
-            gql_parser::ast::CreateGraphTypeClause::Of(
-                gql_parser::ast::OfGraphTypeClause::TypedReference { .. }
+            gql_rs::ast::CreateGraphTypeClause::Of(
+                gql_rs::ast::OfGraphTypeClause::TypedReference { .. }
             )
         ));
     }
@@ -195,7 +191,7 @@ mod catalog_and_session_tests {
 
         assert!(matches!(
             &create_graph_type.source,
-            gql_parser::ast::GraphTypeSourceClause::CopyOf { .. }
+            gql_rs::ast::GraphTypeSourceClause::CopyOf { .. }
         ));
     }
 
@@ -217,7 +213,7 @@ mod catalog_and_session_tests {
 
         assert!(matches!(
             &create_graph_type.source,
-            gql_parser::ast::GraphTypeSourceClause::LikeGraph { .. }
+            gql_rs::ast::GraphTypeSourceClause::LikeGraph { .. }
         ));
     }
 
@@ -239,7 +235,7 @@ mod catalog_and_session_tests {
 
         assert!(matches!(
             &create_graph_type.source,
-            gql_parser::ast::GraphTypeSourceClause::NestedSpecification { .. }
+            gql_rs::ast::GraphTypeSourceClause::NestedSpecification { .. }
         ));
     }
 
@@ -261,7 +257,7 @@ mod catalog_and_session_tests {
 
         assert!(matches!(
             &create_graph_type.source,
-            gql_parser::ast::GraphTypeSourceClause::NestedSpecification { .. }
+            gql_rs::ast::GraphTypeSourceClause::NestedSpecification { .. }
         ));
     }
 }

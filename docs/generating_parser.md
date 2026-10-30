@@ -39,10 +39,21 @@ This is the Rust-target generator distributed by the `antlr4rust` project, not
 an unmodified ANTLR Java-target release. Do not replace it with a newer standard
 ANTLR JAR without also planning and testing a runtime/code-generator migration.
 
-The exact generator used by this project is already stored at:
+The exact generator is kept in the source repository for maintainers, but is
+excluded from the crate published on crates.io. If it is not present locally,
+download the matching `antlr4rust` release asset:
 
-```text
-resources/antlr4-4.8-2-SNAPSHOT-complete.jar
+```sh
+curl --fail --location \
+  --output resources/antlr4-4.8-2-SNAPSHOT-complete.jar \
+  https://github.com/rrevenantt/antlr4rust/releases/download/antlr4-4.8-2-Rust0.3.0-beta/antlr4-4.8-2-SNAPSHOT-complete.jar
+```
+
+Verify the downloaded generator before running it:
+
+```sh
+echo "d23d7b0006f7477243d2d85c54632baa1932a5e05588e0c2548dbe3dd69f4637  resources/antlr4-4.8-2-SNAPSHOT-complete.jar" \
+  | shasum -a 256 -c -
 ```
 
 Java must also be available:

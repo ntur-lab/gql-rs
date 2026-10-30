@@ -216,7 +216,7 @@ pub struct OpenGraphTypeClause {
 /// Represents an OF graph type clause in a CREATE GRAPH statement.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum OfGraphTypeClause {
-    /// LIKE <graph expression> variant.
+    /// LIKE \<graph expression\> variant.
     LikeGraph {
         /// Graph expression used as template.
         graph_expression: GraphExpressionClause,
@@ -251,14 +251,14 @@ pub struct GraphSourceClause {
 /// Represents a graph type source clause in a CREATE GRAPH TYPE statement.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum GraphTypeSourceClause {
-    /// COPY OF <graph type> variant.
+    /// COPY OF \<graph type\> variant.
     CopyOf {
         /// True when WITH AS keywords are present.
         with_as_keyword: bool,
         /// Referenced graph type name.
         graph_type_reference: String,
     },
-    /// LIKE <graph expression> variant.
+    /// LIKE \<graph expression\> variant.
     LikeGraph {
         /// Graph expression used as template.
         graph_expression: GraphExpressionClause,
@@ -395,24 +395,24 @@ pub enum SessionCommandKind {
 /// Represents a SESSION SET clause payload.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SessionSetClause {
-    /// SESSION SET SCHEMA <schema reference>
+    /// SESSION SET SCHEMA \<schema reference\>
     Schema {
         /// Schema reference text.
         schema_reference: String,
     },
-    /// SESSION SET [PROPERTY] GRAPH <graph expression>
+    /// SESSION SET \[PROPERTY\] GRAPH \<graph expression\>
     Graph {
         /// True when PROPERTY keyword is present.
         property_graph_keyword: bool,
         /// Target graph expression.
         graph_expression: GraphExpressionClause,
     },
-    /// SESSION SET TIME ZONE <value>
+    /// SESSION SET TIME ZONE \<value\>
     TimeZone {
         /// Time zone value payload.
         value: SessionTimeZoneValue,
     },
-    /// SESSION SET <parameter clause>
+    /// SESSION SET \<parameter clause\>
     Parameter(SessionSetParameterClause),
 }
 
@@ -426,7 +426,7 @@ pub struct SessionResetClause {
 /// Represents a SESSION RESET target.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SessionResetTarget {
-    /// RESET [ALL] PARAMETERS|CHARACTERISTICS
+    /// RESET \[ALL\] PARAMETERS|CHARACTERISTICS
     ParametersOrCharacteristics {
         /// True when ALL is present.
         all: bool,
@@ -435,14 +435,14 @@ pub enum SessionResetTarget {
     },
     /// RESET SCHEMA
     Schema,
-    /// RESET [PROPERTY] GRAPH
+    /// RESET \[PROPERTY\] GRAPH
     Graph {
         /// True when PROPERTY keyword is present.
         property_graph_keyword: bool,
     },
     /// RESET TIME ZONE
     TimeZone,
-    /// RESET [PARAMETER] <parameter spec>
+    /// RESET \[PARAMETER\] \<parameter spec\>
     Parameter {
         /// True when PARAMETER keyword is present.
         has_parameter_keyword: bool,
@@ -451,7 +451,7 @@ pub enum SessionResetTarget {
     },
 }
 
-/// Represents the target of RESET [ALL] PARAMETERS|CHARACTERISTICS.
+/// Represents the target of RESET \[ALL\] PARAMETERS|CHARACTERISTICS.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SessionResetCollectionTarget {
     /// PARAMETERS target.
@@ -480,12 +480,12 @@ pub struct SessionSetParameterClause {
 /// Represents SESSION SET parameter clause kinds.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SessionSetParameterKind {
-    /// [PROPERTY] GRAPH parameter clause.
+    /// \[PROPERTY\] GRAPH parameter clause.
     Graph {
         /// True when PROPERTY keyword is present.
         property_graph_keyword: bool,
     },
-    /// [BINDING] TABLE parameter clause.
+    /// \[BINDING\] TABLE parameter clause.
     BindingTable {
         /// True when BINDING keyword is present.
         binding_keyword: bool,

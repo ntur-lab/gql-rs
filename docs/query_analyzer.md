@@ -1,7 +1,7 @@
 # Query Analyzer Guide
 
 This document explains how `src/query_analyzer.rs` works and how to use it in
-`gql-parser`.
+`gql-rs`.
 
 ## Purpose
 

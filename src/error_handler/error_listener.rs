@@ -1,6 +1,3 @@
-use antlr_rust::error_listener::ErrorListener;
-use antlr_rust::recognizer::Recognizer;
-use antlr_rust::errors::ANTLRError;
 // Copyright (c) 2026 NTUR LAB S.r.l.
 //
 // This file is part of NTURDB.
@@ -18,6 +15,9 @@ use antlr_rust::errors::ANTLRError;
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
+use antlr_rust::error_listener::ErrorListener;
+use antlr_rust::recognizer::Recognizer;
+use antlr_rust::errors::ANTLRError;
 use crate::error_handler::error::GqlError;
 use std::cell::RefCell;
 use std::rc::Rc;
