@@ -21,6 +21,37 @@ use gql_parser::ast::model::*;
 mod expression_tests {
     use super::*;
 
+    #[test]
+    fn test_string_literals_decode_doubled_delimiters_and_preserve_content() {
+        for (literal, expected) in [
+            ("'it''s'", "it's"),
+            ("''", ""),
+            ("''''", "'"),
+            ("'''quoted'''", "'quoted'"),
+            ("'one''''two'", "one''two"),
+            ("'  Zoë 北京 🙂 it''s  '", "  Zoë 北京 🙂 it's  "),
+            ("'\"quoted\"'", "\"quoted\""),
+            ("\"'quoted'\"", "'quoted'"),
+            ("\"say \"\"hello\"\"\"", "say \"hello\""),
+        ] {
+            let query_text = format!("RETURN {literal} AS a");
+            let mut analyzer = DefaultGQLQueryAnalyzer::new();
+            analyzer.exec(&query_text).expect("string query should parse");
+
+            let ast = analyzer.get_ast().expect("AST must be available");
+            let Statement::Query(Query::Basic(query)) = &ast.statement else {
+                panic!("expected basic query statement");
+            };
+            let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
+                panic!("expected RETURN result statement");
+            };
+            let Expression::Literal(Literal::String(value)) = &return_clause.items[0].expression else {
+                panic!("expected string literal for {query_text}");
+            };
+            assert_eq!(value, expected, "query: {query_text}");
+        }
+    }
+
 
     #[test]
     fn test_delimited_property_names_are_unquoted_in_property_access() {
