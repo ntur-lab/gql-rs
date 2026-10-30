@@ -3187,6 +3187,8 @@ impl GQLAstBuilder {
         let trimmed = text.trim();
         if let Some(value) = Self::string_literal_text(trimmed) {
             Literal::String(value)
+        if let Some(value) = Self::string_literal_text(trimmed) {
+            Literal::String(value)
         Self::validate_integer_literal_range(trimmed)?;
         Ok(if (trimmed.starts_with('\'') && trimmed.ends_with('\''))
             || (trimmed.starts_with('"') && trimmed.ends_with('"'))
