@@ -48,6 +48,17 @@ fn write_data_statement() -> Statement {
 fn statement_transaction_intent_and_requires_write_tx_cover_all_variants() {
 	let read_only_query = read_only_query_statement();
 	let write_data = write_data_statement();
+	let focused_statement = Statement::Focused(FocusedStatement {
+		graph_expression: GraphExpressionClause {
+			kind: GraphExpressionKind::GraphReference,
+			text: "social".to_string(),
+			graph_reference: Some("social".to_string()),
+			object_name_or_binding_variable: None,
+			span: span(),
+		},
+		statement: Box::new(write_data_statement()),
+		span: span(),
+	});
 	let next_statement = Statement::Next(NextStatement {
 		source_statement: Box::new(read_only_query_statement()),
 		target_statement: Box::new(write_data_statement()),
@@ -88,6 +99,9 @@ fn statement_transaction_intent_and_requires_write_tx_cover_all_variants() {
 
 	assert_eq!(write_data.transaction_intent(), TransactionIntent::DataWrite);
 	assert!(write_data.requires_write_tx());
+
+	assert_eq!(focused_statement.transaction_intent(), TransactionIntent::DataWrite);
+	assert!(focused_statement.requires_write_tx());
 
 	assert_eq!(next_statement.transaction_intent(), TransactionIntent::DataWrite);
 	assert!(next_statement.requires_write_tx());

@@ -60,6 +60,7 @@ pub(super) fn validate_dispatch(
     match statement {
         Statement::Query(query) => validate_query(query, &mut ctx.declared_variables),
         Statement::Data(data) => validate_data_statement(data, &mut ctx.declared_variables),
+        Statement::Focused(focused) => validate_dispatch(&focused.statement, ctx),
         Statement::Next(next_stmt) => {
             validate_next_statement(next_stmt, &mut ctx.declared_variables)
         }

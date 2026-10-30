@@ -36,6 +36,7 @@ pub(super) fn validate_statement(
     match statement {
         Statement::Query(query) => validate_query(query, declared_variables),
         Statement::Data(data) => validate_data_statement(data, declared_variables),
+        Statement::Focused(focused) => validate_statement(&focused.statement, declared_variables),
         Statement::Next(next_stmt) => validate_next_statement(next_stmt, declared_variables),
         Statement::Let(let_stmt) => validate_let_statement(let_stmt, declared_variables),
         Statement::Session(session) => validate_session_statement(session),

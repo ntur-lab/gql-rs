@@ -22,6 +22,7 @@
 //!
 //! - [`Statement::Query`] for query pipelines and set operations;
 //! - [`Statement::Data`] for data-modifying statements;
+//! - [`Statement::Focused`] for statements scoped by a leading `USE` clause;
 //! - [`Statement::Catalog`] for catalog and DDL statements;
 //! - session and transaction variants for administrative commands.
 //!
