@@ -75,6 +75,33 @@ impl GQLAstBuilder {
 
         let delimiter_len = delimiter.len_utf8();
         let inner = &text[delimiter_len..text.len() - delimiter_len];
+        Self::decode_delimited(inner, delimiter, no_escape)
+    }
+
+    /// Returns the value of a quoted character string literal (`'...'`, `"..."`, or the
+    /// no-escape forms `@'...'` / `@"..."`): exactly one delimiter is removed at each end, a
+    /// doubled delimiter stands for one (`'l''albero'` -> `l'albero`) and backslash escapes are
+    /// decoded. Returns `None` when the text is not a quoted string.
+    pub(super) fn string_literal_text(text: &str) -> Option<String> {
+        let (no_escape, text) = match text.strip_prefix('@') {
+            Some(text) => (true, text),
+            None => (false, text),
+        };
+        let delimiter = text.chars().next()?;
+        if !matches!(delimiter, '\'' | '"') {
+            return None;
+        }
+        let delimiter_len = delimiter.len_utf8();
+        if text.len() < 2 * delimiter_len || !text.ends_with(delimiter) {
+            return None;
+        }
+        let inner = &text[delimiter_len..text.len() - delimiter_len];
+        Some(Self::decode_delimited(inner, delimiter, no_escape))
+    }
+
+    /// Decodes the content between two delimiters: doubled delimiters and, unless `no_escape`,
+    /// backslash escapes.
+    fn decode_delimited(inner: &str, delimiter: char, no_escape: bool) -> String {
         let mut chars = inner.chars().peekable();
         let mut decoded = String::with_capacity(inner.len());
 
@@ -243,14 +270,14 @@ impl GQLAstBuilder {
     }
 
     /// Extracts a Span from a given parser context, using the start and stop tokens.
-    pub(crate) fn extract_span<'input, C>(ctx: &C) -> Span 
+    pub(crate) fn extract_span<'input, C>(ctx: &C) -> Span
     where
         C: ParserRuleContext<'input> + ?Sized,
     {
         let start_token = ctx.start();
         let stop_token = ctx.stop();
         let stop_text_len = std::cmp::max(0, stop_token.get_stop() - stop_token.get_start() + 1);
-        
+
         Span {
             start_line: start_token.get_line(),
             start_col: start_token.get_column(),
