@@ -474,8 +474,8 @@ pub(super) fn validate_edge_quantifier(
         return Ok(());
     };
 
-    if let PathQuantifier::Range { min, max } = quantifier {
-        if min > max {
+    if let PathQuantifier::Range { min, max } = quantifier
+        && min > max {
             return Err(validation_err(
                 format!(
                     "Invalid path quantifier range: lower bound {} is greater than upper bound {}",
@@ -484,7 +484,6 @@ pub(super) fn validate_edge_quantifier(
                 Some(&edge.span.clone()),
             ));
         }
-    }
 
     if matches!(path_mode, Some(PathMode::Simple | PathMode::Acyclic)) {
         let is_open = match quantifier {
@@ -563,14 +562,13 @@ pub(super) fn validate_group_clause(
     return_aliases: &HashSet<String>,
 ) -> Result<(), GqlError> {
     if group_clause.is_empty_grouping_set {
-        if let Some(keys) = &group_clause.keys {
-            if !keys.is_empty() {
+        if let Some(keys) = &group_clause.keys
+            && !keys.is_empty() {
                 return Err(validation_err(
                     "GROUP BY () cannot contain grouping keys".to_string(),
                     Some(&group_clause.span.clone()),
                 ));
             }
-        }
         return Ok(());
     }
 
@@ -593,12 +591,12 @@ pub(super) fn validate_group_clause(
             GroupKey::BindingVariable { name, span } => {
                 let trimmed = name.trim();
                 if trimmed.is_empty() {
-                    return Err(validation_err("GROUP BY key cannot be empty", Some(&span)));
+                    return Err(validation_err("GROUP BY key cannot be empty", Some(span)));
                 } else if !declared_variables.contains(trimmed) && !return_aliases.contains(trimmed)
                 {
                     return Err(validation_err(
                         format!("Unknown variable '{}' in GROUP BY", trimmed),
-                        Some(&span),
+                        Some(span),
                     ));
                 }
             }
@@ -816,12 +814,12 @@ pub(super) fn validate_page_value(name: &str, value: &PageValue) -> Result<(), G
             if p.is_empty() {
                 return Err(validation_err(
                     format!("{} parameter cannot be empty", name),
-                    Some(&span),
+                    Some(span),
                 ));
             } else if !p.starts_with('$') {
                 return Err(validation_err(
                     format!("{} parameter must start with '$'", name),
-                    Some(&span),
+                    Some(span),
                 ));
             }
         }
@@ -851,8 +849,8 @@ pub(super) fn validate_case_expression(
                     if let (Some(t), Some(w)) = (
                         test_type.clone(),
                         infer_expression_type(when_value, &inferred, Some(declared_variables)),
-                    ) {
-                        if !are_comparison_types_compatible(&t, &w) {
+                    )
+                        && !are_comparison_types_compatible(&t, &w) {
                             return Err(validation_err(
                                 format!(
                                     "CASE simple WHEN value type {} is incompatible with test expression type {}",
@@ -862,7 +860,6 @@ pub(super) fn validate_case_expression(
                                 Some(&branch.span.clone()),
                             ));
                         }
-                    }
                 }
                 validate_expression(&branch.then_expression, declared_variables)?;
             }

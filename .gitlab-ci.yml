@@ -50,6 +50,14 @@ build:release:
       - target/release/
     expire_in: 1 day
 
+lint:clippy:
+  stage: build
+  cache:
+    <<: *cargo_cache
+    policy: pull-push
+  script:
+    - cargo clippy --all-targets -- -D warnings
+
 .test:release:
   stage: test
   needs:

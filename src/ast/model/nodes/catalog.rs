@@ -427,7 +427,7 @@ pub enum SessionSetClause {
         value: SessionTimeZoneValue,
     },
     /// SESSION SET \<parameter clause\>
-    Parameter(SessionSetParameterClause),
+    Parameter(Box<SessionSetParameterClause>),
 }
 
 /// Represents a SESSION RESET clause payload.

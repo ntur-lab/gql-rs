@@ -753,7 +753,7 @@ impl GQLAstBuilder {
                             })?;
 
                         let list_expr = Self::build_expression_from_context(
-                            &list_expr_ctx
+                            list_expr_ctx
                                 .valueExpression()
                                 .ok_or_else(|| {
                                     Self::parse_err(
@@ -1378,10 +1378,10 @@ impl GQLAstBuilder {
                     }));
                 }
 
-                return Self::parse_error(format!(
+                Self::parse_error(format!(
                     "Type of valueFunction not supported or not yet mapped: {}",
                     value_fn.get_text()
-                ));
+                ))
             }
             ValueExpressionContextAll::Error(_) => {
                 Self::parse_error("CST Error node: the parser found a syntax error here")
@@ -1491,8 +1491,8 @@ impl GQLAstBuilder {
         if let Some(unsigned_value_specification) =
             value_expression_primary.unsignedValueSpecification()
         {
-            if let Some(unsigned_literal) = unsigned_value_specification.unsignedLiteral() {
-                if let Some(general_literal) = unsigned_literal.generalLiteral() {
+            if let Some(unsigned_literal) = unsigned_value_specification.unsignedLiteral()
+                && let Some(general_literal) = unsigned_literal.generalLiteral() {
                     if let Some(list_literal) = general_literal.listLiteral() {
                         return Self::build_array_expression_from_list_literal(&list_literal);
                     }
@@ -1500,7 +1500,6 @@ impl GQLAstBuilder {
                         return Self::build_map_expression_from_record_literal(&record_literal);
                     }
                 }
-            }
             return Ok(Expression::Literal(Self::build_literal_from_context(
                 &unsigned_value_specification,
             )?));
@@ -1536,13 +1535,12 @@ impl GQLAstBuilder {
             return Self::build_function_call_from_aggregate_context(&aggregate_function);
         }
 
-        if let Some(paren) = value_expression_primary.parenthesizedValueExpression() {
-            if let Some(inner) = paren.valueExpression() {
+        if let Some(paren) = value_expression_primary.parenthesizedValueExpression()
+            && let Some(inner) = paren.valueExpression() {
                 return Self::build_expression_from_context(&inner);
             }
-        }
-        if let Some(case_expr) = value_expression_primary.caseExpression() {
-            if let Some(abbreviation) = case_expr.caseAbbreviation() {
+        if let Some(case_expr) = value_expression_primary.caseExpression()
+            && let Some(abbreviation) = case_expr.caseAbbreviation() {
                 let name = if abbreviation.COALESCE().is_some() {
                     "COALESCE"
                 } else {
@@ -1560,7 +1558,6 @@ impl GQLAstBuilder {
                     span: span.clone(),
                 }));
             }
-        }
 
         if let Some(element_id_fn) = value_expression_primary.element_idFunction() {
             let element_ref = element_id_fn.elementVariableReference().ok_or_else(|| {
@@ -1921,33 +1918,28 @@ impl GQLAstBuilder {
     /// Function to extract the identifier of a node type from a NodeTypeSpecificationContext, checking both the pattern and phrase forms of node type specification and returning the identifier if found.
     fn extract_node_type_identifier(cst: &NodeTypeSpecificationContextAll) -> Option<String> {
         if let Some(pattern) = cst.nodeTypePattern() {
-            if let Some(name) = pattern.nodeTypeName() {
-                if let Some(identifier) = name.identifier() {
+            if let Some(name) = pattern.nodeTypeName()
+                && let Some(identifier) = name.identifier() {
                     return Some(Self::identifier_text(&identifier.get_text()));
                 }
-            }
 
-            if let Some(alias) = pattern.localNodeTypeAlias() {
-                if let Some(identifier) = alias.regularIdentifier() {
+            if let Some(alias) = pattern.localNodeTypeAlias()
+                && let Some(identifier) = alias.regularIdentifier() {
                     return Some(Self::identifier_text(&identifier.get_text()));
                 }
-            }
         }
 
         if let Some(phrase) = cst.nodeTypePhrase() {
-            if let Some(filler) = phrase.nodeTypePhraseFiller() {
-                if let Some(name) = filler.nodeTypeName() {
-                    if let Some(identifier) = name.identifier() {
+            if let Some(filler) = phrase.nodeTypePhraseFiller()
+                && let Some(name) = filler.nodeTypeName()
+                    && let Some(identifier) = name.identifier() {
                         return Some(Self::identifier_text(&identifier.get_text()));
                     }
-                }
-            }
 
-            if let Some(alias) = phrase.localNodeTypeAlias() {
-                if let Some(identifier) = alias.regularIdentifier() {
+            if let Some(alias) = phrase.localNodeTypeAlias()
+                && let Some(identifier) = alias.regularIdentifier() {
                     return Some(Self::identifier_text(&identifier.get_text()));
                 }
-            }
         }
 
         None
@@ -1955,23 +1947,18 @@ impl GQLAstBuilder {
 
     /// Function to extract the identifier of an edge type from an EdgeTypeSpecificationContext, checking both the pattern and phrase forms of edge type specification and returning the identifier if found.
     fn extract_edge_type_identifier(cst: &EdgeTypeSpecificationContextAll) -> Option<String> {
-        if let Some(pattern) = cst.edgeTypePattern() {
-            if let Some(name) = pattern.edgeTypeName() {
-                if let Some(identifier) = name.identifier() {
+        if let Some(pattern) = cst.edgeTypePattern()
+            && let Some(name) = pattern.edgeTypeName()
+                && let Some(identifier) = name.identifier() {
                     return Some(identifier.get_text());
                 }
-            }
-        }
 
-        if let Some(phrase) = cst.edgeTypePhrase() {
-            if let Some(filler) = phrase.edgeTypePhraseFiller() {
-                if let Some(name) = filler.edgeTypeName() {
-                    if let Some(identifier) = name.identifier() {
+        if let Some(phrase) = cst.edgeTypePhrase()
+            && let Some(filler) = phrase.edgeTypePhraseFiller()
+                && let Some(name) = filler.edgeTypeName()
+                    && let Some(identifier) = name.identifier() {
                         return Some(Self::identifier_text(&identifier.get_text()));
                     }
-                }
-            }
-        }
 
         None
     }
@@ -2826,30 +2813,25 @@ impl GQLAstBuilder {
     ) -> GqlResult<Expression> {
         let mut elements = Vec::new();
 
-        if let Some(by_enum) = path_constructor.pathValueConstructorByEnumeration() {
-            if let Some(list) = by_enum.pathElementList() {
-                if let Some(start) = list.pathElementListStart() {
-                    if let Some(node_ref) = start.nodeReferenceValueExpression() {
-                        if let Some(prim) = node_ref.valueExpressionPrimary() {
+        if let Some(by_enum) = path_constructor.pathValueConstructorByEnumeration()
+            && let Some(list) = by_enum.pathElementList() {
+                if let Some(start) = list.pathElementListStart()
+                    && let Some(node_ref) = start.nodeReferenceValueExpression()
+                        && let Some(prim) = node_ref.valueExpressionPrimary() {
                             elements.push(Self::build_primary_expression_from_context(&prim)?);
                         }
-                    }
-                }
 
                 for step in list.pathElementListStep_all() {
-                    if let Some(edge_ref) = step.edgeReferenceValueExpression() {
-                        if let Some(prim) = edge_ref.valueExpressionPrimary() {
+                    if let Some(edge_ref) = step.edgeReferenceValueExpression()
+                        && let Some(prim) = edge_ref.valueExpressionPrimary() {
                             elements.push(Self::build_primary_expression_from_context(&prim)?);
                         }
-                    }
-                    if let Some(node_ref) = step.nodeReferenceValueExpression() {
-                        if let Some(prim) = node_ref.valueExpressionPrimary() {
+                    if let Some(node_ref) = step.nodeReferenceValueExpression()
+                        && let Some(prim) = node_ref.valueExpressionPrimary() {
                             elements.push(Self::build_primary_expression_from_context(&prim)?);
                         }
-                    }
                 }
             }
-        }
 
         Ok(Expression::PathConstructor(elements))
     }
@@ -2958,20 +2940,18 @@ impl GQLAstBuilder {
                 .unwrap_or_else(|| "UNKNOWN".to_string());
 
             let mut arguments = Vec::new();
-            if let Some(left) = binary_set_function.dependentValueExpression() {
-                if let Some(expr) = left.numericValueExpression() {
+            if let Some(left) = binary_set_function.dependentValueExpression()
+                && let Some(expr) = left.numericValueExpression() {
                     arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
                         &expr.get_text(),
                     )?));
                 }
-            }
-            if let Some(right) = binary_set_function.independentValueExpression() {
-                if let Some(expr) = right.numericValueExpression() {
+            if let Some(right) = binary_set_function.independentValueExpression()
+                && let Some(expr) = right.numericValueExpression() {
                     arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
                         &expr.get_text(),
                     )?));
                 }
-            }
 
             return Ok(Expression::FunctionCall(FunctionCall {
                 name,

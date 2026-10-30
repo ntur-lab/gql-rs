@@ -311,46 +311,37 @@ impl GQLAstBuilder {
             for path_factor in path_term.pathFactor_all() {
                 match &*path_factor {
                     PathFactorContextAll::PfPathPrimaryContext(ctx) => {
-                        if let Some(path_primary) = ctx.pathPrimary() {
-                            if let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
+                        if let Some(path_primary) = ctx.pathPrimary()
+                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
                                 simplified_ctx,
                             ) = &*path_primary
-                            {
-                                if let Some(simplified_expr) =
+                                && let Some(simplified_expr) =
                                     simplified_ctx.simplifiedPathPatternExpression()
                                 {
                                     return Some(simplified_expr.get_text());
                                 }
-                            }
-                        }
                     }
                     PathFactorContextAll::PfQuantifiedPathPrimaryContext(ctx) => {
-                        if let Some(path_primary) = ctx.pathPrimary() {
-                            if let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
+                        if let Some(path_primary) = ctx.pathPrimary()
+                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
                                 simplified_ctx,
                             ) = &*path_primary
-                            {
-                                if let Some(simplified_expr) =
+                                && let Some(simplified_expr) =
                                     simplified_ctx.simplifiedPathPatternExpression()
                                 {
                                     return Some(simplified_expr.get_text());
                                 }
-                            }
-                        }
                     }
                     PathFactorContextAll::PfQuestionedPathPrimaryContext(ctx) => {
-                        if let Some(path_primary) = ctx.pathPrimary() {
-                            if let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
+                        if let Some(path_primary) = ctx.pathPrimary()
+                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
                                 simplified_ctx,
                             ) = &*path_primary
-                            {
-                                if let Some(simplified_expr) =
+                                && let Some(simplified_expr) =
                                     simplified_ctx.simplifiedPathPatternExpression()
                                 {
                                     return Some(simplified_expr.get_text());
                                 }
-                            }
-                        }
                     }
                     _ => {}
                 }
@@ -454,7 +445,7 @@ impl GQLAstBuilder {
     pub(super) fn build_elements_from_primary(
         path_primary: &PathPrimaryContextAll,
     ) -> GqlResult<Vec<PatternElement>> {
-        match &*path_primary {
+        match path_primary {
             PathPrimaryContextAll::PpElementPatternContext(ctx) => {
                 let element_pattern = ctx.elementPattern().ok_or_else(|| {
                     Self::parse_err("CST not valid: elementPattern missing in pathPrimary".into())
@@ -674,17 +665,15 @@ impl GQLAstBuilder {
             return Self::label_expr_from_simplified_primary(&primary);
         }
 
-        if let Some(neg) = sec.simplifiedNegation() {
-            if let Some(primary) = neg.simplifiedPrimary() {
-                if let Some(label_expr) = Self::label_expr_from_simplified_primary(&primary) {
+        if let Some(neg) = sec.simplifiedNegation()
+            && let Some(primary) = neg.simplifiedPrimary()
+                && let Some(label_expr) = Self::label_expr_from_simplified_primary(&primary) {
                     return Some(Expression::Unary(UnaryExpression {
                         operator: Operator::Not,
                         expression: Box::new(label_expr),
                         span: span.clone(),
                     }));
                 }
-            }
-        }
 
         None
     }
@@ -716,7 +705,7 @@ impl GQLAstBuilder {
         term: &SimplifiedTermContextAll,
         default_direction: EdgeDirection,
     ) -> GqlResult<Vec<SimplifiedEdgeAtom>> {
-        match &*term {
+        match term {
             SimplifiedTermContextAll::SimplifiedFactorLowLabelContext(ctx) => {
                 let low = ctx.simplifiedFactorLow().ok_or_else(|| {
                     Self::parse_err("CST not valid: simplifiedFactorLow missing".into())
@@ -750,7 +739,7 @@ impl GQLAstBuilder {
     ) -> GqlResult<Vec<SimplifiedEdgeAtom>> {
         let span = Self::extract_span(low);
 
-        match &*low {
+        match low {
             SimplifiedFactorLowContextAll::SimplifiedFactorHighLabelContext(ctx) => {
                 let high = ctx.simplifiedFactorHigh().ok_or_else(|| {
                     Self::parse_err("CST not valid: simplifiedFactorHigh missing".into())
@@ -985,7 +974,7 @@ impl GQLAstBuilder {
     pub(super) fn build_elements_from_factor(
         path_factor: &PathFactorContextAll,
     ) -> GqlResult<Vec<PatternElement>> {
-        match &*path_factor {
+        match path_factor {
             PathFactorContextAll::PfPathPrimaryContext(ctx) => {
                 let primary = ctx.pathPrimary().ok_or_else(|| {
                     Self::parse_err("CST not valid: pathPrimary missing in pathFactor".into())

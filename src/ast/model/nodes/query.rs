@@ -121,7 +121,7 @@ pub enum PrimitiveResultStatement {
         /// Optional GROUP BY clause.
         group_clause: Option<GroupClause>,
         /// Optional ORDER BY / LIMIT / OFFSET clause.
-        page_clause: Option<OrderByAndPageStatement>,
+        page_clause: Option<Box<OrderByAndPageStatement>>,
         /// Source range covered by this AST node.
         span: Span,
     },

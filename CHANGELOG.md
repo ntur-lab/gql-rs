@@ -34,4 +34,3 @@ Initial alpha release of `gql-rs`.
   dedicated typed AST representation is not available.
 - The crate parses and validates GQL but does not execute queries or connect to
   a graph database.
-- A minimum supported Rust version has not yet been established.

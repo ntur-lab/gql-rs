@@ -103,11 +103,11 @@ impl GQLAstBuilder {
                     )
                 })?;
                 let call_clause = Self::build_call_clause_from_context(&call_proc)?;
-                return Ok(DataStatement::Call(CallStatement { call_clause, span: span.clone() }));
+                Ok(DataStatement::Call(CallStatement { call_clause, span: span.clone() }))
             } else {
-                return Err(Self::parse_err(
+                Err(Self::parse_err(
                     "Expected primitiveDataModifyingStatement or callDataModifyingProcedureStatement".to_string(),
-                ));
+                ))
             }
         } else if let Some(query_stmt) = stmts[0].simpleQueryStatement() {
             if stmts.len() != 2 {
@@ -189,15 +189,14 @@ impl GQLAstBuilder {
         let mut pipeline = Vec::new();
         let mut has_data_modify = false;
 
-        if let Some(focused) = linear_data.focusedLinearDataModifyingStatement() {
-            if let Some(body) = focused.focusedLinearDataModifyingStatementBody() {
-                if let Some(use_clause) = body.useGraphClause() {
-                    if let Some(graph_expr) = use_clause.graphExpression() {
+        if let Some(focused) = linear_data.focusedLinearDataModifyingStatement()
+            && let Some(body) = focused.focusedLinearDataModifyingStatementBody() {
+                if let Some(use_clause) = body.useGraphClause()
+                    && let Some(graph_expr) = use_clause.graphExpression() {
                         pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
                             &graph_expr,
                         )));
                     }
-                }
                 if let Some(simple_linear) = body.simpleLinearDataAccessingStatement() {
                     for statement in simple_linear.simpleDataAccessingStatement_all() {
                         if let Some(query_stmt) = statement.simpleQueryStatement() {
@@ -260,11 +259,10 @@ impl GQLAstBuilder {
                     }
                 }
             }
-        }
 
-        if let Some(ambient) = linear_data.ambientLinearDataModifyingStatement() {
-            if let Some(body) = ambient.ambientLinearDataModifyingStatementBody() {
-                if let Some(simple_linear) = body.simpleLinearDataAccessingStatement() {
+        if let Some(ambient) = linear_data.ambientLinearDataModifyingStatement()
+            && let Some(body) = ambient.ambientLinearDataModifyingStatementBody()
+                && let Some(simple_linear) = body.simpleLinearDataAccessingStatement() {
                     for statement in simple_linear.simpleDataAccessingStatement_all() {
                         if let Some(query_stmt) = statement.simpleQueryStatement() {
                             if let Some(primitive) = query_stmt.primitiveQueryStatement() {
@@ -325,8 +323,6 @@ impl GQLAstBuilder {
                         }
                     }
                 }
-            }
-        }
 
         if !has_data_modify && !pipeline.is_empty() {
             let query = Query::Basic(BasicQuery {
@@ -447,8 +443,6 @@ impl GQLAstBuilder {
             EdgeDirection::Incoming
         } else if cst.insertEdgePointingRight().is_some() {
             EdgeDirection::Outgoing
-        } else if cst.insertEdgeUndirected().is_some() {
-            EdgeDirection::Undirected
         } else {
             EdgeDirection::Undirected
         };
@@ -546,7 +540,7 @@ impl GQLAstBuilder {
             let value_expr = prop
                 .valueExpression()
                 .ok_or_else(|| Self::parse_err("Expected valueExpression".to_string()))?;
-            let value = Self::build_expression_from_context(&*value_expr)?;
+            let value = Self::build_expression_from_context(&value_expr)?;
             Ok(SetItem::Property {
                 property: PropertyAccess {
                     object: binding,
@@ -661,7 +655,7 @@ impl GQLAstBuilder {
                 let value_expr = item.valueExpression().ok_or_else(|| {
                     Self::parse_err("Expected valueExpression in deleteItem".to_string())
                 })?;
-                Self::build_expression_from_context(&*value_expr)
+                Self::build_expression_from_context(&value_expr)
             })
             .collect()
     }
@@ -684,7 +678,7 @@ impl GQLAstBuilder {
                 let value_expr = pair
                     .valueExpression()
                     .ok_or_else(|| Self::parse_err("Expected valueExpression".to_string()))?;
-                let value = Self::build_expression_from_context(&*value_expr)?;
+                let value = Self::build_expression_from_context(&value_expr)?;
                 Ok(PropertyItem { key, value, span: span.clone()})
             })
             .collect()
