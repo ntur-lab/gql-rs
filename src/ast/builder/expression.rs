@@ -3167,7 +3167,15 @@ impl GQLAstBuilder {
         if (trimmed.starts_with('\'') && trimmed.ends_with('\''))
             || (trimmed.starts_with('"') && trimmed.ends_with('"'))
         {
-            Literal::String(trimmed.trim_matches(|c| c == '\'' || c == '"').to_string())
+            // Remove exactly the enclosing pair: quotes at the edges of the
+            // content are data, and doubled delimiters represent one quote.
+            let inner = &trimmed[1..trimmed.len() - 1];
+            let value = if trimmed.starts_with('\'') {
+                inner.replace("''", "'")
+            } else {
+                inner.replace("\"\"", "\"")
+            };
+            Literal::String(value)
         } else if let Ok(i) = trimmed.parse::<i64>() {
             Literal::Integer(i)
         } else if let Ok(f) = trimmed.parse::<f64>() {
