@@ -33,3 +33,5 @@ mod catalog_and_session;
 mod transactions;
 #[path = "syntax_errors.rs"]
 mod syntax_errors;
+#[path = "string_literal.rs"]
+mod string_literal;
