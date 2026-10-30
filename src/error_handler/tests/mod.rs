@@ -15,30 +15,4 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::ast::Span;
-
-#[test]
-fn span_default_is_the_unknown_source_position() {
-    let span = Span::default();
-
-    assert_eq!(span.start_line, 0);
-    assert_eq!(span.start_col, 0);
-    assert_eq!(span.end_line, 0);
-    assert_eq!(span.end_col, 0);
-}
-
-#[test]
-fn span_json_round_trip_preserves_every_coordinate() {
-    let span = Span {
-        start_line: 3,
-        start_col: 5,
-        end_line: 7,
-        end_col: 11,
-    };
-
-    let json = serde_json::to_value(&span).expect("span should serialize");
-    let decoded: Span = serde_json::from_value(json).expect("span should deserialize");
-
-    assert_eq!(decoded, span);
-}
-
+mod error_test;

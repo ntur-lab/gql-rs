@@ -15,8 +15,34 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
+//! Public data model for the GQL abstract syntax tree.
+//!
+//! # Structure
+//!
+//! A [`QueryAST`] contains one root [`Statement`]. The model is divided into:
+//!
+//! - queries and query pipelines: [`Query`], [`BasicQuery`], [`QueryStep`];
+//! - data modification: [`DataStatement`];
+//! - catalog operations: [`CatalogStatement`];
+//! - expressions and types: [`Expression`], [`TypeSpec`];
+//! - graph patterns: [`PathPattern`], [`Node`], [`Edge`];
+//! - session and transaction commands.
+//!
+//! # Source locations
+//!
+//! AST nodes use [`Span`] to identify their position in the original GQL
+//! source. A zero-valued span means that a precise location was not available.
+//!
+//! # Serialization stability
+//!
+//! The model supports Serde serialization and deserialization. Because the
+//! crate is in alpha, the serialized AST representation may change between
+//! releases.
+
 mod query_ast;
 mod nodes;
+#[cfg(test)]
+mod tests;
 
 pub use query_ast::*;
 pub use nodes::*;
@@ -27,9 +53,13 @@ use serde::{Deserialize, Serialize};
 /// It is used to track the location of AST nodes for error reporting and debugging purposes.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Span {
+    /// One-based line containing the first source character.
     pub start_line: isize,
+    /// Zero-based column containing the first source character.
     pub start_col: isize,
+    /// One-based line containing the final source character.
     pub end_line: isize,
+    /// Zero-based column following the final source character.
     pub end_col: isize,
 }
 

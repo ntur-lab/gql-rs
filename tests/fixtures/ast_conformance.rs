@@ -15,7 +15,7 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 use libtest_mimic::{Arguments, Failed, Trial};
 use serde_json::Value;
 use std::fs;
@@ -24,7 +24,7 @@ use std::path::{Path, PathBuf};
 fn main() {
     let args = Arguments::from_args();
     let fixture_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/integration/fixtures/ast");
+        .join("tests/fixtures/ast");
     let trials = load_trials(&fixture_root).unwrap_or_else(|error| {
         eprintln!("Unable to load AST fixtures: {error}");
         std::process::exit(2);

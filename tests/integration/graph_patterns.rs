@@ -15,300 +15,289 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
-use gql_parser::ast::model::*;
-
 mod graph_pattern_tests {
-    use super::*;
+    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError, ast::model::*};
 
+    #[test]
+    fn test_path_quantifier_exact_maps_to_exact_quantifier() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH (a)-[e]->{2}(b) RETURN a")
+            .expect("query should parse");
 
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
 
+        let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
+            panic!("expected MATCH as first pipeline step");
+        };
 
+        let pattern = match_clause
+            .match_clause
+            .patterns
+            .first()
+            .expect("pattern should exist");
 
+        let edge = pattern
+            .elements
+            .iter()
+            .find_map(|element| match element {
+                PatternElement::Edge(edge) => Some(edge),
+                _ => None,
+            })
+            .expect("edge should exist");
 
+        assert!(matches!(edge.quantifier, Some(PathQuantifier::Exact(2))));
+    }
 
+    #[test]
+    fn test_path_quantifier_at_least_maps_to_at_least_quantifier() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH (a)-[e]->{2,}(b) RETURN a")
+            .expect("query should parse");
 
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
 
-        #[test]
-        fn test_path_quantifier_exact_maps_to_exact_quantifier() {
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer
-                .exec("MATCH (a)-[e]->{2}(b) RETURN a")
-                .expect("query should parse");
+        let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
+            panic!("expected MATCH as first pipeline step");
+        };
 
-            let ast = analyzer.get_ast().expect("ast must be available");
-            let Statement::Query(Query::Basic(query)) = &ast.statement else {
-                panic!("expected basic query statement");
-            };
+        let pattern = match_clause
+            .match_clause
+            .patterns
+            .first()
+            .expect("pattern should exist");
 
-            let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
-                panic!("expected MATCH as first pipeline step");
-            };
+        let edge = pattern
+            .elements
+            .iter()
+            .find_map(|element| match element {
+                PatternElement::Edge(edge) => Some(edge),
+                _ => None,
+            })
+            .expect("edge should exist");
 
-            let pattern = match_clause
-                .match_clause
-                .patterns
-                .first()
-                .expect("pattern should exist");
+        assert!(matches!(edge.quantifier, Some(PathQuantifier::AtLeast(2))));
+    }
 
-            let edge = pattern
-                .elements
-                .iter()
-                .find_map(|element| match element {
-                    PatternElement::Edge(edge) => Some(edge),
-                    _ => None,
-                })
-                .expect("edge should exist");
+    #[test]
+    fn test_path_quantifier_at_most_maps_to_at_most_quantifier() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH (a)-[e]->{,5}(b) RETURN a")
+            .expect("query should parse");
 
-            assert!(matches!(edge.quantifier, Some(PathQuantifier::Exact(2))));
-        }
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
 
-        #[test]
-        fn test_path_quantifier_at_least_maps_to_at_least_quantifier() {
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer
-                .exec("MATCH (a)-[e]->{2,}(b) RETURN a")
-                .expect("query should parse");
+        let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
+            panic!("expected MATCH as first pipeline step");
+        };
 
-            let ast = analyzer.get_ast().expect("ast must be available");
-            let Statement::Query(Query::Basic(query)) = &ast.statement else {
-                panic!("expected basic query statement");
-            };
+        let pattern = match_clause
+            .match_clause
+            .patterns
+            .first()
+            .expect("pattern should exist");
 
-            let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
-                panic!("expected MATCH as first pipeline step");
-            };
+        let edge = pattern
+            .elements
+            .iter()
+            .find_map(|element| match element {
+                PatternElement::Edge(edge) => Some(edge),
+                _ => None,
+            })
+            .expect("edge should exist");
 
-            let pattern = match_clause
-                .match_clause
-                .patterns
-                .first()
-                .expect("pattern should exist");
+        assert!(matches!(edge.quantifier, Some(PathQuantifier::AtMost(5))));
+    }
 
-            let edge = pattern
-                .elements
-                .iter()
-                .find_map(|element| match element {
-                    PatternElement::Edge(edge) => Some(edge),
-                    _ => None,
-                })
-                .expect("edge should exist");
+    #[test]
+    fn test_path_quantifier_plus_maps_to_at_least_one() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH (a)-[e]->+(b) RETURN a")
+            .expect("query should parse");
 
-            assert!(matches!(edge.quantifier, Some(PathQuantifier::AtLeast(2))));
-        }
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
 
-        #[test]
-        fn test_path_quantifier_at_most_maps_to_at_most_quantifier() {
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer
-                .exec("MATCH (a)-[e]->{,5}(b) RETURN a")
-                .expect("query should parse");
+        let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
+            panic!("expected MATCH as first pipeline step");
+        };
 
-            let ast = analyzer.get_ast().expect("ast must be available");
-            let Statement::Query(Query::Basic(query)) = &ast.statement else {
-                panic!("expected basic query statement");
-            };
+        let pattern = match_clause
+            .match_clause
+            .patterns
+            .first()
+            .expect("pattern should exist");
 
-            let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
-                panic!("expected MATCH as first pipeline step");
-            };
+        let edge = pattern
+            .elements
+            .iter()
+            .find_map(|element| match element {
+                PatternElement::Edge(edge) => Some(edge),
+                _ => None,
+            })
+            .expect("edge should exist");
 
-            let pattern = match_clause
-                .match_clause
-                .patterns
-                .first()
-                .expect("pattern should exist");
+        assert!(matches!(edge.quantifier, Some(PathQuantifier::AtLeast(1))));
+    }
 
-            let edge = pattern
-                .elements
-                .iter()
-                .find_map(|element| match element {
-                    PatternElement::Edge(edge) => Some(edge),
-                    _ => None,
-                })
-                .expect("edge should exist");
+    #[test]
+    fn test_path_quantifier_star_maps_to_unbounded_range() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH (a)-[e]->*(b) RETURN a")
+            .expect("query should parse");
 
-            assert!(matches!(edge.quantifier, Some(PathQuantifier::AtMost(5))));
-        }
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
 
-        #[test]
-        fn test_path_quantifier_plus_maps_to_at_least_one() {
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer
-                .exec("MATCH (a)-[e]->+(b) RETURN a")
-                .expect("query should parse");
+        let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
+            panic!("expected MATCH as first pipeline step");
+        };
 
-            let ast = analyzer.get_ast().expect("ast must be available");
-            let Statement::Query(Query::Basic(query)) = &ast.statement else {
-                panic!("expected basic query statement");
-            };
+        let pattern = match_clause
+            .match_clause
+            .patterns
+            .first()
+            .expect("pattern should exist");
 
-            let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
-                panic!("expected MATCH as first pipeline step");
-            };
+        let edge = pattern
+            .elements
+            .iter()
+            .find_map(|element| match element {
+                PatternElement::Edge(edge) => Some(edge),
+                _ => None,
+            })
+            .expect("edge should exist");
 
-            let pattern = match_clause
-                .match_clause
-                .patterns
-                .first()
-                .expect("pattern should exist");
+        assert!(matches!(
+            edge.quantifier,
+            Some(PathQuantifier::Range {
+                min: 0,
+                max: u32::MAX
+            })
+        ));
+    }
 
-            let edge = pattern
-                .elements
-                .iter()
-                .find_map(|element| match element {
-                    PatternElement::Edge(edge) => Some(edge),
-                    _ => None,
-                })
-                .expect("edge should exist");
+    #[test]
+    fn test_path_quantifier_bounded_range_maps_to_range_quantifier() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH (a)-[e]->{2,5}(b) RETURN a")
+            .expect("query should parse");
 
-            assert!(matches!(edge.quantifier, Some(PathQuantifier::AtLeast(1))));
-        }
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
 
-        #[test]
-        fn test_path_quantifier_star_maps_to_unbounded_range() {
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer
-                .exec("MATCH (a)-[e]->*(b) RETURN a")
-                .expect("query should parse");
+        let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
+            panic!("expected MATCH as first pipeline step");
+        };
 
-            let ast = analyzer.get_ast().expect("ast must be available");
-            let Statement::Query(Query::Basic(query)) = &ast.statement else {
-                panic!("expected basic query statement");
-            };
+        let pattern = match_clause
+            .match_clause
+            .patterns
+            .first()
+            .expect("pattern should exist");
 
-            let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
-                panic!("expected MATCH as first pipeline step");
-            };
+        let edge = pattern
+            .elements
+            .iter()
+            .find_map(|element| match element {
+                PatternElement::Edge(edge) => Some(edge),
+                _ => None,
+            })
+            .expect("edge should exist");
 
-            let pattern = match_clause
-                .match_clause
-                .patterns
-                .first()
-                .expect("pattern should exist");
+        assert!(matches!(
+            edge.quantifier,
+            Some(PathQuantifier::Range { min: 2, max: 5 })
+        ));
+    }
 
-            let edge = pattern
-                .elements
-                .iter()
-                .find_map(|element| match element {
-                    PatternElement::Edge(edge) => Some(edge),
-                    _ => None,
-                })
-                .expect("edge should exist");
+    #[test]
+    fn test_parenthesized_path_with_optional_quantifier_maps_to_optional_edge() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH ((a)-[e]->(b))? RETURN a")
+            .expect("query should parse");
 
-            assert!(matches!(
-                edge.quantifier,
-                Some(PathQuantifier::Range {
-                    min: 0,
-                    max: u32::MAX
-                })
-            ));
-        }
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
 
-        #[test]
-        fn test_path_quantifier_bounded_range_maps_to_range_quantifier() {
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer
-                .exec("MATCH (a)-[e]->{2,5}(b) RETURN a")
-                .expect("query should parse");
+        let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
+            panic!("expected MATCH as first pipeline step");
+        };
 
-            let ast = analyzer.get_ast().expect("ast must be available");
-            let Statement::Query(Query::Basic(query)) = &ast.statement else {
-                panic!("expected basic query statement");
-            };
+        let pattern = match_clause
+            .match_clause
+            .patterns
+            .first()
+            .expect("pattern should exist");
 
-            let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
-                panic!("expected MATCH as first pipeline step");
-            };
+        let edge = pattern
+            .elements
+            .iter()
+            .find_map(|element| match element {
+                PatternElement::Edge(edge) => Some(edge),
+                _ => None,
+            })
+            .expect("edge should exist");
 
-            let pattern = match_clause
-                .match_clause
-                .patterns
-                .first()
-                .expect("pattern should exist");
+        assert!(matches!(edge.quantifier, Some(PathQuantifier::Optional)));
+    }
 
-            let edge = pattern
-                .elements
-                .iter()
-                .find_map(|element| match element {
-                    PatternElement::Edge(edge) => Some(edge),
-                    _ => None,
-                })
-                .expect("edge should exist");
+    #[test]
+    fn test_parenthesized_path_with_plus_quantifier_maps_to_at_least_one() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("MATCH ((a)-[e]->(b))+ RETURN a")
+            .expect("query should parse");
 
-            assert!(matches!(
-                edge.quantifier,
-                Some(PathQuantifier::Range { min: 2, max: 5 })
-            ));
-        }
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected basic query statement");
+        };
 
-        #[test]
-        fn test_parenthesized_path_with_optional_quantifier_maps_to_optional_edge() {
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer
-                .exec("MATCH ((a)-[e]->(b))? RETURN a")
-                .expect("query should parse");
+        let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
+            panic!("expected MATCH as first pipeline step");
+        };
 
-            let ast = analyzer.get_ast().expect("ast must be available");
-            let Statement::Query(Query::Basic(query)) = &ast.statement else {
-                panic!("expected basic query statement");
-            };
+        let pattern = match_clause
+            .match_clause
+            .patterns
+            .first()
+            .expect("pattern should exist");
 
-            let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
-                panic!("expected MATCH as first pipeline step");
-            };
+        let edge = pattern
+            .elements
+            .iter()
+            .find_map(|element| match element {
+                PatternElement::Edge(edge) => Some(edge),
+                _ => None,
+            })
+            .expect("edge should exist");
 
-            let pattern = match_clause
-                .match_clause
-                .patterns
-                .first()
-                .expect("pattern should exist");
-
-            let edge = pattern
-                .elements
-                .iter()
-                .find_map(|element| match element {
-                    PatternElement::Edge(edge) => Some(edge),
-                    _ => None,
-                })
-                .expect("edge should exist");
-
-            assert!(matches!(edge.quantifier, Some(PathQuantifier::Optional)));
-        }
-
-        #[test]
-        fn test_parenthesized_path_with_plus_quantifier_maps_to_at_least_one() {
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            analyzer
-                .exec("MATCH ((a)-[e]->(b))+ RETURN a")
-                .expect("query should parse");
-
-            let ast = analyzer.get_ast().expect("ast must be available");
-            let Statement::Query(Query::Basic(query)) = &ast.statement else {
-                panic!("expected basic query statement");
-            };
-
-            let Some(QueryStep::Match(match_clause)) = query.pipeline.first() else {
-                panic!("expected MATCH as first pipeline step");
-            };
-
-            let pattern = match_clause
-                .match_clause
-                .patterns
-                .first()
-                .expect("pattern should exist");
-
-            let edge = pattern
-                .elements
-                .iter()
-                .find_map(|element| match element {
-                    PatternElement::Edge(edge) => Some(edge),
-                    _ => None,
-                })
-                .expect("edge should exist");
-
-            assert!(matches!(edge.quantifier, Some(PathQuantifier::AtLeast(1))));
-        }
+        assert!(matches!(edge.quantifier, Some(PathQuantifier::AtLeast(1))));
+    }
 
     #[test]
     fn test_path_mode_search_incompatibility_walk_shortest() {
@@ -466,7 +455,8 @@ mod graph_pattern_tests {
         };
         assert_eq!(unary_right.operator, Operator::Not);
 
-        let Expression::Literal(Literal::String(right_label)) = unary_right.expression.as_ref() else {
+        let Expression::Literal(Literal::String(right_label)) = unary_right.expression.as_ref()
+        else {
             panic!("expected string literal inside right-side negation");
         };
         assert_eq!(right_label, "Employee");
@@ -550,9 +540,16 @@ mod graph_pattern_tests {
             })
             .collect::<Vec<_>>();
 
-        assert_eq!(edges.len(), 2, "expected two edges for a two-hop simplified pattern");
+        assert_eq!(
+            edges.len(),
+            2,
+            "expected two edges for a two-hop simplified pattern"
+        );
 
-        let first_labels = edges[0].labels.as_ref().expect("first edge labels should exist");
+        let first_labels = edges[0]
+            .labels
+            .as_ref()
+            .expect("first edge labels should exist");
         let Expression::Binary(first_or) = first_labels else {
             panic!("expected OR labels on first edge");
         };
@@ -568,7 +565,10 @@ mod graph_pattern_tests {
         };
         assert_eq!(first_right, "Customer");
 
-        let second_labels = edges[1].labels.as_ref().expect("second edge labels should exist");
+        let second_labels = edges[1]
+            .labels
+            .as_ref()
+            .expect("second edge labels should exist");
         let Expression::Binary(second_or) = second_labels else {
             panic!("expected OR labels on second edge");
         };
@@ -589,7 +589,9 @@ mod graph_pattern_tests {
     fn test_exists_optional_block_preserves_all_nested_matches() {
         let mut analyzer = DefaultGQLQueryAnalyzer::new();
         analyzer
-            .exec("MATCH (n) WHERE EXISTS { OPTIONAL { MATCH (a:Person) MATCH (b:Movie) } } RETURN n")
+            .exec(
+                "MATCH (n) WHERE EXISTS { OPTIONAL { MATCH (a:Person) MATCH (b:Movie) } } RETURN n",
+            )
             .expect("query should parse");
 
         let ast = analyzer.get_ast().expect("ast must be available");
@@ -609,7 +611,10 @@ mod graph_pattern_tests {
         let Expression::Subquery(subquery_expr) = &filter_clause.condition else {
             panic!("expected EXISTS to map to subquery expression");
         };
-        assert!(subquery_expr.is_exists, "EXISTS subquery flag should be true");
+        assert!(
+            subquery_expr.is_exists,
+            "EXISTS subquery flag should be true"
+        );
 
         let Query::Basic(exists_query) = subquery_expr.query.as_ref() else {
             panic!("expected EXISTS subquery to be a basic query");

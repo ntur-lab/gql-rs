@@ -22,7 +22,7 @@ macro_rules! test_session_statement {
     ($test_name:ident, $query:expr, expected_set_count: $set_count:expr, expected_reset_count: $reset_count:expr) => {
         #[test]
         fn $test_name() {
-            use gql_parser::ast::Statement;
+            use gql_rs::ast::Statement;
 
             let query_str = $query;
             println!("Testing SESSION statement: {}", query_str);
@@ -75,7 +75,7 @@ macro_rules! test_transaction_statement {
     ($test_name:ident, $query:expr, expected_mode: $mode_check:expr) => {
         #[test]
         fn $test_name() {
-            use gql_parser::ast::Statement;
+            use gql_rs::ast::Statement;
 
             let query_str = $query;
             println!("Testing TRANSACTION statement: {}", query_str);
@@ -116,7 +116,7 @@ macro_rules! test_graph_type_specification {
     ($test_name:ident, $query:expr, expected_elements: $element_count:expr) => {
         #[test]
         fn $test_name() {
-            use gql_parser::ast::{Statement, CatalogStatement};
+            use gql_rs::ast::{Statement, CatalogStatement};
 
             let query_str = $query;
             println!("Testing CREATE GRAPH TYPE: {}", query_str);
@@ -130,7 +130,7 @@ macro_rules! test_graph_type_specification {
                                 if let Some(CatalogStatement::CreateGraphType(create_gt)) =
                                     block.statements.first()
                                 {
-                                    if let gql_parser::ast::GraphTypeSourceClause::NestedSpecification {
+                                    if let gql_rs::ast::GraphTypeSourceClause::NestedSpecification {
                                         nested_graph_type_specification,
                                         ..
                                     } = &create_gt.source

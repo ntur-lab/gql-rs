@@ -5,12 +5,12 @@ and exact AST construction are different contracts and use different suites.
 
 ## Unit tests
 
-Public model unit tests live under `tests/unit` and do not invoke the lexer or parser. They
-cover AST model contracts, serialization, source spans, transaction intent, and error
+Unit tests live in `tests/` directories next to the modules they exercise under `src/`.
+They cover AST model contracts, serialization, source spans, transaction intent, and error
 values. Internal library tests also include the parser-rule coverage check.
 
 ```text
-cargo test --lib --test unit
+cargo test --lib
 ```
 
 ## Integration tests
@@ -29,8 +29,8 @@ cargo test --test integration
 
 ## Full AST conformance fixtures
 
-The conformance runner lives at `tests/integration/fixtures/ast_conformance.rs`. Golden
-fixtures live under `tests/integration/fixtures/ast`; each case pairs a `.gql` input with an
+The conformance runner lives at `tests/fixtures/ast_conformance.rs`. Golden fixtures live
+under `tests/fixtures/ast`; each case pairs a `.gql` input with an
 adjacent `.ast.json` containing the complete expected AST, including source spans.
 
 ```text
@@ -47,7 +47,7 @@ A normal test run never modifies fixtures.
 
 ## Portable GQL TCK
 
-The Gherkin scenarios under `tests/integration/tck/features` validate public GQL behaviour
+The Gherkin scenarios under `tests/tck/features` validate public GQL behaviour
 without depending on Rust AST types. This allows the corpus to be adapted for other GQL
 implementations.
 
@@ -57,7 +57,7 @@ cargo test --test gql_tck
 
 The Cucumber adapter provides typed step definitions and isolated scenario state. Scenarios
 tagged `@pending` are excluded by the runner. The internal library test included by
-`cargo test --lib --test unit` also walks the generated ANTLR syntax trees and checks the
+`cargo test --lib` also walks the generated ANTLR syntax trees and checks the
 reachable parser rules against the TCK corpus.
 
 ## Complete verification
@@ -72,7 +72,7 @@ The three CI-equivalent commands are:
 
 ```text
 cargo test --test gql_tck
-cargo test --lib --test unit
+cargo test --lib
 cargo test --test integration --test ast_conformance
 ```
 

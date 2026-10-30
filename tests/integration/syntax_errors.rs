@@ -15,24 +15,25 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::error_handler::error::GqlError;
-use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+mod syntax_error_tests {
+    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, error_handler::error::GqlError};
 
-#[test]
-fn analyzer_surfaces_syntax_errors_through_the_error_listener() {
-	let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    #[test]
+    fn analyzer_surfaces_syntax_errors_through_the_error_listener() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
 
-	let result = analyzer.exec("MATCH (");
+        let result = analyzer.exec("MATCH (");
 
-	match result {
-		Err(GqlError::Parse { message, context }) => {
-			assert!(message.contains("Syntax error at line 1, column 7:"));
-			assert_eq!(context.span, None);
-			assert_eq!(context.code, None);
-		}
-		other => panic!("Expected parse error from syntax failure, got: {:?}", other),
-	}
+        match result {
+            Err(GqlError::Parse { message, context }) => {
+                assert!(message.contains("Syntax error at line 1, column 7:"));
+                assert_eq!(context.span, None);
+                assert_eq!(context.code, None);
+            }
+            other => panic!("Expected parse error from syntax failure, got: {:?}", other),
+        }
 
-	assert_eq!(analyzer.get_query(), None);
-	assert!(analyzer.get_ast().is_none());
+        assert_eq!(analyzer.get_query(), None);
+        assert!(analyzer.get_ast().is_none());
+    }
 }

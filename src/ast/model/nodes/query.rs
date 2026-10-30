@@ -46,6 +46,7 @@ pub struct BasicQuery {
     pub pipeline: Vec<QueryStep>,
     /// Terminal result-producing statement.
     pub result_statement: PrimitiveResultStatement,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -110,7 +111,8 @@ impl QueryStep {
 pub enum PrimitiveResultStatement {
     /// FINISH terminal statement.
     Finish {
-        span: Span, 
+        /// Source range covered by this AST node.
+        span: Span,
     },
     /// RETURN terminal statement.
     Return {
@@ -120,7 +122,8 @@ pub enum PrimitiveResultStatement {
         group_clause: Option<GroupClause>,
         /// Optional ORDER BY / LIMIT / OFFSET clause.
         page_clause: Option<OrderByAndPageStatement>,
-        span: Span, 
+        /// Source range covered by this AST node.
+        span: Span,
     },
 }
 
@@ -141,7 +144,8 @@ pub struct OrderByAndPageStatement {
     pub order_clause: Option<OrderClause>,
     /// Optional LIMIT/OFFSET clause.
     pub limit_clause: Option<LimitClause>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents a CALL statement in a data/query pipeline.
@@ -149,6 +153,7 @@ pub struct OrderByAndPageStatement {
 pub struct CallStatement {
     /// CALL clause payload.
     pub call_clause: CallClause,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -175,7 +180,8 @@ pub struct CallClause {
     pub inline_procedure_body: Option<String>,
     /// Structured inline procedure statement, as defined by nestedProcedureSpecification.
     pub inline_procedure_statement: Option<Box<Statement>>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 impl CallClause {
@@ -204,7 +210,8 @@ pub struct SetOperation {
     pub limit_clause: Option<LimitClause>,
     /// Optional top-level ordering.
     pub order_clause: Option<OrderClause>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 impl SetOperation {
@@ -246,6 +253,7 @@ pub enum SetOperationType {
 pub struct LetStatement {
     /// Variable definitions introduced by LET.
     pub variable_definitions: Vec<VariableDefinition>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -256,6 +264,7 @@ pub struct VariableDefinition {
     pub variable_name: String,
     /// Value expression assigned to the variable.
     pub expression: Expression,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -264,7 +273,8 @@ pub struct VariableDefinition {
 pub struct FilterClause {
     /// Boolean condition expression.
     pub condition: Expression,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents a FOR clause in a GQL query.
@@ -276,5 +286,6 @@ pub struct ForClause {
     pub expression: Expression,
     /// Optional ordinality/offset variable.
     pub ordinality_or_offset_variable: Option<String>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }

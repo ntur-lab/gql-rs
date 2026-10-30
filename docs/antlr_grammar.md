@@ -1,6 +1,6 @@
 # ANTLR and Grammar Guide
 
-This document describes how ANTLR is used in gql-parser and how the grammar in `resources/GQL.g4` is organized.
+This document describes how ANTLR is used in `gql-rs` and how the grammar in `resources/GQL.g4` is organized.
 
 ## Where the grammar lives
 

@@ -15,7 +15,7 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::ast::TransactionIntent;
+use crate::ast::TransactionIntent;
 
 #[test]
 fn merge_prefers_read_write_when_any_side_requires_writes() {

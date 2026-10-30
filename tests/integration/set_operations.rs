@@ -15,13 +15,8 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
-
 mod set_operation_tests {
-    use super::*;
-
-
-
+    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
 
     #[test]
     fn test_set_operation_rejects_incompatible_column_types() {

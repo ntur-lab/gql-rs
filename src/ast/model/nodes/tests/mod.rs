@@ -15,7 +15,7 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-#[path = "ast_model/mod.rs"]
-mod ast_model;
-#[path = "error.rs"]
-mod error;
+mod catalog_test;
+mod data_test;
+mod query_test;
+mod transaction_intent_test;

@@ -67,7 +67,7 @@ test:tck:
 test:unit:
   extends: .test:release
   script:
-    - cargo test --release --lib --test unit
+    - cargo test --release --lib
 
 test:integration:
   extends: .test:release

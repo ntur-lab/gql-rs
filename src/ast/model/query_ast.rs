@@ -34,7 +34,7 @@ pub struct QueryAST {
 
 impl QueryAST {
     /// Builds a `QueryAST` from the ANTLR CST root.
-    pub fn build(cst_root: &GqlProgramContextAll) -> GqlResult<Self> {
+    pub(crate) fn build(cst_root: &GqlProgramContextAll) -> GqlResult<Self> {
         GQLAstBuilder::build_from_cst_root(cst_root)
     }
 

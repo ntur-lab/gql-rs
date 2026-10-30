@@ -1,6 +1,6 @@
 # GQL Validator - Enforced Rules
 
-This document provides a complete list of the semantic rules enforced by the gql-parser AST validator.
+This document provides a complete list of the semantic rules enforced by the `gql-rs` AST validator.
 
 ## Scope and Dispatch
 

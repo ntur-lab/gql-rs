@@ -16,7 +16,7 @@
 // limitations under the Licence.
 
 use cucumber::{gherkin::Step, then, when};
-use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 
 use super::world::GqlWorld;
 

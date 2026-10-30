@@ -15,8 +15,8 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::ast::Span;
-use gql_parser::error_handler::error::{ErrorContext, GqlError};
+use crate::ast::Span;
+use crate::error_handler::error::{ErrorContext, GqlError};
 
 #[test]
 fn gql_error_constructors_and_display_cover_all_context_shapes() {

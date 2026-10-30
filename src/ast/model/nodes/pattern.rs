@@ -34,6 +34,7 @@ pub struct PathPattern {
     pub alternation: Option<PathAlternation>,
     /// Ordered path elements (node/edge sequence).
     pub elements: Vec<PatternElement>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -44,6 +45,7 @@ pub struct PathAlternation {
     pub operator: PathAlternationOperator,
     /// Alternative element sequences.
     pub alternatives: Vec<Vec<PatternElement>>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -115,7 +117,8 @@ pub struct Node {
     pub properties: Option<PropertyMap>,
     /// Optional node-local WHERE predicate.
     pub where_clause: Option<Box<Expression>>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents an edge in a Path pattern.
@@ -133,7 +136,8 @@ pub struct Edge {
     pub direction: EdgeDirection,
     /// Optional path quantifier.
     pub quantifier: Option<PathQuantifier>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents the different directions that can be specified for an edge.
@@ -174,6 +178,7 @@ pub enum PathQuantifier {
 pub struct PropertyMap {
     /// Property assignments.
     pub properties: Vec<PropertyItem>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -184,5 +189,6 @@ pub struct PropertyItem {
     pub key: String,
     /// Property value expression.
     pub value: Expression,
+    /// Source range covered by this AST node.
     pub span: Span,
 }

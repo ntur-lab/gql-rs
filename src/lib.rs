@@ -15,6 +15,33 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
+//! # gql-rs
+//!
+//! `gql-rs` parses GQL source text, builds a typed abstract syntax tree, and
+//! applies semantic validation to the resulting model.
+//!
+//! The recommended entry point is [`DefaultGQLQueryAnalyzer`], used through
+//! the [`GQLQueryAnalyzer`] trait. A successful analysis returns a [`QueryAST`];
+//! failures are reported as [`GqlError`] values.
+//!
+//! The crate does not execute queries or connect to a graph database. Its
+//! public API and AST representation are still evolving during the alpha
+//! release series.
+//!
+//! # Example
+//!
+//! ```rust
+//! use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+//!
+//! # fn main() -> Result<(), gql_rs::GqlError> {
+//! let mut analyzer = DefaultGQLQueryAnalyzer::new();
+//! let ast = analyzer.exec("MATCH (n:Person) RETURN n")?;
+//!
+//! println!("{ast:#?}");
+//! # Ok(())
+//! # }
+//! ```
+
 /// This module contains the error handling logic for the GQL parser.
 pub mod error_handler;
 /// This module defines the AST layer for representing GQL queries.

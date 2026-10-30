@@ -45,6 +45,7 @@ pub enum DataStatement {
 pub struct InsertStatement {
     /// Path patterns to insert.
     pub patterns: Vec<PathPattern>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -57,6 +58,7 @@ pub struct MatchSetStatement {
     pub where_clause: Option<WhereClause>,
     /// SET items to apply.
     pub items: Vec<SetItem>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -65,6 +67,7 @@ pub struct MatchSetStatement {
 pub struct SetStatement {
     /// SET items to apply.
     pub items: Vec<SetItem>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -109,6 +112,7 @@ pub struct MatchRemoveStatement {
     pub where_clause: Option<WhereClause>,
     /// REMOVE items to apply.
     pub remove_clause: Vec<RemoveItem>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -117,6 +121,7 @@ pub struct MatchRemoveStatement {
 pub struct RemoveStatement {
     /// REMOVE items to apply.
     pub remove_clause: Vec<RemoveItem>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -125,7 +130,9 @@ pub struct RemoveStatement {
 pub enum RemoveItem {
     /// Property removal.
     Property {
+        /// Property access identifying the property to remove.
         property: PropertyAccess,
+        /// Source range covered by this AST node.
         span: Span,
     },
     /// Label removal.
@@ -134,11 +141,14 @@ pub enum RemoveItem {
         variable: String,
         /// Label expression to remove.
         labels: Expression,
+        /// Source range covered by this AST node.
         span: Span,
     },
     /// Variable removal.
     Variable {
+        /// Name of the variable to remove.
         name: String,
+        /// Source range covered by this AST node.
         span: Span,
     },
 }
@@ -152,6 +162,7 @@ pub struct MatchDeleteStatement {
     pub where_clause: Option<WhereClause>,
     /// DELETE payload.
     pub delete_clause: DeleteClause,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -162,6 +173,7 @@ pub struct DeleteClause {
     pub expressions: Vec<Expression>,
     /// True when DETACH is requested.
     pub detach: bool,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -170,6 +182,7 @@ pub struct DeleteClause {
 pub struct DeleteStatement {
     /// DELETE payload.
     pub delete_clause: DeleteClause,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -184,6 +197,7 @@ pub struct NextStatement {
     pub yield_clause: Option<YieldClause>,
     /// Next chained step, if present.
     pub next: Option<Box<NextStatement>>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -206,6 +220,7 @@ impl NextStatement {
 pub struct YieldClause {
     /// YIELD projection items.
     pub items: Vec<YieldItem>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -216,6 +231,7 @@ pub struct YieldItem {
     pub column_name: String,
     /// Optional alias.
     pub alias: Option<String>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -226,6 +242,7 @@ pub struct MatchClause {
     pub optional: bool,
     /// Match payload.
     pub match_clause: MatchClauseItem,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -234,6 +251,7 @@ pub struct MatchClause {
 pub struct MatchClauseItem {
     /// Path patterns to match.
     pub patterns: Vec<PathPattern>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -242,6 +260,7 @@ pub struct MatchClauseItem {
 pub struct WhereClause {
     /// WHERE condition expression.
     pub condition: Expression,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -252,6 +271,7 @@ pub struct ReturnClause {
     pub distinct: DistinctQualifier,
     /// Return projection items.
     pub items: Vec<ReturnItem>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -262,7 +282,8 @@ pub struct ReturnItem {
     pub expression: Expression,
     /// Optional alias.
     pub alias: Option<String>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents DISTINCT/ALL modifiers for projection and set contexts in GQL.
@@ -281,7 +302,8 @@ pub enum DistinctQualifier {
 pub struct OrderClause {
     /// Ordered sort specifications.
     pub items: Vec<OrderItem>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents an individual order item in an ORDER BY clause.
@@ -293,6 +315,7 @@ pub struct OrderItem {
     pub direction: OrderDirection,
     /// Optional NULLS FIRST/LAST directive.
     pub nulls_ordering: Option<NullsOrdering>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -321,6 +344,7 @@ pub struct GroupClause {
     pub keys: Option<Vec<GroupKey>>,
     /// True when grouping set is explicitly empty.
     pub is_empty_grouping_set: bool,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -329,7 +353,9 @@ pub struct GroupClause {
 pub enum GroupKey {
     /// Grouping by binding variable.
     BindingVariable {
+        /// Name of the binding variable used as the grouping key.
         name: String,
+        /// Source range covered by this AST node.
         span: Span,
     },
 }
@@ -341,6 +367,7 @@ pub struct LimitClause {
     pub count: Option<PageValue>,
     /// Optional OFFSET value.
     pub offset: Option<PageValue>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -349,12 +376,16 @@ pub struct LimitClause {
 pub enum PageValue {
     /// Numeric literal page value.
     Number {
+        /// Non-negative numeric value used for pagination.
         value: usize,
+        /// Source range covered by this AST node.
         span: Span,
     },
     /// Dynamic parameter page value.
     Parameter {
+        /// Name of the dynamic parameter supplying the page value.
         name: String,
+        /// Source range covered by this AST node.
         span: Span,
     },
 }

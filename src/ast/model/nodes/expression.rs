@@ -30,7 +30,9 @@ pub enum Expression {
     Literal(Literal),
     /// Variable reference expression.
     Variable {
+        /// Name of the referenced binding variable.
         name: String,
+        /// Source range covered by this AST node.
         span: Span,
     },
     /// Property access expression.
@@ -62,7 +64,8 @@ pub enum Expression {
 pub struct WhenOperandExpression {
     /// Specific WHEN operand kind.
     pub kind: WhenOperandKind,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents the different kinds of operands 
@@ -132,6 +135,7 @@ pub struct BinaryExpression {
     pub operator: Operator,
     /// Right-hand expression.
     pub right: Box<Expression>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -185,7 +189,8 @@ pub struct UnaryExpression {
     pub operator: Operator,
     /// Operand expression.
     pub expression: Box<Expression>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents a property access.
@@ -195,6 +200,7 @@ pub struct PropertyAccess {
     pub object: String,
     /// Property key name.
     pub property: String,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -207,6 +213,7 @@ pub struct FunctionCall {
     pub distinct: DistinctQualifier,
     /// Function arguments.
     pub arguments: Vec<Expression>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -215,7 +222,8 @@ pub struct FunctionCall {
 pub struct CaseExpression {
     /// CASE payload kind.
     pub case_type: CaseType,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents the different types of CASE expressions.
@@ -245,7 +253,8 @@ pub struct SimpleWhenBranch {
     pub when_values: Vec<Expression>,
     /// Result expression when matched.
     pub then_expression: Box<Expression>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents a searched CASE expression.
@@ -264,7 +273,8 @@ pub struct SearchedWhenBranch {
     pub condition: Box<Expression>,
     /// Result expression when condition is true.
     pub then_expression: Box<Expression>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents an IS predicate expression.
@@ -276,7 +286,8 @@ pub struct IsPredicateExpression {
     pub negated: bool,
     /// Predicate kind.
     pub predicate: IsPredicateKind,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents the specific kind of IS predicate.
@@ -305,7 +316,8 @@ pub struct SubqueryExpression {
     pub is_exists: bool,
     /// True when predicate is negated.
     pub negated: bool,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents a CAST expression.
@@ -315,6 +327,7 @@ pub struct CastExpression {
     pub expression: Box<Expression>,
     /// Target type.
     pub target_type: TypeSpec,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -325,7 +338,8 @@ pub struct InlineLetExpression {
     pub variable_definitions: Vec<VariableDefinition>,
     /// Final expression evaluated in local scope.
     pub evaluation_expression: Box<Expression>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents a literal value in a GQL query.
@@ -360,7 +374,8 @@ pub enum Literal {
 pub struct ArrayExpression {
     /// Array elements.
     pub elements: Vec<Expression>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents a type specification.
@@ -504,7 +519,8 @@ pub struct VertexTypeSpec {
     pub labels: Option<LabelExpression>,
     /// Optional vertex properties.
     pub properties: Option<PropertyTypeList>,
-    pub span: Span, 
+    /// Source range covered by this AST node.
+    pub span: Span,
 }
 
 /// Represents an edge type specification.
@@ -520,6 +536,7 @@ pub struct EdgeTypeSpec {
     pub source_vertex: Option<String>,
     /// Optional destination vertex type.
     pub destination_vertex: Option<String>,
+    /// Source range covered by this AST node.
     pub span: Span,
 }
 
@@ -542,7 +559,9 @@ pub struct LabelTerm {
 pub enum LabelFactor {
     /// Label identifier.
     Identifier {
+        /// Label name.
         name: String,
+        /// Source range covered by this AST node.
         span: Span,
     },
     /// Wildcard label.
@@ -565,5 +584,6 @@ pub struct PropertyTypeDecl {
     pub name: String,
     /// Property type specification.
     pub type_spec: TypeSpec,
+    /// Source range covered by this AST node.
     pub span: Span,
 }

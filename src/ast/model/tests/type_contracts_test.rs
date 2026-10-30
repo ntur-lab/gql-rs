@@ -15,7 +15,7 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::ast::*;
+use crate::ast::*;
 use serde::Serialize;
 use serde::de::DeserializeOwned;
 use std::fmt::Debug;
