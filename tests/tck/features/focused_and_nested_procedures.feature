@@ -46,7 +46,6 @@ Feature: Focused and nested procedures
       """
     Then analysis succeeds
 
-  @pending
   Scenario: Focused nested data-modifying procedure
     When the GQL query is analyzed:
       """

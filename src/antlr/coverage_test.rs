@@ -45,7 +45,7 @@ impl<'input> GQLListener<'input> for RuleCoverage {}
 #[test]
 fn tck_covers_all_reachable_parser_rules() {
     let feature_root = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/integration/tck/features");
+        .join("tests/tck/features");
     let mut feature_paths = Vec::new();
     collect_feature_paths(&feature_root, &mut feature_paths);
     feature_paths.sort();

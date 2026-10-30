@@ -15,9 +15,24 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-/// This module defines the error handling components for the GQL parser,
-/// including the GqlError struct and related error types.
+//! Errors produced while parsing, building, and validating GQL programs.
+//!
+//! [`crate::GqlError`] distinguishes three failure categories:
+//!
+//! - parsing and syntax errors;
+//! - semantic validation errors;
+//! - generic crate-level errors.
+//!
+//! Every error contains a human-readable message and an
+//! [`ErrorContext`](crate::error_handler::error::ErrorContext). Context can
+//! include a source span and a diagnostic code when that information is
+//! available.
+
+/// Structured error and diagnostic context types.
 pub mod error;
 
 // Internal crate modules.
 pub(crate) mod error_listener;
+
+#[cfg(test)]
+mod tests;

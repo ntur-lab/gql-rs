@@ -25,7 +25,7 @@ use world::GqlWorld;
 async fn main() {
     GqlWorld::cucumber()
         .with_default_cli()
-        .filter_run_and_exit("tests/integration/tck/features", |_, _, scenario| {
+        .filter_run_and_exit("tests/tck/features", |_, _, scenario| {
             !scenario.tags.iter().any(|tag| tag == "pending")
         })
         .await;

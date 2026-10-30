@@ -31,9 +31,10 @@ src/antlr/                 generated lexer and parser
 src/ast/model/             typed AST structures
 src/ast/builder/           CST-to-AST construction
 src/ast/validator/         semantic validation
-tests/unit/                isolated unit tests
+src/**/tests/              isolated unit tests colocated with their modules
 tests/integration/         parser and AST integration tests
-tests/integration/tck/     portable GQL compatibility scenarios
+tests/tck/                 portable GQL compatibility scenarios
+tests/fixtures/            golden AST conformance fixtures
 docs/                      project documentation
 ```
 
@@ -54,7 +55,7 @@ Do not run automatic formatting across the entire repository.
 Run unit tests with:
 
 ```bash
-cargo test --test unit
+cargo test --lib
 ```
 
 Run integration tests with:
@@ -66,7 +67,7 @@ cargo test --test integration
 Run the portable GQL TCK with:
 
 ```bash
-cargo test --test tck
+cargo test --test gql_tck
 ```
 
 Run the complete Rust test suite with:
@@ -123,7 +124,7 @@ Review generated changes carefully to ensure they were produced only by the inte
 Portable language scenarios belong under:
 
 ```text
-tests/integration/tck/features/
+tests/tck/features/
 ```
 
 A TCK scenario should:
@@ -221,4 +222,4 @@ limitations under the Licence.
 
 By submitting a contribution, you agree that it may be distributed under the licence declared by this repository.
 
-See `LICENSE` for the complete licensing terms.
+See [LICENSE](LICENSE.txt) for the complete licensing terms.

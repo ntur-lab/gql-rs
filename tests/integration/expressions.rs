@@ -15,12 +15,8 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
-use gql_parser::ast::model::*;
-
 mod expression_tests {
-    use super::*;
-
+    use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer, ast::{model::*}, GqlError};
     #[test]
     fn rejects_integer_literals_outside_signed_64_bit_range() {
         for query in [

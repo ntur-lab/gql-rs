@@ -15,7 +15,5 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-mod catalog_test;
-mod data_test;
-mod query_test;
-mod transaction_intent_test;
+mod span_test;
+mod type_contracts_test;

@@ -30,4 +30,4 @@ The Rust adapter uses the Cucumber runtime and is split into:
 - `steps.rs`: typed `When` and `Then` step definitions.
 
 AST-specific expectations do not belong in the TCK; they are stored as golden fixtures
-under `tests/integration/fixtures/ast`.
+under `tests/fixtures/ast`.
