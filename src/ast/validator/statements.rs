@@ -212,14 +212,13 @@ pub(super) fn validate_catalog_object_name(name: &CatalogObjectName) -> Result<(
         ));
     }
 
-    if let Some(parent) = &name.parent {
-        if parent.trim().is_empty() {
+    if let Some(parent) = &name.parent
+        && parent.trim().is_empty() {
             return Err(validation_err(
                 "Catalog object parent cannot be empty".to_string(),
                 Some(&name.span.clone()),
             ));
         }
-    }
 
     Ok(())
 }
@@ -319,15 +318,14 @@ pub(super) fn validate_session_set_clause(clause: &SessionSetClause) -> Result<(
                 ));
             }
 
-            if let Some(initializer) = &parameter.initializer {
-                if initializer.trim().is_empty() {
+            if let Some(initializer) = &parameter.initializer
+                && initializer.trim().is_empty() {
                     return Err(validation_err(
                         "SESSION SET parameter initializer cannot be empty when present"
                             .to_string(),
                         Some(&parameter.parameter_name.span.clone()),
                     ));
                 }
-            }
         }
     }
 

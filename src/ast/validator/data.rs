@@ -172,8 +172,8 @@ pub(super) fn validate_set_operation_query(
 
     let left_arity = infer_query_projection_arity(&set_op.left);
     let right_arity = infer_query_projection_arity(&set_op.right);
-    if let (Some(left), Some(right)) = (left_arity, right_arity) {
-        if left != right {
+    if let (Some(left), Some(right)) = (left_arity, right_arity)
+        && left != right {
             return Err(validation_err(
                 format!(
                     "Set operation branches must project the same number of columns (left={}, right={})",
@@ -182,12 +182,11 @@ pub(super) fn validate_set_operation_query(
                 Some(&set_op.span.clone()),
             ));
         }
-    }
 
     let left_signature = infer_query_projection_signature(&set_op.left);
     let right_signature = infer_query_projection_signature(&set_op.right);
-    if let (Some(left_sig), Some(right_sig)) = (left_signature, right_signature) {
-        if left_sig != right_sig {
+    if let (Some(left_sig), Some(right_sig)) = (left_signature, right_signature)
+        && left_sig != right_sig {
             return Err(validation_err(
                 format!(
                     "Set operation branches must expose compatible projected aliases (left={:?}, right={:?})",
@@ -196,7 +195,6 @@ pub(super) fn validate_set_operation_query(
                 Some(&set_op.span.clone()),
             ));
         }
-    }
 
     let left_types = infer_query_projection_types(&set_op.left);
     let right_types = infer_query_projection_types(&set_op.right);
@@ -500,14 +498,12 @@ pub(super) fn validate_set_item(
             let inferred = HashMap::new();
             if let Some(value_type) =
                 infer_expression_type(value, &inferred, Some(declared_variables))
-            {
-                if matches!(value_type, TypeSpec::BindingTable | TypeSpec::Graph { .. }) {
+                && matches!(value_type, TypeSpec::BindingTable | TypeSpec::Graph { .. }) {
                     return Err(validation_err(
                         "SET property cannot assign binding-table/graph values".to_string(),
                         Some(&span.clone()),
                     ));
                 }
-            }
 
             Ok(())
         }
@@ -528,8 +524,7 @@ pub(super) fn validate_set_item(
             let inferred = HashMap::new();
             if let Some(label_type) =
                 infer_expression_type(labels, &inferred, Some(declared_variables))
-            {
-                if !is_string_like_type(&label_type)
+                && !is_string_like_type(&label_type)
                     && !matches!(label_type, TypeSpec::Any | TypeSpec::List { .. })
                 {
                     return Err(validation_err(
@@ -537,7 +532,6 @@ pub(super) fn validate_set_item(
                         Some(&span.clone()),
                     ));
                 }
-            }
 
             Ok(())
         }
@@ -558,14 +552,12 @@ pub(super) fn validate_set_item(
             let inferred = HashMap::new();
             if let Some(value_type) =
                 infer_expression_type(value, &inferred, Some(declared_variables))
-            {
-                if matches!(value_type, TypeSpec::BindingTable) {
+                && matches!(value_type, TypeSpec::BindingTable) {
                     return Err(validation_err(
                         "SET variable cannot assign binding-table values".to_string(),
                         Some(&span.clone()),
                     ));
                 }
-            }
 
             Ok(())
         }
@@ -577,7 +569,7 @@ pub(super) fn check_no_aggregates_in_where(expression: &Expression) -> Result<()
     match expression {
         Expression::FunctionCall(func) => {
             let name = func.name.to_uppercase();
-            if AGGREGATE_FUNCTIONS.iter().any(|agg| name.as_str() == *agg) {
+            if AGGREGATE_FUNCTIONS.contains(&name.as_str()) {
                 return Err(validation_err(
                     format!(
                         "Aggregate function '{}' is not allowed in a WHERE clause.",

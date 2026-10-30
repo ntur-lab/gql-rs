@@ -101,14 +101,12 @@ pub(super) fn validate_expression_with_types(
                     ));
                 } else if let Some(Expression::Variable { name: var, span }) =
                     function_call.arguments.first()
-                {
-                    if !declared_variables.contains(var.as_str()) {
+                    && !declared_variables.contains(var.as_str()) {
                         return Err(validation_err(
                             format!("ELEMENT_ID argument '{}' is not a declared variable", var),
                             Some(&span.clone()),
                         ));
                     }
-                }
             }
 
             if name == "LEFT" || name == "RIGHT" {
@@ -358,8 +356,8 @@ pub(super) fn validate_unary_operator_type(
                 ));
             }
         }
-        Operator::Plus | Operator::Minus => {
-            if !is_numeric_type(&operand_type) && !matches!(operand_type, TypeSpec::Any) {
+        Operator::Plus | Operator::Minus
+            if !is_numeric_type(&operand_type) && !matches!(operand_type, TypeSpec::Any) => {
                 return Err(validation_err(
                     format!(
                         "Unary operator '{:?}' requires numeric operand, got {}",
@@ -369,7 +367,6 @@ pub(super) fn validate_unary_operator_type(
                     Some(&unary.span.clone()),
                 ));
             }
-        }
         _ => {}
     }
 
@@ -456,14 +453,13 @@ pub(super) fn validate_function_call_signature(
                     Some(&function_call.span.clone()),
                 ));
             }
-            if let Some(t) = arg_type(0) {
-                if !is_string_like_type(&t) && !matches!(t, TypeSpec::Any) {
+            if let Some(t) = arg_type(0)
+                && !is_string_like_type(&t) && !matches!(t, TypeSpec::Any) {
                     return Err(validation_err(
                         format!("{} requires a string-like argument", name),
                         Some(&function_call.span.clone()),
                     ));
                 }
-            }
         }
         "TRIM" => {
             if !(1..=3).contains(&function_call.arguments.len()) {
@@ -480,14 +476,13 @@ pub(super) fn validate_function_call_signature(
                     Some(&function_call.span.clone()),
                 ));
             }
-            if let Some(t) = arg_type(0) {
-                if !is_numeric_type(&t) && !matches!(t, TypeSpec::Any) {
+            if let Some(t) = arg_type(0)
+                && !is_numeric_type(&t) && !matches!(t, TypeSpec::Any) {
                     return Err(validation_err(
                         format!("{} requires a numeric argument", name),
                         Some(&function_call.span.clone()),
                     ));
                 }
-            }
         }
         "SIZE" | "CARDINALITY" => {
             if function_call.arguments.len() != 1 {
@@ -536,8 +531,8 @@ pub(super) fn validate_function_call_signature(
                     continue;
                 };
 
-                if let Some(prev) = &acc {
-                    if !are_comparison_types_compatible(prev, &t)
+                if let Some(prev) = &acc
+                    && !are_comparison_types_compatible(prev, &t)
                         && !matches!(prev, TypeSpec::Any)
                         && !matches!(t, TypeSpec::Any)
                     {
@@ -546,7 +541,6 @@ pub(super) fn validate_function_call_signature(
                             Some(&function_call.span.clone()),
                         ));
                     }
-                }
 
                 acc = Some(t);
             }
@@ -630,7 +624,7 @@ pub(super) fn validate_scalar_subquery_projection(
 
 /// Helper functions to check for aggregate functions within expressions, validate operator types, and determine type compatibility. These functions are used to enforce semantic rules related to aggregates, operator usage, and type constraints within expressions in various contexts throughout the query validation process.
 pub(super) fn is_aggregate_function_name(name: &str) -> bool {
-    AGGREGATE_FUNCTIONS.iter().any(|agg| *agg == name)
+    AGGREGATE_FUNCTIONS.contains(&name)
 }
 
 /// Helper function to recursively check if an expression contains any aggregate function calls, which is used to enforce the rule that aggregate functions cannot be nested within other aggregate functions. This function traverses the expression tree and checks for any occurrences of aggregate function calls, returning true if any are found.
@@ -880,8 +874,8 @@ pub(super) fn validate_cast_target(
     declared_variables: &HashSet<String>,
     inferred_types: &HashMap<String, TypeSpec>,
 ) -> Result<(), GqlError> {
-    if let TypeSpec::List { element_type, .. } = &cast_expression.target_type {
-        if !matches!(element_type.as_ref(), TypeSpec::Any)
+    if let TypeSpec::List { element_type, .. } = &cast_expression.target_type
+        && !matches!(element_type.as_ref(), TypeSpec::Any)
             && contains_dynamic_parameter_reference(&cast_expression.expression)
         {
             return Err(validation_err(
@@ -890,7 +884,6 @@ pub(super) fn validate_cast_target(
                 Some(&cast_expression.span.clone())
             ));
         }
-    }
 
     let Some(source_type) = infer_expression_type(
         &cast_expression.expression,
@@ -1139,12 +1132,11 @@ pub(super) fn infer_case_type(
                     candidates.push(t);
                 }
             }
-            if let Some(else_expr) = &simple_case.else_expression {
-                if let Some(t) = infer_expression_type(else_expr, inferred_types, declared_variables)
+            if let Some(else_expr) = &simple_case.else_expression
+                && let Some(t) = infer_expression_type(else_expr, inferred_types, declared_variables)
                 {
                     candidates.push(t);
                 }
-            }
         }
         CaseType::Searched(searched_case) => {
             for branch in &searched_case.when_branches {
@@ -1156,12 +1148,11 @@ pub(super) fn infer_case_type(
                     candidates.push(t);
                 }
             }
-            if let Some(else_expr) = &searched_case.else_expression {
-                if let Some(t) = infer_expression_type(else_expr, inferred_types, declared_variables)
+            if let Some(else_expr) = &searched_case.else_expression
+                && let Some(t) = infer_expression_type(else_expr, inferred_types, declared_variables)
                 {
                     candidates.push(t);
                 }
-            }
         }
     }
 
@@ -1304,8 +1295,8 @@ pub(super) fn validate_array_element_consistency(
             continue;
         };
 
-        if let Some(prev) = &inferred_element {
-            if !are_array_element_types_compatible(prev, &item_type) {
+        if let Some(prev) = &inferred_element
+            && !are_array_element_types_compatible(prev, &item_type) {
                 return Err(validation_err(
                     format!(
                         "Array literal contains incompatible element types: {} and {}",
@@ -1315,7 +1306,6 @@ pub(super) fn validate_array_element_consistency(
                     Some(&array.span.clone())
                 ));
             }
-        }
 
         inferred_element = match inferred_element {
             None => Some(item_type),

@@ -51,7 +51,7 @@ use serde::{Deserialize, Serialize};
 /// This struct represents a span in the source code, 
 /// with start and end line and column information. 
 /// It is used to track the location of AST nodes for error reporting and debugging purposes.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Span {
     /// One-based line containing the first source character.
     pub start_line: isize,
@@ -61,15 +61,4 @@ pub struct Span {
     pub end_line: isize,
     /// Zero-based column following the final source character.
     pub end_col: isize,
-}
-
-impl Default for Span {
-    fn default() -> Self {
-        Self {
-            start_line: 0,
-            start_col: 0,
-            end_line: 0,
-            end_col: 0,
-        }
-    }
 }

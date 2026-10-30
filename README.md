@@ -172,8 +172,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development requirements, test
 organization, parser regeneration instructions, and the individual test suite
 commands.
 
-The project uses the Rust 2024 edition. A minimum supported Rust version will
-be published after it has been explicitly verified in CI.
+The project uses the Rust 2024 edition and requires Rust 1.97 or newer.
 
 ## License
 
