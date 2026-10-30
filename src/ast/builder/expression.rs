@@ -3185,22 +3185,9 @@ impl GQLAstBuilder {
     /// Function to build a Literal from a leaf text string, handling various cases such as quoted strings, numeric literals, boolean literals, null literals, and defaulting to treating the text as a string literal if none of the other cases match.
     pub(super) fn build_literal_from_leaf_text(text: &str) -> GqlResult<Literal> {
         let trimmed = text.trim();
-        if let Some(value) = Self::string_literal_text(trimmed) {
-            Literal::String(value)
-        if let Some(value) = Self::string_literal_text(trimmed) {
-            Literal::String(value)
         Self::validate_integer_literal_range(trimmed)?;
-        Ok(if (trimmed.starts_with('\'') && trimmed.ends_with('\''))
-            || (trimmed.starts_with('"') && trimmed.ends_with('"'))
-        {
-            // Remove exactly the enclosing pair: quotes at the edges of the
-            // content are data, and doubled delimiters represent one quote.
-            let inner = &trimmed[1..trimmed.len() - 1];
-            let value = if trimmed.starts_with('\'') {
-                inner.replace("''", "'")
-            } else {
-                inner.replace("\"\"", "\"")
-            };
+
+        Ok(if let Some(value) = Self::string_literal_text(trimmed) {
             Literal::String(value)
         } else if let Ok(i) = trimmed.parse::<i64>() {
             Literal::Integer(i)

@@ -15,8 +15,8 @@
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
 
-use gql_parser::ast::model::*;
-use gql_parser::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+use gql_rs::ast::model::*;
+use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 
 mod string_literal_tests {
     use super::*;
