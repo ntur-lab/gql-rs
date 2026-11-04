@@ -1,4 +1,4 @@
-![gql-banner](https://gitlab.com/-/project/87292979/uploads/c3b5caa6be0e6bed95b88b02ae18bea4/gql-rs-banner.jpg)
+![gql-banner](https://gitlab.com/-/project/87292979/uploads/5c4b97e090058905321b63363a8017d9/gql-rs-banner.jpgg)
 # gql-rs
 
 `gql-rs` is a Rust parser, typed AST builder, and semantic validator for the
