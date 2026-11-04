@@ -17,9 +17,9 @@
 
 [package]
 name = "gql-rs"
-version = "0.0.1-alpha"
+version = "0.0.1"
 edition = "2024"
-rust-version = "1.97"
+rust-version = "1.90.0"
 authors = ["NTUR-LAB s.r.l."]
 description = "GQL parser, typed AST builder, and semantic validator"
 repository = "https://gitlab.com/inserpio/gql-rs"

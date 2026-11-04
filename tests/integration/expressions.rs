@@ -622,4 +622,188 @@ mod expression_tests {
             other => panic!("Expected validation error, got: {:?}", other),
         }
     }
+
+    #[test]
+    fn test_validator_rejects_subtraction_on_incompatible_operands() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let err = analyzer
+            .exec("RETURN true - 10")
+            .expect_err("subtraction between boolean and integer must fail validation");
+
+        match err {
+            GqlError::Validation { message, .. } => {
+                assert!(
+                    message.contains("requires compatible numeric or duration operands"),
+                    "unexpected error message: {message}"
+                );
+            }
+            other => panic!("expected Validation error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_math_functions_map_to_function_call() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer.exec("RETURN ABS(-5), CEIL(4.2), FLOOR(4.8), SQRT(16.0)").expect("query should parse");
+        let ast = analyzer.get_ast().expect("AST must be available");
+
+        let Statement::Query(Query::Basic(query)) = &ast.statement else { panic!("expected query"); };
+        let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else { panic!("expected return"); };
+
+        let expected_names = ["ABS", "CEIL", "FLOOR", "SQRT"];
+        for (i, expected_name) in expected_names.iter().enumerate() {
+            let Expression::FunctionCall(call) = &return_clause.items[i].expression else {
+                panic!("item {i} must be FunctionCall");
+            };
+            assert_eq!(call.name, *expected_name);
+        }
+    }
+
+    #[test]
+    fn test_arithmetic_subtraction_builds_binary_minus() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("RETURN 20 - 5")
+            .expect("query should parse");
+        let ast = analyzer.get_ast().expect("AST must be available");
+
+        let Statement::Query(Query::Basic(query)) = &ast.statement else { panic!("expected query"); };
+        let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else { panic!("expected return"); };
+        let Expression::Binary(binary) = &return_clause.items[0].expression else {
+            panic!("expected binary minus expression");
+        };
+        assert_eq!(binary.operator, Operator::Minus);
+    }
+
+    #[test]
+    fn test_validator_rejects_aggregate_in_where_clause() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let err = analyzer
+            .exec("MATCH (n:Person) WHERE sum(n.age) > 50 RETURN n")
+            .expect_err("aggregate in WHERE should be rejected");
+
+        match err {
+            GqlError::Validation { message, .. } => {
+                assert!(
+                    message.to_lowercase().contains("aggregate"),
+                    "expected aggregate restriction error, got: {message}"
+                );
+            }
+            other => panic!("expected Validation error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_modulus_function_builds_function_call() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer.exec("RETURN MOD(10, 3)").expect("query should parse");
+        let ast = analyzer.get_ast().expect("AST must be available");
+
+        let Statement::Query(Query::Basic(query)) = &ast.statement else { panic!("expected query"); };
+        let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else { panic!("expected return"); };
+        let Expression::FunctionCall(call) = &return_clause.items[0].expression else {
+            panic!("expected function call for MOD");
+        };
+        assert_eq!(call.name, "MOD");
+        assert_eq!(call.arguments.len(), 2);
+    }
+
+    #[test]
+    fn test_trim_with_explicit_spec_builds_call() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer.exec("RETURN trim(BOTH 'x' FROM 'xxhellowxx')").expect("query should parse");
+        let ast = analyzer.get_ast().expect("AST must be available");
+
+        let Statement::Query(Query::Basic(query)) = &ast.statement else { panic!("expected query"); };
+        let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else { panic!("expected return"); };
+        let Expression::FunctionCall(call) = &return_clause.items[0].expression else {
+            panic!("expected FunctionCall for TRIM");
+        };
+        assert_eq!(call.name, "TRIM");
+        assert_eq!(call.arguments.len(), 3);
+    }
+
+    #[test]
+    fn test_validator_rejects_set_on_undefined_variable() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let err = analyzer
+            .exec("MATCH (n:User) SET undefined_node.prop = 42")
+            .expect_err("SET on unknown variable must fail validation");
+
+        match err {
+            GqlError::Validation { message, .. } => {
+                assert!(
+                    message.contains("undefined_node") || message.contains("scope"),
+                    "expected variable scope error, got: {message}"
+                );
+            }
+            other => panic!("expected Validation error, got: {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_searched_case_expression_branches_in_ast() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("RETURN CASE WHEN 1 > 0 THEN 'pos' WHEN 1 < 0 THEN 'neg' ELSE 'zero' END AS res")
+            .expect("query should parse");
+        let ast = analyzer.get_ast().expect("AST must be available");
+
+        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+            panic!("expected query");
+        };
+        let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
+            panic!("expected return");
+        };
+        let Expression::Case(case_expr) = &return_clause.items[0].expression else {
+            panic!("expected Case expression");
+        };
+
+        assert!(
+            matches!(case_expr.case_type, CaseType::Searched(_)),
+            "expected CaseType::Searched, got: {:?}",
+            case_expr.case_type
+        );
+    }
+
+    #[test]
+    fn test_validator_rejects_empty_or_multi_projection_in_scalar_subquery() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+
+        let err = analyzer
+            .exec("MATCH (n) RETURN VALUE { MATCH (m) }")
+            .expect_err("scalar subquery without return must fail");
+
+        assert!(matches!(err, GqlError::Validation { .. } | GqlError::Parse { .. }));
+    }
+
+    #[test]
+    fn test_validator_rejects_negative_limit_or_offset() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let err = analyzer
+            .exec("MATCH (n) RETURN n LIMIT -5")
+            .expect_err("negative limit must fail");
+
+        assert!(matches!(err, GqlError::Validation { .. } | GqlError::Parse { .. }));
+    }
+
+    #[test]
+    fn test_validator_rejects_count_asterisk_multiplied_by_string() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let err = analyzer
+            .exec("MATCH (n) RETURN COUNT(*) * 'invalid'")
+            .expect_err("cannot multiply COUNT(*) by string");
+
+        assert!(matches!(err, GqlError::Validation { .. }));
+    }
+
+    #[test]
+    fn test_validator_rejects_remove_label_on_undefined_node() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let err = analyzer
+            .exec("MATCH (a) REMOVE undefined_node:Admin")
+            .expect_err("REMOVE label on unknown variable must fail");
+
+        assert!(matches!(err, GqlError::Validation { .. }));
+    }
 }

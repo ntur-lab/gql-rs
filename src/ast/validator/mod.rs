@@ -25,6 +25,8 @@ mod data;
 mod expression;
 mod query;
 mod statements;
+#[cfg(test)]
+mod tests;
 
 use data::*;
 use expression::*;

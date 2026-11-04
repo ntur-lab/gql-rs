@@ -53,11 +53,10 @@ The validator rejects deterministic semantic incompatibilities. When a type
 cannot be inferred reliably, it uses `Any` and avoids reporting errors that
 could be false positives without runtime schema or catalog information.
 
-### Alpha API stability
+### API stability
 
 The public API, AST variants, serialized representation, and validation rules
-may change before version `1.0`. Consumers should pin an exact alpha version if
-they depend on the serialized AST shape.
+may change. Consumers should pin an exact version if they depend on the serialized AST shape.
 
 ## Verification
 
