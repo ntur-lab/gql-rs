@@ -17,3 +17,4 @@
 
 mod span_test;
 mod type_contracts_test;
+mod query_ast;

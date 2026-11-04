@@ -36,7 +36,7 @@
 //! # Serialization stability
 //!
 //! The model supports Serde serialization and deserialization. Because the
-//! crate is in alpha, the serialized AST representation may change between
+//! crate is under active development, the serialized AST representation may change between
 //! releases.
 
 mod nodes;

@@ -4,7 +4,7 @@ This document provides a complete list of the semantic rules enforced by the `gq
 
 ## Scope and Dispatch
 
-The validator is executed via validate_query_ast and dispatches to:
+The validator is executed via `validate_query_ast` and dispatches to:
 - Query
 - Data
 - Next
@@ -13,7 +13,7 @@ The validator is executed via validate_query_ast and dispatches to:
 - Transaction
 - Catalog
 
-All errors are emitted as GqlError::Validation with span information when available.
+All errors are emitted as `GqlError::Validation` with span information when available.
 
 ## Variable Scope
 
@@ -25,18 +25,18 @@ All errors are emitted as GqlError::Validation with span information when availa
 
 ### Session
 
-- SET requires at least one set_clause and no reset_clause.
-- RESET requires at least one reset_clause.
-- CLOSE cannot have set/reset payload.
-- ACTIVITY requires at least one clause.
+- `SET` requires at least one set_clause and no reset_clause.
+- `RESET` requires at least one reset_clause.
+- `CLOSE` cannot have set/reset payload.
+- `ACTIVITY` requires at least one clause.
 
-Session SET:
-- SCHEMA must be non-empty.
-- GRAPH must have a valid graph expression.
-- TIME ZONE literal must be non-empty.
-- PARAMETER must have a non-empty parameter specification; initializer, when present, must be non-empty.
+Session `SET`:
+- `SCHEMA` must be non-empty.
+- `GRAPH` must have a valid graph expression.
+- `TIME ZONE` literal must be non-empty.
+- `PARAMETER` must have a non-empty parameter specification; initializer, when present, must be non-empty.
 
-Session RESET:
+Session `RESET`:
 - Parameter specification must be non-empty when target is Parameter.
 
 ### Transaction
@@ -46,11 +46,11 @@ Session RESET:
 ### Catalog/DDL
 
 - DDL block must be non-empty.
-- CREATE GRAPH: OR REPLACE and IF NOT EXISTS cannot coexist.
-- CREATE GRAPH TYPE: OR REPLACE and IF NOT EXISTS cannot coexist.
+- `CREATE GRAPH`: `OR REPLACE` and `IF NOT EXISTS` cannot coexist.
+- `CREATE GRAPH TYPE`: `OR REPLACE` and `IF NOT EXISTS` cannot coexist.
 - Schema/object names are validated: required fields must be non-empty.
 - Raw DDL text must be non-empty.
-- OF GRAPH TYPE / COPY OF references must be non-empty.
+- `OF GRAPH TYPE` / `COPY OF` references must be non-empty.
 - Nested graph type specification must be non-empty.
 - Node/Edge type specification text must be non-empty.
 - Property type: name and value_type must be non-empty.
@@ -58,10 +58,10 @@ Session RESET:
 ### Graph Expression Clause
 
 - Text must be non-empty.
-- CurrentGraph kind must be consistent with CURRENT_GRAPH/CURRENT PROPERTY GRAPH.
-- Other kinds must not include CURRENT_GRAPH semantics.
+- CurrentGraph kind must be consistent with `CURRENT_GRAPH`/`CURRENT PROPERTY GRAPH`.
+- Other kinds must not include `CURRENT_GRAPH` semantics.
 - GraphReference and ObjectNameOrBindingVariable cannot contain structural delimiters (), {}, [].
-- GraphReference cannot start with the VARIABLE keyword.
+- GraphReference cannot start with the `VARIABLE` keyword.
 
 ## Query Pipeline Rules
 
@@ -71,8 +71,8 @@ Session RESET:
 - Path variable, when present, must be non-empty.
 - Pattern cannot start with an edge.
 - Pattern must end with a node.
-- Path mode WALK is incompatible with shortest path search.
-- Path mode SIMPLE/ACYCLIC forbids immediate self-loop on the same node id.
+- Path mode `WALK` is incompatible with the shortest path search.
+- Path mode `SIMPLE`/`ACYCLIC` forbids immediate self-loop on the same node id.
 
 Node/Edge/PropertyMap:
 - Node/Edge variable, when present, must be non-empty.
@@ -81,15 +81,15 @@ Node/Edge/PropertyMap:
 
 ### LET
 
-- LET must contain at least one variable definition.
+- `LET` must contain at least one variable definition.
 - Variable name must be non-empty.
-- Duplicate names in the same LET clause are forbidden.
+- Duplicate names in the same `LET` clause are forbidden.
 
 ### FILTER/HAVING
 
 - Condition is semantically validated as an expression.
 - Condition must be boolean (or Any/BindingTable in supported cases).
-- Aggregate functions are forbidden in WHERE/FILTER.
+- Aggregate functions are forbidden in `WHERE`/`FILTER`.
 
 ### FOR
 
@@ -98,17 +98,17 @@ Node/Edge/PropertyMap:
 
 ### RETURN
 
-- RETURN must contain at least one item.
-- RETURN alias, when present, must be non-empty.
-- Duplicate RETURN aliases are forbidden.
+- `RETURN` must contain at least one item.
+- `RETURN` alias, when present, must be non-empty.
+- Duplicate `RETURN` aliases are forbidden.
 
 ### GROUP BY
 
-- GROUP BY () cannot have keys.
-- Standard GROUP BY must have at least one key.
+- `GROUP BY ()` cannot have keys.
+- Standard `GROUP BY` must have at least one key.
 - Key must be non-empty.
-- Key must reference a known variable (scope or RETURN alias).
-- Non-aggregated variables in RETURN must appear in GROUP BY (or be represented by an already grouped corresponding alias).
+- Key must reference a known variable (scope or `RETURN` alias).
+- Non-aggregated variables in `RETURN` must appear in `GROUP BY` (or be represented by an already grouped corresponding alias).
 
 ### ORDER BY
 
@@ -128,7 +128,7 @@ Node/Edge/PropertyMap:
 
 ## Set Operation Rules
 
-- Both branches must end with RETURN (not FINISH).
+- Both branches must end with `RETURN` (not `FINISH`).
 - Arity must be compatible when inferable.
 - Alias signature must be compatible when inferable.
 - Per-column type compatibility is enforced when inferable.
@@ -147,19 +147,19 @@ Node/Edge/PropertyMap:
 
 ### SET
 
-For SET property/label/variable:
+For `SET` property/label/variable:
 - Target variable must be declared (or a $-prefixed parameter, when allowed by flow).
 - Value/labels are validated as expressions.
 
 Additional type constraints:
-- SET property cannot assign BindingTable or Graph.
-- SET variable cannot assign BindingTable.
-- SET label must receive string-like, list-like, or Any.
+- `SET` property cannot assign BindingTable or Graph.
+- `SET` variable cannot assign BindingTable.
+- `SET` label must receive string-like, list-like, or Any.
 
 ### REMOVE
 
 - Target variable must be declared (or a $ parameter in allowed contexts).
-- REMOVE label validates labels as expressions.
+- `REMOVE` label validates labels as expressions.
 
 ### DELETE
 
@@ -175,12 +175,12 @@ Additional type constraints:
 
 ### Unary
 
-- NOT requires BOOLEAN (with supported compatibility for Any/string-like/BindingTable in specific language cases).
+- `NOT` requires `BOOLEAN` (with supported compatibility for Any/string-like/BindingTable in specific language cases).
 - Unary + and - require numeric (or Any).
 
 ### Binary Operators
 
-- AND/OR/XOR: require BOOLEAN when types are known; string-like label expressions are supported.
+- `AND`/`OR`/`XOR`: require `BOOLEAN` when types are known; string-like label expressions are supported.
 - +: string+string concatenation is forbidden (use ||).
 - + and -: require numeric-numeric or duration-duration, except Any.
 - *, /, %, ^: require numeric-numeric, except Any.
@@ -192,28 +192,28 @@ Additional type constraints:
 ### Functions
 
 Specific rules:
-- ELEMENT_ID: exactly 1 argument; argument must be a declared variable.
-- LEFT/RIGHT: exactly 2 arguments; second argument must be a non-negative integer.
-- LOWER/UPPER: exactly 1 string-like or Any argument.
-- TRIM: 1, 2, or 3 arguments.
-- SUM/AVG: exactly 1 numeric or Any argument.
-- SIZE/CARDINALITY: exactly 1 list/string/path/binding table/Any argument.
-- COUNT: exactly 1 argument.
-- COALESCE: at least 1 argument; arguments must be mutually compatible.
-- DATE: at most 1 argument.
-- CURRENT_DATE/CURRENT_TIME/CURRENT_TIMESTAMP: no arguments.
-- LOCAL_TIME/LOCAL_DATETIME/ZONED_TIME/ZONED_DATETIME: at most 1 argument.
-- DURATION_BETWEEN: exactly 2 temporally compatible arguments (or Any).
+- `ELEMENT_ID`: exactly 1 argument; argument must be a declared variable.
+- `LEFT`/`RIGHT`: exactly 2 arguments; second argument must be a non-negative integer.
+- `LOWER`/`UPPER`: exactly 1 string-like or Any argument.
+- `TRIM`: 1, 2, or 3 arguments.
+- `SUM`/`AVG`: exactly 1 numeric or Any argument.
+- `SIZE`/`CARDINALITY`: exactly 1 list/string/path/binding table/Any argument.
+- `COUNT`: exactly 1 argument.
+- `COALESCE`: at least 1 argument; arguments must be mutually compatible.
+- `DATE`: at most 1 argument.
+- `CURRENT_DATE`/`CURRENT_TIME`/`CURRENT_TIMESTAMP`: no arguments.
+- `LOCAL_TIME`/`LOCAL_DATETIME`/`ZONED_TIME`/`ZONED_DATETIME`: at most 1 argument.
+- `DURATION_BETWEEN`: exactly 2 temporally compatible arguments (or Any).
 
 ### CASE
 
-- CASE simple: test expression is validated; each WHEN value is validated and compatible with test type when inferable.
-- CASE searched: each condition is validated and boolean.
-- THEN/ELSE are semantically validated.
+- `CASE` simple: test expression is validated; each `WHEN` value is validated and compatible with test type when inferable.
+- `CASE` searched: each condition is validated and boolean.
+- `THEN`/`ELSE` are semantically validated.
 
 ### CAST
 
-- CAST validates source expression.
+- `CAST` validates source expression.
 - Typed LIST cast with dynamic parameters cannot be statically validated: error.
 - Source-to-target conversion must be compatible according to is_cast_compatible matrix.
 
@@ -245,15 +245,15 @@ Specific rules:
 ### CALL Clause
 
 - Procedure name must be non-empty.
-- Inline CALL:
-  - cannot define YIELD.
+- Inline `CALL`:
+  - cannot define `YIELD`.
   - textual body must be non-empty.
   - structured statement is mandatory.
   - inline argument scope allows only binding variables.
   - duplicate variables in inline scope are forbidden.
-- Named CALL cannot contain inline payload.
-- CALL arguments are semantically validated when declared scope exists.
-- YIELD:
+- Named `CALL` cannot contain inline payload.
+- `CALL` arguments are semantically validated when declared scope exists.
+- `YIELD`:
   - at least one item,
   - item name must be non-empty,
   - alias must be non-empty,

@@ -9,9 +9,9 @@ and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.
 
 No unreleased changes are currently documented.
 
-## [0.0.1-alpha] - 2026-10-30
+## [0.0.1] - 2026-11-04
 
-Initial alpha release of `gql-rs`.
+First release of `gql-rs`.
 
 ### Added
 
@@ -27,7 +27,7 @@ Initial alpha release of `gql-rs`.
 
 ### Known limitations
 
-- The public API and AST representation may change during the alpha series.
+- The public API and AST representation may change.
 - GQL support is incomplete and does not imply full conformance with the
   complete language standard.
 - Some catalog constructs are preserved as `CatalogStatement::Raw` when a

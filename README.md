@@ -1,11 +1,17 @@
-![gql-banner](https://gitlab.com/-/project/87292979/uploads/5c4b97e090058905321b63363a8017d9/gql-rs-banner.jpg)
 # gql-rs
+![gql-banner](https://gitlab.com/-/project/87292979/uploads/5c4b97e090058905321b63363a8017d9/gql-rs-banner.jpg)
+<p align="center">
+  <a href="https://crates.io/crates/gql-rs"><img src="https://img.shields.io/crates/v/gql-rs.svg?style=flat-square" alt="Crates.io" /></a>
+  <a href="https://docs.rs/gql-rs"><img src="https://img.shields.io/docsrs/gql-rs?style=flat-square" alt="Documentation" /></a>
+  <a href="LICENSE.txt"><img src="https://img.shields.io/badge/License-EUPL_v1.2-blue.svg?style=flat-square" alt="License: EUPL v1.2" /></a>
+  <img src="https://img.shields.io/badge/Rust-1.90.0%2B-orange?style=flat-square&logo=rust" alt="Rust Version" />
+</p>
 
 `gql-rs` is a Rust parser, typed AST builder, and semantic validator for the
 Graph Query Language (GQL).
 
-> **Project status:** `gql-rs` is currently an alpha release. The public API
-> and AST representation may change before `1.0`.
+> **Project status**: gql-rs is currently under active development. 
+> The public API and AST representation are subject to change.
 
 ## Features
 
@@ -19,7 +25,7 @@ Graph Query Language (GQL).
 - Case-insensitive GQL keywords with identifier spelling preservation.
 - Portable behavior coverage through the GQL Technology Compatibility Kit.
 
-`gql-rs` parses and validates GQL programs. It does not execute queries or
+`gql-rs` parses and validates GQL queries. It does not execute queries or
 connect to a graph database.
 
 ## Installation
@@ -28,7 +34,7 @@ Add the crate to your project:
 
 ```toml
 [dependencies]
-gql-rs = "0.0.1-alpha"
+gql-rs = "0.0.1"
 ```
 
 The Cargo package is named `gql-rs` and its Rust library is imported as
@@ -40,8 +46,7 @@ The Cargo package is named `gql-rs` and its Rust library is imported as
 use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 
 fn main() {
-    let query =
-        "MATCH (a:Actor)-[:ACTED_IN]->(m:Movie) RETURN a.name, m.title";
+    let query = "MATCH (a:Actor)-[:ACTED_IN]->(m:Movie) RETURN a.name, m.title";
 
     let mut analyzer = DefaultGQLQueryAnalyzer::new();
 
@@ -71,13 +76,13 @@ GQL source -> lexer/parser -> CST -> typed AST -> semantic validation
 ```rust
 use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 
-let mut analyzer = DefaultGQLQueryAnalyzer::new();
-let ast = analyzer.exec("RETURN 42 AS answer")?;
+fn main() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    let ast = analyzer.exec("RETURN 42 AS answer")?;
 
-assert_eq!(analyzer.get_query(), Some("RETURN 42 AS answer"));
-assert!(analyzer.get_ast().is_some());
-
-# Ok::<(), gql_rs::GqlError>(())
+    assert_eq!(analyzer.get_query(), Some("RETURN 42 AS answer"));
+    assert!(analyzer.get_ast().is_some());
+}
 ```
 
 The analyzer clears its stored state before every execution. A failed analysis
@@ -94,15 +99,17 @@ Analysis can return:
 ```rust
 use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
 
-let mut analyzer = DefaultGQLQueryAnalyzer::new();
+fn main() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
 
-match analyzer.exec("MATCH (") {
-    Err(GqlError::Parse { message, context }) => {
-        eprintln!("{message}");
-        eprintln!("Context: {context:?}");
+    match analyzer.exec("MATCH (") {
+        Err(GqlError::Parse { message, context }) => {
+            eprintln!("{message}");
+            eprintln!("Context: {context:?}");
+        }
+        Err(other) => eprintln!("{other}"),
+        Ok(_) => unreachable!(),
     }
-    Err(other) => eprintln!("{other}"),
-    Ok(_) => unreachable!(),
 }
 ```
 

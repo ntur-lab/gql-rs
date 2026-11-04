@@ -8,7 +8,7 @@ This repository contains the GQL grammar, the generated ANTLR lexer and parser, 
 
 The project requires:
 
-- Rust 1.97 or newer, as declared in `Cargo.toml`;
+- Rust 1.90 or newer, as declared in `Cargo.toml`;
 - Java, when regenerating the ANTLR lexer and parser;
 - the ANTLR JAR included under `resources/`.
 

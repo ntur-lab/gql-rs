@@ -25,8 +25,7 @@
 //! failures are reported as [`GqlError`] values.
 //!
 //! The crate does not execute queries or connect to a graph database. Its
-//! public API and AST representation are still evolving during the alpha
-//! release series.
+//! public API and AST representation are still evolving.
 //!
 //! # Example
 //!
