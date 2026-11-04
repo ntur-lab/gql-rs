@@ -33,8 +33,19 @@ variables:
   CARGO_TERM_COLOR: always
 
 stages:
+  - lint
   - build
   - test
+
+lint:clippy:
+  stage: lint
+  cache:
+    <<: *cargo_cache
+    policy: pull
+  before_script:
+    - rustup component add clippy
+  script:
+    - cargo clippy --all-targets -- -D warnings
 
 build:release:
   stage: build
@@ -49,14 +60,6 @@ build:release:
     paths:
       - target/release/
     expire_in: 1 day
-
-lint:clippy:
-  stage: build
-  cache:
-    <<: *cargo_cache
-    policy: pull-push
-  script:
-    - cargo clippy --all-targets -- -D warnings
 
 .test:release:
   stage: test
