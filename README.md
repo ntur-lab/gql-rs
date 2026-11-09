@@ -46,7 +46,7 @@ The Cargo package is named `gql-rs` and its Rust library is imported as
 use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 
 fn main() {
-    let query = "MATCH (a:Actor)-[:ACTED_IN]->(m:Movie) RETURN a.name, m.title";
+    let query = "MATCH (p:Person)-[:WORKS_FOR]->(c:Company) WHERE c.name = 'Ntur Lab' RETURN p.name";
 
     let mut analyzer = DefaultGQLQueryAnalyzer::new();
 
