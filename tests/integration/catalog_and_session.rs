@@ -22,8 +22,8 @@
 
 mod catalog_and_session_tests {
     use gql_rs::{
-        DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
-        ast::{CatalogStatement, Statement},
+        ast::{CatalogStatement, Statement}, DefaultGQLQueryAnalyzer,
+        GQLQueryAnalyzer,
     };
 
     test_session_statement!(

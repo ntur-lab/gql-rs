@@ -21,7 +21,7 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 use crate::ast::model::*;
-use crate::constants::{AGGREGATE_FUNCTIONS, function_names as fn_names};
+use crate::constants::{function_names as fn_names, AGGREGATE_FUNCTIONS};
 use crate::error_handler::error::GqlError;
 use std::collections::{HashMap, HashSet};
 

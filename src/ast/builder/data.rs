@@ -239,12 +239,12 @@ impl GQLAstBuilder {
                             }
                         } else if let Some(call_query) = query_stmt.callQueryStatement() {
                             let call_proc =
-                                    call_query.callProcedureStatement().ok_or_else(|| {
-                                        Self::parse_err(
-                                            "CST not valid: missing callProcedureStatement in query CALL"
-                                                .into(),
-                                        )
-                                    })?;
+                                call_query.callProcedureStatement().ok_or_else(|| {
+                                    Self::parse_err(
+                                        "CST not valid: missing callProcedureStatement in query CALL"
+                                            .into(),
+                                    )
+                                })?;
                             let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                             pipeline.push(QueryStep::Call(call_clause));
                         }
@@ -253,12 +253,12 @@ impl GQLAstBuilder {
                             data_stmt.callDataModifyingProcedureStatement()
                         {
                             let call_proc =
-                                    call_data_stmt.callProcedureStatement().ok_or_else(|| {
-                                        Self::parse_err(
-                                            "CST not valid: missing callProcedureStatement in data CALL"
-                                                .into(),
-                                        )
-                                    })?;
+                                call_data_stmt.callProcedureStatement().ok_or_else(|| {
+                                    Self::parse_err(
+                                        "CST not valid: missing callProcedureStatement in data CALL"
+                                            .into(),
+                                    )
+                                })?;
                             let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                             pipeline.push(QueryStep::Call(call_clause));
                         } else {

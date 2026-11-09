@@ -22,8 +22,8 @@
 
 use super::super::query::*;
 use crate::ast::model::*;
-use std::collections::HashSet;
 use crate::ast::validator::tests::common_tests::*;
+use std::collections::HashSet;
 
 #[test]
 fn path_term_slices_uses_elements_or_alternatives() {
@@ -225,7 +225,7 @@ fn return_clause_rejects_empty_and_duplicate_aliases() {
         &HashSet::new(),
         &mut HashSet::new(),
     )
-    .is_err());
+        .is_err());
 
     let bad_alias = return_clause(vec![(integer(1), Some(" "))]);
     assert!(validate_return_clause_with_aliases(
@@ -233,7 +233,7 @@ fn return_clause_rejects_empty_and_duplicate_aliases() {
         &HashSet::new(),
         &mut HashSet::new(),
     )
-    .is_err());
+        .is_err());
 
     let duplicate = return_clause(vec![
         (integer(1), Some("value")),
@@ -244,7 +244,7 @@ fn return_clause_rejects_empty_and_duplicate_aliases() {
         &HashSet::new(),
         &mut HashSet::new(),
     )
-    .is_err());
+        .is_err());
 }
 
 #[test]
@@ -271,19 +271,19 @@ fn non_aggregated_return_variables_must_be_grouped() {
         &returns,
         &group(Some(vec!["n"]), false),
     )
-    .is_ok());
+        .is_ok());
     assert!(validate_non_aggregated_return_variables_in_group_by(
         &returns,
         &group(Some(vec!["other"]), false),
     )
-    .is_err());
+        .is_err());
 
     let aliased = return_clause(vec![(property("n", "name"), Some("person"))]);
     assert!(validate_non_aggregated_return_variables_in_group_by(
         &aliased,
         &group(Some(vec!["person"]), false),
     )
-    .is_ok());
+        .is_ok());
 }
 
 #[test]
@@ -345,7 +345,7 @@ fn order_limit_and_page_values_validate_shape() {
         &HashSet::new(),
         Some(&HashSet::from(["alias".to_string()])),
     )
-    .is_ok());
+        .is_ok());
 
     let empty_limit = LimitClause {
         count: None,
@@ -357,17 +357,17 @@ fn order_limit_and_page_values_validate_shape() {
         "LIMIT",
         &PageValue::Parameter { name: "".to_string(), span: span() },
     )
-    .is_err());
+        .is_err());
     assert!(validate_page_value(
         "LIMIT",
         &PageValue::Parameter { name: "limit".to_string(), span: span() },
     )
-    .is_err());
+        .is_err());
     assert!(validate_page_value(
         "LIMIT",
         &PageValue::Parameter { name: "$limit".to_string(), span: span() },
     )
-    .is_ok());
+        .is_ok());
 }
 
 #[test]

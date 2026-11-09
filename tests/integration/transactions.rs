@@ -22,8 +22,8 @@
 
 pub mod test_query_transaction {
     use gql_rs::{
-        DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
-        ast::{Query, Statement, TransactionCommandKind},
+        ast::{Query, Statement, TransactionCommandKind}, DefaultGQLQueryAnalyzer,
+        GQLQueryAnalyzer,
     };
 
     test_transaction_statement!(

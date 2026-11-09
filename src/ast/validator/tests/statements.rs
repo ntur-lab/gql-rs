@@ -78,16 +78,16 @@ fn session_set_clause_validates_schema_timezone_graph_and_parameter() {
     assert!(validate_session_set_clause(&SessionSetClause::Schema {
         schema_reference: " ".to_string(),
     })
-    .is_err());
+        .is_err());
     assert!(validate_session_set_clause(&SessionSetClause::TimeZone {
         value: SessionTimeZoneValue::Literal(" ".to_string()),
     })
-    .is_err());
+        .is_err());
     assert!(validate_session_set_clause(&SessionSetClause::Graph {
         property_graph_keyword: false,
         graph_expression: graph_expression(GraphExpressionKind::GraphReference, ""),
     })
-    .is_err());
+        .is_err());
 
     let empty_name = SessionSetClause::Parameter(Box::new(SessionSetParameterClause {
         kind: SessionSetParameterKind::Value,
@@ -173,7 +173,7 @@ fn catalog_block_and_raw_statement_cannot_be_empty() {
     assert!(validate_catalog_statement_block(&CatalogStatementBlock {
         statements: vec![],
     })
-    .is_err());
+        .is_err());
 
     let raw = CatalogStatement::Raw(RawCatalogStatement {
         text: " ".to_string(),
@@ -222,12 +222,12 @@ fn graph_type_clauses_validate_references_and_nested_specs() {
         with_as_keyword: false,
         graph_type_reference: " ".to_string(),
     })
-    .is_err());
+        .is_err());
     assert!(validate_graph_type_source_clause(&GraphTypeSourceClause::CopyOf {
         with_as_keyword: false,
         graph_type_reference: "base_type".to_string(),
     })
-    .is_ok());
+        .is_ok());
 
     let empty_nested = NestedGraphTypeSpecification {
         element_type_specifications: vec![],
@@ -304,42 +304,42 @@ fn graph_expression_validation_covers_kinds_and_delimiters() {
         GraphExpressionKind::GraphReference,
         "",
     ))
-    .is_err());
+        .is_err());
     assert!(validate_graph_expression_clause(&graph_expression(
         GraphExpressionKind::CurrentGraph,
         "social",
     ))
-    .is_err());
+        .is_err());
     assert!(validate_graph_expression_clause(&graph_expression(
         GraphExpressionKind::GraphReference,
         "CURRENT_GRAPH",
     ))
-    .is_err());
+        .is_err());
     assert!(validate_graph_expression_clause(&graph_expression(
         GraphExpressionKind::GraphReference,
         "graph(name)",
     ))
-    .is_err());
+        .is_err());
     assert!(validate_graph_expression_clause(&graph_expression(
         GraphExpressionKind::GraphReference,
         "VARIABLE social",
     ))
-    .is_err());
+        .is_err());
     assert!(validate_graph_expression_clause(&graph_expression(
         GraphExpressionKind::ObjectNameOrBindingVariable,
         "graph[name]",
     ))
-    .is_err());
+        .is_err());
     assert!(validate_graph_expression_clause(&graph_expression(
         GraphExpressionKind::GraphReference,
         "social",
     ))
-    .is_ok());
+        .is_ok());
     assert!(validate_graph_expression_clause(&graph_expression(
         GraphExpressionKind::CurrentGraph,
         "CURRENT_GRAPH",
     ))
-    .is_ok());
+        .is_ok());
 
     for text in ["(graph)", "{graph}", "[graph]"] {
         assert!(contains_structural_delimiters(text));
@@ -382,27 +382,27 @@ fn yield_clause_validates_names_aliases_and_duplicates() {
         items: vec![],
         span: span(),
     })
-    .is_err());
+        .is_err());
     assert!(validate_yield_clause(&YieldClause {
         items: vec![yield_item("", None)],
         span: span(),
     })
-    .is_err());
+        .is_err());
     assert!(validate_yield_clause(&YieldClause {
         items: vec![yield_item("value", Some(""))],
         span: span(),
     })
-    .is_err());
+        .is_err());
     assert!(validate_yield_clause(&YieldClause {
         items: vec![yield_item("a", Some("value")), yield_item("b", Some("value"))],
         span: span(),
     })
-    .is_err());
+        .is_err());
     assert!(validate_yield_clause(&YieldClause {
         items: vec![yield_item("a", Some("one")), yield_item("b", Some("two"))],
         span: span(),
     })
-    .is_ok());
+        .is_ok());
 }
 
 #[test]

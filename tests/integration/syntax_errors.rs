@@ -21,7 +21,7 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 mod syntax_error_tests {
-    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, error_handler::error::GqlError};
+    use gql_rs::{error_handler::error::GqlError, DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 
     #[test]
     fn analyzer_surfaces_syntax_errors_through_the_error_listener() {

@@ -1361,9 +1361,9 @@ impl GQLAstBuilder {
                 .primitiveResultStatement()
                 .ok_or_else(|| {
                     Self::parse_err(
-                "Query not valid: missing primitiveResultStatement in focused primitive result"
-                    .into(),
-            )
+                        "Query not valid: missing primitiveResultStatement in focused primitive result"
+                            .into(),
+                    )
                 })?;
             let result_statement = Self::build_result_statement_from_primitive_result_statement(
                 &primitive_result_statement,
@@ -1898,9 +1898,9 @@ impl GQLAstBuilder {
                             &expr_ctx.get_text(),
                             span.clone(),
                         )
-                        .unwrap_or_else(|_| {
-                            Expression::Literal(Literal::String(expr_ctx.get_text()))
-                        }),
+                            .unwrap_or_else(|_| {
+                                Expression::Literal(Literal::String(expr_ctx.get_text()))
+                            }),
                     };
                     arguments.push(expression);
                 }

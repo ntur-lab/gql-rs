@@ -753,8 +753,8 @@ pub(super) fn validate_order_clause(
             let var_name = name.trim();
             if declared_variables.contains(var_name)
                 || return_aliases
-                    .map(|aliases| aliases.contains(var_name))
-                    .unwrap_or(false)
+                .map(|aliases| aliases.contains(var_name))
+                .unwrap_or(false)
             {
                 continue;
             }

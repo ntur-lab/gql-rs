@@ -21,7 +21,7 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 mod graph_pattern_tests {
-    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError, ast::model::*};
+    use gql_rs::{ast::model::*, DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
 
     #[test]
     fn test_path_quantifier_exact_maps_to_exact_quantifier() {

@@ -15,7 +15,7 @@
 ---
 
 
-> **Project status**: gql-rs is currently under active development. 
+> **Project status**: gql-rs is currently under active development.
 > The public API and AST representation are subject to change.
 
 ## Features
@@ -191,7 +191,10 @@ The project uses the Rust 2024 edition and requires Rust 1.97 or newer.
 
 `gql-rs` is maintained and developed by [NTUR LAB](https://ntur-lab.com).
 
-This component is part of **Aurea**, an initiative born out of Europe to build a modern, high-performance, and open data ecosystem. While firmly rooted in European open standards and the ethos of digital sovereignty, our technologies are built from the ground up for the global developer community. We create open-source software meant to be adopted, integrated, and scaled anywhere in the world.
+This component is part of **Aurea**, an initiative born out of Europe to build a modern, high-performance, and open data
+ecosystem. While firmly rooted in European open standards and the ethos of digital sovereignty, our technologies are
+built from the ground up for the global developer community. We create open-source software meant to be adopted,
+integrated, and scaled anywhere in the world.
 
 ## License
 

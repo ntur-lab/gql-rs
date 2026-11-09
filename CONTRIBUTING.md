@@ -2,7 +2,8 @@
 
 Thank you for your interest in contributing to `gql-rs`.
 
-This repository contains the GQL grammar, the generated ANTLR lexer and parser, the typed AST, semantic validation, and the portable GQL Technology Compatibility Kit.
+This repository contains the GQL grammar, the generated ANTLR lexer and parser, the typed AST, semantic validation, and
+the portable GQL Technology Compatibility Kit.
 
 ## Development requirements
 
@@ -86,11 +87,14 @@ Use the appropriate test level:
 - **Integration tests** verify interactions between the parser, AST builder, and validator.
 - **TCK scenarios** describe portable GQL behaviour independently from the Rust implementation.
 
-AST tests must verify the complete relevant structure. Do not use assertions that only confirm that parsing returned a value.
+AST tests must verify the complete relevant structure. Do not use assertions that only confirm that parsing returned a
+value.
 
-TCK scenarios should use meaningful names and should represent a distinct language behaviour. Avoid duplicate scenarios that produce the same relevant syntax and AST contract without adding coverage.
+TCK scenarios should use meaningful names and should represent a distinct language behaviour. Avoid duplicate scenarios
+that produce the same relevant syntax and AST contract without adding coverage.
 
-Add both positive and negative cases when a grammar or validation change can succeed and fail in meaningfully different ways.
+Add both positive and negative cases when a grammar or validation change can succeed and fail in meaningfully different
+ways.
 
 ## Changing the GQL grammar
 
@@ -193,9 +197,11 @@ Do not include build artifacts, IDE files, credentials, local environment files,
 
 ## Licence headers
 
-New Rust, grammar, test, feature, script, and configuration files must include the repository licence header using the appropriate comment syntax.
+New Rust, grammar, test, feature, script, and configuration files must include the repository licence header using the
+appropriate comment syntax.
 
-Use `//` for Rust and ANTLR grammar files. Use `#` for shell scripts, TOML, YAML, properties, Git ignore files, and Gherkin feature files.
+Use `//` for Rust and ANTLR grammar files. Use `#` for shell scripts, TOML, YAML, properties, Git ignore files, and
+Gherkin feature files.
 
 The required header is:
 

@@ -366,17 +366,17 @@ pub(super) fn validate_unary_operator_type(
             }
         }
         Operator::Plus | Operator::Minus
-            if !is_numeric_type(&operand_type) && !matches!(operand_type, TypeSpec::Any) =>
-        {
-            return Err(validation_err(
-                format!(
-                    "Unary operator '{:?}' requires numeric operand, got {}",
-                    unary.operator,
-                    type_name(&operand_type)
-                ),
-                Some(&unary.span.clone()),
-            ));
-        }
+        if !is_numeric_type(&operand_type) && !matches!(operand_type, TypeSpec::Any) =>
+            {
+                return Err(validation_err(
+                    format!(
+                        "Unary operator '{:?}' requires numeric operand, got {}",
+                        unary.operator,
+                        type_name(&operand_type)
+                    ),
+                    Some(&unary.span.clone()),
+                ));
+            }
         _ => {}
     }
 
@@ -437,9 +437,9 @@ pub(super) fn validate_function_call_signature(
 
     if is_aggregate_function_name(name.as_str())
         && function_call
-            .arguments
-            .iter()
-            .any(contains_aggregate_function)
+        .arguments
+        .iter()
+        .any(contains_aggregate_function)
     {
         return Err(validation_err(
             format!(
@@ -663,14 +663,14 @@ pub(super) fn contains_aggregate_function(expression: &Expression) -> bool {
             CaseType::Simple(simple) => {
                 contains_aggregate_function(&simple.test_expression)
                     || simple.when_branches.iter().any(|b| {
-                        b.when_values.iter().any(contains_aggregate_function)
-                            || contains_aggregate_function(&b.then_expression)
-                    })
+                    b.when_values.iter().any(contains_aggregate_function)
+                        || contains_aggregate_function(&b.then_expression)
+                })
                     || simple
-                        .else_expression
-                        .as_ref()
-                        .map(|e| contains_aggregate_function(e))
-                        .unwrap_or(false)
+                    .else_expression
+                    .as_ref()
+                    .map(|e| contains_aggregate_function(e))
+                    .unwrap_or(false)
             }
             CaseType::Searched(searched) => {
                 searched.when_branches.iter().any(|b| {
@@ -1109,7 +1109,7 @@ fn infer_scalar_subquery_type(
                 inferred_types,
                 declared_variables,
             )
-            .or(Some(TypeSpec::Any))
+                .or(Some(TypeSpec::Any))
         }
         Query::SetOperation(set_op) => {
             let left = infer_scalar_subquery_type(&set_op.left, inferred_types, declared_variables);
@@ -1148,7 +1148,7 @@ pub(super) fn infer_case_type(
             }
             if let Some(else_expr) = &simple_case.else_expression
                 && let Some(t) =
-                    infer_expression_type(else_expr, inferred_types, declared_variables)
+                infer_expression_type(else_expr, inferred_types, declared_variables)
             {
                 candidates.push(t);
             }
@@ -1165,7 +1165,7 @@ pub(super) fn infer_case_type(
             }
             if let Some(else_expr) = &searched_case.else_expression
                 && let Some(t) =
-                    infer_expression_type(else_expr, inferred_types, declared_variables)
+                infer_expression_type(else_expr, inferred_types, declared_variables)
             {
                 candidates.push(t);
             }
@@ -1450,17 +1450,17 @@ pub(super) fn contains_dynamic_parameter_reference(expression: &Expression) -> b
             CaseType::Simple(simple_case) => {
                 contains_dynamic_parameter_reference(&simple_case.test_expression)
                     || simple_case.when_branches.iter().any(|branch| {
-                        branch
-                            .when_values
-                            .iter()
-                            .any(contains_dynamic_parameter_reference)
-                            || contains_dynamic_parameter_reference(&branch.then_expression)
-                    })
+                    branch
+                        .when_values
+                        .iter()
+                        .any(contains_dynamic_parameter_reference)
+                        || contains_dynamic_parameter_reference(&branch.then_expression)
+                })
                     || simple_case
-                        .else_expression
-                        .as_ref()
-                        .map(|expr| contains_dynamic_parameter_reference(expr))
-                        .unwrap_or(false)
+                    .else_expression
+                    .as_ref()
+                    .map(|expr| contains_dynamic_parameter_reference(expr))
+                    .unwrap_or(false)
             }
             CaseType::Searched(searched_case) => {
                 searched_case.when_branches.iter().any(|branch| {
