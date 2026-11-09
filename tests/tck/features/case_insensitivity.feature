@@ -1,6 +1,6 @@
-# Copyright (c) 2026 NTUR LAB S.r.l.
+# Copyright (c) 2026 NTUR LAB S.r.l. (https://ntur-lab.com)
 #
-# This file is part of NTURDB.
+# This file is part of gql-rs (https://ntur-lab.com/gql-rs)
 #
 # Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
 # the European Commission - subsequent versions of the EUPL (the "Licence");
