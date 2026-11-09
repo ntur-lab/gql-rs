@@ -1,14 +1,19 @@
-# gql-rs
-![gql-banner](https://gitlab.com/-/project/87292979/uploads/5c4b97e090058905321b63363a8017d9/gql-rs-banner.jpg)
-<p align="center">
-  <a href="https://crates.io/crates/gql-rs"><img src="https://img.shields.io/crates/v/gql-rs.svg?style=flat-square" alt="Crates.io" /></a>
-  <a href="https://docs.rs/gql-rs"><img src="https://img.shields.io/docsrs/gql-rs?style=flat-square" alt="Documentation" /></a>
-  <a href="LICENSE.txt"><img src="https://img.shields.io/badge/License-EUPL_v1.2-blue.svg?style=flat-square" alt="License: EUPL v1.2" /></a>
-  <img src="https://img.shields.io/badge/Rust-1.90.0%2B-orange?style=flat-square&logo=rust" alt="Rust Version" />
-</p>
+<div align="center">
 
-`gql-rs` is a Rust parser, typed AST builder, and semantic validator for the
-Graph Query Language (GQL).
+# gql-rs
+
+**A typed parser, AST builder, and semantic validator for the Graph Query Language (GQL) in Rust.**
+
+[![Crates.io](https://img.shields.io/crates/v/gql-rs.svg?style=flat-square)](https://crates.io/crates/gql-rs)
+[![Documentation](https://img.shields.io/docsrs/gql-rs?style=flat-square)](https://docs.rs/gql-rs)
+[![ISO/IEC 39075:2024](https://img.shields.io/badge/Standard-ISO%2FIEC%2039075-005B94?style=flat-square)](https://www.iso.org/standard/76120.html)
+[![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL_v1.2-blue.svg?style=flat-square)](LICENSE.txt)
+[![Rust Version](https://img.shields.io/badge/Rust-1.90%2B-orange?style=flat-square&logo=rust)](https://www.rust-lang.org)
+
+</div>
+
+---
+
 
 > **Project status**: gql-rs is currently under active development. 
 > The public API and AST representation are subject to change.
@@ -181,6 +186,12 @@ organization, parser regeneration instructions, and the individual test suite
 commands.
 
 The project uses the Rust 2024 edition and requires Rust 1.97 or newer.
+
+## About NTUR LAB
+
+`gql-rs` is maintained and developed by [NTUR LAB](https://ntur-lab.com).
+
+This component is part of **Aurea**, an initiative born out of Europe to build a modern, high-performance, and open data ecosystem. While firmly rooted in European open standards and the ethos of digital sovereignty, our technologies are built from the ground up for the global developer community. We create open-source software meant to be adopted, integrated, and scaled anywhere in the world.
 
 ## License
 
