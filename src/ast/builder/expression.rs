@@ -20,6 +20,7 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
+use std::io::BufRead;
 use super::*;
 
 impl GQLAstBuilder {
@@ -813,12 +814,12 @@ impl GQLAstBuilder {
                             cardinality_expr
                                 .listValueExpression()
                                 .and_then(|e| e.valueExpression())
-                                .ok_or_else(|| {Self::parse_err("CST not valid: valueExpression missing in listValueExpression of cardinalityExpression".to_string())})?
+                                .ok_or_else(|| { Self::parse_err("CST not valid: valueExpression missing in listValueExpression of cardinalityExpression".to_string()) })?
                         } else {
                             cardinality_expr
                                 .cardinalityExpressionArgument()
                                 .and_then(|a| a.valueExpression())
-                                .ok_or_else(|| {Self::parse_err("CST not valid: valueExpression missing in cardinalityExpressionArgument".to_string())})?
+                                .ok_or_else(|| { Self::parse_err("CST not valid: valueExpression missing in cardinalityExpressionArgument".to_string()) })?
                         };
 
                         let arg = Self::build_expression_from_context(&inner)?;

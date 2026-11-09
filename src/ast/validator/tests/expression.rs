@@ -22,8 +22,8 @@
 
 use super::super::expression::*;
 use crate::ast::model::*;
-use std::collections::{HashMap, HashSet};
 use crate::ast::validator::tests::common_tests::*;
+use std::collections::{HashMap, HashSet};
 
 #[test]
 fn validate_expression_accepts_declared_variables_and_numeric_text() {
@@ -79,7 +79,7 @@ fn validate_expression_checks_element_id() {
             &declared,
             &inferred
         )
-        .is_err()
+            .is_err()
     );
 
     assert!(
@@ -88,7 +88,7 @@ fn validate_expression_checks_element_id() {
             &declared,
             &inferred
         )
-        .is_ok()
+            .is_ok()
     );
 }
 
@@ -104,7 +104,7 @@ fn validate_expression_checks_left_and_right_arguments() {
                 &declared,
                 &inferred
             )
-            .is_err()
+                .is_err()
         );
 
         assert!(
@@ -113,7 +113,7 @@ fn validate_expression_checks_left_and_right_arguments() {
                 &declared,
                 &inferred
             )
-            .is_err()
+                .is_err()
         );
 
         assert!(
@@ -122,7 +122,7 @@ fn validate_expression_checks_left_and_right_arguments() {
                 &declared,
                 &inferred
             )
-            .is_err()
+                .is_err()
         );
 
         assert!(
@@ -131,7 +131,7 @@ fn validate_expression_checks_left_and_right_arguments() {
                 &declared,
                 &inferred
             )
-            .is_ok()
+                .is_ok()
         );
     }
 }
@@ -170,38 +170,38 @@ fn validate_expression_checks_path_constructor_shape() {
 
     assert!(
         validate_expression_with_types(
-            &Expression::PathConstructor(vec![variable("a"), variable("e"),]),
+            &Expression::PathConstructor(vec![variable("a"), variable("e"), ]),
             &declared,
             &inferred
         )
-        .is_err()
+            .is_err()
     );
 
     assert!(
         validate_expression_with_types(
-            &Expression::PathConstructor(vec![variable("a"), integer(1), variable("b"),]),
+            &Expression::PathConstructor(vec![variable("a"), integer(1), variable("b"), ]),
             &declared,
             &inferred
         )
-        .is_err()
+            .is_err()
     );
 
     assert!(
         validate_expression_with_types(
-            &Expression::PathConstructor(vec![variable("a"), variable("missing"), variable("b"),]),
+            &Expression::PathConstructor(vec![variable("a"), variable("missing"), variable("b"), ]),
             &declared,
             &inferred
         )
-        .is_err()
+            .is_err()
     );
 
     assert!(
         validate_expression_with_types(
-            &Expression::PathConstructor(vec![variable("a"), variable("e"), variable("b"),]),
+            &Expression::PathConstructor(vec![variable("a"), variable("e"), variable("b"), ]),
             &declared,
             &inferred
         )
-        .is_ok()
+            .is_ok()
     );
 }
 
@@ -324,7 +324,7 @@ fn validate_unary_operator_type_checks_not_and_numeric_signs() {
             &declared,
             &inferred
         )
-        .is_ok()
+            .is_ok()
     );
 }
 
@@ -565,7 +565,7 @@ fn contains_aggregate_function_traverses_expression_variants() {
 
     assert!(!contains_aggregate_function(&integer(1)));
     assert!(!contains_aggregate_function(&Expression::Subquery(
-        scalar_subquery(return_query(vec![function("SUM", vec![integer(1)])]), false,)
+        scalar_subquery(return_query(vec![function("SUM", vec![integer(1)])]), false, )
     )));
 }
 
@@ -839,7 +839,7 @@ fn infer_case_type_returns_single_or_union_type() {
     assert_eq!(
         infer_case_type(&mixed_type, &inferred, None),
         Some(TypeSpec::Union {
-            members: vec![TypeSpec::Integer, TypeSpec::String { max_length: None },],
+            members: vec![TypeSpec::Integer, TypeSpec::String { max_length: None }, ],
         })
     );
 
@@ -1252,7 +1252,7 @@ fn cast_compatibility_covers_scalar_union_and_list_rules() {
     assert!(is_cast_compatible(
         &TypeSpec::Integer,
         &TypeSpec::Union {
-            members: vec![TypeSpec::Boolean, TypeSpec::Double,],
+            members: vec![TypeSpec::Boolean, TypeSpec::Double, ],
         }
     ));
 

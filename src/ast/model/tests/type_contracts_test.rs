@@ -21,15 +21,14 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 use crate::ast::*;
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use std::fmt::Debug;
 
 fn assert_model_contract<T>()
 where
     T: Clone + Debug + Serialize + DeserializeOwned,
-{
-}
+{}
 
 macro_rules! assert_contracts {
     ($($model:ty),+ $(,)?) => {

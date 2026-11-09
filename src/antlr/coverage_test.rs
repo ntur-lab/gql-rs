@@ -22,7 +22,7 @@
 
 use super::gqllexer::GQLLexer;
 use super::gqllistener::GQLListener;
-use super::gqlparser::{GQLParser, GQLParserContext, GQLParserContextType, ruleNames};
+use super::gqlparser::{ruleNames, GQLParser, GQLParserContext, GQLParserContextType};
 use antlr_rust::common_token_stream::CommonTokenStream;
 use antlr_rust::tree::{ParseTreeListener, ParseTreeWalker};
 use antlr_rust::{InputStream, Parser};

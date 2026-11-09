@@ -6,13 +6,14 @@ This document describes how ANTLR is used in `gql-rs` and how the grammar in `re
 
 - Grammar source file: resources/GQL.g4
 - Generated ANTLR modules: `src/antlr/`
-  - `gqllexer.rs`
-  - `gqlparser.rs`
-  - `gqllistener.rs`
-  - `gqlvisitor.rs`
+    - `gqllexer.rs`
+    - `gqlparser.rs`
+    - `gqllistener.rs`
+    - `gqlvisitor.rs`
 - Internal module declaration: `src/antlr/mod.rs`
 
-Important: generated files in src/antlr are derived from GQL.g4 and should not be manually edited unless strictly necessary.
+Important: generated files in src/antlr are derived from GQL.g4 and should not be manually edited unless strictly
+necessary.
 
 For the exact regeneration command, automation script, review checklist, and
 troubleshooting steps, see
@@ -23,6 +24,7 @@ troubleshooting steps, see
 ANTLR is responsible for lexical and syntactic analysis.
 
 Parsing pipeline in this project:
+
 1. Input query text
 2. Lexer and parser generated from GQL.g4
 3. CST generation
@@ -34,6 +36,7 @@ So ANTLR stops at syntax and CST production; semantic checks happen later.
 ## Grammar structure and style
 
 At the top of GQL.g4:
+
 - grammar name: GQL
 - parser rules use lower-camel-case names
 - lexer rules use upper-case names
@@ -51,17 +54,20 @@ newer `caseInsensitive` grammar option.
 The grammar is organized in macro areas, marked by section comments.
 
 Main flow starts from:
+
 - gqlProgram
 - programActivity
 - sessionActivity or transactionActivity
 
 Then procedure-based statements are parsed through:
+
 - procedureSpecification
 - procedureBody
 - statementBlock
 - statement
 
 Top-level statement categories:
+
 - compositeQueryStatement
 - linearCatalogModifyingStatement
 - linearDataModifyingStatement
@@ -74,6 +80,7 @@ builder; the correspondence is not one-to-one for every grammar rule.
 ### Session and Transaction
 
 Relevant rules include:
+
 - sessionSetCommand, sessionResetCommand, sessionCloseCommand
 - startTransactionCommand, commitCommand, rollbackCommand
 
@@ -82,6 +89,7 @@ These are reflected in AST SessionStatement and TransactionStatement kinds.
 ### Catalog / DDL
 
 Relevant rules include:
+
 - createSchemaStatement, dropSchemaStatement
 - createGraphStatement, dropGraphStatement
 - createGraphTypeStatement, dropGraphTypeStatement
@@ -94,6 +102,7 @@ are preserved as `CatalogStatement::Raw`; catalog procedure calls use
 ### Data-modifying statements
 
 Relevant rules include:
+
 - insertStatement
 - setStatement
 - removeStatement
@@ -106,6 +115,7 @@ AST representation.
 ### Query language core
 
 Relevant rules include:
+
 - compositeQueryStatement, compositeQueryExpression
 - linearQueryStatement, simpleQueryStatement
 - matchStatement, filterStatement, letStatement, forStatement
@@ -117,6 +127,7 @@ These produce Query, QueryStep and result-related AST nodes.
 ### Graph pattern and path language
 
 Relevant rules include:
+
 - graphPattern
 - pathPattern
 - simplifiedPathPatternExpression
@@ -128,6 +139,7 @@ These define the shape of MATCH and INSERT graph patterns.
 ### Expressions, predicates, and types
 
 Relevant rules include:
+
 - valueExpression, booleanValueExpression, numericValueExpression
 - predicate family (exists/null/type/directed/source-destination/etc.)
 - caseExpression, castSpecification, aggregateFunction
@@ -138,16 +150,19 @@ These feed Expression and TypeSpec AST construction.
 ## Mapping between grammar and implementation
 
 Implementation layers:
+
 - Syntax/CST: `resources/GQL.g4` + `src/antlr/*`
 - CST to AST: `src/ast/builder/*`
 - Semantic validation: `src/ast/validator/*`
 
 A practical rule of thumb:
+
 - Add or change a grammar rule -> update builder mapping -> update validator rules -> add tests.
 
 ## How to evolve the grammar safely
 
 Recommended workflow:
+
 1. Update GQL.g4
 2. Regenerate ANTLR parser artifacts by following
    [the generation guide](generating_parser.md)
@@ -156,6 +171,7 @@ Recommended workflow:
 5. Run tests
 
 Minimum verification commands:
+
 ```sh
 cargo check
 cargo test

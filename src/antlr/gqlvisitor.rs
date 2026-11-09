@@ -5315,7 +5315,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
 }
 
 pub trait GQLVisitorCompat<'input>:
-    ParseTreeVisitorCompat<'input, Node = GQLParserContextType>
+ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
 {
     /**
      * Visit a parse tree produced by {@link GQLParser#gqlProgram}.

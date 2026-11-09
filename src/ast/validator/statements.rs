@@ -120,13 +120,13 @@ pub(super) fn validate_transaction_statement(
         TransactionCommandKind::Commit
         | TransactionCommandKind::Rollback
         | TransactionCommandKind::Activity
-            if transaction.mode.is_some() =>
-        {
-            return Err(validation_err(
-                "Only START transaction can carry a transaction mode".to_string(),
-                None,
-            ));
-        }
+        if transaction.mode.is_some() =>
+            {
+                return Err(validation_err(
+                    "Only START transaction can carry a transaction mode".to_string(),
+                    None,
+                ));
+            }
         _ => {}
     }
 

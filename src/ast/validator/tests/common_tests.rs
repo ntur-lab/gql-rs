@@ -280,7 +280,7 @@ pub(crate) fn group(keys: Option<Vec<&str>>, is_empty_grouping_set: bool) -> Gro
     }
 }
 
-pub(crate)  fn graph_expression(kind: GraphExpressionKind, text: &str) -> GraphExpressionClause {
+pub(crate) fn graph_expression(kind: GraphExpressionKind, text: &str) -> GraphExpressionClause {
     GraphExpressionClause {
         kind,
         text: text.to_string(),
@@ -290,7 +290,7 @@ pub(crate)  fn graph_expression(kind: GraphExpressionKind, text: &str) -> GraphE
     }
 }
 
-pub(crate)  fn schema(path: &str, name: &str) -> CatalogSchemaName {
+pub(crate) fn schema(path: &str, name: &str) -> CatalogSchemaName {
     CatalogSchemaName {
         absolute_directory_path: path.to_string(),
         schema_name: name.to_string(),
@@ -298,7 +298,7 @@ pub(crate)  fn schema(path: &str, name: &str) -> CatalogSchemaName {
     }
 }
 
-pub(crate)  fn object(parent: Option<&str>, name: &str) -> CatalogObjectName {
+pub(crate) fn object(parent: Option<&str>, name: &str) -> CatalogObjectName {
     CatalogObjectName {
         parent: parent.map(str::to_string),
         name: name.to_string(),
@@ -306,11 +306,11 @@ pub(crate)  fn object(parent: Option<&str>, name: &str) -> CatalogObjectName {
     }
 }
 
-pub(crate)  fn reset(target: SessionResetTarget) -> SessionResetClause {
+pub(crate) fn reset(target: SessionResetTarget) -> SessionResetClause {
     SessionResetClause { target }
 }
 
-pub(crate)  fn yield_item(column_name: &str, alias: Option<&str>) -> YieldItem {
+pub(crate) fn yield_item(column_name: &str, alias: Option<&str>) -> YieldItem {
     YieldItem {
         column_name: column_name.to_string(),
         alias: alias.map(str::to_string),
@@ -318,7 +318,7 @@ pub(crate)  fn yield_item(column_name: &str, alias: Option<&str>) -> YieldItem {
     }
 }
 
-pub(crate)  fn finish_statement() -> Statement {
+pub(crate) fn finish_statement() -> Statement {
     Statement::Query(Query::Basic(BasicQuery {
         pipeline: vec![],
         result_statement: PrimitiveResultStatement::Finish { span: span() },

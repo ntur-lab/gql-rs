@@ -333,10 +333,10 @@ impl GQLAstBuilder {
                     PathFactorContextAll::PfPathPrimaryContext(ctx) => {
                         if let Some(path_primary) = ctx.pathPrimary()
                             && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
-                                simplified_ctx,
-                            ) = &*path_primary
+                            simplified_ctx,
+                        ) = &*path_primary
                             && let Some(simplified_expr) =
-                                simplified_ctx.simplifiedPathPatternExpression()
+                            simplified_ctx.simplifiedPathPatternExpression()
                         {
                             return Some(simplified_expr.get_text());
                         }
@@ -344,10 +344,10 @@ impl GQLAstBuilder {
                     PathFactorContextAll::PfQuantifiedPathPrimaryContext(ctx) => {
                         if let Some(path_primary) = ctx.pathPrimary()
                             && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
-                                simplified_ctx,
-                            ) = &*path_primary
+                            simplified_ctx,
+                        ) = &*path_primary
                             && let Some(simplified_expr) =
-                                simplified_ctx.simplifiedPathPatternExpression()
+                            simplified_ctx.simplifiedPathPatternExpression()
                         {
                             return Some(simplified_expr.get_text());
                         }
@@ -355,10 +355,10 @@ impl GQLAstBuilder {
                     PathFactorContextAll::PfQuestionedPathPrimaryContext(ctx) => {
                         if let Some(path_primary) = ctx.pathPrimary()
                             && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
-                                simplified_ctx,
-                            ) = &*path_primary
+                            simplified_ctx,
+                        ) = &*path_primary
                             && let Some(simplified_expr) =
-                                simplified_ctx.simplifiedPathPatternExpression()
+                            simplified_ctx.simplifiedPathPatternExpression()
                         {
                             return Some(simplified_expr.get_text());
                         }

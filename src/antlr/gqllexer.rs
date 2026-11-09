@@ -25,29 +25,24 @@
 #![allow(nonstandard_style)]
 #![allow(unused_imports)]
 #![allow(unused_variables)]
-use antlr_rust::PredictionContextCache;
-use antlr_rust::TokenSource;
 use antlr_rust::atn::ATN;
 use antlr_rust::atn_deserializer::ATNDeserializer;
 use antlr_rust::char_stream::CharStream;
 use antlr_rust::dfa::DFA;
-use antlr_rust::error_listener::ErrorListener;
 use antlr_rust::int_stream::IntStream;
-use antlr_rust::lexer::{BaseLexer, Lexer, LexerRecog};
-use antlr_rust::lexer_atn_simulator::{ILexerATNSimulator, LexerATNSimulator};
-use antlr_rust::parser_rule_context::{BaseParserRuleContext, ParserRuleContext, cast};
-use antlr_rust::recognizer::{Actions, Recognizer};
-use antlr_rust::rule_context::{BaseRuleContext, EmptyContext, EmptyCustomRuleContext};
-use antlr_rust::token::*;
+use antlr_rust::lexer::{BaseLexer, LexerRecog};
+use antlr_rust::lexer_atn_simulator::LexerATNSimulator;
+use antlr_rust::recognizer::Actions;
+use antlr_rust::rule_context::{BaseRuleContext, EmptyCustomRuleContext};
 use antlr_rust::token_factory::{CommonTokenFactory, TokenAware, TokenFactory};
 use antlr_rust::vocabulary::{Vocabulary, VocabularyImpl};
+use antlr_rust::PredictionContextCache;
+use antlr_rust::TokenSource;
 
-use antlr_rust::{Tid, TidAble, TidExt, lazy_static};
+use antlr_rust::{lazy_static, TidAble};
 
-use std::cell::RefCell;
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
-use std::rc::Rc;
 use std::sync::Arc;
 
 pub const IMPLIES: isize = 1;
@@ -1709,7 +1704,7 @@ lazy_static! {
 }
 
 pub type LexerContext<'input> =
-    BaseRuleContext<'input, EmptyCustomRuleContext<'input, LocalTokenFactory<'input>>>;
+BaseRuleContext<'input, EmptyCustomRuleContext<'input, LocalTokenFactory<'input>>>;
 pub type LocalTokenFactory<'input> = CommonTokenFactory;
 
 type From<'a> = <LocalTokenFactory<'a> as TokenFactory<'a>>::From;
@@ -1781,18 +1776,16 @@ pub struct GQLLexerActions {}
 impl GQLLexerActions {}
 
 impl<'input, Input: CharStream<From<'input>>>
-    Actions<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>>
-    for GQLLexerActions
-{
-}
+Actions<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>>
+for GQLLexerActions
+{}
 
 impl<'input, Input: CharStream<From<'input>>> GQLLexer<'input, Input> {}
 
 impl<'input, Input: CharStream<From<'input>>>
-    LexerRecog<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>>
-    for GQLLexerActions
-{
-}
+LexerRecog<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>>
+for GQLLexerActions
+{}
 impl<'input> TokenAware<'input> for GQLLexerActions {
     type TF = LocalTokenFactory<'input>;
 }

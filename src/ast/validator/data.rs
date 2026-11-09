@@ -344,10 +344,10 @@ pub(super) fn infer_query_projection_types(query: &Query) -> Option<Vec<Option<T
                         .zip(r)
                         .map(|(lt, rt)| match (lt, rt) {
                             (Some(l), Some(r))
-                                if are_set_operation_column_types_compatible(&l, &r) =>
-                            {
-                                Some(l)
-                            }
+                            if are_set_operation_column_types_compatible(&l, &r) =>
+                                {
+                                    Some(l)
+                                }
                             (Some(l), None) => Some(l),
                             (None, Some(r)) => Some(r),
                             _ => None,

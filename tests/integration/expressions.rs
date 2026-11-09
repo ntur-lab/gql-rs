@@ -21,7 +21,7 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 mod expression_tests {
-    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError, ast::model::*};
+    use gql_rs::{ast::model::*, DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
     #[test]
     fn rejects_integer_literals_outside_signed_64_bit_range() {
         for query in [

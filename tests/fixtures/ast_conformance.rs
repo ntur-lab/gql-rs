@@ -113,7 +113,7 @@ fn compare_ast(query_path: &Path, expected_path: &Path) -> Result<(), Failed> {
             expected_pretty,
             actual_pretty
         )
-        .into());
+            .into());
     }
 
     Ok(())

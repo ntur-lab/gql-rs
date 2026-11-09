@@ -22,8 +22,8 @@
 
 use super::super::data::*;
 use crate::ast::model::*;
-use std::collections::HashSet;
 use crate::ast::validator::tests::common_tests::*;
+use std::collections::HashSet;
 
 #[test]
 fn insert_requires_at_least_one_pattern() {
@@ -136,7 +136,7 @@ fn validate_set_operation_rejects_finish_arity_alias_and_type_mismatches() {
         &set_operation(finish, one_column.clone()),
         &mut HashSet::new(),
     )
-    .is_err());
+        .is_err());
 
     let two_columns = basic_query(return_result(vec![
         (integer(1), Some("value")),
@@ -146,14 +146,14 @@ fn validate_set_operation_rejects_finish_arity_alias_and_type_mismatches() {
         &set_operation(one_column.clone(), two_columns),
         &mut HashSet::new(),
     )
-    .is_err());
+        .is_err());
 
     let different_alias = basic_query(return_result(vec![(integer(1), Some("other"))]));
     assert!(validate_set_operation_query(
         &set_operation(one_column.clone(), different_alias),
         &mut HashSet::new(),
     )
-    .is_err());
+        .is_err());
 
     let incompatible_type = basic_query(return_result(vec![(
         Expression::Literal(Literal::Boolean(true)),
@@ -163,7 +163,7 @@ fn validate_set_operation_rejects_finish_arity_alias_and_type_mismatches() {
         &set_operation(one_column, incompatible_type),
         &mut HashSet::new(),
     )
-    .is_err());
+        .is_err());
 }
 
 #[test]

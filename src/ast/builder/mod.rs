@@ -166,8 +166,8 @@ impl GQLAstBuilder {
             let segment_start = index;
             let quote_index = if chars[index] == '@'
                 && chars
-                    .get(index + 1)
-                    .is_some_and(|ch| matches!(ch, '"' | '`'))
+                .get(index + 1)
+                .is_some_and(|ch| matches!(ch, '"' | '`'))
             {
                 index + 1
             } else if matches!(chars[index], '"' | '`') {

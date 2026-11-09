@@ -5,6 +5,7 @@ This document provides a complete list of the semantic rules enforced by the `gq
 ## Scope and Dispatch
 
 The validator is executed via `validate_query_ast` and dispatches to:
+
 - Query
 - Data
 - Next
@@ -19,7 +20,8 @@ All errors are emitted as `GqlError::Validation` with span information when avai
 
 - Declared variables are tracked in a set (HashSet).
 - MATCH/LET/FOR/YIELD/CALL update scope.
-- Any variable used in an expression must be declared, except special cases with empty scope (for example, standalone CALL).
+- Any variable used in an expression must be declared, except special cases with empty scope (for example, standalone
+  CALL).
 
 ## Statement Rules: Session/Transaction/Catalog
 
@@ -31,12 +33,14 @@ All errors are emitted as `GqlError::Validation` with span information when avai
 - `ACTIVITY` requires at least one clause.
 
 Session `SET`:
+
 - `SCHEMA` must be non-empty.
 - `GRAPH` must have a valid graph expression.
 - `TIME ZONE` literal must be non-empty.
 - `PARAMETER` must have a non-empty parameter specification; initializer, when present, must be non-empty.
 
 Session `RESET`:
+
 - Parameter specification must be non-empty when target is Parameter.
 
 ### Transaction
@@ -75,6 +79,7 @@ Session `RESET`:
 - Path mode `SIMPLE`/`ACYCLIC` forbids immediate self-loop on the same node id.
 
 Node/Edge/PropertyMap:
+
 - Node/Edge variable, when present, must be non-empty.
 - Property key must be non-empty.
 - Labels/properties are validated as expressions.
@@ -108,7 +113,8 @@ Node/Edge/PropertyMap:
 - Standard `GROUP BY` must have at least one key.
 - Key must be non-empty.
 - Key must reference a known variable (scope or `RETURN` alias).
-- Non-aggregated variables in `RETURN` must appear in `GROUP BY` (or be represented by an already grouped corresponding alias).
+- Non-aggregated variables in `RETURN` must appear in `GROUP BY` (or be represented by an already grouped corresponding
+  alias).
 
 ### ORDER BY
 
@@ -148,10 +154,12 @@ Node/Edge/PropertyMap:
 ### SET
 
 For `SET` property/label/variable:
+
 - Target variable must be declared (or a $-prefixed parameter, when allowed by flow).
 - Value/labels are validated as expressions.
 
 Additional type constraints:
+
 - `SET` property cannot assign BindingTable or Graph.
 - `SET` variable cannot assign BindingTable.
 - `SET` label must receive string-like, list-like, or Any.
@@ -182,7 +190,8 @@ Additional type constraints:
 
 - `AND`/`OR`/`XOR`: require `BOOLEAN` when types are known; string-like label expressions are supported.
 - +: string+string concatenation is forbidden (use ||).
-- + and -: require numeric-numeric or duration-duration, except Any.
+-
+    + and -: require numeric-numeric or duration-duration, except Any.
 - *, /, %, ^: require numeric-numeric, except Any.
 - ||: requires string-like/path, except Any.
 - <, <=, >, >=: require comparable operands, except Any.
@@ -192,6 +201,7 @@ Additional type constraints:
 ### Functions
 
 Specific rules:
+
 - `ELEMENT_ID`: exactly 1 argument; argument must be a declared variable.
 - `LEFT`/`RIGHT`: exactly 2 arguments; second argument must be a non-negative integer.
 - `LOWER`/`UPPER`: exactly 1 string-like or Any argument.
@@ -207,7 +217,8 @@ Specific rules:
 
 ### CASE
 
-- `CASE` simple: test expression is validated; each `WHEN` value is validated and compatible with test type when inferable.
+- `CASE` simple: test expression is validated; each `WHEN` value is validated and compatible with test type when
+  inferable.
 - `CASE` searched: each condition is validated and boolean.
 - `THEN`/`ELSE` are semantically validated.
 
@@ -246,19 +257,19 @@ Specific rules:
 
 - Procedure name must be non-empty.
 - Inline `CALL`:
-  - cannot define `YIELD`.
-  - textual body must be non-empty.
-  - structured statement is mandatory.
-  - inline argument scope allows only binding variables.
-  - duplicate variables in inline scope are forbidden.
+    - cannot define `YIELD`.
+    - textual body must be non-empty.
+    - structured statement is mandatory.
+    - inline argument scope allows only binding variables.
+    - duplicate variables in inline scope are forbidden.
 - Named `CALL` cannot contain inline payload.
 - `CALL` arguments are semantically validated when declared scope exists.
 - `YIELD`:
-  - at least one item,
-  - item name must be non-empty,
-  - alias must be non-empty,
-  - duplicate output names are forbidden,
-  - duplicate aliases are forbidden.
+    - at least one item,
+    - item name must be non-empty,
+    - alias must be non-empty,
+    - duplicate output names are forbidden,
+    - duplicate aliases are forbidden.
 
 ## Inferred Type and Conservative Principle
 
