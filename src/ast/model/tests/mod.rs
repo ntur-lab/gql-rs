@@ -14,6 +14,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the Licence for the specific language governing permissions and
 // limitations under the Licence.
+//
+// Authors:
+//   Ntur Lab S.r.l. <dev@ntur-lab.com>
+//   Nicola Miotto <nicola.miotto@ntur-lab.com>,
+//   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 mod span_test;
 mod type_contracts_test;
