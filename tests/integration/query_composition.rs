@@ -1,0 +1,69 @@
+// Copyright (c) 2026 NTUR LAB S.r.l. (https://ntur-lab.com)
+//
+// This file is part of gql-rs (https://ntur-lab.com/gql-rs)
+//
+// Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
+// the European Commission - subsequent versions of the EUPL (the "Licence");
+// You may not use this work except in compliance with the Licence.
+// You may obtain a copy of the Licence at:
+//
+// https://joinup.ec.europa.eu/software/page/eupl
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the Licence is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the Licence for the specific language governing permissions and
+// limitations under the Licence.
+//
+// Authors:
+//   Ntur Lab S.r.l. <dev@ntur-lab.com>,
+//   Nicola Miotto <nicola.miotto@ntur-lab.com>,
+//   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
+
+mod query_composition_tests {
+    use gql_rs::ast::{DataStatement, Statement};
+    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
+
+    #[test]
+    fn focused_nested_data_modifying_procedure_preserves_graph_scope() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("USE social { MATCH (n) SET n.active = TRUE FINISH }")
+            .expect("focused nested data-modifying procedure should analyze");
+
+        let ast = analyzer.get_ast().expect("analysis should produce an AST");
+        let Statement::Focused(focused) = &ast.statement else {
+            panic!("expected focused statement, got: {:?}", ast.statement);
+        };
+        assert_eq!(focused.graph_expression.text, "social");
+
+        let Statement::Next(next) = focused.statement.as_ref() else {
+            panic!("expected data statement followed by FINISH");
+        };
+        assert!(matches!(
+            next.source_statement.as_ref(),
+            Statement::Data(DataStatement::MatchSet(_))
+        ));
+        assert!(matches!(
+            next.target_statement.as_ref(),
+            Statement::Query(_)
+        ));
+    }
+
+    #[test]
+    fn test_value_subquery_rejects_multi_column_projection() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        let result = analyzer.exec("MATCH (n) RETURN VALUE { MATCH (m) RETURN m.x, m.y }");
+
+        match result {
+            Err(GqlError::Validation { message: msg, .. }) => {
+                assert!(
+                    msg.contains("Scalar subquery must return exactly one column"),
+                    "Unexpected validation error: {}",
+                    msg
+                );
+            }
+            other => panic!("Expected validation error, got: {:?}", other),
+        }
+    }
+}

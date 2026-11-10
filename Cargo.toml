@@ -1,0 +1,68 @@
+# Copyright (c) 2026 NTUR LAB S.r.l. (https://ntur-lab.com)
+#
+# This file is part of gql-rs (https://ntur-lab.com/gql-rs)
+#
+# Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
+# the European Commission - subsequent versions of the EUPL (the "Licence");
+# You may not use this work except in compliance with the Licence.
+# You may obtain a copy of the Licence at:
+#
+# https://joinup.ec.europa.eu/software/page/eupl
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the Licence is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the Licence for the specific language governing permissions and
+# limitations under the Licence.
+#
+# Authors:
+#   Ntur Lab S.r.l. <dev@ntur-lab.com>
+#   Nicola Miotto <nicola.miotto@ntur-lab.com>,
+#   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
+
+[package]
+name = "gql-rs"
+version = "0.0.1"
+edition = "2024"
+rust-version = "1.99.0"
+authors = [
+    "Ntur Lab S.r.l. <dev@ntur-lab.com>",
+    "Nicola Miotto <nicola.miotto@ntur-lab.com>",
+    "Matteo Boscolo <matteo.boscolo@ntur-lab.com>"
+]
+description = "GQL parser, typed AST builder, and semantic validator"
+repository = "https://gitlab.com/inserpio/gql-rs"
+documentation = "https://docs.rs/gql-rs"
+readme = "README.md"
+license = "EUPL-1.2"
+keywords = ["gql", "graph", "parser", "ast", "semantic-validator"]
+categories = ["parser-implementations"]
+exclude = [
+    "/.config/",
+    "/resources/",
+    "/scripts/",
+]
+
+[dependencies]
+antlr-rust = "0.3.0-beta"
+serde = { version = "1.0.229", features = ["derive"] }
+
+[dev-dependencies]
+cucumber = "0.23.0"
+libtest-mimic = "0.8.2"
+serde_json = "1.0.154"
+tokio = { version = "1.54.1", features = ["macros", "rt-multi-thread"] }
+
+[[test]]
+name = "gql_tck"
+path = "tests/tck/main.rs"
+harness = false
+
+[[test]]
+name = "ast_conformance"
+path = "tests/fixtures/ast_conformance.rs"
+harness = false
+
+[[test]]
+name = "integration"
+path = "tests/integration/main.rs"

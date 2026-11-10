@@ -1,0 +1,2 @@
+CREATE GRAPH TYPE social { NODE TYPE Person (p LABEL Person {name STRING}) }
+

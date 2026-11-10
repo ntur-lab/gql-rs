@@ -1,0 +1,211 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "Match": {
+              "match_clause": {
+                "patterns": [
+                  {
+                    "alternation": null,
+                    "elements": [
+                      {
+                        "Node": {
+                          "id": "person",
+                          "labels": {
+                            "Literal": {
+                              "String": "Person"
+                            }
+                          },
+                          "properties": null,
+                          "span": {
+                            "end_col": 21,
+                            "end_line": 1,
+                            "start_col": 6,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      },
+                      {
+                        "Edge": {
+                          "direction": "Outgoing",
+                          "id": "knows",
+                          "labels": {
+                            "Literal": {
+                              "String": "KNOWS"
+                            }
+                          },
+                          "properties": null,
+                          "quantifier": null,
+                          "span": {
+                            "end_col": 37,
+                            "end_line": 1,
+                            "start_col": 21,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      },
+                      {
+                        "Node": {
+                          "id": "friend",
+                          "labels": {
+                            "Literal": {
+                              "String": "Person"
+                            }
+                          },
+                          "properties": null,
+                          "span": {
+                            "end_col": 52,
+                            "end_line": 1,
+                            "start_col": 37,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      }
+                    ],
+                    "path_mode": null,
+                    "path_search": null,
+                    "simplified_pattern": null,
+                    "span": {
+                      "end_col": 52,
+                      "end_line": 1,
+                      "start_col": 6,
+                      "start_line": 1
+                    },
+                    "variable": null
+                  }
+                ],
+                "span": {
+                  "end_col": 22,
+                  "end_line": 2,
+                  "start_col": 6,
+                  "start_line": 1
+                }
+              },
+              "optional": false,
+              "span": {
+                "end_col": 22,
+                "end_line": 2,
+                "start_col": 6,
+                "start_line": 1
+              }
+            }
+          },
+          {
+            "Filter": {
+              "condition": {
+                "Binary": {
+                  "left": {
+                    "PropertyAccess": {
+                      "object": "person",
+                      "property": "age",
+                      "span": {
+                        "end_col": 16,
+                        "end_line": 2,
+                        "start_col": 6,
+                        "start_line": 2
+                      }
+                    }
+                  },
+                  "operator": "GreaterEqual",
+                  "right": {
+                    "Literal": {
+                      "Integer": 18
+                    }
+                  },
+                  "span": {
+                    "end_col": 22,
+                    "end_line": 2,
+                    "start_col": 6,
+                    "start_line": 2
+                  }
+                }
+              },
+              "span": {
+                "end_col": 22,
+                "end_line": 2,
+                "start_col": 0,
+                "start_line": 1
+              }
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "items": [
+                {
+                  "alias": "name",
+                  "expression": {
+                    "PropertyAccess": {
+                      "object": "person",
+                      "property": "name",
+                      "span": {
+                        "end_col": 18,
+                        "end_line": 3,
+                        "start_col": 7,
+                        "start_line": 3
+                      }
+                    }
+                  },
+                  "span": {
+                    "end_col": 26,
+                    "end_line": 3,
+                    "start_col": 7,
+                    "start_line": 3
+                  }
+                },
+                {
+                  "alias": "friendName",
+                  "expression": {
+                    "PropertyAccess": {
+                      "object": "friend",
+                      "property": "name",
+                      "span": {
+                        "end_col": 39,
+                        "end_line": 3,
+                        "start_col": 28,
+                        "start_line": 3
+                      }
+                    }
+                  },
+                  "span": {
+                    "end_col": 53,
+                    "end_line": 3,
+                    "start_col": 28,
+                    "start_line": 3
+                  }
+                }
+              ],
+              "span": {
+                "end_col": 53,
+                "end_line": 3,
+                "start_col": 0,
+                "start_line": 3
+              }
+            },
+            "span": {
+              "end_col": 53,
+              "end_line": 3,
+              "start_col": 0,
+              "start_line": 3
+            }
+          }
+        },
+        "span": {
+          "end_col": 53,
+          "end_line": 3,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}
