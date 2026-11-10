@@ -19,6 +19,11 @@
 //   Ntur Lab S.r.l. <dev@ntur-lab.com>,
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
+//
+// Original Authors:
+//   This file is modified from the original version available at
+//   https://github.com/opengql/grammar/blob/main/GQL.g4
+//   provided by opengql
 
 grammar GQL;
 
