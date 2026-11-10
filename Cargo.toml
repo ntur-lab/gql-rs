@@ -35,13 +35,12 @@ repository = "https://gitlab.com/inserpio/gql-rs"
 documentation = "https://docs.rs/gql-rs"
 readme = "README.md"
 license = "EUPL-1.2"
-keywords = ["gql", "graph", "parser", "ast"]
-categories = ["parsing"]
+keywords = ["gql", "graph", "parser", "ast", "semantic-validator"]
+categories = ["parser-implementations"]
 exclude = [
     "/.config/",
     "/resources/",
     "/scripts/",
-    "/.gitlab-ci.yml",
 ]
 
 [dependencies]
