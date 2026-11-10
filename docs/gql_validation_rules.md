@@ -18,8 +18,8 @@ All errors are emitted as `GqlError::Validation` with span information when avai
 
 ## Variable Scope
 
-- Declared variables are tracked in a set (HashSet).
-- MATCH/LET/FOR/YIELD/CALL update scope.
+- Declared variables are tracked in a set (`HashSet`).
+- `MATCH`/`LET`/`FOR`/`YIELD`/`CALL` update scope.
 - Any variable used in an expression must be declared, except special cases with empty scope (for example, standalone
   CALL).
 
@@ -45,7 +45,7 @@ Session `RESET`:
 
 ### Transaction
 
-- Only START can carry mode.
+- Only `START` can carry mode.
 
 ### Catalog/DDL
 
@@ -155,7 +155,7 @@ Node/Edge/PropertyMap:
 
 For `SET` property/label/variable:
 
-- Target variable must be declared (or a $-prefixed parameter, when allowed by flow).
+- Target variable must be declared (or a `$-prefixed parameter`, when allowed by flow).
 - Value/labels are validated as expressions.
 
 Additional type constraints:
@@ -166,7 +166,7 @@ Additional type constraints:
 
 ### REMOVE
 
-- Target variable must be declared (or a $ parameter in allowed contexts).
+- Target variable must be declared (or a `$ parameter` in allowed contexts).
 - `REMOVE` label validates labels as expressions.
 
 ### DELETE
@@ -191,12 +191,12 @@ Additional type constraints:
 - `AND`/`OR`/`XOR`: require `BOOLEAN` when types are known; string-like label expressions are supported.
 - +: string+string concatenation is forbidden (use ||).
 -
-    + and -: require numeric-numeric or duration-duration, except Any.
-- *, /, %, ^: require numeric-numeric, except Any.
-- ||: requires string-like/path, except Any.
-- <, <=, >, >=: require comparable operands, except Any.
-- =~/Regex: requires string-like, except Any.
-- = and !=: allowed (with boolean result inference).
+    `+ `and `-`: require numeric-numeric or duration-duration, except Any.
+- `*`, `/`, `%`, `^`: require numeric-numeric, except Any.
+- `||`: requires string-like/path, except Any.
+- `<`, `<=`, `>`, `>=`: require comparable operands, except Any.
+- `=~/Regex`: requires string-like, except Any.
+- `=` and `!=`: allowed (with boolean result inference).
 
 ### Functions
 

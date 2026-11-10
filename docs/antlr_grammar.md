@@ -26,7 +26,7 @@ ANTLR is responsible for lexical and syntactic analysis.
 Parsing pipeline in this project:
 
 1. Input query text
-2. Lexer and parser generated from GQL.g4
+2. Lexer and parser generated from `GQL.g4`
 3. CST generation
 4. CST to AST conversion in GQLAstBuilder
 5. Semantic validation in the AST validator modules
@@ -37,13 +37,11 @@ So ANTLR stops at syntax and CST production; semantic checks happen later.
 
 At the top of GQL.g4:
 
-- grammar name: GQL
+- grammar name: `GQL`
 - parser rules use lower-camel-case names
 - lexer rules use upper-case names
 - case-insensitive keywords are composed from the `A` through `Z` fragments
 - Rule names follow an ISO-like naming style with numbered section comments.
-
-The grammar is a combined grammar (parser and lexer rules in one file).
 
 The explicit letter fragments are required by the ANTLR 4.8 Rust-target
 generator currently used by the project. That generator does not support the
@@ -55,22 +53,22 @@ The grammar is organized in macro areas, marked by section comments.
 
 Main flow starts from:
 
-- gqlProgram
-- programActivity
-- sessionActivity or transactionActivity
+- `gqlProgram`
+- `programActivity`
+- `sessionActivity` or `transactionActivity`
 
 Then procedure-based statements are parsed through:
 
-- procedureSpecification
-- procedureBody
-- statementBlock
-- statement
+- `procedureSpecification`
+- `procedureBody`
+- `statementBlock`
+- `statement`
 
 Top-level statement categories:
 
-- compositeQueryStatement
-- linearCatalogModifyingStatement
-- linearDataModifyingStatement
+- `compositeQueryStatement`
+- `linearCatalogModifyingStatement`
+- `linearDataModifyingStatement`
 
 These grammar branches are routed into the available top-level `Statement` variants by the
 builder; the correspondence is not one-to-one for every grammar rule.
@@ -81,19 +79,19 @@ builder; the correspondence is not one-to-one for every grammar rule.
 
 Relevant rules include:
 
-- sessionSetCommand, sessionResetCommand, sessionCloseCommand
-- startTransactionCommand, commitCommand, rollbackCommand
+- `sessionSetCommand`, `sessionResetCommand`, `sessionCloseCommand`
+- `startTransactionCommand`, `commitCommand`, `rollbackCommand`
 
-These are reflected in AST SessionStatement and TransactionStatement kinds.
+These are reflected in AST `SessionStatement` and `TransactionStatement` kinds.
 
 ### Catalog / DDL
 
 Relevant rules include:
 
-- createSchemaStatement, dropSchemaStatement
-- createGraphStatement, dropGraphStatement
-- createGraphTypeStatement, dropGraphTypeStatement
-- callCatalogModifyingProcedureStatement
+- `createSchemaStatement`, `dropSchemaStatement`
+- `createGraphStatement`, `dropGraphStatement`
+- `createGraphTypeStatement`, `dropGraphTypeStatement`
+- `callCatalogModifyingProcedureStatement`
 
 These feed typed catalog AST nodes. Catalog forms without a dedicated typed representation
 are preserved as `CatalogStatement::Raw`; catalog procedure calls use
@@ -103,11 +101,11 @@ are preserved as `CatalogStatement::Raw`; catalog procedure calls use
 
 Relevant rules include:
 
-- insertStatement
-- setStatement
-- removeStatement
-- deleteStatement
-- callDataModifyingProcedureStatement
+- `insertStatement`
+- `setStatement`
+- `removeStatement`
+- `deleteStatement`
+- `callDataModifyingProcedureStatement`
 
 These are mapped into `DataStatement` variants when the current builder has a corresponding
 AST representation.
@@ -116,11 +114,11 @@ AST representation.
 
 Relevant rules include:
 
-- compositeQueryStatement, compositeQueryExpression
-- linearQueryStatement, simpleQueryStatement
-- matchStatement, filterStatement, letStatement, forStatement
-- returnStatement, selectStatement
-- orderByClause, groupByClause, limitClause, offsetClause
+- `compositeQueryStatement`, `compositeQueryExpression`
+- `linearQueryStatement`, `simpleQueryStatement`
+- `matchStatement`, `filterStatement`, `letStatement`, `forStatement`
+- `returnStatement`, `selectStatement`
+- `orderByClause`, `groupByClause`, `limitClause`, `offsetClause`
 
 These produce Query, QueryStep and result-related AST nodes.
 
@@ -128,11 +126,11 @@ These produce Query, QueryStep and result-related AST nodes.
 
 Relevant rules include:
 
-- graphPattern
-- pathPattern
-- simplifiedPathPatternExpression
-- graphPatternQuantifier
-- labelExpression
+- `graphPattern`
+- `pathPattern`
+- `simplifiedPathPatternExpression`
+- `graphPatternQuantifier`
+- `labelExpression`
 
 These define the shape of MATCH and INSERT graph patterns.
 
@@ -140,12 +138,12 @@ These define the shape of MATCH and INSERT graph patterns.
 
 Relevant rules include:
 
-- valueExpression, booleanValueExpression, numericValueExpression
+- `valueExpression`, `booleanValueExpression`, `numericValueExpression`
 - predicate family (exists/null/type/directed/source-destination/etc.)
-- caseExpression, castSpecification, aggregateFunction
-- valueType and related type rules
+- `caseExpression`, `castSpecification`, `aggregateFunction`
+- `valueType` and related type rules
 
-These feed Expression and TypeSpec AST construction.
+These feed `Expression` and `TypeSpec` AST construction.
 
 ## Mapping between grammar and implementation
 
@@ -163,8 +161,8 @@ A practical rule of thumb:
 
 Recommended workflow:
 
-1. Update GQL.g4
-2. Regenerate ANTLR parser artifacts by following
+1. Update `GQL.g4`
+2. Regenerate `ANTLR` parser artifacts by following
    [the generation guide](generating_parser.md)
 3. Update builder functions for new/changed CST branches
 4. Update validator checks if semantics changed

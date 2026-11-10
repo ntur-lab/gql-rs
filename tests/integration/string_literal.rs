@@ -16,7 +16,7 @@
 // limitations under the Licence.
 //
 // Authors:
-//   Ntur Lab S.r.l. <dev@ntur-lab.com>
+//   Ntur Lab S.r.l. <dev@ntur-lab.com>,
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
@@ -59,7 +59,6 @@ mod string_literal_tests {
     fn test_double_quotes_inside_single_quoted_string_are_kept() {
         for (literal, expected) in [
             ("'\"quoted\"'", "\"quoted\""),
-            ("'\"the matrix\"'", "\"the matrix\""),
             ("'He said \"hi\"'", "He said \"hi\""),
             ("'\"unclosed'", "\"unclosed"),
         ] {

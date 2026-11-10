@@ -42,32 +42,32 @@ It stores the most recent successful analysis result.
 
 DefaultGQLQueryAnalyzer::exec follows this sequence:
 
-1. clear()
+1. `clear()`
 
 - Resets internal state to avoid stale query/AST data.
 
 2. Build ANTLR input pipeline
 
-- InputStream from query text.
-- GQLLexer over input.
-- CommonTokenStream over lexer.
-- GQLParser over token stream.
-- Removes default parser listeners and attaches GqlErrorListener.
+- `InputStream` from query text.
+- `GQLLexer` over input.
+- `CommonTokenStream` over lexer.
+- `GQLParser` over token stream.
+- Removes default parser listeners and attaches `GqlErrorListener`.
 
 3. Parse entry rule
 
-- Calls parser.gqlProgram().
+- Calls `parser.gqlProgram().`
 - If the custom error listener collected syntax errors, returns the first Parse error.
 - If parser returns an ANTLR error, maps it to GqlError::Parse.
 
 4. Build AST
 
-- Calls QueryAST::build(cst_root).
+- Calls `QueryAST::build(cst_root)`.
 - Delegates CST to AST conversion to the internal AST builder layer.
 
 5. Validate semantics
 
-- Calls ast.validate().
+- Calls `ast.validate()`.
 - Fails with GqlError::Validation when semantic rules are violated.
 
 6. Cache successful result
@@ -77,7 +77,7 @@ DefaultGQLQueryAnalyzer::exec follows this sequence:
 
 ## Error Model
 
-The analyzer exposes errors through GqlResult<QueryAST>.
+The analyzer exposes errors through `GqlResult<QueryAST>`.
 
 Typical categories:
 
@@ -128,4 +128,4 @@ query_analyzer.rs sits between parser infrastructure and semantic tooling:
 - CST to AST builder modules: src/ast/builder/
 - Semantic validator modules: src/ast/validator/
 
-In short, it is the facade layer for parse + build + validate.
+In short, it is the facade layer for `parse + build + validate`.

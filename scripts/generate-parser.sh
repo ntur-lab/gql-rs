@@ -90,7 +90,7 @@ install_generated_source() {
             '// limitations under the Licence.
 //
 // Authors:
-//   Ntur Lab S.r.l. <dev@ntur-lab.com>
+//   Ntur Lab S.r.l. <dev@ntur-lab.com>,
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 ' \

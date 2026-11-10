@@ -16,7 +16,7 @@
 // limitations under the Licence.
 //
 // Authors:
-//   Ntur Lab S.r.l. <dev@ntur-lab.com>
+//   Ntur Lab S.r.l. <dev@ntur-lab.com>,
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
@@ -38,14 +38,14 @@
 //! ```rust
 //! use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 //!
-//! # fn main() -> Result<(), gql_rs::GqlError> {
-//! let mut analyzer = DefaultGQLQueryAnalyzer::new();
-//! let ast = analyzer.exec("MATCH (n) RETURN n")?;
+//! fn main() -> Result<(), gql_rs::GqlError> {
+//!     let mut analyzer = DefaultGQLQueryAnalyzer::new();
+//!     let ast = analyzer.exec("MATCH (p:Person)-[:WORKS_FOR]->(c:Company) WHERE c.name = 'Ntur Lab' RETURN p.name")?;
 //!
-//! assert_eq!(analyzer.get_query(), Some("MATCH (n) RETURN n"));
-//! println!("{ast:#?}");
-//! # Ok(())
-//! # }
+//!     assert_eq!(analyzer.get_query(), Some("MATCH (p:Person)-[:WORKS_FOR]->(c:Company) WHERE c.name = 'Ntur Lab' RETURN p.name"));
+//!     println!("{ast:#?}");
+//!     Ok(())
+//! }
 //! ```
 
 use crate::antlr::gqllexer::GQLLexer;
@@ -91,7 +91,7 @@ pub trait GQLQueryAnalyzer {
 /// use gql_rs::{GQLQueryAnalyzer, DefaultGQLQueryAnalyzer};
 ///
 /// let mut analyzer = DefaultGQLQueryAnalyzer::new();
-/// let query = "MATCH (a:Actor)-[:ACTED_IN]->(m:Movie) WHERE m.title = 'The Matrix' RETURN a.name";
+/// let query = "MATCH (p:Person)-[:WORKS_FOR]->(c:Company) WHERE c.name = 'Ntur Lab' RETURN p.name";
 /// match analyzer.exec(query) {
 ///     Ok(ast) => {
 ///         println!("Query parsed successfully!");
