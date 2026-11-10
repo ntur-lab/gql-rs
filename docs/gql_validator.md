@@ -4,11 +4,11 @@ This document describes the semantic validator for the GQL AST.
 
 Current implementation is modular:
 
-- src/ast/validator/mod.rs
-- src/ast/validator/statements.rs
-- src/ast/validator/data.rs
-- src/ast/validator/query.rs
-- src/ast/validator/expression.rs
+- `src/ast/validator/mod.rs`
+- `src/ast/validator/statements.rs`
+- `src/ast/validator/data.rs`
+- `src/ast/validator/query.rs`
+- `src/ast/validator/expression.rs`
 
 ## Purpose
 
@@ -17,18 +17,18 @@ The validator checks semantic consistency of the AST after parsing and builder c
 Examples of checks:
 
 - declared variables versus used variables;
-- consistency of RETURN/GROUP/ORDER/LIMIT clauses;
-- aggregation constraints (for example, aggregates in WHERE);
+- consistency of `RETURN`/`GROUP`/`ORDER`/`LIMIT` clauses;
+- aggregation constraints (for example, aggregates in `WHERE`);
 - consistency of Session/Transaction/Catalog commands;
 - structural validity of patterns and data operations.
 
 ## Entry Point
 
-- validate_query_ast(ast)
+- `validate_query_ast(ast)`
 
 Flow:
 
-1. Initializes declared-variable scope (HashSet).
+1. Initializes declared-variable scope (`HashSet`).
 2. Dispatches by Statement type.
 3. Invokes branch-specific validators.
 
@@ -36,13 +36,13 @@ Flow:
 
 Main handled branches:
 
-- Statement::Query -> validate_query
-- Statement::Data -> validate_data_statement
-- Statement::Next -> validate_next_statement
-- Statement::Let -> validate_let_statement
-- Statement::Session -> validate_session_statement
-- Statement::Transaction -> validate_transaction_statement
-- Statement::Catalog -> validate_catalog_statement_block
+- `Statement::Query` -> validate_query
+- `Statement::Data` -> validate_data_statement
+- `Statement::Next` -> validate_next_statement
+- `Statement::Let` -> validate_let_statement
+- `Statement::Session` -> validate_session_statement
+- `Statement::Transaction` -> validate_transaction_statement
+- `Statement::Catalog` -> validate_catalog_statement_block
 
 The validator covers all typed top-level statement branches.
 
@@ -148,7 +148,7 @@ Covers:
 General approach:
 
 - keeps a HashSet of declared variables;
-- MATCH/LET/YIELD update scope;
+- `MATCH`/`LET`/`YIELD` update scope;
 - expression-level checks verify scope membership.
 
 This prevents references to variables not introduced by the query plan.

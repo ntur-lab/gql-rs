@@ -5,11 +5,7 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-No unreleased changes are currently documented.
-
-## [0.0.1] - 2026-11-04
+## [0.0.1] - 2026-11-10
 
 First release of `gql-rs`.
 
@@ -27,9 +23,7 @@ First release of `gql-rs`.
 
 ### Known limitations
 
-- The public API and AST representation may change.
-- GQL support is incomplete and does not imply full conformance with the
-  complete language standard.
+- GQL support is almost completed, see [here](docs/supported_features.md#capability-overview).
 - Some catalog constructs are preserved as `CatalogStatement::Raw` when a
   dedicated typed AST representation is not available.
 - The crate parses and validates GQL but does not execute queries or connect to

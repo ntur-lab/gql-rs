@@ -15,9 +15,6 @@
 ---
 
 
-> **Project status**: gql-rs is currently under active development.
-> The public API and AST representation are subject to change.
-
 ## Features
 
 - GQL lexical and syntactic analysis based on ANTLR.
@@ -148,18 +145,18 @@ capability overview is available in [Supported features](docs/supported_features
 
 ## Public API
 
-The main entry points are:
+Main entry points are structured around dedicated traits and core types designed to handle the full lifecycle of an ISO GQL statement:
 
-- `DefaultGQLQueryAnalyzer`;
-- `GQLQueryAnalyzer`;
-- `QueryAST`;
-- `GqlError`;
-- `GqlResult<T>`.
+- `GQLQueryAnalyzer`: Trait for analyzing GQL queries and converting them to Abstract Syntax Trees (AST). DefaultGQLQueryAnalier is the default implementation.
+- `QueryAST`: Root AST node for a parsed GQL program.
+- `GqlError`: Represents an error that can occur during parsing and semantic analysis.
+- `GqlResult<T>`: Result alias used across parser modules.
 
 The complete typed AST is re-exported from the crate root and is also available
 through the public `ast` module.
 
 ## Documentation
+If you want to deep-dive on the technical details, please have a look at the following links:
 
 - [ANTLR and grammar guide](docs/antlr_grammar.md)
 - [Parser generation guide](docs/generating_parser.md)
@@ -181,11 +178,12 @@ Run the complete test suite:
 cargo test
 ```
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development requirements, test
-organization, parser regeneration instructions, and the individual test suite
-commands.
+The project uses the Rust 2024 edition and requires Rust 1.99 or newer.
 
-The project uses the Rust 2024 edition and requires Rust 1.97 or newer.
+## Next Steps
+One of the major pain-point is that the current dependency `antlr-rust:0.3.0-beta` it has not been updated since 2022; therefore, for future releases, the team is considering replacing it with an official implementation of [ANTLR](https://github.com/antlr/antlr4/blob/master/doc/cpp-target.md).
+
+Others missing and partially covered features are listed [here](docs/supported_features.md#capability-overview).
 
 ## About NTUR LAB
 
@@ -196,7 +194,34 @@ ecosystem. While firmly rooted in European open standards and the ethos of digit
 built from the ground up for the global developer community. We create open-source software meant to be adopted,
 integrated, and scaled anywhere in the world.
 
+## Contribution License Agreement
+
+In our CLA repository we're hosting the [Contribution License Agreement (CLA)](https://github.com/ntur-lab/cla/blob/master/CONTRIBUTION-LICENSE-AGREEMENT.pdf) in PDF format; a version in Markdown format is also available [here](CONTRIBUTION-LICENSE-AGREEMENT.md).
+
+This contributor agreement documents the rights granted by contributors to Us and because we want to protect Your right, we decided to adopt the [Harmony Contributor Agreement](https://www.harmonyagreements.org/).
+Our CLA is indeed copy-pasted from it.
+
+In order to accept your contribution, you'll have to confirm it via our automated CLA pull request verification.  
+Alternatively you can [download](https://github.com/ntur-lab/cla/blob/master/CONTRIBUTION-LICENSE-AGREEMENT.pdf), sign and send it to [cla@ntur-lab.com](mailto:cla@ntur-lab.com).
+
+> This is a legally binding document, so *please read it carefully before agreeing to it*.
+
+The Agreement may cover one or more software projects managed by Us.
+
+## How to Contribute
+
+As owner, contributors and maintainers of NTUR LAB' projects, and in the interest of fostering an open and welcoming community, we pledge to respect all people who contribute through reporting issues, posting feature requests, updating documentation, submitting pull requests or patches, and other activities.
+
+We are committed to making participation in this project a harassment-free experience for everyone, regardless of level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
+
+In that very sense, we adhere to the [Contributor Covenant](https://www.contributor-covenant.org/) code of conduct. By participating, you are expected to uphold this code.
+
+> Please report unacceptable behavior to [code-of-conduct@ntur-lab.com](mailto:code-of-conduct@ntur-lab.com)
+
+> If you want to contribute, please read carefully our contribution terms at [CODE_OF_CONDUCT.md](CODE-OF-CONDUCT.md) and [CONTRIBUTING.md](CONTRIBUTING.md)
+
 ## License
 
-Licensed under the
-[European Union Public Licence 1.2](LICENSE.txt).
+The repository and custom texts are made available under the European Union Public Licence v. 1.2. See the [LICENSE.txt](LICENSE.txt).
+
+Individual governance documents incorporate or adapt third-party materials subject to their respective licenses: Contributor Covenant (CC BY 4.0), Harmony Agreements (CC BY 3.0), and Spring Data Contribution Guidelines (Apache 2.0)

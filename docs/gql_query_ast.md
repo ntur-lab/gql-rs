@@ -6,13 +6,13 @@ This document describes the main parts of the AST model and the role of each sec
 
 The AST model is split in:
 
-- src/ast/model/query_ast.rs (entry facade)
-- src/ast/model/nodes/ (typed node definitions)
+- `src/ast/model/query_ast.rs` (entry facade)
+- `src/ast/model/nodes/` (typed node definitions)
 
 Logical flow:
 
 1. The ANTLR parser produces the CST.
-2. GQLAstBuilder converts CST -> QueryAST.
+2. GQLAstBuilder converts CST -> `QueryAST`.
 3. AST validator modules apply semantic rules to the AST.
 
 ## Root Node
@@ -26,7 +26,7 @@ Logical flow:
 Statement is the main language discriminator in the AST model:
 
 - Query: query pipelines and set operations.
-- Data: DML operations (insert/set/remove/delete/call).
+- Data: DML operations (`insert`/`set`/`remove`/`delete`/`call`).
 - Next: statement chaining with yield.
 - Let: variable definitions.
 - Session: session commands.
@@ -39,55 +39,55 @@ Fallback behavior for partially unsupported catalog constructs is represented in
 
 Main blocks:
 
-- CatalogStatementBlock: list of CatalogStatement.
-- CatalogStatement:
-    - CreateSchema / DropSchema
-    - CreateGraph / DropGraph
-    - CreateGraphType / DropGraphType
-    - Call
-    - Raw (text fallback)
+- `CatalogStatementBlock`: list of `CatalogStatement`.
+- `CatalogStatement`:
+    - `CreateSchema` / `DropSchema`
+    - `CreateGraph` / `DropGraph`
+    - `CreateGraphType` / `DropGraphType`
+    - `Call`
+    - `Raw` (text fallback)
 
 Supporting types:
 
-- CatalogSchemaName, CatalogObjectName
-- CreateGraphTypeClause and variants (Open / Of)
-- GraphSourceClause, GraphTypeSourceClause
-- GraphExpressionClause + GraphExpressionKind
+- `CatalogSchemaName`, `CatalogObjectName`
+- `CreateGraphTypeClause` and variants (Open / Of)
+- `GraphSourceClause`, `GraphTypeSourceClause`
+- `GraphExpressionClause` + `GraphExpressionKind`
 
 This area models the schema/catalog sub-language.
 
 ## Session/Transaction/Command Area
 
-- SessionStatement + SessionCommandKind
-- TransactionStatement + TransactionCommandKind
+- `SessionStatement` + `SessionCommandKind`
+- `TransactionStatement` + `TransactionCommandKind`
   This separation makes top-level administrative commands explicit.
 
 ## Query Area
 
 Main types:
 
-- Query
+- `Query`
     - Basic(BasicQuery)
     - SetOperation(SetOperation)
-- BasicQuery
+- `BasicQuery`
     - pipeline
     - result_statement
-- QueryStep
+- `QueryStep`
     - Match / Let / Filter / Having / For / Page
     - Call / UseGraph / FromSubquery
-- PrimitiveResultStatement
+- `PrimitiveResultStatement`
     - Finish / Return
 
 Query completion types:
 
-- ReturnClause, ReturnItem, DistinctQualifier
-- GroupClause, GroupKey
-- OrderClause, OrderItem, OrderDirection, NullsOrdering
-- LimitClause, PageValue
+- `ReturnClause`, `ReturnItem`, `DistinctQualifier`
+- `GroupClause`, `GroupKey`
+- `OrderClause`, `OrderItem`, `OrderDirection`, `NullsOrdering`
+- `LimitClause`, `PageValue`
 
 ## DML Area (DataStatement)
 
-- DataStatement includes:
+- `DataStatement` includes:
     - Insert, Set, MatchSet
     - Remove, MatchRemove
     - Delete, MatchDelete
@@ -102,7 +102,7 @@ Dedicated types:
 
 ## Pattern Matching Area
 
-For MATCH/INSERT patterns:
+For `MATCH`/`INSERT` patterns:
 
 - MatchClause, MatchClauseItem, WhereClause
 - PathPattern, PatternElement, Node, Edge
@@ -131,7 +131,7 @@ This section enables advanced parsing and semantic validation (aggregations, cas
 
 ## Model Conventions
 
-- Every AST node is serializable/deserializable through serde.
+- Every AST node is serializable/deserializable through `serde`.
 - Enum variants are used to keep the model extensible.
 - Catalog syntax without a dedicated typed node can be preserved as
   `CatalogStatement::Raw`, including the original text and an optional builder detail.
