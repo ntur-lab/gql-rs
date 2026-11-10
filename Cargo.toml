@@ -31,7 +31,7 @@ authors = [
     "Matteo Boscolo <matteo.boscolo@ntur-lab.com>"
 ]
 description = "GQL parser, typed AST builder, and semantic validator"
-repository = "https://gitlab.com/inserpio/gql-rs"
+repository = "https://github.com/ntur-lab/gql-rs"
 documentation = "https://docs.rs/gql-rs"
 readme = "README.md"
 license = "EUPL-1.2"
