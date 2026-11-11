@@ -20,10 +20,10 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-mod catalog_and_session_tests {
+mod catalog_and_session_it {
     use gql_rs::{
-        ast::{CatalogStatement, Statement}, DefaultGQLQueryAnalyzer,
-        GQLQueryAnalyzer,
+        DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
+        ast::{CatalogStatement, Statement},
     };
 
     test_session_statement!(
@@ -174,9 +174,7 @@ mod catalog_and_session_tests {
 
         assert!(matches!(
             &create_graph.graph_type_clause,
-            gql_rs::ast::CreateGraphTypeClause::Of(
-                gql_rs::ast::OfGraphTypeClause::TypedReference { .. }
-            )
+            gql_rs::ast::CreateGraphTypeClause::Of(gql_rs::ast::OfGraphTypeClause::TypedReference { .. })
         ));
     }
 
@@ -192,8 +190,7 @@ mod catalog_and_session_tests {
             panic!("expected catalog statement block");
         };
 
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first()
-        else {
+        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
             panic!("expected CreateGraphType statement");
         };
 
@@ -215,8 +212,7 @@ mod catalog_and_session_tests {
             panic!("expected catalog statement block");
         };
 
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first()
-        else {
+        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
             panic!("expected CreateGraphType statement");
         };
 
@@ -238,8 +234,7 @@ mod catalog_and_session_tests {
             panic!("expected catalog statement block");
         };
 
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first()
-        else {
+        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
             panic!("expected CreateGraphType statement");
         };
 
@@ -261,8 +256,7 @@ mod catalog_and_session_tests {
             panic!("expected catalog statement block");
         };
 
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first()
-        else {
+        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
             panic!("expected CreateGraphType statement");
         };
 

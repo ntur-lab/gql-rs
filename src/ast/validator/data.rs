@@ -40,9 +40,7 @@ pub(super) fn validate_data_statement(
             }
             validate_set_items(&match_set.items, declared_variables)
         }
-        DataStatement::Remove(remove) => {
-            validate_remove_items(&remove.remove_clause, declared_variables)
-        }
+        DataStatement::Remove(remove) => validate_remove_items(&remove.remove_clause, declared_variables),
         DataStatement::MatchRemove(match_remove) => {
             validate_match_clause(&match_remove.match_clause, declared_variables)?;
             if let Some(where_clause) = &match_remove.where_clause {
@@ -145,8 +143,7 @@ pub(super) fn validate_insert_pattern(
             }
         }
 
-        if term_elements.len() > 1 && !matches!(term_elements.last(), Some(PatternElement::Node(_)))
-        {
+        if term_elements.len() > 1 && !matches!(term_elements.last(), Some(PatternElement::Node(_))) {
             return Err(validation_err(
                 "INSERT path pattern must end with a node".to_string(),
                 Some(&pattern.span.clone()),
@@ -244,10 +241,7 @@ pub(super) fn validate_set_operation_query(
 pub(super) fn query_produces_return_rows(query: &Query) -> bool {
     match query {
         Query::Basic(basic) => {
-            matches!(
-                basic.result_statement,
-                PrimitiveResultStatement::Return { .. }
-            )
+            matches!(basic.result_statement, PrimitiveResultStatement::Return { .. })
         }
         Query::SetOperation(set_op) => {
             query_produces_return_rows(&set_op.left) && query_produces_return_rows(&set_op.right)
@@ -306,9 +300,7 @@ pub(super) fn infer_query_projection_signature(query: &Query) -> Option<Vec<Stri
 }
 
 /// Helper functions to infer the arity, projected aliases, and column types of a query's result set, which are used for validating set operations and procedure call projections. These functions analyze the structure of the query and its result statements to determine the characteristics of the projected output.
-pub(super) fn infer_result_projection_signature(
-    result: &PrimitiveResultStatement,
-) -> Option<Vec<String>> {
+pub(super) fn infer_result_projection_signature(result: &PrimitiveResultStatement) -> Option<Vec<String>> {
     let PrimitiveResultStatement::Return { return_clause, .. } = result else {
         return None;
     };
@@ -343,11 +335,7 @@ pub(super) fn infer_query_projection_types(query: &Query) -> Option<Vec<Option<T
                     l.into_iter()
                         .zip(r)
                         .map(|(lt, rt)| match (lt, rt) {
-                            (Some(l), Some(r))
-                            if are_set_operation_column_types_compatible(&l, &r) =>
-                                {
-                                    Some(l)
-                                }
+                            (Some(l), Some(r)) if are_set_operation_column_types_compatible(&l, &r) => Some(l),
                             (Some(l), None) => Some(l),
                             (None, Some(r)) => Some(r),
                             _ => None,
@@ -363,9 +351,7 @@ pub(super) fn infer_query_projection_types(query: &Query) -> Option<Vec<Option<T
 }
 
 /// Helper functions to infer the arity, projected aliases, and column types of a query's result set, which are used for validating set operations and procedure call projections. These functions analyze the structure of the query and its result statements to determine the characteristics of the projected output.
-pub(super) fn infer_result_projection_types(
-    result: &PrimitiveResultStatement,
-) -> Option<Vec<Option<TypeSpec>>> {
+pub(super) fn infer_result_projection_types(result: &PrimitiveResultStatement) -> Option<Vec<Option<TypeSpec>>> {
     let PrimitiveResultStatement::Return { return_clause, .. } = result else {
         return None;
     };
@@ -390,14 +376,9 @@ pub(super) fn are_set_operation_column_types_compatible(left: &TypeSpec, right: 
     }
 
     match (left, right) {
-        (
-            TypeSpec::List {
-                element_type: l, ..
-            },
-            TypeSpec::List {
-                element_type: r, ..
-            },
-        ) => are_set_operation_column_types_compatible(l, r),
+        (TypeSpec::List { element_type: l, .. }, TypeSpec::List { element_type: r, .. }) => {
+            are_set_operation_column_types_compatible(l, r)
+        }
         (TypeSpec::Union { members }, other) | (other, TypeSpec::Union { members }) => members
             .iter()
             .all(|m| are_set_operation_column_types_compatible(m, other)),
@@ -417,10 +398,7 @@ pub(super) fn validate_remove_items(
 }
 
 /// Function to validate a single REMOVE item, ensuring that any variables referenced in the REMOVE clause are properly declared and that the structure of the REMOVE item adheres to the semantic rules of the language.
-pub(super) fn validate_remove_item(
-    item: &RemoveItem,
-    declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_remove_item(item: &RemoveItem, declared_variables: &mut HashSet<String>) -> Result<(), GqlError> {
     match item {
         RemoveItem::Property { property, span } => {
             if !declared_variables.contains(&property.object)
@@ -428,24 +406,14 @@ pub(super) fn validate_remove_item(
                 && !declared_variables.is_empty()
             {
                 return Err(validation_err(
-                    format!(
-                        "Variable {} not declared in REMOVE property",
-                        property.object
-                    ),
+                    format!("Variable {} not declared in REMOVE property", property.object),
                     Some(&span.clone()),
                 ));
             }
             Ok(())
         }
-        RemoveItem::Label {
-            variable,
-            labels,
-            span,
-        } => {
-            if !declared_variables.contains(variable)
-                && !variable.starts_with('$')
-                && !declared_variables.is_empty()
-            {
+        RemoveItem::Label { variable, labels, span } => {
+            if !declared_variables.contains(variable) && !variable.starts_with('$') && !declared_variables.is_empty() {
                 return Err(validation_err(
                     format!("Variable {} not declared in REMOVE label", variable),
                     Some(&span.clone()),
@@ -453,14 +421,8 @@ pub(super) fn validate_remove_item(
             }
             validate_expression(labels, declared_variables)
         }
-        RemoveItem::Variable {
-            name: variable,
-            span,
-        } => {
-            if !declared_variables.contains(variable)
-                && !variable.starts_with('$')
-                && !declared_variables.is_empty()
-            {
+        RemoveItem::Variable { name: variable, span } => {
+            if !declared_variables.contains(variable) && !variable.starts_with('$') && !declared_variables.is_empty() {
                 return Err(validation_err(
                     format!("Variable {} not declared in REMOVE variable", variable),
                     Some(&span.clone()),
@@ -472,10 +434,7 @@ pub(super) fn validate_remove_item(
 }
 
 /// Function to validate SET items, ensuring that any variables referenced in the SET clause are properly declared, that the expressions being assigned are valid, and that the structure of the SET items adheres to the semantic rules of the language.
-pub(super) fn validate_set_items(
-    items: &[SetItem],
-    declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_set_items(items: &[SetItem], declared_variables: &mut HashSet<String>) -> Result<(), GqlError> {
     for item in items {
         validate_set_item(item, declared_variables)?;
     }
@@ -483,16 +442,9 @@ pub(super) fn validate_set_items(
 }
 
 /// Function to validate a single SET item, ensuring that any variables referenced in the SET clause are properly declared, that the expressions being assigned are valid, and that the structure of the SET item adheres to the semantic rules of the language. This includes validating property assignments, variable assignments, and label assignments, and ensuring that the assigned expressions are compatible with the expected types for their targets.
-pub(super) fn validate_set_item(
-    item: &SetItem,
-    declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_set_item(item: &SetItem, declared_variables: &mut HashSet<String>) -> Result<(), GqlError> {
     match item {
-        SetItem::Property {
-            property,
-            value,
-            span,
-        } => {
+        SetItem::Property { property, value, span } => {
             if !declared_variables.contains(&property.object) && !property.object.starts_with('$') {
                 return Err(validation_err(
                     format!("Variable {} not declared in SET property", property.object),
@@ -503,8 +455,7 @@ pub(super) fn validate_set_item(
             validate_expression(value, declared_variables)?;
 
             let inferred = HashMap::new();
-            if let Some(value_type) =
-                infer_expression_type(value, &inferred, Some(declared_variables))
+            if let Some(value_type) = infer_expression_type(value, &inferred, Some(declared_variables))
                 && matches!(value_type, TypeSpec::BindingTable | TypeSpec::Graph { .. })
             {
                 return Err(validation_err(
@@ -515,11 +466,7 @@ pub(super) fn validate_set_item(
 
             Ok(())
         }
-        SetItem::Label {
-            variable,
-            labels,
-            span,
-        } => {
+        SetItem::Label { variable, labels, span } => {
             if !declared_variables.contains(variable) && !variable.starts_with('$') {
                 return Err(validation_err(
                     format!("Variable {} not declared in SET label", variable),
@@ -530,8 +477,7 @@ pub(super) fn validate_set_item(
             validate_expression(labels, declared_variables)?;
 
             let inferred = HashMap::new();
-            if let Some(label_type) =
-                infer_expression_type(labels, &inferred, Some(declared_variables))
+            if let Some(label_type) = infer_expression_type(labels, &inferred, Some(declared_variables))
                 && !is_string_like_type(&label_type)
                 && !matches!(label_type, TypeSpec::Any | TypeSpec::List { .. })
             {
@@ -543,11 +489,7 @@ pub(super) fn validate_set_item(
 
             Ok(())
         }
-        SetItem::Variable {
-            variable,
-            value,
-            span,
-        } => {
+        SetItem::Variable { variable, value, span } => {
             if !declared_variables.contains(variable) && !variable.starts_with('$') {
                 return Err(validation_err(
                     format!("Variable {} not declared in SET variable", variable),
@@ -558,8 +500,7 @@ pub(super) fn validate_set_item(
             validate_expression(value, declared_variables)?;
 
             let inferred = HashMap::new();
-            if let Some(value_type) =
-                infer_expression_type(value, &inferred, Some(declared_variables))
+            if let Some(value_type) = infer_expression_type(value, &inferred, Some(declared_variables))
                 && matches!(value_type, TypeSpec::BindingTable)
             {
                 return Err(validation_err(
@@ -580,10 +521,7 @@ pub(super) fn check_no_aggregates_in_where(expression: &Expression) -> Result<()
             let name = func.name.to_uppercase();
             if AGGREGATE_FUNCTIONS.contains(&name.as_str()) {
                 return Err(validation_err(
-                    format!(
-                        "Aggregate function '{}' is not allowed in a WHERE clause.",
-                        func.name
-                    ),
+                    format!("Aggregate function '{}' is not allowed in a WHERE clause.", func.name),
                     Some(&func.span.clone()),
                 ));
             }

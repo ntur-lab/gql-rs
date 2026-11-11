@@ -140,50 +140,33 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#sessionSetGraphParameterClause}.
      * @param ctx the parse tree
      */
-    fn enter_sessionSetGraphParameterClause(
-        &mut self,
-        _ctx: &SessionSetGraphParameterClauseContext<'input>,
-    ) {}
+    fn enter_sessionSetGraphParameterClause(&mut self, _ctx: &SessionSetGraphParameterClauseContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#sessionSetGraphParameterClause}.
      * @param ctx the parse tree
      */
-    fn exit_sessionSetGraphParameterClause(
-        &mut self,
-        _ctx: &SessionSetGraphParameterClauseContext<'input>,
-    ) {}
+    fn exit_sessionSetGraphParameterClause(&mut self, _ctx: &SessionSetGraphParameterClauseContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#sessionSetBindingTableParameterClause}.
      * @param ctx the parse tree
      */
-    fn enter_sessionSetBindingTableParameterClause(
-        &mut self,
-        _ctx: &SessionSetBindingTableParameterClauseContext<'input>,
-    ) {}
+    fn enter_sessionSetBindingTableParameterClause(&mut self, _ctx: &SessionSetBindingTableParameterClauseContext<'input>) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#sessionSetBindingTableParameterClause}.
      * @param ctx the parse tree
      */
-    fn exit_sessionSetBindingTableParameterClause(
-        &mut self,
-        _ctx: &SessionSetBindingTableParameterClauseContext<'input>,
-    ) {}
+    fn exit_sessionSetBindingTableParameterClause(&mut self, _ctx: &SessionSetBindingTableParameterClauseContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#sessionSetValueParameterClause}.
      * @param ctx the parse tree
      */
-    fn enter_sessionSetValueParameterClause(
-        &mut self,
-        _ctx: &SessionSetValueParameterClauseContext<'input>,
-    ) {}
+    fn enter_sessionSetValueParameterClause(&mut self, _ctx: &SessionSetValueParameterClauseContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#sessionSetValueParameterClause}.
      * @param ctx the parse tree
      */
-    fn exit_sessionSetValueParameterClause(
-        &mut self,
-        _ctx: &SessionSetValueParameterClauseContext<'input>,
-    ) {}
+    fn exit_sessionSetValueParameterClause(&mut self, _ctx: &SessionSetValueParameterClauseContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#sessionSetParameterName}.
      * @param ctx the parse tree
@@ -228,18 +211,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#sessionParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_sessionParameterSpecification(
-        &mut self,
-        _ctx: &SessionParameterSpecificationContext<'input>,
-    ) {}
+    fn enter_sessionParameterSpecification(&mut self, _ctx: &SessionParameterSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#sessionParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_sessionParameterSpecification(
-        &mut self,
-        _ctx: &SessionParameterSpecificationContext<'input>,
-    ) {}
+    fn exit_sessionParameterSpecification(&mut self, _ctx: &SessionParameterSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#startTransactionCommand}.
      * @param ctx the parse tree
@@ -254,18 +231,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#transactionCharacteristics}.
      * @param ctx the parse tree
      */
-    fn enter_transactionCharacteristics(
-        &mut self,
-        _ctx: &TransactionCharacteristicsContext<'input>,
-    ) {}
+    fn enter_transactionCharacteristics(&mut self, _ctx: &TransactionCharacteristicsContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#transactionCharacteristics}.
      * @param ctx the parse tree
      */
-    fn exit_transactionCharacteristics(
-        &mut self,
-        _ctx: &TransactionCharacteristicsContext<'input>,
-    ) {}
+    fn exit_transactionCharacteristics(&mut self, _ctx: &TransactionCharacteristicsContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#transactionMode}.
      * @param ctx the parse tree
@@ -310,18 +281,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#nestedProcedureSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_nestedProcedureSpecification(
-        &mut self,
-        _ctx: &NestedProcedureSpecificationContext<'input>,
-    ) {}
+    fn enter_nestedProcedureSpecification(&mut self, _ctx: &NestedProcedureSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#nestedProcedureSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_nestedProcedureSpecification(
-        &mut self,
-        _ctx: &NestedProcedureSpecificationContext<'input>,
-    ) {}
+    fn exit_nestedProcedureSpecification(&mut self, _ctx: &NestedProcedureSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#procedureSpecification}.
      * @param ctx the parse tree
@@ -339,7 +304,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn enter_nestedDataModifyingProcedureSpecification(
         &mut self,
         _ctx: &NestedDataModifyingProcedureSpecificationContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#nestedDataModifyingProcedureSpecification}.
      * @param ctx the parse tree
@@ -347,7 +313,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn exit_nestedDataModifyingProcedureSpecification(
         &mut self,
         _ctx: &NestedDataModifyingProcedureSpecificationContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Enter a parse tree produced by {@link GQLParser#nestedQuerySpecification}.
      * @param ctx the parse tree
@@ -372,18 +339,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#bindingVariableDefinitionBlock}.
      * @param ctx the parse tree
      */
-    fn enter_bindingVariableDefinitionBlock(
-        &mut self,
-        _ctx: &BindingVariableDefinitionBlockContext<'input>,
-    ) {}
+    fn enter_bindingVariableDefinitionBlock(&mut self, _ctx: &BindingVariableDefinitionBlockContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#bindingVariableDefinitionBlock}.
      * @param ctx the parse tree
      */
-    fn exit_bindingVariableDefinitionBlock(
-        &mut self,
-        _ctx: &BindingVariableDefinitionBlockContext<'input>,
-    ) {}
+    fn exit_bindingVariableDefinitionBlock(&mut self, _ctx: &BindingVariableDefinitionBlockContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#bindingVariableDefinition}.
      * @param ctx the parse tree
@@ -458,34 +419,22 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#bindingTableVariableDefinition}.
      * @param ctx the parse tree
      */
-    fn enter_bindingTableVariableDefinition(
-        &mut self,
-        _ctx: &BindingTableVariableDefinitionContext<'input>,
-    ) {}
+    fn enter_bindingTableVariableDefinition(&mut self, _ctx: &BindingTableVariableDefinitionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#bindingTableVariableDefinition}.
      * @param ctx the parse tree
      */
-    fn exit_bindingTableVariableDefinition(
-        &mut self,
-        _ctx: &BindingTableVariableDefinitionContext<'input>,
-    ) {}
+    fn exit_bindingTableVariableDefinition(&mut self, _ctx: &BindingTableVariableDefinitionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#optTypedBindingTableInitializer}.
      * @param ctx the parse tree
      */
-    fn enter_optTypedBindingTableInitializer(
-        &mut self,
-        _ctx: &OptTypedBindingTableInitializerContext<'input>,
-    ) {}
+    fn enter_optTypedBindingTableInitializer(&mut self, _ctx: &OptTypedBindingTableInitializerContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#optTypedBindingTableInitializer}.
      * @param ctx the parse tree
      */
-    fn exit_optTypedBindingTableInitializer(
-        &mut self,
-        _ctx: &OptTypedBindingTableInitializerContext<'input>,
-    ) {}
+    fn exit_optTypedBindingTableInitializer(&mut self, _ctx: &OptTypedBindingTableInitializerContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#bindingTableInitializer}.
      * @param ctx the parse tree
@@ -560,18 +509,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#nestedBindingTableQuerySpecification}.
      * @param ctx the parse tree
      */
-    fn enter_nestedBindingTableQuerySpecification(
-        &mut self,
-        _ctx: &NestedBindingTableQuerySpecificationContext<'input>,
-    ) {}
+    fn enter_nestedBindingTableQuerySpecification(&mut self, _ctx: &NestedBindingTableQuerySpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#nestedBindingTableQuerySpecification}.
      * @param ctx the parse tree
      */
-    fn exit_nestedBindingTableQuerySpecification(
-        &mut self,
-        _ctx: &NestedBindingTableQuerySpecificationContext<'input>,
-    ) {}
+    fn exit_nestedBindingTableQuerySpecification(&mut self, _ctx: &NestedBindingTableQuerySpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#objectExpressionPrimary}.
      * @param ctx the parse tree
@@ -586,50 +529,32 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#linearCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_linearCatalogModifyingStatement(
-        &mut self,
-        _ctx: &LinearCatalogModifyingStatementContext<'input>,
-    ) {}
+    fn enter_linearCatalogModifyingStatement(&mut self, _ctx: &LinearCatalogModifyingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#linearCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_linearCatalogModifyingStatement(
-        &mut self,
-        _ctx: &LinearCatalogModifyingStatementContext<'input>,
-    ) {}
+    fn exit_linearCatalogModifyingStatement(&mut self, _ctx: &LinearCatalogModifyingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simpleCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_simpleCatalogModifyingStatement(
-        &mut self,
-        _ctx: &SimpleCatalogModifyingStatementContext<'input>,
-    ) {}
+    fn enter_simpleCatalogModifyingStatement(&mut self, _ctx: &SimpleCatalogModifyingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simpleCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_simpleCatalogModifyingStatement(
-        &mut self,
-        _ctx: &SimpleCatalogModifyingStatementContext<'input>,
-    ) {}
+    fn exit_simpleCatalogModifyingStatement(&mut self, _ctx: &SimpleCatalogModifyingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#primitiveCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_primitiveCatalogModifyingStatement(
-        &mut self,
-        _ctx: &PrimitiveCatalogModifyingStatementContext<'input>,
-    ) {}
+    fn enter_primitiveCatalogModifyingStatement(&mut self, _ctx: &PrimitiveCatalogModifyingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#primitiveCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_primitiveCatalogModifyingStatement(
-        &mut self,
-        _ctx: &PrimitiveCatalogModifyingStatementContext<'input>,
-    ) {}
+    fn exit_primitiveCatalogModifyingStatement(&mut self, _ctx: &PrimitiveCatalogModifyingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#createSchemaStatement}.
      * @param ctx the parse tree
@@ -757,7 +682,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn enter_callCatalogModifyingProcedureStatement(
         &mut self,
         _ctx: &CallCatalogModifyingProcedureStatementContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#callCatalogModifyingProcedureStatement}.
      * @param ctx the parse tree
@@ -765,39 +691,28 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn exit_callCatalogModifyingProcedureStatement(
         &mut self,
         _ctx: &CallCatalogModifyingProcedureStatementContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Enter a parse tree produced by {@link GQLParser#linearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_linearDataModifyingStatement(
-        &mut self,
-        _ctx: &LinearDataModifyingStatementContext<'input>,
-    ) {}
+    fn enter_linearDataModifyingStatement(&mut self, _ctx: &LinearDataModifyingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#linearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_linearDataModifyingStatement(
-        &mut self,
-        _ctx: &LinearDataModifyingStatementContext<'input>,
-    ) {}
+    fn exit_linearDataModifyingStatement(&mut self, _ctx: &LinearDataModifyingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#focusedLinearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_focusedLinearDataModifyingStatement(
-        &mut self,
-        _ctx: &FocusedLinearDataModifyingStatementContext<'input>,
-    ) {}
+    fn enter_focusedLinearDataModifyingStatement(&mut self, _ctx: &FocusedLinearDataModifyingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#focusedLinearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_focusedLinearDataModifyingStatement(
-        &mut self,
-        _ctx: &FocusedLinearDataModifyingStatementContext<'input>,
-    ) {}
+    fn exit_focusedLinearDataModifyingStatement(&mut self, _ctx: &FocusedLinearDataModifyingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#focusedLinearDataModifyingStatementBody}.
      * @param ctx the parse tree
@@ -805,7 +720,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn enter_focusedLinearDataModifyingStatementBody(
         &mut self,
         _ctx: &FocusedLinearDataModifyingStatementBodyContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#focusedLinearDataModifyingStatementBody}.
      * @param ctx the parse tree
@@ -813,7 +729,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn exit_focusedLinearDataModifyingStatementBody(
         &mut self,
         _ctx: &FocusedLinearDataModifyingStatementBodyContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Enter a parse tree produced by {@link GQLParser#focusedNestedDataModifyingProcedureSpecification}.
      * @param ctx the parse tree
@@ -821,7 +738,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn enter_focusedNestedDataModifyingProcedureSpecification(
         &mut self,
         _ctx: &FocusedNestedDataModifyingProcedureSpecificationContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#focusedNestedDataModifyingProcedureSpecification}.
      * @param ctx the parse tree
@@ -829,23 +747,18 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn exit_focusedNestedDataModifyingProcedureSpecification(
         &mut self,
         _ctx: &FocusedNestedDataModifyingProcedureSpecificationContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Enter a parse tree produced by {@link GQLParser#ambientLinearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_ambientLinearDataModifyingStatement(
-        &mut self,
-        _ctx: &AmbientLinearDataModifyingStatementContext<'input>,
-    ) {}
+    fn enter_ambientLinearDataModifyingStatement(&mut self, _ctx: &AmbientLinearDataModifyingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#ambientLinearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_ambientLinearDataModifyingStatement(
-        &mut self,
-        _ctx: &AmbientLinearDataModifyingStatementContext<'input>,
-    ) {}
+    fn exit_ambientLinearDataModifyingStatement(&mut self, _ctx: &AmbientLinearDataModifyingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#ambientLinearDataModifyingStatementBody}.
      * @param ctx the parse tree
@@ -853,7 +766,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn enter_ambientLinearDataModifyingStatementBody(
         &mut self,
         _ctx: &AmbientLinearDataModifyingStatementBodyContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#ambientLinearDataModifyingStatementBody}.
      * @param ctx the parse tree
@@ -861,71 +775,48 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn exit_ambientLinearDataModifyingStatementBody(
         &mut self,
         _ctx: &AmbientLinearDataModifyingStatementBodyContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Enter a parse tree produced by {@link GQLParser#simpleLinearDataAccessingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_simpleLinearDataAccessingStatement(
-        &mut self,
-        _ctx: &SimpleLinearDataAccessingStatementContext<'input>,
-    ) {}
+    fn enter_simpleLinearDataAccessingStatement(&mut self, _ctx: &SimpleLinearDataAccessingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simpleLinearDataAccessingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_simpleLinearDataAccessingStatement(
-        &mut self,
-        _ctx: &SimpleLinearDataAccessingStatementContext<'input>,
-    ) {}
+    fn exit_simpleLinearDataAccessingStatement(&mut self, _ctx: &SimpleLinearDataAccessingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simpleDataAccessingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_simpleDataAccessingStatement(
-        &mut self,
-        _ctx: &SimpleDataAccessingStatementContext<'input>,
-    ) {}
+    fn enter_simpleDataAccessingStatement(&mut self, _ctx: &SimpleDataAccessingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simpleDataAccessingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_simpleDataAccessingStatement(
-        &mut self,
-        _ctx: &SimpleDataAccessingStatementContext<'input>,
-    ) {}
+    fn exit_simpleDataAccessingStatement(&mut self, _ctx: &SimpleDataAccessingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simpleDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_simpleDataModifyingStatement(
-        &mut self,
-        _ctx: &SimpleDataModifyingStatementContext<'input>,
-    ) {}
+    fn enter_simpleDataModifyingStatement(&mut self, _ctx: &SimpleDataModifyingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simpleDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_simpleDataModifyingStatement(
-        &mut self,
-        _ctx: &SimpleDataModifyingStatementContext<'input>,
-    ) {}
+    fn exit_simpleDataModifyingStatement(&mut self, _ctx: &SimpleDataModifyingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#primitiveDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn enter_primitiveDataModifyingStatement(
-        &mut self,
-        _ctx: &PrimitiveDataModifyingStatementContext<'input>,
-    ) {}
+    fn enter_primitiveDataModifyingStatement(&mut self, _ctx: &PrimitiveDataModifyingStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#primitiveDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn exit_primitiveDataModifyingStatement(
-        &mut self,
-        _ctx: &PrimitiveDataModifyingStatementContext<'input>,
-    ) {}
+    fn exit_primitiveDataModifyingStatement(&mut self, _ctx: &PrimitiveDataModifyingStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#insertStatement}.
      * @param ctx the parse tree
@@ -1080,18 +971,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#callDataModifyingProcedureStatement}.
      * @param ctx the parse tree
      */
-    fn enter_callDataModifyingProcedureStatement(
-        &mut self,
-        _ctx: &CallDataModifyingProcedureStatementContext<'input>,
-    ) {}
+    fn enter_callDataModifyingProcedureStatement(&mut self, _ctx: &CallDataModifyingProcedureStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#callDataModifyingProcedureStatement}.
      * @param ctx the parse tree
      */
-    fn exit_callDataModifyingProcedureStatement(
-        &mut self,
-        _ctx: &CallDataModifyingProcedureStatementContext<'input>,
-    ) {}
+    fn exit_callDataModifyingProcedureStatement(&mut self, _ctx: &CallDataModifyingProcedureStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#compositeQueryStatement}.
      * @param ctx the parse tree
@@ -1156,34 +1041,22 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#focusedLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn enter_focusedLinearQueryStatement(
-        &mut self,
-        _ctx: &FocusedLinearQueryStatementContext<'input>,
-    ) {}
+    fn enter_focusedLinearQueryStatement(&mut self, _ctx: &FocusedLinearQueryStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#focusedLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn exit_focusedLinearQueryStatement(
-        &mut self,
-        _ctx: &FocusedLinearQueryStatementContext<'input>,
-    ) {}
+    fn exit_focusedLinearQueryStatement(&mut self, _ctx: &FocusedLinearQueryStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#focusedLinearQueryStatementPart}.
      * @param ctx the parse tree
      */
-    fn enter_focusedLinearQueryStatementPart(
-        &mut self,
-        _ctx: &FocusedLinearQueryStatementPartContext<'input>,
-    ) {}
+    fn enter_focusedLinearQueryStatementPart(&mut self, _ctx: &FocusedLinearQueryStatementPartContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#focusedLinearQueryStatementPart}.
      * @param ctx the parse tree
      */
-    fn exit_focusedLinearQueryStatementPart(
-        &mut self,
-        _ctx: &FocusedLinearQueryStatementPartContext<'input>,
-    ) {}
+    fn exit_focusedLinearQueryStatementPart(&mut self, _ctx: &FocusedLinearQueryStatementPartContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#focusedLinearQueryAndPrimitiveResultStatementPart}.
      * @param ctx the parse tree
@@ -1191,7 +1064,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn enter_focusedLinearQueryAndPrimitiveResultStatementPart(
         &mut self,
         _ctx: &FocusedLinearQueryAndPrimitiveResultStatementPartContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#focusedLinearQueryAndPrimitiveResultStatementPart}.
      * @param ctx the parse tree
@@ -1199,71 +1073,48 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn exit_focusedLinearQueryAndPrimitiveResultStatementPart(
         &mut self,
         _ctx: &FocusedLinearQueryAndPrimitiveResultStatementPartContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Enter a parse tree produced by {@link GQLParser#focusedPrimitiveResultStatement}.
      * @param ctx the parse tree
      */
-    fn enter_focusedPrimitiveResultStatement(
-        &mut self,
-        _ctx: &FocusedPrimitiveResultStatementContext<'input>,
-    ) {}
+    fn enter_focusedPrimitiveResultStatement(&mut self, _ctx: &FocusedPrimitiveResultStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#focusedPrimitiveResultStatement}.
      * @param ctx the parse tree
      */
-    fn exit_focusedPrimitiveResultStatement(
-        &mut self,
-        _ctx: &FocusedPrimitiveResultStatementContext<'input>,
-    ) {}
+    fn exit_focusedPrimitiveResultStatement(&mut self, _ctx: &FocusedPrimitiveResultStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#focusedNestedQuerySpecification}.
      * @param ctx the parse tree
      */
-    fn enter_focusedNestedQuerySpecification(
-        &mut self,
-        _ctx: &FocusedNestedQuerySpecificationContext<'input>,
-    ) {}
+    fn enter_focusedNestedQuerySpecification(&mut self, _ctx: &FocusedNestedQuerySpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#focusedNestedQuerySpecification}.
      * @param ctx the parse tree
      */
-    fn exit_focusedNestedQuerySpecification(
-        &mut self,
-        _ctx: &FocusedNestedQuerySpecificationContext<'input>,
-    ) {}
+    fn exit_focusedNestedQuerySpecification(&mut self, _ctx: &FocusedNestedQuerySpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#ambientLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn enter_ambientLinearQueryStatement(
-        &mut self,
-        _ctx: &AmbientLinearQueryStatementContext<'input>,
-    ) {}
+    fn enter_ambientLinearQueryStatement(&mut self, _ctx: &AmbientLinearQueryStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#ambientLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn exit_ambientLinearQueryStatement(
-        &mut self,
-        _ctx: &AmbientLinearQueryStatementContext<'input>,
-    ) {}
+    fn exit_ambientLinearQueryStatement(&mut self, _ctx: &AmbientLinearQueryStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simpleLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn enter_simpleLinearQueryStatement(
-        &mut self,
-        _ctx: &SimpleLinearQueryStatementContext<'input>,
-    ) {}
+    fn enter_simpleLinearQueryStatement(&mut self, _ctx: &SimpleLinearQueryStatementContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simpleLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn exit_simpleLinearQueryStatement(
-        &mut self,
-        _ctx: &SimpleLinearQueryStatementContext<'input>,
-    ) {}
+    fn exit_simpleLinearQueryStatement(&mut self, _ctx: &SimpleLinearQueryStatementContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simpleQueryStatement}.
      * @param ctx the parse tree
@@ -1638,18 +1489,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#bindingVariableReferenceList}.
      * @param ctx the parse tree
      */
-    fn enter_bindingVariableReferenceList(
-        &mut self,
-        _ctx: &BindingVariableReferenceListContext<'input>,
-    ) {}
+    fn enter_bindingVariableReferenceList(&mut self, _ctx: &BindingVariableReferenceListContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#bindingVariableReferenceList}.
      * @param ctx the parse tree
      */
-    fn exit_bindingVariableReferenceList(
-        &mut self,
-        _ctx: &BindingVariableReferenceListContext<'input>,
-    ) {}
+    fn exit_bindingVariableReferenceList(&mut self, _ctx: &BindingVariableReferenceListContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#namedProcedureCall}.
      * @param ctx the parse tree
@@ -1764,18 +1609,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#repeatableElementsMatchMode}.
      * @param ctx the parse tree
      */
-    fn enter_repeatableElementsMatchMode(
-        &mut self,
-        _ctx: &RepeatableElementsMatchModeContext<'input>,
-    ) {}
+    fn enter_repeatableElementsMatchMode(&mut self, _ctx: &RepeatableElementsMatchModeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#repeatableElementsMatchMode}.
      * @param ctx the parse tree
      */
-    fn exit_repeatableElementsMatchMode(
-        &mut self,
-        _ctx: &RepeatableElementsMatchModeContext<'input>,
-    ) {}
+    fn exit_repeatableElementsMatchMode(&mut self, _ctx: &RepeatableElementsMatchModeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#differentEdgesMatchMode}.
      * @param ctx the parse tree
@@ -1940,34 +1779,22 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#insertElementPatternFiller}.
      * @param ctx the parse tree
      */
-    fn enter_insertElementPatternFiller(
-        &mut self,
-        _ctx: &InsertElementPatternFillerContext<'input>,
-    ) {}
+    fn enter_insertElementPatternFiller(&mut self, _ctx: &InsertElementPatternFillerContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#insertElementPatternFiller}.
      * @param ctx the parse tree
      */
-    fn exit_insertElementPatternFiller(
-        &mut self,
-        _ctx: &InsertElementPatternFillerContext<'input>,
-    ) {}
+    fn exit_insertElementPatternFiller(&mut self, _ctx: &InsertElementPatternFillerContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#labelAndPropertySetSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_labelAndPropertySetSpecification(
-        &mut self,
-        _ctx: &LabelAndPropertySetSpecificationContext<'input>,
-    ) {}
+    fn enter_labelAndPropertySetSpecification(&mut self, _ctx: &LabelAndPropertySetSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#labelAndPropertySetSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_labelAndPropertySetSpecification(
-        &mut self,
-        _ctx: &LabelAndPropertySetSpecificationContext<'input>,
-    ) {}
+    fn exit_labelAndPropertySetSpecification(&mut self, _ctx: &LabelAndPropertySetSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#pathPatternPrefix}.
      * @param ctx the parse tree
@@ -2092,18 +1919,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#countedShortestGroupSearch}.
      * @param ctx the parse tree
      */
-    fn enter_countedShortestGroupSearch(
-        &mut self,
-        _ctx: &CountedShortestGroupSearchContext<'input>,
-    ) {}
+    fn enter_countedShortestGroupSearch(&mut self, _ctx: &CountedShortestGroupSearchContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#countedShortestGroupSearch}.
      * @param ctx the parse tree
      */
-    fn exit_countedShortestGroupSearch(
-        &mut self,
-        _ctx: &CountedShortestGroupSearchContext<'input>,
-    ) {}
+    fn exit_countedShortestGroupSearch(&mut self, _ctx: &CountedShortestGroupSearchContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#numberOfGroups}.
      * @param ctx the parse tree
@@ -2213,37 +2034,25 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#pathPrimary}.
      * @param ctx the parse tree
      */
-    fn enter_ppParenthesizedPathPatternExpression(
-        &mut self,
-        _ctx: &PpParenthesizedPathPatternExpressionContext<'input>,
-    ) {}
+    fn enter_ppParenthesizedPathPatternExpression(&mut self, _ctx: &PpParenthesizedPathPatternExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code ppParenthesizedPathPatternExpression}
      * labeled alternative in {@link GQLParser#pathPrimary}.
      * @param ctx the parse tree
      */
-    fn exit_ppParenthesizedPathPatternExpression(
-        &mut self,
-        _ctx: &PpParenthesizedPathPatternExpressionContext<'input>,
-    ) {}
+    fn exit_ppParenthesizedPathPatternExpression(&mut self, _ctx: &PpParenthesizedPathPatternExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code ppSimplifiedPathPatternExpression}
      * labeled alternative in {@link GQLParser#pathPrimary}.
      * @param ctx the parse tree
      */
-    fn enter_ppSimplifiedPathPatternExpression(
-        &mut self,
-        _ctx: &PpSimplifiedPathPatternExpressionContext<'input>,
-    ) {}
+    fn enter_ppSimplifiedPathPatternExpression(&mut self, _ctx: &PpSimplifiedPathPatternExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code ppSimplifiedPathPatternExpression}
      * labeled alternative in {@link GQLParser#pathPrimary}.
      * @param ctx the parse tree
      */
-    fn exit_ppSimplifiedPathPatternExpression(
-        &mut self,
-        _ctx: &PpSimplifiedPathPatternExpressionContext<'input>,
-    ) {}
+    fn exit_ppSimplifiedPathPatternExpression(&mut self, _ctx: &PpSimplifiedPathPatternExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#elementPattern}.
      * @param ctx the parse tree
@@ -2278,18 +2087,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#elementVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn enter_elementVariableDeclaration(
-        &mut self,
-        _ctx: &ElementVariableDeclarationContext<'input>,
-    ) {}
+    fn enter_elementVariableDeclaration(&mut self, _ctx: &ElementVariableDeclarationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#elementVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn exit_elementVariableDeclaration(
-        &mut self,
-        _ctx: &ElementVariableDeclarationContext<'input>,
-    ) {}
+    fn exit_elementVariableDeclaration(&mut self, _ctx: &ElementVariableDeclarationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#isLabelExpression}.
      * @param ctx the parse tree
@@ -2334,18 +2137,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#elementPropertySpecification}.
      * @param ctx the parse tree
      */
-    fn enter_elementPropertySpecification(
-        &mut self,
-        _ctx: &ElementPropertySpecificationContext<'input>,
-    ) {}
+    fn enter_elementPropertySpecification(&mut self, _ctx: &ElementPropertySpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#elementPropertySpecification}.
      * @param ctx the parse tree
      */
-    fn exit_elementPropertySpecification(
-        &mut self,
-        _ctx: &ElementPropertySpecificationContext<'input>,
-    ) {}
+    fn exit_elementPropertySpecification(&mut self, _ctx: &ElementPropertySpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#propertyKeyValuePairList}.
      * @param ctx the parse tree
@@ -2470,50 +2267,32 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#parenthesizedPathPatternExpression}.
      * @param ctx the parse tree
      */
-    fn enter_parenthesizedPathPatternExpression(
-        &mut self,
-        _ctx: &ParenthesizedPathPatternExpressionContext<'input>,
-    ) {}
+    fn enter_parenthesizedPathPatternExpression(&mut self, _ctx: &ParenthesizedPathPatternExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#parenthesizedPathPatternExpression}.
      * @param ctx the parse tree
      */
-    fn exit_parenthesizedPathPatternExpression(
-        &mut self,
-        _ctx: &ParenthesizedPathPatternExpressionContext<'input>,
-    ) {}
+    fn exit_parenthesizedPathPatternExpression(&mut self, _ctx: &ParenthesizedPathPatternExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#subpathVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn enter_subpathVariableDeclaration(
-        &mut self,
-        _ctx: &SubpathVariableDeclarationContext<'input>,
-    ) {}
+    fn enter_subpathVariableDeclaration(&mut self, _ctx: &SubpathVariableDeclarationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#subpathVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn exit_subpathVariableDeclaration(
-        &mut self,
-        _ctx: &SubpathVariableDeclarationContext<'input>,
-    ) {}
+    fn exit_subpathVariableDeclaration(&mut self, _ctx: &SubpathVariableDeclarationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#parenthesizedPathPatternWhereClause}.
      * @param ctx the parse tree
      */
-    fn enter_parenthesizedPathPatternWhereClause(
-        &mut self,
-        _ctx: &ParenthesizedPathPatternWhereClauseContext<'input>,
-    ) {}
+    fn enter_parenthesizedPathPatternWhereClause(&mut self, _ctx: &ParenthesizedPathPatternWhereClauseContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#parenthesizedPathPatternWhereClause}.
      * @param ctx the parse tree
      */
-    fn exit_parenthesizedPathPatternWhereClause(
-        &mut self,
-        _ctx: &ParenthesizedPathPatternWhereClauseContext<'input>,
-    ) {}
+    fn exit_parenthesizedPathPatternWhereClause(&mut self, _ctx: &ParenthesizedPathPatternWhereClauseContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code labelExpressionNegation}
      * labeled alternative in {@link GQLParser#labelExpression}.
@@ -2531,37 +2310,25 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn enter_labelExpressionDisjunction(
-        &mut self,
-        _ctx: &LabelExpressionDisjunctionContext<'input>,
-    ) {}
+    fn enter_labelExpressionDisjunction(&mut self, _ctx: &LabelExpressionDisjunctionContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code labelExpressionDisjunction}
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn exit_labelExpressionDisjunction(
-        &mut self,
-        _ctx: &LabelExpressionDisjunctionContext<'input>,
-    ) {}
+    fn exit_labelExpressionDisjunction(&mut self, _ctx: &LabelExpressionDisjunctionContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code labelExpressionParenthesized}
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn enter_labelExpressionParenthesized(
-        &mut self,
-        _ctx: &LabelExpressionParenthesizedContext<'input>,
-    ) {}
+    fn enter_labelExpressionParenthesized(&mut self, _ctx: &LabelExpressionParenthesizedContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code labelExpressionParenthesized}
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn exit_labelExpressionParenthesized(
-        &mut self,
-        _ctx: &LabelExpressionParenthesizedContext<'input>,
-    ) {}
+    fn exit_labelExpressionParenthesized(&mut self, _ctx: &LabelExpressionParenthesizedContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code labelExpressionWildcard}
      * labeled alternative in {@link GQLParser#labelExpression}.
@@ -2579,19 +2346,13 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn enter_labelExpressionConjunction(
-        &mut self,
-        _ctx: &LabelExpressionConjunctionContext<'input>,
-    ) {}
+    fn enter_labelExpressionConjunction(&mut self, _ctx: &LabelExpressionConjunctionContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code labelExpressionConjunction}
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn exit_labelExpressionConjunction(
-        &mut self,
-        _ctx: &LabelExpressionConjunctionContext<'input>,
-    ) {}
+    fn exit_labelExpressionConjunction(&mut self, _ctx: &LabelExpressionConjunctionContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code labelExpressionName}
      * labeled alternative in {@link GQLParser#labelExpression}.
@@ -2678,18 +2439,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#simplifiedPathPatternExpression}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedPathPatternExpression(
-        &mut self,
-        _ctx: &SimplifiedPathPatternExpressionContext<'input>,
-    ) {}
+    fn enter_simplifiedPathPatternExpression(&mut self, _ctx: &SimplifiedPathPatternExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedPathPatternExpression}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedPathPatternExpression(
-        &mut self,
-        _ctx: &SimplifiedPathPatternExpressionContext<'input>,
-    ) {}
+    fn exit_simplifiedPathPatternExpression(&mut self, _ctx: &SimplifiedPathPatternExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedDefaultingLeft}.
      * @param ctx the parse tree
@@ -2704,18 +2459,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#simplifiedDefaultingUndirected}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedDefaultingUndirected(
-        &mut self,
-        _ctx: &SimplifiedDefaultingUndirectedContext<'input>,
-    ) {}
+    fn enter_simplifiedDefaultingUndirected(&mut self, _ctx: &SimplifiedDefaultingUndirectedContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedDefaultingUndirected}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedDefaultingUndirected(
-        &mut self,
-        _ctx: &SimplifiedDefaultingUndirectedContext<'input>,
-    ) {}
+    fn exit_simplifiedDefaultingUndirected(&mut self, _ctx: &SimplifiedDefaultingUndirectedContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedDefaultingRight}.
      * @param ctx the parse tree
@@ -2730,66 +2479,43 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#simplifiedDefaultingLeftOrUndirected}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedDefaultingLeftOrUndirected(
-        &mut self,
-        _ctx: &SimplifiedDefaultingLeftOrUndirectedContext<'input>,
-    ) {}
+    fn enter_simplifiedDefaultingLeftOrUndirected(&mut self, _ctx: &SimplifiedDefaultingLeftOrUndirectedContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedDefaultingLeftOrUndirected}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedDefaultingLeftOrUndirected(
-        &mut self,
-        _ctx: &SimplifiedDefaultingLeftOrUndirectedContext<'input>,
-    ) {}
+    fn exit_simplifiedDefaultingLeftOrUndirected(&mut self, _ctx: &SimplifiedDefaultingLeftOrUndirectedContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedDefaultingUndirectedOrRight}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedDefaultingUndirectedOrRight(
-        &mut self,
-        _ctx: &SimplifiedDefaultingUndirectedOrRightContext<'input>,
-    ) {}
+    fn enter_simplifiedDefaultingUndirectedOrRight(&mut self, _ctx: &SimplifiedDefaultingUndirectedOrRightContext<'input>) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedDefaultingUndirectedOrRight}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedDefaultingUndirectedOrRight(
-        &mut self,
-        _ctx: &SimplifiedDefaultingUndirectedOrRightContext<'input>,
-    ) {}
+    fn exit_simplifiedDefaultingUndirectedOrRight(&mut self, _ctx: &SimplifiedDefaultingUndirectedOrRightContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedDefaultingLeftOrRight}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedDefaultingLeftOrRight(
-        &mut self,
-        _ctx: &SimplifiedDefaultingLeftOrRightContext<'input>,
-    ) {}
+    fn enter_simplifiedDefaultingLeftOrRight(&mut self, _ctx: &SimplifiedDefaultingLeftOrRightContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedDefaultingLeftOrRight}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedDefaultingLeftOrRight(
-        &mut self,
-        _ctx: &SimplifiedDefaultingLeftOrRightContext<'input>,
-    ) {}
+    fn exit_simplifiedDefaultingLeftOrRight(&mut self, _ctx: &SimplifiedDefaultingLeftOrRightContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedDefaultingAnyDirection}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedDefaultingAnyDirection(
-        &mut self,
-        _ctx: &SimplifiedDefaultingAnyDirectionContext<'input>,
-    ) {}
+    fn enter_simplifiedDefaultingAnyDirection(&mut self, _ctx: &SimplifiedDefaultingAnyDirectionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedDefaultingAnyDirection}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedDefaultingAnyDirection(
-        &mut self,
-        _ctx: &SimplifiedDefaultingAnyDirectionContext<'input>,
-    ) {}
+    fn exit_simplifiedDefaultingAnyDirection(&mut self, _ctx: &SimplifiedDefaultingAnyDirectionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedContents}.
      * @param ctx the parse tree
@@ -2814,18 +2540,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#simplifiedMultisetAlternation}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedMultisetAlternation(
-        &mut self,
-        _ctx: &SimplifiedMultisetAlternationContext<'input>,
-    ) {}
+    fn enter_simplifiedMultisetAlternation(&mut self, _ctx: &SimplifiedMultisetAlternationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedMultisetAlternation}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedMultisetAlternation(
-        &mut self,
-        _ctx: &SimplifiedMultisetAlternationContext<'input>,
-    ) {}
+    fn exit_simplifiedMultisetAlternation(&mut self, _ctx: &SimplifiedMultisetAlternationContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code simplifiedFactorLowLabel}
      * labeled alternative in {@link GQLParser#simplifiedTerm}.
@@ -2843,37 +2563,25 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#simplifiedTerm}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedConcatenationLabel(
-        &mut self,
-        _ctx: &SimplifiedConcatenationLabelContext<'input>,
-    ) {}
+    fn enter_simplifiedConcatenationLabel(&mut self, _ctx: &SimplifiedConcatenationLabelContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code simplifiedConcatenationLabel}
      * labeled alternative in {@link GQLParser#simplifiedTerm}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedConcatenationLabel(
-        &mut self,
-        _ctx: &SimplifiedConcatenationLabelContext<'input>,
-    ) {}
+    fn exit_simplifiedConcatenationLabel(&mut self, _ctx: &SimplifiedConcatenationLabelContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code simplifiedConjunctionLabel}
      * labeled alternative in {@link GQLParser#simplifiedFactorLow}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedConjunctionLabel(
-        &mut self,
-        _ctx: &SimplifiedConjunctionLabelContext<'input>,
-    ) {}
+    fn enter_simplifiedConjunctionLabel(&mut self, _ctx: &SimplifiedConjunctionLabelContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code simplifiedConjunctionLabel}
      * labeled alternative in {@link GQLParser#simplifiedFactorLow}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedConjunctionLabel(
-        &mut self,
-        _ctx: &SimplifiedConjunctionLabelContext<'input>,
-    ) {}
+    fn exit_simplifiedConjunctionLabel(&mut self, _ctx: &SimplifiedConjunctionLabelContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code simplifiedFactorHighLabel}
      * labeled alternative in {@link GQLParser#simplifiedFactorLow}.
@@ -2930,18 +2638,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#simplifiedDirectionOverride}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedDirectionOverride(
-        &mut self,
-        _ctx: &SimplifiedDirectionOverrideContext<'input>,
-    ) {}
+    fn enter_simplifiedDirectionOverride(&mut self, _ctx: &SimplifiedDirectionOverrideContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedDirectionOverride}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedDirectionOverride(
-        &mut self,
-        _ctx: &SimplifiedDirectionOverrideContext<'input>,
-    ) {}
+    fn exit_simplifiedDirectionOverride(&mut self, _ctx: &SimplifiedDirectionOverrideContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedOverrideLeft}.
      * @param ctx the parse tree
@@ -2956,18 +2658,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#simplifiedOverrideUndirected}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedOverrideUndirected(
-        &mut self,
-        _ctx: &SimplifiedOverrideUndirectedContext<'input>,
-    ) {}
+    fn enter_simplifiedOverrideUndirected(&mut self, _ctx: &SimplifiedOverrideUndirectedContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedOverrideUndirected}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedOverrideUndirected(
-        &mut self,
-        _ctx: &SimplifiedOverrideUndirectedContext<'input>,
-    ) {}
+    fn exit_simplifiedOverrideUndirected(&mut self, _ctx: &SimplifiedOverrideUndirectedContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedOverrideRight}.
      * @param ctx the parse tree
@@ -2982,66 +2678,42 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#simplifiedOverrideLeftOrUndirected}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedOverrideLeftOrUndirected(
-        &mut self,
-        _ctx: &SimplifiedOverrideLeftOrUndirectedContext<'input>,
-    ) {}
+    fn enter_simplifiedOverrideLeftOrUndirected(&mut self, _ctx: &SimplifiedOverrideLeftOrUndirectedContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedOverrideLeftOrUndirected}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedOverrideLeftOrUndirected(
-        &mut self,
-        _ctx: &SimplifiedOverrideLeftOrUndirectedContext<'input>,
-    ) {}
+    fn exit_simplifiedOverrideLeftOrUndirected(&mut self, _ctx: &SimplifiedOverrideLeftOrUndirectedContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedOverrideUndirectedOrRight}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedOverrideUndirectedOrRight(
-        &mut self,
-        _ctx: &SimplifiedOverrideUndirectedOrRightContext<'input>,
-    ) {}
+    fn enter_simplifiedOverrideUndirectedOrRight(&mut self, _ctx: &SimplifiedOverrideUndirectedOrRightContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedOverrideUndirectedOrRight}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedOverrideUndirectedOrRight(
-        &mut self,
-        _ctx: &SimplifiedOverrideUndirectedOrRightContext<'input>,
-    ) {}
+    fn exit_simplifiedOverrideUndirectedOrRight(&mut self, _ctx: &SimplifiedOverrideUndirectedOrRightContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedOverrideLeftOrRight}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedOverrideLeftOrRight(
-        &mut self,
-        _ctx: &SimplifiedOverrideLeftOrRightContext<'input>,
-    ) {}
+    fn enter_simplifiedOverrideLeftOrRight(&mut self, _ctx: &SimplifiedOverrideLeftOrRightContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedOverrideLeftOrRight}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedOverrideLeftOrRight(
-        &mut self,
-        _ctx: &SimplifiedOverrideLeftOrRightContext<'input>,
-    ) {}
+    fn exit_simplifiedOverrideLeftOrRight(&mut self, _ctx: &SimplifiedOverrideLeftOrRightContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedOverrideAnyDirection}.
      * @param ctx the parse tree
      */
-    fn enter_simplifiedOverrideAnyDirection(
-        &mut self,
-        _ctx: &SimplifiedOverrideAnyDirectionContext<'input>,
-    ) {}
+    fn enter_simplifiedOverrideAnyDirection(&mut self, _ctx: &SimplifiedOverrideAnyDirectionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#simplifiedOverrideAnyDirection}.
      * @param ctx the parse tree
      */
-    fn exit_simplifiedOverrideAnyDirection(
-        &mut self,
-        _ctx: &SimplifiedOverrideAnyDirectionContext<'input>,
-    ) {}
+    fn exit_simplifiedOverrideAnyDirection(&mut self, _ctx: &SimplifiedOverrideAnyDirectionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#simplifiedSecondary}.
      * @param ctx the parse tree
@@ -3276,50 +2948,32 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#absoluteCatalogSchemaReference}.
      * @param ctx the parse tree
      */
-    fn enter_absoluteCatalogSchemaReference(
-        &mut self,
-        _ctx: &AbsoluteCatalogSchemaReferenceContext<'input>,
-    ) {}
+    fn enter_absoluteCatalogSchemaReference(&mut self, _ctx: &AbsoluteCatalogSchemaReferenceContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#absoluteCatalogSchemaReference}.
      * @param ctx the parse tree
      */
-    fn exit_absoluteCatalogSchemaReference(
-        &mut self,
-        _ctx: &AbsoluteCatalogSchemaReferenceContext<'input>,
-    ) {}
+    fn exit_absoluteCatalogSchemaReference(&mut self, _ctx: &AbsoluteCatalogSchemaReferenceContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#catalogSchemaParentAndName}.
      * @param ctx the parse tree
      */
-    fn enter_catalogSchemaParentAndName(
-        &mut self,
-        _ctx: &CatalogSchemaParentAndNameContext<'input>,
-    ) {}
+    fn enter_catalogSchemaParentAndName(&mut self, _ctx: &CatalogSchemaParentAndNameContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#catalogSchemaParentAndName}.
      * @param ctx the parse tree
      */
-    fn exit_catalogSchemaParentAndName(
-        &mut self,
-        _ctx: &CatalogSchemaParentAndNameContext<'input>,
-    ) {}
+    fn exit_catalogSchemaParentAndName(&mut self, _ctx: &CatalogSchemaParentAndNameContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#relativeCatalogSchemaReference}.
      * @param ctx the parse tree
      */
-    fn enter_relativeCatalogSchemaReference(
-        &mut self,
-        _ctx: &RelativeCatalogSchemaReferenceContext<'input>,
-    ) {}
+    fn enter_relativeCatalogSchemaReference(&mut self, _ctx: &RelativeCatalogSchemaReferenceContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#relativeCatalogSchemaReference}.
      * @param ctx the parse tree
      */
-    fn exit_relativeCatalogSchemaReference(
-        &mut self,
-        _ctx: &RelativeCatalogSchemaReferenceContext<'input>,
-    ) {}
+    fn exit_relativeCatalogSchemaReference(&mut self, _ctx: &RelativeCatalogSchemaReferenceContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#predefinedSchemaReference}.
      * @param ctx the parse tree
@@ -3404,18 +3058,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#catalogGraphTypeParentAndName}.
      * @param ctx the parse tree
      */
-    fn enter_catalogGraphTypeParentAndName(
-        &mut self,
-        _ctx: &CatalogGraphTypeParentAndNameContext<'input>,
-    ) {}
+    fn enter_catalogGraphTypeParentAndName(&mut self, _ctx: &CatalogGraphTypeParentAndNameContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#catalogGraphTypeParentAndName}.
      * @param ctx the parse tree
      */
-    fn exit_catalogGraphTypeParentAndName(
-        &mut self,
-        _ctx: &CatalogGraphTypeParentAndNameContext<'input>,
-    ) {}
+    fn exit_catalogGraphTypeParentAndName(&mut self, _ctx: &CatalogGraphTypeParentAndNameContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#bindingTableReference}.
      * @param ctx the parse tree
@@ -3440,82 +3088,52 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#catalogProcedureParentAndName}.
      * @param ctx the parse tree
      */
-    fn enter_catalogProcedureParentAndName(
-        &mut self,
-        _ctx: &CatalogProcedureParentAndNameContext<'input>,
-    ) {}
+    fn enter_catalogProcedureParentAndName(&mut self, _ctx: &CatalogProcedureParentAndNameContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#catalogProcedureParentAndName}.
      * @param ctx the parse tree
      */
-    fn exit_catalogProcedureParentAndName(
-        &mut self,
-        _ctx: &CatalogProcedureParentAndNameContext<'input>,
-    ) {}
+    fn exit_catalogProcedureParentAndName(&mut self, _ctx: &CatalogProcedureParentAndNameContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#catalogObjectParentReference}.
      * @param ctx the parse tree
      */
-    fn enter_catalogObjectParentReference(
-        &mut self,
-        _ctx: &CatalogObjectParentReferenceContext<'input>,
-    ) {}
+    fn enter_catalogObjectParentReference(&mut self, _ctx: &CatalogObjectParentReferenceContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#catalogObjectParentReference}.
      * @param ctx the parse tree
      */
-    fn exit_catalogObjectParentReference(
-        &mut self,
-        _ctx: &CatalogObjectParentReferenceContext<'input>,
-    ) {}
+    fn exit_catalogObjectParentReference(&mut self, _ctx: &CatalogObjectParentReferenceContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#referenceParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_referenceParameterSpecification(
-        &mut self,
-        _ctx: &ReferenceParameterSpecificationContext<'input>,
-    ) {}
+    fn enter_referenceParameterSpecification(&mut self, _ctx: &ReferenceParameterSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#referenceParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_referenceParameterSpecification(
-        &mut self,
-        _ctx: &ReferenceParameterSpecificationContext<'input>,
-    ) {}
+    fn exit_referenceParameterSpecification(&mut self, _ctx: &ReferenceParameterSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#nestedGraphTypeSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_nestedGraphTypeSpecification(
-        &mut self,
-        _ctx: &NestedGraphTypeSpecificationContext<'input>,
-    ) {}
+    fn enter_nestedGraphTypeSpecification(&mut self, _ctx: &NestedGraphTypeSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#nestedGraphTypeSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_nestedGraphTypeSpecification(
-        &mut self,
-        _ctx: &NestedGraphTypeSpecificationContext<'input>,
-    ) {}
+    fn exit_nestedGraphTypeSpecification(&mut self, _ctx: &NestedGraphTypeSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#graphTypeSpecificationBody}.
      * @param ctx the parse tree
      */
-    fn enter_graphTypeSpecificationBody(
-        &mut self,
-        _ctx: &GraphTypeSpecificationBodyContext<'input>,
-    ) {}
+    fn enter_graphTypeSpecificationBody(&mut self, _ctx: &GraphTypeSpecificationBodyContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#graphTypeSpecificationBody}.
      * @param ctx the parse tree
      */
-    fn exit_graphTypeSpecificationBody(
-        &mut self,
-        _ctx: &GraphTypeSpecificationBodyContext<'input>,
-    ) {}
+    fn exit_graphTypeSpecificationBody(&mut self, _ctx: &GraphTypeSpecificationBodyContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#elementTypeList}.
      * @param ctx the parse tree
@@ -3740,34 +3358,22 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#edgeTypePatternPointingRight}.
      * @param ctx the parse tree
      */
-    fn enter_edgeTypePatternPointingRight(
-        &mut self,
-        _ctx: &EdgeTypePatternPointingRightContext<'input>,
-    ) {}
+    fn enter_edgeTypePatternPointingRight(&mut self, _ctx: &EdgeTypePatternPointingRightContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#edgeTypePatternPointingRight}.
      * @param ctx the parse tree
      */
-    fn exit_edgeTypePatternPointingRight(
-        &mut self,
-        _ctx: &EdgeTypePatternPointingRightContext<'input>,
-    ) {}
+    fn exit_edgeTypePatternPointingRight(&mut self, _ctx: &EdgeTypePatternPointingRightContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#edgeTypePatternPointingLeft}.
      * @param ctx the parse tree
      */
-    fn enter_edgeTypePatternPointingLeft(
-        &mut self,
-        _ctx: &EdgeTypePatternPointingLeftContext<'input>,
-    ) {}
+    fn enter_edgeTypePatternPointingLeft(&mut self, _ctx: &EdgeTypePatternPointingLeftContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#edgeTypePatternPointingLeft}.
      * @param ctx the parse tree
      */
-    fn exit_edgeTypePatternPointingLeft(
-        &mut self,
-        _ctx: &EdgeTypePatternPointingLeftContext<'input>,
-    ) {}
+    fn exit_edgeTypePatternPointingLeft(&mut self, _ctx: &EdgeTypePatternPointingLeftContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#edgeTypePatternUndirected}.
      * @param ctx the parse tree
@@ -3822,18 +3428,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#destinationNodeTypeReference}.
      * @param ctx the parse tree
      */
-    fn enter_destinationNodeTypeReference(
-        &mut self,
-        _ctx: &DestinationNodeTypeReferenceContext<'input>,
-    ) {}
+    fn enter_destinationNodeTypeReference(&mut self, _ctx: &DestinationNodeTypeReferenceContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#destinationNodeTypeReference}.
      * @param ctx the parse tree
      */
-    fn exit_destinationNodeTypeReference(
-        &mut self,
-        _ctx: &DestinationNodeTypeReferenceContext<'input>,
-    ) {}
+    fn exit_destinationNodeTypeReference(&mut self, _ctx: &DestinationNodeTypeReferenceContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#edgeKind}.
      * @param ctx the parse tree
@@ -3968,18 +3568,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#propertyTypesSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_propertyTypesSpecification(
-        &mut self,
-        _ctx: &PropertyTypesSpecificationContext<'input>,
-    ) {}
+    fn enter_propertyTypesSpecification(&mut self, _ctx: &PropertyTypesSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#propertyTypesSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_propertyTypesSpecification(
-        &mut self,
-        _ctx: &PropertyTypesSpecificationContext<'input>,
-    ) {}
+    fn exit_propertyTypesSpecification(&mut self, _ctx: &PropertyTypesSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#propertyTypeList}.
      * @param ctx the parse tree
@@ -4025,55 +3619,37 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn enter_dynamicPropertyValueTypeLabel(
-        &mut self,
-        _ctx: &DynamicPropertyValueTypeLabelContext<'input>,
-    ) {}
+    fn enter_dynamicPropertyValueTypeLabel(&mut self, _ctx: &DynamicPropertyValueTypeLabelContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code dynamicPropertyValueTypeLabel}
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn exit_dynamicPropertyValueTypeLabel(
-        &mut self,
-        _ctx: &DynamicPropertyValueTypeLabelContext<'input>,
-    ) {}
+    fn exit_dynamicPropertyValueTypeLabel(&mut self, _ctx: &DynamicPropertyValueTypeLabelContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code closedDynamicUnionTypeAtl1}
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn enter_closedDynamicUnionTypeAtl1(
-        &mut self,
-        _ctx: &ClosedDynamicUnionTypeAtl1Context<'input>,
-    ) {}
+    fn enter_closedDynamicUnionTypeAtl1(&mut self, _ctx: &ClosedDynamicUnionTypeAtl1Context<'input>) {}
     /**
      * Exit a parse tree produced by the {@code closedDynamicUnionTypeAtl1}
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn exit_closedDynamicUnionTypeAtl1(
-        &mut self,
-        _ctx: &ClosedDynamicUnionTypeAtl1Context<'input>,
-    ) {}
+    fn exit_closedDynamicUnionTypeAtl1(&mut self, _ctx: &ClosedDynamicUnionTypeAtl1Context<'input>) {}
     /**
      * Enter a parse tree produced by the {@code closedDynamicUnionTypeAtl2}
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn enter_closedDynamicUnionTypeAtl2(
-        &mut self,
-        _ctx: &ClosedDynamicUnionTypeAtl2Context<'input>,
-    ) {}
+    fn enter_closedDynamicUnionTypeAtl2(&mut self, _ctx: &ClosedDynamicUnionTypeAtl2Context<'input>) {}
     /**
      * Exit a parse tree produced by the {@code closedDynamicUnionTypeAtl2}
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn exit_closedDynamicUnionTypeAtl2(
-        &mut self,
-        _ctx: &ClosedDynamicUnionTypeAtl2Context<'input>,
-    ) {}
+    fn exit_closedDynamicUnionTypeAtl2(&mut self, _ctx: &ClosedDynamicUnionTypeAtl2Context<'input>) {}
     /**
      * Enter a parse tree produced by the {@code pathValueTypeLabel}
      * labeled alternative in {@link GQLParser#valueType}.
@@ -4272,50 +3848,32 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#signedBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn enter_signedBinaryExactNumericType(
-        &mut self,
-        _ctx: &SignedBinaryExactNumericTypeContext<'input>,
-    ) {}
+    fn enter_signedBinaryExactNumericType(&mut self, _ctx: &SignedBinaryExactNumericTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#signedBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn exit_signedBinaryExactNumericType(
-        &mut self,
-        _ctx: &SignedBinaryExactNumericTypeContext<'input>,
-    ) {}
+    fn exit_signedBinaryExactNumericType(&mut self, _ctx: &SignedBinaryExactNumericTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#unsignedBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn enter_unsignedBinaryExactNumericType(
-        &mut self,
-        _ctx: &UnsignedBinaryExactNumericTypeContext<'input>,
-    ) {}
+    fn enter_unsignedBinaryExactNumericType(&mut self, _ctx: &UnsignedBinaryExactNumericTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#unsignedBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn exit_unsignedBinaryExactNumericType(
-        &mut self,
-        _ctx: &UnsignedBinaryExactNumericTypeContext<'input>,
-    ) {}
+    fn exit_unsignedBinaryExactNumericType(&mut self, _ctx: &UnsignedBinaryExactNumericTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#verboseBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn enter_verboseBinaryExactNumericType(
-        &mut self,
-        _ctx: &VerboseBinaryExactNumericTypeContext<'input>,
-    ) {}
+    fn enter_verboseBinaryExactNumericType(&mut self, _ctx: &VerboseBinaryExactNumericTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#verboseBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn exit_verboseBinaryExactNumericType(
-        &mut self,
-        _ctx: &VerboseBinaryExactNumericTypeContext<'input>,
-    ) {}
+    fn exit_verboseBinaryExactNumericType(&mut self, _ctx: &VerboseBinaryExactNumericTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#decimalExactNumericType}.
      * @param ctx the parse tree
@@ -4500,50 +4058,32 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#closedGraphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn enter_closedGraphReferenceValueType(
-        &mut self,
-        _ctx: &ClosedGraphReferenceValueTypeContext<'input>,
-    ) {}
+    fn enter_closedGraphReferenceValueType(&mut self, _ctx: &ClosedGraphReferenceValueTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#closedGraphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn exit_closedGraphReferenceValueType(
-        &mut self,
-        _ctx: &ClosedGraphReferenceValueTypeContext<'input>,
-    ) {}
+    fn exit_closedGraphReferenceValueType(&mut self, _ctx: &ClosedGraphReferenceValueTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#openGraphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn enter_openGraphReferenceValueType(
-        &mut self,
-        _ctx: &OpenGraphReferenceValueTypeContext<'input>,
-    ) {}
+    fn enter_openGraphReferenceValueType(&mut self, _ctx: &OpenGraphReferenceValueTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#openGraphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn exit_openGraphReferenceValueType(
-        &mut self,
-        _ctx: &OpenGraphReferenceValueTypeContext<'input>,
-    ) {}
+    fn exit_openGraphReferenceValueType(&mut self, _ctx: &OpenGraphReferenceValueTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#bindingTableReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn enter_bindingTableReferenceValueType(
-        &mut self,
-        _ctx: &BindingTableReferenceValueTypeContext<'input>,
-    ) {}
+    fn enter_bindingTableReferenceValueType(&mut self, _ctx: &BindingTableReferenceValueTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#bindingTableReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn exit_bindingTableReferenceValueType(
-        &mut self,
-        _ctx: &BindingTableReferenceValueTypeContext<'input>,
-    ) {}
+    fn exit_bindingTableReferenceValueType(&mut self, _ctx: &BindingTableReferenceValueTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#nodeReferenceValueType}.
      * @param ctx the parse tree
@@ -4558,34 +4098,22 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#closedNodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn enter_closedNodeReferenceValueType(
-        &mut self,
-        _ctx: &ClosedNodeReferenceValueTypeContext<'input>,
-    ) {}
+    fn enter_closedNodeReferenceValueType(&mut self, _ctx: &ClosedNodeReferenceValueTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#closedNodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn exit_closedNodeReferenceValueType(
-        &mut self,
-        _ctx: &ClosedNodeReferenceValueTypeContext<'input>,
-    ) {}
+    fn exit_closedNodeReferenceValueType(&mut self, _ctx: &ClosedNodeReferenceValueTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#openNodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn enter_openNodeReferenceValueType(
-        &mut self,
-        _ctx: &OpenNodeReferenceValueTypeContext<'input>,
-    ) {}
+    fn enter_openNodeReferenceValueType(&mut self, _ctx: &OpenNodeReferenceValueTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#openNodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn exit_openNodeReferenceValueType(
-        &mut self,
-        _ctx: &OpenNodeReferenceValueTypeContext<'input>,
-    ) {}
+    fn exit_openNodeReferenceValueType(&mut self, _ctx: &OpenNodeReferenceValueTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#edgeReferenceValueType}.
      * @param ctx the parse tree
@@ -4600,34 +4128,22 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#closedEdgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn enter_closedEdgeReferenceValueType(
-        &mut self,
-        _ctx: &ClosedEdgeReferenceValueTypeContext<'input>,
-    ) {}
+    fn enter_closedEdgeReferenceValueType(&mut self, _ctx: &ClosedEdgeReferenceValueTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#closedEdgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn exit_closedEdgeReferenceValueType(
-        &mut self,
-        _ctx: &ClosedEdgeReferenceValueTypeContext<'input>,
-    ) {}
+    fn exit_closedEdgeReferenceValueType(&mut self, _ctx: &ClosedEdgeReferenceValueTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#openEdgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn enter_openEdgeReferenceValueType(
-        &mut self,
-        _ctx: &OpenEdgeReferenceValueTypeContext<'input>,
-    ) {}
+    fn enter_openEdgeReferenceValueType(&mut self, _ctx: &OpenEdgeReferenceValueTypeContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#openEdgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn exit_openEdgeReferenceValueType(
-        &mut self,
-        _ctx: &OpenEdgeReferenceValueTypeContext<'input>,
-    ) {}
+    fn exit_openEdgeReferenceValueType(&mut self, _ctx: &OpenEdgeReferenceValueTypeContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#pathValueType}.
      * @param ctx the parse tree
@@ -4852,18 +4368,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#sourceDestinationPredicate}.
      * @param ctx the parse tree
      */
-    fn enter_sourceDestinationPredicate(
-        &mut self,
-        _ctx: &SourceDestinationPredicateContext<'input>,
-    ) {}
+    fn enter_sourceDestinationPredicate(&mut self, _ctx: &SourceDestinationPredicateContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#sourceDestinationPredicate}.
      * @param ctx the parse tree
      */
-    fn exit_sourceDestinationPredicate(
-        &mut self,
-        _ctx: &SourceDestinationPredicateContext<'input>,
-    ) {}
+    fn exit_sourceDestinationPredicate(&mut self, _ctx: &SourceDestinationPredicateContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#nodeReference}.
      * @param ctx the parse tree
@@ -5011,19 +4521,13 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn enter_normalizedPredicateExprAlt(
-        &mut self,
-        _ctx: &NormalizedPredicateExprAltContext<'input>,
-    ) {}
+    fn enter_normalizedPredicateExprAlt(&mut self, _ctx: &NormalizedPredicateExprAltContext<'input>) {}
     /**
      * Exit a parse tree produced by the {@code normalizedPredicateExprAlt}
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn exit_normalizedPredicateExprAlt(
-        &mut self,
-        _ctx: &NormalizedPredicateExprAltContext<'input>,
-    ) {}
+    fn exit_normalizedPredicateExprAlt(&mut self, _ctx: &NormalizedPredicateExprAltContext<'input>) {}
     /**
      * Enter a parse tree produced by the {@code notExprAlt}
      * labeled alternative in {@link GQLParser#valueExpression}.
@@ -5144,18 +4648,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#characterOrByteStringFunction}.
      * @param ctx the parse tree
      */
-    fn enter_characterOrByteStringFunction(
-        &mut self,
-        _ctx: &CharacterOrByteStringFunctionContext<'input>,
-    ) {}
+    fn enter_characterOrByteStringFunction(&mut self, _ctx: &CharacterOrByteStringFunctionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#characterOrByteStringFunction}.
      * @param ctx the parse tree
      */
-    fn exit_characterOrByteStringFunction(
-        &mut self,
-        _ctx: &CharacterOrByteStringFunctionContext<'input>,
-    ) {}
+    fn exit_characterOrByteStringFunction(&mut self, _ctx: &CharacterOrByteStringFunctionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#subCharacterOrByteString}.
      * @param ctx the parse tree
@@ -5170,18 +4668,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#trimSingleCharacterOrByteString}.
      * @param ctx the parse tree
      */
-    fn enter_trimSingleCharacterOrByteString(
-        &mut self,
-        _ctx: &TrimSingleCharacterOrByteStringContext<'input>,
-    ) {}
+    fn enter_trimSingleCharacterOrByteString(&mut self, _ctx: &TrimSingleCharacterOrByteStringContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#trimSingleCharacterOrByteString}.
      * @param ctx the parse tree
      */
-    fn exit_trimSingleCharacterOrByteString(
-        &mut self,
-        _ctx: &TrimSingleCharacterOrByteStringContext<'input>,
-    ) {}
+    fn exit_trimSingleCharacterOrByteString(&mut self, _ctx: &TrimSingleCharacterOrByteStringContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#foldCharacterString}.
      * @param ctx the parse tree
@@ -5196,18 +4688,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#trimMultiCharacterCharacterString}.
      * @param ctx the parse tree
      */
-    fn enter_trimMultiCharacterCharacterString(
-        &mut self,
-        _ctx: &TrimMultiCharacterCharacterStringContext<'input>,
-    ) {}
+    fn enter_trimMultiCharacterCharacterString(&mut self, _ctx: &TrimMultiCharacterCharacterStringContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#trimMultiCharacterCharacterString}.
      * @param ctx the parse tree
      */
-    fn exit_trimMultiCharacterCharacterString(
-        &mut self,
-        _ctx: &TrimMultiCharacterCharacterStringContext<'input>,
-    ) {}
+    fn exit_trimMultiCharacterCharacterString(&mut self, _ctx: &TrimMultiCharacterCharacterStringContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#normalizeCharacterString}.
      * @param ctx the parse tree
@@ -5222,50 +4708,32 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#nodeReferenceValueExpression}.
      * @param ctx the parse tree
      */
-    fn enter_nodeReferenceValueExpression(
-        &mut self,
-        _ctx: &NodeReferenceValueExpressionContext<'input>,
-    ) {}
+    fn enter_nodeReferenceValueExpression(&mut self, _ctx: &NodeReferenceValueExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#nodeReferenceValueExpression}.
      * @param ctx the parse tree
      */
-    fn exit_nodeReferenceValueExpression(
-        &mut self,
-        _ctx: &NodeReferenceValueExpressionContext<'input>,
-    ) {}
+    fn exit_nodeReferenceValueExpression(&mut self, _ctx: &NodeReferenceValueExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#edgeReferenceValueExpression}.
      * @param ctx the parse tree
      */
-    fn enter_edgeReferenceValueExpression(
-        &mut self,
-        _ctx: &EdgeReferenceValueExpressionContext<'input>,
-    ) {}
+    fn enter_edgeReferenceValueExpression(&mut self, _ctx: &EdgeReferenceValueExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#edgeReferenceValueExpression}.
      * @param ctx the parse tree
      */
-    fn exit_edgeReferenceValueExpression(
-        &mut self,
-        _ctx: &EdgeReferenceValueExpressionContext<'input>,
-    ) {}
+    fn exit_edgeReferenceValueExpression(&mut self, _ctx: &EdgeReferenceValueExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#aggregatingValueExpression}.
      * @param ctx the parse tree
      */
-    fn enter_aggregatingValueExpression(
-        &mut self,
-        _ctx: &AggregatingValueExpressionContext<'input>,
-    ) {}
+    fn enter_aggregatingValueExpression(&mut self, _ctx: &AggregatingValueExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#aggregatingValueExpression}.
      * @param ctx the parse tree
      */
-    fn exit_aggregatingValueExpression(
-        &mut self,
-        _ctx: &AggregatingValueExpressionContext<'input>,
-    ) {}
+    fn exit_aggregatingValueExpression(&mut self, _ctx: &AggregatingValueExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#valueExpressionPrimary}.
      * @param ctx the parse tree
@@ -5280,18 +4748,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#parenthesizedValueExpression}.
      * @param ctx the parse tree
      */
-    fn enter_parenthesizedValueExpression(
-        &mut self,
-        _ctx: &ParenthesizedValueExpressionContext<'input>,
-    ) {}
+    fn enter_parenthesizedValueExpression(&mut self, _ctx: &ParenthesizedValueExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#parenthesizedValueExpression}.
      * @param ctx the parse tree
      */
-    fn exit_parenthesizedValueExpression(
-        &mut self,
-        _ctx: &ParenthesizedValueExpressionContext<'input>,
-    ) {}
+    fn exit_parenthesizedValueExpression(&mut self, _ctx: &ParenthesizedValueExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#nonParenthesizedValueExpressionPrimary}.
      * @param ctx the parse tree
@@ -5299,7 +4761,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn enter_nonParenthesizedValueExpressionPrimary(
         &mut self,
         _ctx: &NonParenthesizedValueExpressionPrimaryContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#nonParenthesizedValueExpressionPrimary}.
      * @param ctx the parse tree
@@ -5307,7 +4770,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn exit_nonParenthesizedValueExpressionPrimary(
         &mut self,
         _ctx: &NonParenthesizedValueExpressionPrimaryContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Enter a parse tree produced by {@link GQLParser#nonParenthesizedValueExpressionPrimarySpecialCase}.
      * @param ctx the parse tree
@@ -5315,7 +4779,8 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn enter_nonParenthesizedValueExpressionPrimarySpecialCase(
         &mut self,
         _ctx: &NonParenthesizedValueExpressionPrimarySpecialCaseContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Exit a parse tree produced by {@link GQLParser#nonParenthesizedValueExpressionPrimarySpecialCase}.
      * @param ctx the parse tree
@@ -5323,39 +4788,28 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
     fn exit_nonParenthesizedValueExpressionPrimarySpecialCase(
         &mut self,
         _ctx: &NonParenthesizedValueExpressionPrimarySpecialCaseContext<'input>,
-    ) {}
+    ) {
+    }
     /**
      * Enter a parse tree produced by {@link GQLParser#unsignedValueSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_unsignedValueSpecification(
-        &mut self,
-        _ctx: &UnsignedValueSpecificationContext<'input>,
-    ) {}
+    fn enter_unsignedValueSpecification(&mut self, _ctx: &UnsignedValueSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#unsignedValueSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_unsignedValueSpecification(
-        &mut self,
-        _ctx: &UnsignedValueSpecificationContext<'input>,
-    ) {}
+    fn exit_unsignedValueSpecification(&mut self, _ctx: &UnsignedValueSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#nonNegativeIntegerSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_nonNegativeIntegerSpecification(
-        &mut self,
-        _ctx: &NonNegativeIntegerSpecificationContext<'input>,
-    ) {}
+    fn enter_nonNegativeIntegerSpecification(&mut self, _ctx: &NonNegativeIntegerSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#nonNegativeIntegerSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_nonNegativeIntegerSpecification(
-        &mut self,
-        _ctx: &NonNegativeIntegerSpecificationContext<'input>,
-    ) {}
+    fn exit_nonNegativeIntegerSpecification(&mut self, _ctx: &NonNegativeIntegerSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#generalValueSpecification}.
      * @param ctx the parse tree
@@ -5370,18 +4824,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#dynamicParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn enter_dynamicParameterSpecification(
-        &mut self,
-        _ctx: &DynamicParameterSpecificationContext<'input>,
-    ) {}
+    fn enter_dynamicParameterSpecification(&mut self, _ctx: &DynamicParameterSpecificationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#dynamicParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn exit_dynamicParameterSpecification(
-        &mut self,
-        _ctx: &DynamicParameterSpecificationContext<'input>,
-    ) {}
+    fn exit_dynamicParameterSpecification(&mut self, _ctx: &DynamicParameterSpecificationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#letValueExpression}.
      * @param ctx the parse tree
@@ -5636,18 +5084,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#independentValueExpression}.
      * @param ctx the parse tree
      */
-    fn enter_independentValueExpression(
-        &mut self,
-        _ctx: &IndependentValueExpressionContext<'input>,
-    ) {}
+    fn enter_independentValueExpression(&mut self, _ctx: &IndependentValueExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#independentValueExpression}.
      * @param ctx the parse tree
      */
-    fn exit_independentValueExpression(
-        &mut self,
-        _ctx: &IndependentValueExpressionContext<'input>,
-    ) {}
+    fn exit_independentValueExpression(&mut self, _ctx: &IndependentValueExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#element_idFunction}.
      * @param ctx the parse tree
@@ -5692,18 +5134,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#pathValueConstructorByEnumeration}.
      * @param ctx the parse tree
      */
-    fn enter_pathValueConstructorByEnumeration(
-        &mut self,
-        _ctx: &PathValueConstructorByEnumerationContext<'input>,
-    ) {}
+    fn enter_pathValueConstructorByEnumeration(&mut self, _ctx: &PathValueConstructorByEnumerationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#pathValueConstructorByEnumeration}.
      * @param ctx the parse tree
      */
-    fn exit_pathValueConstructorByEnumeration(
-        &mut self,
-        _ctx: &PathValueConstructorByEnumerationContext<'input>,
-    ) {}
+    fn exit_pathValueConstructorByEnumeration(&mut self, _ctx: &PathValueConstructorByEnumerationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#pathElementList}.
      * @param ctx the parse tree
@@ -5788,18 +5224,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#listValueConstructorByEnumeration}.
      * @param ctx the parse tree
      */
-    fn enter_listValueConstructorByEnumeration(
-        &mut self,
-        _ctx: &ListValueConstructorByEnumerationContext<'input>,
-    ) {}
+    fn enter_listValueConstructorByEnumeration(&mut self, _ctx: &ListValueConstructorByEnumerationContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#listValueConstructorByEnumeration}.
      * @param ctx the parse tree
      */
-    fn exit_listValueConstructorByEnumeration(
-        &mut self,
-        _ctx: &ListValueConstructorByEnumerationContext<'input>,
-    ) {}
+    fn exit_listValueConstructorByEnumeration(&mut self, _ctx: &ListValueConstructorByEnumerationContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#listElementList}.
      * @param ctx the parse tree
@@ -5914,18 +5344,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#cardinalityExpressionArgument}.
      * @param ctx the parse tree
      */
-    fn enter_cardinalityExpressionArgument(
-        &mut self,
-        _ctx: &CardinalityExpressionArgumentContext<'input>,
-    ) {}
+    fn enter_cardinalityExpressionArgument(&mut self, _ctx: &CardinalityExpressionArgumentContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#cardinalityExpressionArgument}.
      * @param ctx the parse tree
      */
-    fn exit_cardinalityExpressionArgument(
-        &mut self,
-        _ctx: &CardinalityExpressionArgumentContext<'input>,
-    ) {}
+    fn exit_cardinalityExpressionArgument(&mut self, _ctx: &CardinalityExpressionArgumentContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#charLengthExpression}.
      * @param ctx the parse tree
@@ -5980,34 +5404,22 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#numericValueExpressionDividend}.
      * @param ctx the parse tree
      */
-    fn enter_numericValueExpressionDividend(
-        &mut self,
-        _ctx: &NumericValueExpressionDividendContext<'input>,
-    ) {}
+    fn enter_numericValueExpressionDividend(&mut self, _ctx: &NumericValueExpressionDividendContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#numericValueExpressionDividend}.
      * @param ctx the parse tree
      */
-    fn exit_numericValueExpressionDividend(
-        &mut self,
-        _ctx: &NumericValueExpressionDividendContext<'input>,
-    ) {}
+    fn exit_numericValueExpressionDividend(&mut self, _ctx: &NumericValueExpressionDividendContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#numericValueExpressionDivisor}.
      * @param ctx the parse tree
      */
-    fn enter_numericValueExpressionDivisor(
-        &mut self,
-        _ctx: &NumericValueExpressionDivisorContext<'input>,
-    ) {}
+    fn enter_numericValueExpressionDivisor(&mut self, _ctx: &NumericValueExpressionDivisorContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#numericValueExpressionDivisor}.
      * @param ctx the parse tree
      */
-    fn exit_numericValueExpressionDivisor(
-        &mut self,
-        _ctx: &NumericValueExpressionDivisorContext<'input>,
-    ) {}
+    fn exit_numericValueExpressionDivisor(&mut self, _ctx: &NumericValueExpressionDivisorContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#trigonometricFunction}.
      * @param ctx the parse tree
@@ -6102,34 +5514,22 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#numericValueExpressionBase}.
      * @param ctx the parse tree
      */
-    fn enter_numericValueExpressionBase(
-        &mut self,
-        _ctx: &NumericValueExpressionBaseContext<'input>,
-    ) {}
+    fn enter_numericValueExpressionBase(&mut self, _ctx: &NumericValueExpressionBaseContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#numericValueExpressionBase}.
      * @param ctx the parse tree
      */
-    fn exit_numericValueExpressionBase(
-        &mut self,
-        _ctx: &NumericValueExpressionBaseContext<'input>,
-    ) {}
+    fn exit_numericValueExpressionBase(&mut self, _ctx: &NumericValueExpressionBaseContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#numericValueExpressionExponent}.
      * @param ctx the parse tree
      */
-    fn enter_numericValueExpressionExponent(
-        &mut self,
-        _ctx: &NumericValueExpressionExponentContext<'input>,
-    ) {}
+    fn enter_numericValueExpressionExponent(&mut self, _ctx: &NumericValueExpressionExponentContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#numericValueExpressionExponent}.
      * @param ctx the parse tree
      */
-    fn exit_numericValueExpressionExponent(
-        &mut self,
-        _ctx: &NumericValueExpressionExponentContext<'input>,
-    ) {}
+    fn exit_numericValueExpressionExponent(&mut self, _ctx: &NumericValueExpressionExponentContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#squareRoot}.
      * @param ctx the parse tree
@@ -6164,18 +5564,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#characterStringValueExpression}.
      * @param ctx the parse tree
      */
-    fn enter_characterStringValueExpression(
-        &mut self,
-        _ctx: &CharacterStringValueExpressionContext<'input>,
-    ) {}
+    fn enter_characterStringValueExpression(&mut self, _ctx: &CharacterStringValueExpressionContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#characterStringValueExpression}.
      * @param ctx the parse tree
      */
-    fn exit_characterStringValueExpression(
-        &mut self,
-        _ctx: &CharacterStringValueExpressionContext<'input>,
-    ) {}
+    fn exit_characterStringValueExpression(&mut self, _ctx: &CharacterStringValueExpressionContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#byteStringValueExpression}.
      * @param ctx the parse tree
@@ -6200,18 +5594,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#trimCharacterOrByteStringSource}.
      * @param ctx the parse tree
      */
-    fn enter_trimCharacterOrByteStringSource(
-        &mut self,
-        _ctx: &TrimCharacterOrByteStringSourceContext<'input>,
-    ) {}
+    fn enter_trimCharacterOrByteStringSource(&mut self, _ctx: &TrimCharacterOrByteStringSourceContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#trimCharacterOrByteStringSource}.
      * @param ctx the parse tree
      */
-    fn exit_trimCharacterOrByteStringSource(
-        &mut self,
-        _ctx: &TrimCharacterOrByteStringSourceContext<'input>,
-    ) {}
+    fn exit_trimCharacterOrByteStringSource(&mut self, _ctx: &TrimCharacterOrByteStringSourceContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#trimSpecification}.
      * @param ctx the parse tree
@@ -6346,18 +5734,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#datetimeFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn enter_datetimeFunctionParameters(
-        &mut self,
-        _ctx: &DatetimeFunctionParametersContext<'input>,
-    ) {}
+    fn enter_datetimeFunctionParameters(&mut self, _ctx: &DatetimeFunctionParametersContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#datetimeFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn exit_datetimeFunctionParameters(
-        &mut self,
-        _ctx: &DatetimeFunctionParametersContext<'input>,
-    ) {}
+    fn exit_datetimeFunctionParameters(&mut self, _ctx: &DatetimeFunctionParametersContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#durationValueExpression}.
      * @param ctx the parse tree
@@ -6382,18 +5764,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#datetimeSubtractionParameters}.
      * @param ctx the parse tree
      */
-    fn enter_datetimeSubtractionParameters(
-        &mut self,
-        _ctx: &DatetimeSubtractionParametersContext<'input>,
-    ) {}
+    fn enter_datetimeSubtractionParameters(&mut self, _ctx: &DatetimeSubtractionParametersContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#datetimeSubtractionParameters}.
      * @param ctx the parse tree
      */
-    fn exit_datetimeSubtractionParameters(
-        &mut self,
-        _ctx: &DatetimeSubtractionParametersContext<'input>,
-    ) {}
+    fn exit_datetimeSubtractionParameters(&mut self, _ctx: &DatetimeSubtractionParametersContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#datetimeValueExpression1}.
      * @param ctx the parse tree
@@ -6438,18 +5814,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#durationFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn enter_durationFunctionParameters(
-        &mut self,
-        _ctx: &DurationFunctionParametersContext<'input>,
-    ) {}
+    fn enter_durationFunctionParameters(&mut self, _ctx: &DurationFunctionParametersContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#durationFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn exit_durationFunctionParameters(
-        &mut self,
-        _ctx: &DurationFunctionParametersContext<'input>,
-    ) {}
+    fn exit_durationFunctionParameters(&mut self, _ctx: &DurationFunctionParametersContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#objectName}.
      * @param ctx the parse tree
@@ -6464,18 +5834,12 @@ pub trait GQLListener<'input>: ParseTreeListener<'input, GQLParserContextType> {
      * Enter a parse tree produced by {@link GQLParser#objectNameOrBindingVariable}.
      * @param ctx the parse tree
      */
-    fn enter_objectNameOrBindingVariable(
-        &mut self,
-        _ctx: &ObjectNameOrBindingVariableContext<'input>,
-    ) {}
+    fn enter_objectNameOrBindingVariable(&mut self, _ctx: &ObjectNameOrBindingVariableContext<'input>) {}
     /**
      * Exit a parse tree produced by {@link GQLParser#objectNameOrBindingVariable}.
      * @param ctx the parse tree
      */
-    fn exit_objectNameOrBindingVariable(
-        &mut self,
-        _ctx: &ObjectNameOrBindingVariableContext<'input>,
-    ) {}
+    fn exit_objectNameOrBindingVariable(&mut self, _ctx: &ObjectNameOrBindingVariableContext<'input>) {}
     /**
      * Enter a parse tree produced by {@link GQLParser#directoryName}.
      * @param ctx the parse tree

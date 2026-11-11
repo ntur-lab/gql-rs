@@ -20,11 +20,9 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-use gql_rs::ast::model::*;
-use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
-
 mod string_literal_tests {
-    use super::*;
+    use gql_rs::ast::model::*;
+    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 
     /// Parses `RETURN <literal>` and returns the value of the string literal.
     fn returned_string(literal: &str) -> String {
@@ -42,10 +40,7 @@ mod string_literal_tests {
             panic!("expected RETURN result statement");
         };
         let Expression::Literal(Literal::String(value)) = &return_clause.items[0].expression else {
-            panic!(
-                "expected string literal, got {:?}",
-                return_clause.items[0].expression
-            );
+            panic!("expected string literal, got {:?}", return_clause.items[0].expression);
         };
         value.clone()
     }

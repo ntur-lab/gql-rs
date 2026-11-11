@@ -16,6 +16,11 @@ The validator is executed via `validate_query_ast` and dispatches to:
 
 All errors are emitted as `GqlError::Validation` with span information when available.
 
+These rules run automatically through `analyze()` and`DefaultGQLQueryAnalyzer::exec()`. 
+When using `parse()`, call `QueryAST::validate()` explicitly to apply them.
+
+A validation error without a known source position uses `ErrorContext.span = None`. Diagnostic codes are optional.
+
 ## Variable Scope
 
 - Declared variables are tracked in a set (`HashSet`).
