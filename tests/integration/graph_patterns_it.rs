@@ -20,8 +20,8 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-mod graph_pattern_tests {
-    use gql_rs::{ast::model::*, DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
+mod graph_pattern_it {
+    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError, ast::model::*};
 
     #[test]
     fn test_path_quantifier_exact_maps_to_exact_quantifier() {
@@ -192,10 +192,7 @@ mod graph_pattern_tests {
 
         assert!(matches!(
             edge.quantifier,
-            Some(PathQuantifier::Range {
-                min: 0,
-                max: u32::MAX
-            })
+            Some(PathQuantifier::Range { min: 0, max: u32::MAX })
         ));
     }
 
@@ -460,8 +457,7 @@ mod graph_pattern_tests {
         };
         assert_eq!(unary_right.operator, Operator::Not);
 
-        let Expression::Literal(Literal::String(right_label)) = unary_right.expression.as_ref()
-        else {
+        let Expression::Literal(Literal::String(right_label)) = unary_right.expression.as_ref() else {
             panic!("expected string literal inside right-side negation");
         };
         assert_eq!(right_label, "Employee");
@@ -545,16 +541,9 @@ mod graph_pattern_tests {
             })
             .collect::<Vec<_>>();
 
-        assert_eq!(
-            edges.len(),
-            2,
-            "expected two edges for a two-hop simplified pattern"
-        );
+        assert_eq!(edges.len(), 2, "expected two edges for a two-hop simplified pattern");
 
-        let first_labels = edges[0]
-            .labels
-            .as_ref()
-            .expect("first edge labels should exist");
+        let first_labels = edges[0].labels.as_ref().expect("first edge labels should exist");
         let Expression::Binary(first_or) = first_labels else {
             panic!("expected OR labels on first edge");
         };
@@ -570,10 +559,7 @@ mod graph_pattern_tests {
         };
         assert_eq!(first_right, "Customer");
 
-        let second_labels = edges[1]
-            .labels
-            .as_ref()
-            .expect("second edge labels should exist");
+        let second_labels = edges[1].labels.as_ref().expect("second edge labels should exist");
         let Expression::Binary(second_or) = second_labels else {
             panic!("expected OR labels on second edge");
         };
@@ -594,9 +580,7 @@ mod graph_pattern_tests {
     fn test_exists_optional_block_preserves_all_nested_matches() {
         let mut analyzer = DefaultGQLQueryAnalyzer::new();
         analyzer
-            .exec(
-                "MATCH (n) WHERE EXISTS { OPTIONAL { MATCH (a:Person) MATCH (b:Movie) } } RETURN n",
-            )
+            .exec("MATCH (n) WHERE EXISTS { OPTIONAL { MATCH (a:Person) MATCH (b:Movie) } } RETURN n")
             .expect("query should parse");
 
         let ast = analyzer.get_ast().expect("ast must be available");
@@ -616,10 +600,7 @@ mod graph_pattern_tests {
         let Expression::Subquery(subquery_expr) = &filter_clause.condition else {
             panic!("expected EXISTS to map to subquery expression");
         };
-        assert!(
-            subquery_expr.is_exists,
-            "EXISTS subquery flag should be true"
-        );
+        assert!(subquery_expr.is_exists, "EXISTS subquery flag should be true");
 
         let Query::Basic(exists_query) = subquery_expr.query.as_ref() else {
             panic!("expected EXISTS subquery to be a basic query");
@@ -667,10 +648,7 @@ mod graph_pattern_tests {
             .first()
             .expect("pattern should exist");
 
-        let alternation = pattern
-            .alternation
-            .as_ref()
-            .expect("expected alternation metadata");
+        let alternation = pattern.alternation.as_ref().expect("expected alternation metadata");
 
         assert_eq!(alternation.operator, PathAlternationOperator::Union);
         assert_eq!(alternation.alternatives.len(), 2);
@@ -698,15 +676,9 @@ mod graph_pattern_tests {
             .first()
             .expect("pattern should exist");
 
-        let alternation = pattern
-            .alternation
-            .as_ref()
-            .expect("expected alternation metadata");
+        let alternation = pattern.alternation.as_ref().expect("expected alternation metadata");
 
-        assert_eq!(
-            alternation.operator,
-            PathAlternationOperator::MultisetAlternation
-        );
+        assert_eq!(alternation.operator, PathAlternationOperator::MultisetAlternation);
         assert_eq!(alternation.alternatives.len(), 2);
     }
 }

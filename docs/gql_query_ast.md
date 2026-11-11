@@ -15,6 +15,12 @@ Logical flow:
 2. GQLAstBuilder converts CST -> `QueryAST`.
 3. AST validator modules apply semantic rules to the AST.
 
+The public `parse()` function performs steps 1 and 2. 
+`analyze()` also performs step 3. An AST returned by `parse()` has not passed semantic validation.
+
+Applications can invoke `QueryAST::validate()` separately. 
+Deserializing an AST through Serde does not automatically run this validation either.
+
 ## Root Node
 
 - QueryAST
@@ -135,6 +141,9 @@ This section enables advanced parsing and semantic validation (aggregations, cas
 - Enum variants are used to keep the model extensible.
 - Catalog syntax without a dedicated typed node can be preserved as
   `CatalogStatement::Raw`, including the original text and an optional builder detail.
+
+AST source ranges and listener diagnostic points serve different purposes.
+Lexer/parser diagnostics use a zero-width `Span` to identify the error position, including EOF. Error contexts use `None` when no position is known; this does not change the representation of spans stored directly in AST nodes.
 
 ## Transaction Intent
 

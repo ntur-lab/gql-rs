@@ -164,11 +164,7 @@ impl GQLAstBuilder {
 
         while index < chars.len() {
             let segment_start = index;
-            let quote_index = if chars[index] == '@'
-                && chars
-                .get(index + 1)
-                .is_some_and(|ch| matches!(ch, '"' | '`'))
-            {
+            let quote_index = if chars[index] == '@' && chars.get(index + 1).is_some_and(|ch| matches!(ch, '"' | '`')) {
                 index + 1
             } else if matches!(chars[index], '"' | '`') {
                 index
@@ -221,23 +217,19 @@ impl GQLAstBuilder {
 
         if let Some(session_activity) = program_activity.sessionActivity() {
             return Ok(QueryAST {
-                statement: Statement::Session(Self::build_session_command_from_context(
-                    &session_activity,
-                )?),
+                statement: Statement::Session(Self::build_session_command_from_context(&session_activity)?),
             });
         }
 
-        let transaction_activity = program_activity.transactionActivity().ok_or_else(|| {
-            Self::parse_err("Query not valid: missing transactionActivity".into())
-        })?;
+        let transaction_activity = program_activity
+            .transactionActivity()
+            .ok_or_else(|| Self::parse_err("Query not valid: missing transactionActivity".into()))?;
 
         let procedure_spec = match transaction_activity.procedureSpecification() {
             Some(spec) => spec,
             None => {
                 return Ok(QueryAST {
-                    statement: Self::build_transaction_or_catalog_statement_from_context(
-                        &transaction_activity,
-                    )?,
+                    statement: Self::build_transaction_or_catalog_statement_from_context(&transaction_activity)?,
                 });
             }
         };

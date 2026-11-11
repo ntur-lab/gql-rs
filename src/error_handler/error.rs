@@ -25,6 +25,16 @@
 //! Errors can be displayed directly for users or inspected by matching on
 //! [`crate::GqlError`].
 //!
+//! Lexer and parser diagnostics carry zero-width source spans, including at
+//! EOF. Other errors may carry a range or no source position.
+//!
+//! Constructors without a source position use `ErrorContext.span = None`.
+//! The `_at` constructors retain the supplied span. Diagnostic codes are
+//! optional.
+//!
+//! [`GqlError`] and [`ErrorContext`] support Serde serialization and
+//! deserialization. The enum uses Serde's default externally tagged format.
+//! Serialized error representations may change as the public API evolves.
 //! # Example
 //!
 //! ```rust
@@ -43,21 +53,25 @@
 //! ```
 //!
 use crate::ast::model::Span;
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Extra metadata attached to parser/validator errors.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub struct ErrorContext {
-    /// Source range associated with the diagnostic, when available.
+    /// Source range or diagnostic point, when available.
+    ///
+    /// Lexer/parser listeners use identical start and end positions.
+    /// `None` means that no source position was supplied.
     pub span: Option<Span>,
     /// Optional machine-readable diagnostic code.
     pub code: Option<String>,
 }
 
 /// Represents an error that can occur during parsing and semantic analysis.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum GqlError {
-    /// Error produced by syntax/CST parsing.
+    /// Lexical, syntactic, or CST-to-AST construction failure.
     Parse {
         /// Human-readable description of the parsing failure.
         message: String,
@@ -81,7 +95,7 @@ pub enum GqlError {
 }
 
 impl GqlError {
-    /// Creates a new parse error with the given message and optional span.
+    /// Creates a parse error without a known source position.
     pub fn parse(message: impl Into<String>) -> Self {
         Self::Parse {
             message: message.into(),
@@ -100,14 +114,11 @@ impl GqlError {
         }
     }
 
-    /// Creates a new validation error with the given message and optional span.
+    /// Creates a validation error without a known source position.
     pub fn validation(message: impl Into<String>) -> Self {
         Self::Validation {
             message: message.into(),
-            context: ErrorContext {
-                span: Some(Span::default()),
-                code: None,
-            },
+            context: ErrorContext::default(),
         }
     }
 
@@ -122,12 +133,12 @@ impl GqlError {
         }
     }
 
-    /// Creates a new validation error with the given message, span, and code.
+    /// Creates a validation error with a code but no known source position.
     pub fn validation_with_code(message: impl Into<String>, code: impl Into<String>) -> Self {
         Self::Validation {
             message: message.into(),
             context: ErrorContext {
-                span: Some(Span::default()),
+                span: None,
                 code: Some(code.into()),
             },
         }
@@ -144,18 +155,18 @@ impl GqlError {
     /// Getter methods for error message and context fields for easier access in handling code.
     pub fn message(&self) -> &str {
         match self {
-            GqlError::Parse { message, .. }
-            | GqlError::Validation { message, .. }
-            | GqlError::Generic { message, .. } => message,
+            GqlError::Parse { message, .. } | GqlError::Validation { message, .. } | GqlError::Generic { message, .. } => {
+                message
+            }
         }
     }
 
     /// Getter for error context, which may contain span and code information.
     pub fn context(&self) -> &ErrorContext {
         match self {
-            GqlError::Parse { context, .. }
-            | GqlError::Validation { context, .. }
-            | GqlError::Generic { context, .. } => context,
+            GqlError::Parse { context, .. } | GqlError::Validation { context, .. } | GqlError::Generic { context, .. } => {
+                context
+            }
         }
     }
 
@@ -164,10 +175,7 @@ impl GqlError {
         let mut parts: Vec<String> = Vec::new();
 
         if let Some(span) = &context.span {
-            let has_real_position = span.start_line != 0
-                || span.start_col != 0
-                || span.end_line != 0
-                || span.end_col != 0;
+            let has_real_position = span.start_line != 0 || span.start_col != 0 || span.end_line != 0 || span.end_col != 0;
             if has_real_position {
                 parts.push(format!(
                     "line {}:{} to {}:{}",
@@ -192,20 +200,10 @@ impl fmt::Display for GqlError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             GqlError::Parse { message, context } => {
-                write!(
-                    f,
-                    "Parse error: {}{}",
-                    message,
-                    Self::render_context(context)
-                )
+                write!(f, "Parse error: {}{}", message, Self::render_context(context))
             }
             GqlError::Validation { message, context } => {
-                write!(
-                    f,
-                    "Validation error: {}{}",
-                    message,
-                    Self::render_context(context)
-                )
+                write!(f, "Validation error: {}{}", message, Self::render_context(context))
             }
             GqlError::Generic { message, context } => {
                 write!(f, "Error: {}{}", message, Self::render_context(context))

@@ -47,9 +47,7 @@ fn analyze_query(world: &mut GqlWorld, step: &Step) -> Result<(), String> {
 fn analysis_succeeds(world: &mut GqlWorld) -> Result<(), String> {
     match world.analysis_result.as_ref() {
         Some(Ok(())) => Ok(()),
-        Some(Err(error)) => Err(format!(
-            "expected analysis to succeed, but it failed: {error}"
-        )),
+        Some(Err(error)) => Err(format!("expected analysis to succeed, but it failed: {error}")),
         None => Err("analysis was not executed before checking its result".to_string()),
     }
 }

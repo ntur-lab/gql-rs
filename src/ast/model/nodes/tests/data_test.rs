@@ -49,9 +49,7 @@ fn nested_next_statement() -> NextStatement {
                 result_statement: PrimitiveResultStatement::Finish { span: span() },
                 span: span(),
             }))),
-            target_statement: Box::new(Statement::Catalog(CatalogStatementBlock {
-                statements: vec![],
-            })),
+            target_statement: Box::new(Statement::Catalog(CatalogStatementBlock { statements: vec![] })),
             yield_clause: None,
             next: None,
             span: span(),

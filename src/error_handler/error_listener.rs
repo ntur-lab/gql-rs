@@ -20,6 +20,7 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
+use crate::ast::model::Span;
 use crate::error_handler::error::GqlError;
 use antlr_rust::error_listener::ErrorListener;
 use antlr_rust::errors::ANTLRError;
@@ -27,7 +28,10 @@ use antlr_rust::recognizer::Recognizer;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-/// Custom error listener for capturing syntax errors during ANTLR parsing of GQL queries.
+/// Collects lexer and parser diagnostics.
+///
+/// Clones share the same error collection.
+#[derive(Clone)]
 pub struct GqlErrorListener {
     pub errors: Rc<RefCell<Vec<GqlError>>>,
 }
@@ -44,17 +48,24 @@ impl<'input, T: Recognizer<'input>> ErrorListener<'input, T> for GqlErrorListene
     fn syntax_error(
         &self,
         _recognizer: &T,
-        _offending_symbol: Option<
-            &<T::TF as antlr_rust::token_factory::TokenFactory<'input>>::Inner,
-        >,
+        _offending_symbol: Option<&<T::TF as antlr_rust::token_factory::TokenFactory<'input>>::Inner>,
         line: isize,
         column: isize,
         msg: &str,
         _error: Option<&ANTLRError>,
     ) {
-        self.errors.borrow_mut().push(GqlError::parse(format!(
-            "Syntax error at line {}, column {}: {}",
-            line, column, msg
-        )));
+        let span = Span {
+            start_line: line,
+            start_col: column,
+            end_line: line,
+            end_col: column,
+        };
+
+        let error = GqlError::parse_at(
+            format!("Syntax error at line {}, column {}: {}", line, column, msg),
+            span,
+        );
+
+        self.errors.borrow_mut().push(error);
     }
 }

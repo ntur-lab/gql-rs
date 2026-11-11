@@ -20,6 +20,6 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
+mod query_ast;
 mod span_test;
 mod type_contracts_test;
-mod query_ast;

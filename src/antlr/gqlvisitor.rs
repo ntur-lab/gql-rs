@@ -122,10 +122,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#sessionSetGraphParameterClause}.
      * @param ctx the parse tree
      */
-    fn visit_sessionSetGraphParameterClause(
-        &mut self,
-        ctx: &SessionSetGraphParameterClauseContext<'input>,
-    ) {
+    fn visit_sessionSetGraphParameterClause(&mut self, ctx: &SessionSetGraphParameterClauseContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -133,10 +130,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#sessionSetBindingTableParameterClause}.
      * @param ctx the parse tree
      */
-    fn visit_sessionSetBindingTableParameterClause(
-        &mut self,
-        ctx: &SessionSetBindingTableParameterClauseContext<'input>,
-    ) {
+    fn visit_sessionSetBindingTableParameterClause(&mut self, ctx: &SessionSetBindingTableParameterClauseContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -144,10 +138,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#sessionSetValueParameterClause}.
      * @param ctx the parse tree
      */
-    fn visit_sessionSetValueParameterClause(
-        &mut self,
-        ctx: &SessionSetValueParameterClauseContext<'input>,
-    ) {
+    fn visit_sessionSetValueParameterClause(&mut self, ctx: &SessionSetValueParameterClauseContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -187,10 +178,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#sessionParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_sessionParameterSpecification(
-        &mut self,
-        ctx: &SessionParameterSpecificationContext<'input>,
-    ) {
+    fn visit_sessionParameterSpecification(&mut self, ctx: &SessionParameterSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -206,10 +194,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#transactionCharacteristics}.
      * @param ctx the parse tree
      */
-    fn visit_transactionCharacteristics(
-        &mut self,
-        ctx: &TransactionCharacteristicsContext<'input>,
-    ) {
+    fn visit_transactionCharacteristics(&mut self, ctx: &TransactionCharacteristicsContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -249,10 +234,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#nestedProcedureSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_nestedProcedureSpecification(
-        &mut self,
-        ctx: &NestedProcedureSpecificationContext<'input>,
-    ) {
+    fn visit_nestedProcedureSpecification(&mut self, ctx: &NestedProcedureSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -295,10 +277,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#bindingVariableDefinitionBlock}.
      * @param ctx the parse tree
      */
-    fn visit_bindingVariableDefinitionBlock(
-        &mut self,
-        ctx: &BindingVariableDefinitionBlockContext<'input>,
-    ) {
+    fn visit_bindingVariableDefinitionBlock(&mut self, ctx: &BindingVariableDefinitionBlockContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -362,10 +341,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#bindingTableVariableDefinition}.
      * @param ctx the parse tree
      */
-    fn visit_bindingTableVariableDefinition(
-        &mut self,
-        ctx: &BindingTableVariableDefinitionContext<'input>,
-    ) {
+    fn visit_bindingTableVariableDefinition(&mut self, ctx: &BindingTableVariableDefinitionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -373,10 +349,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#optTypedBindingTableInitializer}.
      * @param ctx the parse tree
      */
-    fn visit_optTypedBindingTableInitializer(
-        &mut self,
-        ctx: &OptTypedBindingTableInitializerContext<'input>,
-    ) {
+    fn visit_optTypedBindingTableInitializer(&mut self, ctx: &OptTypedBindingTableInitializerContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -440,10 +413,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#nestedBindingTableQuerySpecification}.
      * @param ctx the parse tree
      */
-    fn visit_nestedBindingTableQuerySpecification(
-        &mut self,
-        ctx: &NestedBindingTableQuerySpecificationContext<'input>,
-    ) {
+    fn visit_nestedBindingTableQuerySpecification(&mut self, ctx: &NestedBindingTableQuerySpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -459,10 +429,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#linearCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_linearCatalogModifyingStatement(
-        &mut self,
-        ctx: &LinearCatalogModifyingStatementContext<'input>,
-    ) {
+    fn visit_linearCatalogModifyingStatement(&mut self, ctx: &LinearCatalogModifyingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -470,10 +437,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simpleCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleCatalogModifyingStatement(
-        &mut self,
-        ctx: &SimpleCatalogModifyingStatementContext<'input>,
-    ) {
+    fn visit_simpleCatalogModifyingStatement(&mut self, ctx: &SimpleCatalogModifyingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -481,10 +445,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#primitiveCatalogModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_primitiveCatalogModifyingStatement(
-        &mut self,
-        ctx: &PrimitiveCatalogModifyingStatementContext<'input>,
-    ) {
+    fn visit_primitiveCatalogModifyingStatement(&mut self, ctx: &PrimitiveCatalogModifyingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -599,10 +560,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#linearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_linearDataModifyingStatement(
-        &mut self,
-        ctx: &LinearDataModifyingStatementContext<'input>,
-    ) {
+    fn visit_linearDataModifyingStatement(&mut self, ctx: &LinearDataModifyingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -610,10 +568,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#focusedLinearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_focusedLinearDataModifyingStatement(
-        &mut self,
-        ctx: &FocusedLinearDataModifyingStatementContext<'input>,
-    ) {
+    fn visit_focusedLinearDataModifyingStatement(&mut self, ctx: &FocusedLinearDataModifyingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -643,10 +598,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#ambientLinearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_ambientLinearDataModifyingStatement(
-        &mut self,
-        ctx: &AmbientLinearDataModifyingStatementContext<'input>,
-    ) {
+    fn visit_ambientLinearDataModifyingStatement(&mut self, ctx: &AmbientLinearDataModifyingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -665,10 +617,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simpleLinearDataAccessingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleLinearDataAccessingStatement(
-        &mut self,
-        ctx: &SimpleLinearDataAccessingStatementContext<'input>,
-    ) {
+    fn visit_simpleLinearDataAccessingStatement(&mut self, ctx: &SimpleLinearDataAccessingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -676,10 +625,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simpleDataAccessingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleDataAccessingStatement(
-        &mut self,
-        ctx: &SimpleDataAccessingStatementContext<'input>,
-    ) {
+    fn visit_simpleDataAccessingStatement(&mut self, ctx: &SimpleDataAccessingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -687,10 +633,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simpleDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleDataModifyingStatement(
-        &mut self,
-        ctx: &SimpleDataModifyingStatementContext<'input>,
-    ) {
+    fn visit_simpleDataModifyingStatement(&mut self, ctx: &SimpleDataModifyingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -698,10 +641,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#primitiveDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_primitiveDataModifyingStatement(
-        &mut self,
-        ctx: &PrimitiveDataModifyingStatementContext<'input>,
-    ) {
+    fn visit_primitiveDataModifyingStatement(&mut self, ctx: &PrimitiveDataModifyingStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -829,10 +769,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#callDataModifyingProcedureStatement}.
      * @param ctx the parse tree
      */
-    fn visit_callDataModifyingProcedureStatement(
-        &mut self,
-        ctx: &CallDataModifyingProcedureStatementContext<'input>,
-    ) {
+    fn visit_callDataModifyingProcedureStatement(&mut self, ctx: &CallDataModifyingProcedureStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -888,10 +825,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#focusedLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_focusedLinearQueryStatement(
-        &mut self,
-        ctx: &FocusedLinearQueryStatementContext<'input>,
-    ) {
+    fn visit_focusedLinearQueryStatement(&mut self, ctx: &FocusedLinearQueryStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -899,10 +833,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#focusedLinearQueryStatementPart}.
      * @param ctx the parse tree
      */
-    fn visit_focusedLinearQueryStatementPart(
-        &mut self,
-        ctx: &FocusedLinearQueryStatementPartContext<'input>,
-    ) {
+    fn visit_focusedLinearQueryStatementPart(&mut self, ctx: &FocusedLinearQueryStatementPartContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -921,10 +852,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#focusedPrimitiveResultStatement}.
      * @param ctx the parse tree
      */
-    fn visit_focusedPrimitiveResultStatement(
-        &mut self,
-        ctx: &FocusedPrimitiveResultStatementContext<'input>,
-    ) {
+    fn visit_focusedPrimitiveResultStatement(&mut self, ctx: &FocusedPrimitiveResultStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -932,10 +860,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#focusedNestedQuerySpecification}.
      * @param ctx the parse tree
      */
-    fn visit_focusedNestedQuerySpecification(
-        &mut self,
-        ctx: &FocusedNestedQuerySpecificationContext<'input>,
-    ) {
+    fn visit_focusedNestedQuerySpecification(&mut self, ctx: &FocusedNestedQuerySpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -943,10 +868,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#ambientLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_ambientLinearQueryStatement(
-        &mut self,
-        ctx: &AmbientLinearQueryStatementContext<'input>,
-    ) {
+    fn visit_ambientLinearQueryStatement(&mut self, ctx: &AmbientLinearQueryStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -954,10 +876,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simpleLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleLinearQueryStatement(
-        &mut self,
-        ctx: &SimpleLinearQueryStatementContext<'input>,
-    ) {
+    fn visit_simpleLinearQueryStatement(&mut self, ctx: &SimpleLinearQueryStatementContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1261,10 +1180,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#bindingVariableReferenceList}.
      * @param ctx the parse tree
      */
-    fn visit_bindingVariableReferenceList(
-        &mut self,
-        ctx: &BindingVariableReferenceListContext<'input>,
-    ) {
+    fn visit_bindingVariableReferenceList(&mut self, ctx: &BindingVariableReferenceListContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1360,10 +1276,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#repeatableElementsMatchMode}.
      * @param ctx the parse tree
      */
-    fn visit_repeatableElementsMatchMode(
-        &mut self,
-        ctx: &RepeatableElementsMatchModeContext<'input>,
-    ) {
+    fn visit_repeatableElementsMatchMode(&mut self, ctx: &RepeatableElementsMatchModeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1499,10 +1412,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#insertElementPatternFiller}.
      * @param ctx the parse tree
      */
-    fn visit_insertElementPatternFiller(
-        &mut self,
-        ctx: &InsertElementPatternFillerContext<'input>,
-    ) {
+    fn visit_insertElementPatternFiller(&mut self, ctx: &InsertElementPatternFillerContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1510,10 +1420,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#labelAndPropertySetSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_labelAndPropertySetSpecification(
-        &mut self,
-        ctx: &LabelAndPropertySetSpecificationContext<'input>,
-    ) {
+    fn visit_labelAndPropertySetSpecification(&mut self, ctx: &LabelAndPropertySetSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1617,10 +1524,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#countedShortestGroupSearch}.
      * @param ctx the parse tree
      */
-    fn visit_countedShortestGroupSearch(
-        &mut self,
-        ctx: &CountedShortestGroupSearchContext<'input>,
-    ) {
+    fn visit_countedShortestGroupSearch(&mut self, ctx: &CountedShortestGroupSearchContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1708,10 +1612,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#pathPrimary}.
      * @param ctx the parse tree
      */
-    fn visit_ppParenthesizedPathPatternExpression(
-        &mut self,
-        ctx: &PpParenthesizedPathPatternExpressionContext<'input>,
-    ) {
+    fn visit_ppParenthesizedPathPatternExpression(&mut self, ctx: &PpParenthesizedPathPatternExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1720,10 +1621,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#pathPrimary}.
      * @param ctx the parse tree
      */
-    fn visit_ppSimplifiedPathPatternExpression(
-        &mut self,
-        ctx: &PpSimplifiedPathPatternExpressionContext<'input>,
-    ) {
+    fn visit_ppSimplifiedPathPatternExpression(&mut self, ctx: &PpSimplifiedPathPatternExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1755,10 +1653,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#elementVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn visit_elementVariableDeclaration(
-        &mut self,
-        ctx: &ElementVariableDeclarationContext<'input>,
-    ) {
+    fn visit_elementVariableDeclaration(&mut self, ctx: &ElementVariableDeclarationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1798,10 +1693,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#elementPropertySpecification}.
      * @param ctx the parse tree
      */
-    fn visit_elementPropertySpecification(
-        &mut self,
-        ctx: &ElementPropertySpecificationContext<'input>,
-    ) {
+    fn visit_elementPropertySpecification(&mut self, ctx: &ElementPropertySpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1905,10 +1797,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#parenthesizedPathPatternExpression}.
      * @param ctx the parse tree
      */
-    fn visit_parenthesizedPathPatternExpression(
-        &mut self,
-        ctx: &ParenthesizedPathPatternExpressionContext<'input>,
-    ) {
+    fn visit_parenthesizedPathPatternExpression(&mut self, ctx: &ParenthesizedPathPatternExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1916,10 +1805,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#subpathVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn visit_subpathVariableDeclaration(
-        &mut self,
-        ctx: &SubpathVariableDeclarationContext<'input>,
-    ) {
+    fn visit_subpathVariableDeclaration(&mut self, ctx: &SubpathVariableDeclarationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1927,10 +1813,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#parenthesizedPathPatternWhereClause}.
      * @param ctx the parse tree
      */
-    fn visit_parenthesizedPathPatternWhereClause(
-        &mut self,
-        ctx: &ParenthesizedPathPatternWhereClauseContext<'input>,
-    ) {
+    fn visit_parenthesizedPathPatternWhereClause(&mut self, ctx: &ParenthesizedPathPatternWhereClauseContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1948,10 +1831,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionDisjunction(
-        &mut self,
-        ctx: &LabelExpressionDisjunctionContext<'input>,
-    ) {
+    fn visit_labelExpressionDisjunction(&mut self, ctx: &LabelExpressionDisjunctionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1960,10 +1840,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionParenthesized(
-        &mut self,
-        ctx: &LabelExpressionParenthesizedContext<'input>,
-    ) {
+    fn visit_labelExpressionParenthesized(&mut self, ctx: &LabelExpressionParenthesizedContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -1981,10 +1858,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionConjunction(
-        &mut self,
-        ctx: &LabelExpressionConjunctionContext<'input>,
-    ) {
+    fn visit_labelExpressionConjunction(&mut self, ctx: &LabelExpressionConjunctionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2057,10 +1931,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedPathPatternExpression}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedPathPatternExpression(
-        &mut self,
-        ctx: &SimplifiedPathPatternExpressionContext<'input>,
-    ) {
+    fn visit_simplifiedPathPatternExpression(&mut self, ctx: &SimplifiedPathPatternExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2076,10 +1947,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedDefaultingUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDefaultingUndirected(
-        &mut self,
-        ctx: &SimplifiedDefaultingUndirectedContext<'input>,
-    ) {
+    fn visit_simplifiedDefaultingUndirected(&mut self, ctx: &SimplifiedDefaultingUndirectedContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2095,10 +1963,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedDefaultingLeftOrUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDefaultingLeftOrUndirected(
-        &mut self,
-        ctx: &SimplifiedDefaultingLeftOrUndirectedContext<'input>,
-    ) {
+    fn visit_simplifiedDefaultingLeftOrUndirected(&mut self, ctx: &SimplifiedDefaultingLeftOrUndirectedContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2106,10 +1971,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedDefaultingUndirectedOrRight}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDefaultingUndirectedOrRight(
-        &mut self,
-        ctx: &SimplifiedDefaultingUndirectedOrRightContext<'input>,
-    ) {
+    fn visit_simplifiedDefaultingUndirectedOrRight(&mut self, ctx: &SimplifiedDefaultingUndirectedOrRightContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2117,10 +1979,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedDefaultingLeftOrRight}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDefaultingLeftOrRight(
-        &mut self,
-        ctx: &SimplifiedDefaultingLeftOrRightContext<'input>,
-    ) {
+    fn visit_simplifiedDefaultingLeftOrRight(&mut self, ctx: &SimplifiedDefaultingLeftOrRightContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2128,10 +1987,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedDefaultingAnyDirection}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDefaultingAnyDirection(
-        &mut self,
-        ctx: &SimplifiedDefaultingAnyDirectionContext<'input>,
-    ) {
+    fn visit_simplifiedDefaultingAnyDirection(&mut self, ctx: &SimplifiedDefaultingAnyDirectionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2155,10 +2011,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedMultisetAlternation}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedMultisetAlternation(
-        &mut self,
-        ctx: &SimplifiedMultisetAlternationContext<'input>,
-    ) {
+    fn visit_simplifiedMultisetAlternation(&mut self, ctx: &SimplifiedMultisetAlternationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2176,10 +2029,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#simplifiedTerm}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedConcatenationLabel(
-        &mut self,
-        ctx: &SimplifiedConcatenationLabelContext<'input>,
-    ) {
+    fn visit_simplifiedConcatenationLabel(&mut self, ctx: &SimplifiedConcatenationLabelContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2188,10 +2038,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#simplifiedFactorLow}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedConjunctionLabel(
-        &mut self,
-        ctx: &SimplifiedConjunctionLabelContext<'input>,
-    ) {
+    fn visit_simplifiedConjunctionLabel(&mut self, ctx: &SimplifiedConjunctionLabelContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2240,10 +2087,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedDirectionOverride}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDirectionOverride(
-        &mut self,
-        ctx: &SimplifiedDirectionOverrideContext<'input>,
-    ) {
+    fn visit_simplifiedDirectionOverride(&mut self, ctx: &SimplifiedDirectionOverrideContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2259,10 +2103,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideUndirected(
-        &mut self,
-        ctx: &SimplifiedOverrideUndirectedContext<'input>,
-    ) {
+    fn visit_simplifiedOverrideUndirected(&mut self, ctx: &SimplifiedOverrideUndirectedContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2278,10 +2119,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideLeftOrUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideLeftOrUndirected(
-        &mut self,
-        ctx: &SimplifiedOverrideLeftOrUndirectedContext<'input>,
-    ) {
+    fn visit_simplifiedOverrideLeftOrUndirected(&mut self, ctx: &SimplifiedOverrideLeftOrUndirectedContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2289,10 +2127,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideUndirectedOrRight}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideUndirectedOrRight(
-        &mut self,
-        ctx: &SimplifiedOverrideUndirectedOrRightContext<'input>,
-    ) {
+    fn visit_simplifiedOverrideUndirectedOrRight(&mut self, ctx: &SimplifiedOverrideUndirectedOrRightContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2300,10 +2135,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideLeftOrRight}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideLeftOrRight(
-        &mut self,
-        ctx: &SimplifiedOverrideLeftOrRightContext<'input>,
-    ) {
+    fn visit_simplifiedOverrideLeftOrRight(&mut self, ctx: &SimplifiedOverrideLeftOrRightContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2311,10 +2143,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideAnyDirection}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideAnyDirection(
-        &mut self,
-        ctx: &SimplifiedOverrideAnyDirectionContext<'input>,
-    ) {
+    fn visit_simplifiedOverrideAnyDirection(&mut self, ctx: &SimplifiedOverrideAnyDirectionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2506,10 +2335,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#absoluteCatalogSchemaReference}.
      * @param ctx the parse tree
      */
-    fn visit_absoluteCatalogSchemaReference(
-        &mut self,
-        ctx: &AbsoluteCatalogSchemaReferenceContext<'input>,
-    ) {
+    fn visit_absoluteCatalogSchemaReference(&mut self, ctx: &AbsoluteCatalogSchemaReferenceContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2517,10 +2343,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#catalogSchemaParentAndName}.
      * @param ctx the parse tree
      */
-    fn visit_catalogSchemaParentAndName(
-        &mut self,
-        ctx: &CatalogSchemaParentAndNameContext<'input>,
-    ) {
+    fn visit_catalogSchemaParentAndName(&mut self, ctx: &CatalogSchemaParentAndNameContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2528,10 +2351,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#relativeCatalogSchemaReference}.
      * @param ctx the parse tree
      */
-    fn visit_relativeCatalogSchemaReference(
-        &mut self,
-        ctx: &RelativeCatalogSchemaReferenceContext<'input>,
-    ) {
+    fn visit_relativeCatalogSchemaReference(&mut self, ctx: &RelativeCatalogSchemaReferenceContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2603,10 +2423,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#catalogGraphTypeParentAndName}.
      * @param ctx the parse tree
      */
-    fn visit_catalogGraphTypeParentAndName(
-        &mut self,
-        ctx: &CatalogGraphTypeParentAndNameContext<'input>,
-    ) {
+    fn visit_catalogGraphTypeParentAndName(&mut self, ctx: &CatalogGraphTypeParentAndNameContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2630,10 +2447,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#catalogProcedureParentAndName}.
      * @param ctx the parse tree
      */
-    fn visit_catalogProcedureParentAndName(
-        &mut self,
-        ctx: &CatalogProcedureParentAndNameContext<'input>,
-    ) {
+    fn visit_catalogProcedureParentAndName(&mut self, ctx: &CatalogProcedureParentAndNameContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2641,10 +2455,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#catalogObjectParentReference}.
      * @param ctx the parse tree
      */
-    fn visit_catalogObjectParentReference(
-        &mut self,
-        ctx: &CatalogObjectParentReferenceContext<'input>,
-    ) {
+    fn visit_catalogObjectParentReference(&mut self, ctx: &CatalogObjectParentReferenceContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2652,10 +2463,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#referenceParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_referenceParameterSpecification(
-        &mut self,
-        ctx: &ReferenceParameterSpecificationContext<'input>,
-    ) {
+    fn visit_referenceParameterSpecification(&mut self, ctx: &ReferenceParameterSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2663,10 +2471,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#nestedGraphTypeSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_nestedGraphTypeSpecification(
-        &mut self,
-        ctx: &NestedGraphTypeSpecificationContext<'input>,
-    ) {
+    fn visit_nestedGraphTypeSpecification(&mut self, ctx: &NestedGraphTypeSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2674,10 +2479,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#graphTypeSpecificationBody}.
      * @param ctx the parse tree
      */
-    fn visit_graphTypeSpecificationBody(
-        &mut self,
-        ctx: &GraphTypeSpecificationBodyContext<'input>,
-    ) {
+    fn visit_graphTypeSpecificationBody(&mut self, ctx: &GraphTypeSpecificationBodyContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2861,10 +2663,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#edgeTypePatternPointingRight}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypePatternPointingRight(
-        &mut self,
-        ctx: &EdgeTypePatternPointingRightContext<'input>,
-    ) {
+    fn visit_edgeTypePatternPointingRight(&mut self, ctx: &EdgeTypePatternPointingRightContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2872,10 +2671,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#edgeTypePatternPointingLeft}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypePatternPointingLeft(
-        &mut self,
-        ctx: &EdgeTypePatternPointingLeftContext<'input>,
-    ) {
+    fn visit_edgeTypePatternPointingLeft(&mut self, ctx: &EdgeTypePatternPointingLeftContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -2923,10 +2719,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#destinationNodeTypeReference}.
      * @param ctx the parse tree
      */
-    fn visit_destinationNodeTypeReference(
-        &mut self,
-        ctx: &DestinationNodeTypeReferenceContext<'input>,
-    ) {
+    fn visit_destinationNodeTypeReference(&mut self, ctx: &DestinationNodeTypeReferenceContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3038,10 +2831,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#propertyTypesSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_propertyTypesSpecification(
-        &mut self,
-        ctx: &PropertyTypesSpecificationContext<'input>,
-    ) {
+    fn visit_propertyTypesSpecification(&mut self, ctx: &PropertyTypesSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3082,10 +2872,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_dynamicPropertyValueTypeLabel(
-        &mut self,
-        ctx: &DynamicPropertyValueTypeLabelContext<'input>,
-    ) {
+    fn visit_dynamicPropertyValueTypeLabel(&mut self, ctx: &DynamicPropertyValueTypeLabelContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3094,10 +2881,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedDynamicUnionTypeAtl1(
-        &mut self,
-        ctx: &ClosedDynamicUnionTypeAtl1Context<'input>,
-    ) {
+    fn visit_closedDynamicUnionTypeAtl1(&mut self, ctx: &ClosedDynamicUnionTypeAtl1Context<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3106,10 +2890,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedDynamicUnionTypeAtl2(
-        &mut self,
-        ctx: &ClosedDynamicUnionTypeAtl2Context<'input>,
-    ) {
+    fn visit_closedDynamicUnionTypeAtl2(&mut self, ctx: &ClosedDynamicUnionTypeAtl2Context<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3268,10 +3049,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#signedBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn visit_signedBinaryExactNumericType(
-        &mut self,
-        ctx: &SignedBinaryExactNumericTypeContext<'input>,
-    ) {
+    fn visit_signedBinaryExactNumericType(&mut self, ctx: &SignedBinaryExactNumericTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3279,10 +3057,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#unsignedBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn visit_unsignedBinaryExactNumericType(
-        &mut self,
-        ctx: &UnsignedBinaryExactNumericTypeContext<'input>,
-    ) {
+    fn visit_unsignedBinaryExactNumericType(&mut self, ctx: &UnsignedBinaryExactNumericTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3290,10 +3065,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#verboseBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn visit_verboseBinaryExactNumericType(
-        &mut self,
-        ctx: &VerboseBinaryExactNumericTypeContext<'input>,
-    ) {
+    fn visit_verboseBinaryExactNumericType(&mut self, ctx: &VerboseBinaryExactNumericTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3445,10 +3217,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#closedGraphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedGraphReferenceValueType(
-        &mut self,
-        ctx: &ClosedGraphReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_closedGraphReferenceValueType(&mut self, ctx: &ClosedGraphReferenceValueTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3456,10 +3225,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#openGraphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_openGraphReferenceValueType(
-        &mut self,
-        ctx: &OpenGraphReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_openGraphReferenceValueType(&mut self, ctx: &OpenGraphReferenceValueTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3467,10 +3233,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#bindingTableReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_bindingTableReferenceValueType(
-        &mut self,
-        ctx: &BindingTableReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_bindingTableReferenceValueType(&mut self, ctx: &BindingTableReferenceValueTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3486,10 +3249,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#closedNodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedNodeReferenceValueType(
-        &mut self,
-        ctx: &ClosedNodeReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_closedNodeReferenceValueType(&mut self, ctx: &ClosedNodeReferenceValueTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3497,10 +3257,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#openNodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_openNodeReferenceValueType(
-        &mut self,
-        ctx: &OpenNodeReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_openNodeReferenceValueType(&mut self, ctx: &OpenNodeReferenceValueTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3516,10 +3273,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#closedEdgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedEdgeReferenceValueType(
-        &mut self,
-        ctx: &ClosedEdgeReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_closedEdgeReferenceValueType(&mut self, ctx: &ClosedEdgeReferenceValueTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3527,10 +3281,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#openEdgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_openEdgeReferenceValueType(
-        &mut self,
-        ctx: &OpenEdgeReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_openEdgeReferenceValueType(&mut self, ctx: &OpenEdgeReferenceValueTypeContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3714,10 +3465,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#sourceDestinationPredicate}.
      * @param ctx the parse tree
      */
-    fn visit_sourceDestinationPredicate(
-        &mut self,
-        ctx: &SourceDestinationPredicateContext<'input>,
-    ) {
+    fn visit_sourceDestinationPredicate(&mut self, ctx: &SourceDestinationPredicateContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3836,10 +3584,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_normalizedPredicateExprAlt(
-        &mut self,
-        ctx: &NormalizedPredicateExprAltContext<'input>,
-    ) {
+    fn visit_normalizedPredicateExprAlt(&mut self, ctx: &NormalizedPredicateExprAltContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3935,10 +3680,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#characterOrByteStringFunction}.
      * @param ctx the parse tree
      */
-    fn visit_characterOrByteStringFunction(
-        &mut self,
-        ctx: &CharacterOrByteStringFunctionContext<'input>,
-    ) {
+    fn visit_characterOrByteStringFunction(&mut self, ctx: &CharacterOrByteStringFunctionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3954,10 +3696,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#trimSingleCharacterOrByteString}.
      * @param ctx the parse tree
      */
-    fn visit_trimSingleCharacterOrByteString(
-        &mut self,
-        ctx: &TrimSingleCharacterOrByteStringContext<'input>,
-    ) {
+    fn visit_trimSingleCharacterOrByteString(&mut self, ctx: &TrimSingleCharacterOrByteStringContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3973,10 +3712,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#trimMultiCharacterCharacterString}.
      * @param ctx the parse tree
      */
-    fn visit_trimMultiCharacterCharacterString(
-        &mut self,
-        ctx: &TrimMultiCharacterCharacterStringContext<'input>,
-    ) {
+    fn visit_trimMultiCharacterCharacterString(&mut self, ctx: &TrimMultiCharacterCharacterStringContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -3992,10 +3728,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#nodeReferenceValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_nodeReferenceValueExpression(
-        &mut self,
-        ctx: &NodeReferenceValueExpressionContext<'input>,
-    ) {
+    fn visit_nodeReferenceValueExpression(&mut self, ctx: &NodeReferenceValueExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4003,10 +3736,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#edgeReferenceValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_edgeReferenceValueExpression(
-        &mut self,
-        ctx: &EdgeReferenceValueExpressionContext<'input>,
-    ) {
+    fn visit_edgeReferenceValueExpression(&mut self, ctx: &EdgeReferenceValueExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4014,10 +3744,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#aggregatingValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_aggregatingValueExpression(
-        &mut self,
-        ctx: &AggregatingValueExpressionContext<'input>,
-    ) {
+    fn visit_aggregatingValueExpression(&mut self, ctx: &AggregatingValueExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4033,10 +3760,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#parenthesizedValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_parenthesizedValueExpression(
-        &mut self,
-        ctx: &ParenthesizedValueExpressionContext<'input>,
-    ) {
+    fn visit_parenthesizedValueExpression(&mut self, ctx: &ParenthesizedValueExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4066,10 +3790,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#unsignedValueSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_unsignedValueSpecification(
-        &mut self,
-        ctx: &UnsignedValueSpecificationContext<'input>,
-    ) {
+    fn visit_unsignedValueSpecification(&mut self, ctx: &UnsignedValueSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4077,10 +3798,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#nonNegativeIntegerSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_nonNegativeIntegerSpecification(
-        &mut self,
-        ctx: &NonNegativeIntegerSpecificationContext<'input>,
-    ) {
+    fn visit_nonNegativeIntegerSpecification(&mut self, ctx: &NonNegativeIntegerSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4096,10 +3814,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#dynamicParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_dynamicParameterSpecification(
-        &mut self,
-        ctx: &DynamicParameterSpecificationContext<'input>,
-    ) {
+    fn visit_dynamicParameterSpecification(&mut self, ctx: &DynamicParameterSpecificationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4307,10 +4022,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#independentValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_independentValueExpression(
-        &mut self,
-        ctx: &IndependentValueExpressionContext<'input>,
-    ) {
+    fn visit_independentValueExpression(&mut self, ctx: &IndependentValueExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4350,10 +4062,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#pathValueConstructorByEnumeration}.
      * @param ctx the parse tree
      */
-    fn visit_pathValueConstructorByEnumeration(
-        &mut self,
-        ctx: &PathValueConstructorByEnumerationContext<'input>,
-    ) {
+    fn visit_pathValueConstructorByEnumeration(&mut self, ctx: &PathValueConstructorByEnumerationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4425,10 +4134,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#listValueConstructorByEnumeration}.
      * @param ctx the parse tree
      */
-    fn visit_listValueConstructorByEnumeration(
-        &mut self,
-        ctx: &ListValueConstructorByEnumerationContext<'input>,
-    ) {
+    fn visit_listValueConstructorByEnumeration(&mut self, ctx: &ListValueConstructorByEnumerationContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4524,10 +4230,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#cardinalityExpressionArgument}.
      * @param ctx the parse tree
      */
-    fn visit_cardinalityExpressionArgument(
-        &mut self,
-        ctx: &CardinalityExpressionArgumentContext<'input>,
-    ) {
+    fn visit_cardinalityExpressionArgument(&mut self, ctx: &CardinalityExpressionArgumentContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4575,10 +4278,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#numericValueExpressionDividend}.
      * @param ctx the parse tree
      */
-    fn visit_numericValueExpressionDividend(
-        &mut self,
-        ctx: &NumericValueExpressionDividendContext<'input>,
-    ) {
+    fn visit_numericValueExpressionDividend(&mut self, ctx: &NumericValueExpressionDividendContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4586,10 +4286,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#numericValueExpressionDivisor}.
      * @param ctx the parse tree
      */
-    fn visit_numericValueExpressionDivisor(
-        &mut self,
-        ctx: &NumericValueExpressionDivisorContext<'input>,
-    ) {
+    fn visit_numericValueExpressionDivisor(&mut self, ctx: &NumericValueExpressionDivisorContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4669,10 +4366,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#numericValueExpressionBase}.
      * @param ctx the parse tree
      */
-    fn visit_numericValueExpressionBase(
-        &mut self,
-        ctx: &NumericValueExpressionBaseContext<'input>,
-    ) {
+    fn visit_numericValueExpressionBase(&mut self, ctx: &NumericValueExpressionBaseContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4680,10 +4374,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#numericValueExpressionExponent}.
      * @param ctx the parse tree
      */
-    fn visit_numericValueExpressionExponent(
-        &mut self,
-        ctx: &NumericValueExpressionExponentContext<'input>,
-    ) {
+    fn visit_numericValueExpressionExponent(&mut self, ctx: &NumericValueExpressionExponentContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4715,10 +4406,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#characterStringValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_characterStringValueExpression(
-        &mut self,
-        ctx: &CharacterStringValueExpressionContext<'input>,
-    ) {
+    fn visit_characterStringValueExpression(&mut self, ctx: &CharacterStringValueExpressionContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4742,10 +4430,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#trimCharacterOrByteStringSource}.
      * @param ctx the parse tree
      */
-    fn visit_trimCharacterOrByteStringSource(
-        &mut self,
-        ctx: &TrimCharacterOrByteStringSourceContext<'input>,
-    ) {
+    fn visit_trimCharacterOrByteStringSource(&mut self, ctx: &TrimCharacterOrByteStringSourceContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4857,10 +4542,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#datetimeFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeFunctionParameters(
-        &mut self,
-        ctx: &DatetimeFunctionParametersContext<'input>,
-    ) {
+    fn visit_datetimeFunctionParameters(&mut self, ctx: &DatetimeFunctionParametersContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4884,10 +4566,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#datetimeSubtractionParameters}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeSubtractionParameters(
-        &mut self,
-        ctx: &DatetimeSubtractionParametersContext<'input>,
-    ) {
+    fn visit_datetimeSubtractionParameters(&mut self, ctx: &DatetimeSubtractionParametersContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4927,10 +4606,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#durationFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn visit_durationFunctionParameters(
-        &mut self,
-        ctx: &DurationFunctionParametersContext<'input>,
-    ) {
+    fn visit_durationFunctionParameters(&mut self, ctx: &DurationFunctionParametersContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -4946,10 +4622,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
      * Visit a parse tree produced by {@link GQLParser#objectNameOrBindingVariable}.
      * @param ctx the parse tree
      */
-    fn visit_objectNameOrBindingVariable(
-        &mut self,
-        ctx: &ObjectNameOrBindingVariableContext<'input>,
-    ) {
+    fn visit_objectNameOrBindingVariable(&mut self, ctx: &ObjectNameOrBindingVariableContext<'input>) {
         self.visit_children(ctx)
     }
 
@@ -5314,9 +4987,7 @@ pub trait GQLVisitor<'input>: ParseTreeVisitor<'input, GQLParserContextType> {
     }
 }
 
-pub trait GQLVisitorCompat<'input>:
-ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
-{
+pub trait GQLVisitorCompat<'input>: ParseTreeVisitorCompat<'input, Node = GQLParserContextType> {
     /**
      * Visit a parse tree produced by {@link GQLParser#gqlProgram}.
      * @param ctx the parse tree
@@ -5345,10 +5016,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#transactionActivity}.
      * @param ctx the parse tree
      */
-    fn visit_transactionActivity(
-        &mut self,
-        ctx: &TransactionActivityContext<'input>,
-    ) -> Self::Return {
+    fn visit_transactionActivity(&mut self, ctx: &TransactionActivityContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5356,10 +5024,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#endTransactionCommand}.
      * @param ctx the parse tree
      */
-    fn visit_endTransactionCommand(
-        &mut self,
-        ctx: &EndTransactionCommandContext<'input>,
-    ) -> Self::Return {
+    fn visit_endTransactionCommand(&mut self, ctx: &EndTransactionCommandContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5375,10 +5040,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionSetSchemaClause}.
      * @param ctx the parse tree
      */
-    fn visit_sessionSetSchemaClause(
-        &mut self,
-        ctx: &SessionSetSchemaClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionSetSchemaClause(&mut self, ctx: &SessionSetSchemaClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5386,10 +5048,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionSetGraphClause}.
      * @param ctx the parse tree
      */
-    fn visit_sessionSetGraphClause(
-        &mut self,
-        ctx: &SessionSetGraphClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionSetGraphClause(&mut self, ctx: &SessionSetGraphClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5397,10 +5056,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionSetTimeZoneClause}.
      * @param ctx the parse tree
      */
-    fn visit_sessionSetTimeZoneClause(
-        &mut self,
-        ctx: &SessionSetTimeZoneClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionSetTimeZoneClause(&mut self, ctx: &SessionSetTimeZoneClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5416,10 +5072,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionSetParameterClause}.
      * @param ctx the parse tree
      */
-    fn visit_sessionSetParameterClause(
-        &mut self,
-        ctx: &SessionSetParameterClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionSetParameterClause(&mut self, ctx: &SessionSetParameterClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5460,10 +5113,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionSetParameterName}.
      * @param ctx the parse tree
      */
-    fn visit_sessionSetParameterName(
-        &mut self,
-        ctx: &SessionSetParameterNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionSetParameterName(&mut self, ctx: &SessionSetParameterNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5471,10 +5121,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionResetCommand}.
      * @param ctx the parse tree
      */
-    fn visit_sessionResetCommand(
-        &mut self,
-        ctx: &SessionResetCommandContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionResetCommand(&mut self, ctx: &SessionResetCommandContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5482,10 +5129,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionResetArguments}.
      * @param ctx the parse tree
      */
-    fn visit_sessionResetArguments(
-        &mut self,
-        ctx: &SessionResetArgumentsContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionResetArguments(&mut self, ctx: &SessionResetArgumentsContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5493,10 +5137,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionCloseCommand}.
      * @param ctx the parse tree
      */
-    fn visit_sessionCloseCommand(
-        &mut self,
-        ctx: &SessionCloseCommandContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionCloseCommand(&mut self, ctx: &SessionCloseCommandContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5504,10 +5145,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sessionParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_sessionParameterSpecification(
-        &mut self,
-        ctx: &SessionParameterSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_sessionParameterSpecification(&mut self, ctx: &SessionParameterSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5515,10 +5153,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#startTransactionCommand}.
      * @param ctx the parse tree
      */
-    fn visit_startTransactionCommand(
-        &mut self,
-        ctx: &StartTransactionCommandContext<'input>,
-    ) -> Self::Return {
+    fn visit_startTransactionCommand(&mut self, ctx: &StartTransactionCommandContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5526,10 +5161,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#transactionCharacteristics}.
      * @param ctx the parse tree
      */
-    fn visit_transactionCharacteristics(
-        &mut self,
-        ctx: &TransactionCharacteristicsContext<'input>,
-    ) -> Self::Return {
+    fn visit_transactionCharacteristics(&mut self, ctx: &TransactionCharacteristicsContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5545,10 +5177,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#transactionAccessMode}.
      * @param ctx the parse tree
      */
-    fn visit_transactionAccessMode(
-        &mut self,
-        ctx: &TransactionAccessModeContext<'input>,
-    ) -> Self::Return {
+    fn visit_transactionAccessMode(&mut self, ctx: &TransactionAccessModeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5572,10 +5201,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nestedProcedureSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_nestedProcedureSpecification(
-        &mut self,
-        ctx: &NestedProcedureSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_nestedProcedureSpecification(&mut self, ctx: &NestedProcedureSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5583,10 +5209,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#procedureSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_procedureSpecification(
-        &mut self,
-        ctx: &ProcedureSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_procedureSpecification(&mut self, ctx: &ProcedureSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5605,10 +5228,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nestedQuerySpecification}.
      * @param ctx the parse tree
      */
-    fn visit_nestedQuerySpecification(
-        &mut self,
-        ctx: &NestedQuerySpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_nestedQuerySpecification(&mut self, ctx: &NestedQuerySpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5635,10 +5255,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#bindingVariableDefinition}.
      * @param ctx the parse tree
      */
-    fn visit_bindingVariableDefinition(
-        &mut self,
-        ctx: &BindingVariableDefinitionContext<'input>,
-    ) -> Self::Return {
+    fn visit_bindingVariableDefinition(&mut self, ctx: &BindingVariableDefinitionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5670,10 +5287,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphVariableDefinition}.
      * @param ctx the parse tree
      */
-    fn visit_graphVariableDefinition(
-        &mut self,
-        ctx: &GraphVariableDefinitionContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphVariableDefinition(&mut self, ctx: &GraphVariableDefinitionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5681,10 +5295,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#optTypedGraphInitializer}.
      * @param ctx the parse tree
      */
-    fn visit_optTypedGraphInitializer(
-        &mut self,
-        ctx: &OptTypedGraphInitializerContext<'input>,
-    ) -> Self::Return {
+    fn visit_optTypedGraphInitializer(&mut self, ctx: &OptTypedGraphInitializerContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5722,10 +5333,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#bindingTableInitializer}.
      * @param ctx the parse tree
      */
-    fn visit_bindingTableInitializer(
-        &mut self,
-        ctx: &BindingTableInitializerContext<'input>,
-    ) -> Self::Return {
+    fn visit_bindingTableInitializer(&mut self, ctx: &BindingTableInitializerContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5733,10 +5341,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#valueVariableDefinition}.
      * @param ctx the parse tree
      */
-    fn visit_valueVariableDefinition(
-        &mut self,
-        ctx: &ValueVariableDefinitionContext<'input>,
-    ) -> Self::Return {
+    fn visit_valueVariableDefinition(&mut self, ctx: &ValueVariableDefinitionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5744,10 +5349,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#optTypedValueInitializer}.
      * @param ctx the parse tree
      */
-    fn visit_optTypedValueInitializer(
-        &mut self,
-        ctx: &OptTypedValueInitializerContext<'input>,
-    ) -> Self::Return {
+    fn visit_optTypedValueInitializer(&mut self, ctx: &OptTypedValueInitializerContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5779,10 +5381,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#bindingTableExpression}.
      * @param ctx the parse tree
      */
-    fn visit_bindingTableExpression(
-        &mut self,
-        ctx: &BindingTableExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_bindingTableExpression(&mut self, ctx: &BindingTableExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5801,10 +5400,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#objectExpressionPrimary}.
      * @param ctx the parse tree
      */
-    fn visit_objectExpressionPrimary(
-        &mut self,
-        ctx: &ObjectExpressionPrimaryContext<'input>,
-    ) -> Self::Return {
+    fn visit_objectExpressionPrimary(&mut self, ctx: &ObjectExpressionPrimaryContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5845,10 +5441,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#createSchemaStatement}.
      * @param ctx the parse tree
      */
-    fn visit_createSchemaStatement(
-        &mut self,
-        ctx: &CreateSchemaStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_createSchemaStatement(&mut self, ctx: &CreateSchemaStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5856,10 +5449,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#dropSchemaStatement}.
      * @param ctx the parse tree
      */
-    fn visit_dropSchemaStatement(
-        &mut self,
-        ctx: &DropSchemaStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_dropSchemaStatement(&mut self, ctx: &DropSchemaStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5867,10 +5457,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#createGraphStatement}.
      * @param ctx the parse tree
      */
-    fn visit_createGraphStatement(
-        &mut self,
-        ctx: &CreateGraphStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_createGraphStatement(&mut self, ctx: &CreateGraphStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5894,10 +5481,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphTypeLikeGraph}.
      * @param ctx the parse tree
      */
-    fn visit_graphTypeLikeGraph(
-        &mut self,
-        ctx: &GraphTypeLikeGraphContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphTypeLikeGraph(&mut self, ctx: &GraphTypeLikeGraphContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5913,10 +5497,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#dropGraphStatement}.
      * @param ctx the parse tree
      */
-    fn visit_dropGraphStatement(
-        &mut self,
-        ctx: &DropGraphStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_dropGraphStatement(&mut self, ctx: &DropGraphStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5924,10 +5505,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#createGraphTypeStatement}.
      * @param ctx the parse tree
      */
-    fn visit_createGraphTypeStatement(
-        &mut self,
-        ctx: &CreateGraphTypeStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_createGraphTypeStatement(&mut self, ctx: &CreateGraphTypeStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5951,10 +5529,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#dropGraphTypeStatement}.
      * @param ctx the parse tree
      */
-    fn visit_dropGraphTypeStatement(
-        &mut self,
-        ctx: &DropGraphTypeStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_dropGraphTypeStatement(&mut self, ctx: &DropGraphTypeStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -5973,10 +5548,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#linearDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_linearDataModifyingStatement(
-        &mut self,
-        ctx: &LinearDataModifyingStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_linearDataModifyingStatement(&mut self, ctx: &LinearDataModifyingStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6050,10 +5622,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simpleDataAccessingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleDataAccessingStatement(
-        &mut self,
-        ctx: &SimpleDataAccessingStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_simpleDataAccessingStatement(&mut self, ctx: &SimpleDataAccessingStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6061,10 +5630,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simpleDataModifyingStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleDataModifyingStatement(
-        &mut self,
-        ctx: &SimpleDataModifyingStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_simpleDataModifyingStatement(&mut self, ctx: &SimpleDataModifyingStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6123,10 +5689,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#setAllPropertiesItem}.
      * @param ctx the parse tree
      */
-    fn visit_setAllPropertiesItem(
-        &mut self,
-        ctx: &SetAllPropertiesItemContext<'input>,
-    ) -> Self::Return {
+    fn visit_setAllPropertiesItem(&mut self, ctx: &SetAllPropertiesItemContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6166,10 +5729,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#removePropertyItem}.
      * @param ctx the parse tree
      */
-    fn visit_removePropertyItem(
-        &mut self,
-        ctx: &RemovePropertyItemContext<'input>,
-    ) -> Self::Return {
+    fn visit_removePropertyItem(&mut self, ctx: &RemovePropertyItemContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6220,10 +5780,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#compositeQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_compositeQueryStatement(
-        &mut self,
-        ctx: &CompositeQueryStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_compositeQueryStatement(&mut self, ctx: &CompositeQueryStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6231,10 +5788,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#compositeQueryExpression}.
      * @param ctx the parse tree
      */
-    fn visit_compositeQueryExpression(
-        &mut self,
-        ctx: &CompositeQueryExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_compositeQueryExpression(&mut self, ctx: &CompositeQueryExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6258,10 +5812,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#compositeQueryPrimary}.
      * @param ctx the parse tree
      */
-    fn visit_compositeQueryPrimary(
-        &mut self,
-        ctx: &CompositeQueryPrimaryContext<'input>,
-    ) -> Self::Return {
+    fn visit_compositeQueryPrimary(&mut self, ctx: &CompositeQueryPrimaryContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6269,10 +5820,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#linearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_linearQueryStatement(
-        &mut self,
-        ctx: &LinearQueryStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_linearQueryStatement(&mut self, ctx: &LinearQueryStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6280,10 +5828,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#focusedLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_focusedLinearQueryStatement(
-        &mut self,
-        ctx: &FocusedLinearQueryStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_focusedLinearQueryStatement(&mut self, ctx: &FocusedLinearQueryStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6335,10 +5880,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#ambientLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_ambientLinearQueryStatement(
-        &mut self,
-        ctx: &AmbientLinearQueryStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_ambientLinearQueryStatement(&mut self, ctx: &AmbientLinearQueryStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6346,10 +5888,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simpleLinearQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleLinearQueryStatement(
-        &mut self,
-        ctx: &SimpleLinearQueryStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_simpleLinearQueryStatement(&mut self, ctx: &SimpleLinearQueryStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6357,10 +5896,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simpleQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleQueryStatement(
-        &mut self,
-        ctx: &SimpleQueryStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_simpleQueryStatement(&mut self, ctx: &SimpleQueryStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6368,10 +5904,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#primitiveQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_primitiveQueryStatement(
-        &mut self,
-        ctx: &PrimitiveQueryStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_primitiveQueryStatement(&mut self, ctx: &PrimitiveQueryStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6387,10 +5920,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simpleMatchStatement}.
      * @param ctx the parse tree
      */
-    fn visit_simpleMatchStatement(
-        &mut self,
-        ctx: &SimpleMatchStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_simpleMatchStatement(&mut self, ctx: &SimpleMatchStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6398,10 +5928,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#optionalMatchStatement}.
      * @param ctx the parse tree
      */
-    fn visit_optionalMatchStatement(
-        &mut self,
-        ctx: &OptionalMatchStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_optionalMatchStatement(&mut self, ctx: &OptionalMatchStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6417,10 +5944,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#matchStatementBlock}.
      * @param ctx the parse tree
      */
-    fn visit_matchStatementBlock(
-        &mut self,
-        ctx: &MatchStatementBlockContext<'input>,
-    ) -> Self::Return {
+    fn visit_matchStatementBlock(&mut self, ctx: &MatchStatementBlockContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6428,10 +5952,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#callQueryStatement}.
      * @param ctx the parse tree
      */
-    fn visit_callQueryStatement(
-        &mut self,
-        ctx: &CallQueryStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_callQueryStatement(&mut self, ctx: &CallQueryStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6455,10 +5976,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#letVariableDefinitionList}.
      * @param ctx the parse tree
      */
-    fn visit_letVariableDefinitionList(
-        &mut self,
-        ctx: &LetVariableDefinitionListContext<'input>,
-    ) -> Self::Return {
+    fn visit_letVariableDefinitionList(&mut self, ctx: &LetVariableDefinitionListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6466,10 +5984,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#letVariableDefinition}.
      * @param ctx the parse tree
      */
-    fn visit_letVariableDefinition(
-        &mut self,
-        ctx: &LetVariableDefinitionContext<'input>,
-    ) -> Self::Return {
+    fn visit_letVariableDefinition(&mut self, ctx: &LetVariableDefinitionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6509,10 +6024,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#forOrdinalityOrOffset}.
      * @param ctx the parse tree
      */
-    fn visit_forOrdinalityOrOffset(
-        &mut self,
-        ctx: &ForOrdinalityOrOffsetContext<'input>,
-    ) -> Self::Return {
+    fn visit_forOrdinalityOrOffset(&mut self, ctx: &ForOrdinalityOrOffsetContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6520,10 +6032,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#orderByAndPageStatement}.
      * @param ctx the parse tree
      */
-    fn visit_orderByAndPageStatement(
-        &mut self,
-        ctx: &OrderByAndPageStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_orderByAndPageStatement(&mut self, ctx: &OrderByAndPageStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6531,10 +6040,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#primitiveResultStatement}.
      * @param ctx the parse tree
      */
-    fn visit_primitiveResultStatement(
-        &mut self,
-        ctx: &PrimitiveResultStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_primitiveResultStatement(&mut self, ctx: &PrimitiveResultStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6550,10 +6056,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#returnStatementBody}.
      * @param ctx the parse tree
      */
-    fn visit_returnStatementBody(
-        &mut self,
-        ctx: &ReturnStatementBodyContext<'input>,
-    ) -> Self::Return {
+    fn visit_returnStatementBody(&mut self, ctx: &ReturnStatementBodyContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6625,10 +6128,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#selectStatementBody}.
      * @param ctx the parse tree
      */
-    fn visit_selectStatementBody(
-        &mut self,
-        ctx: &SelectStatementBodyContext<'input>,
-    ) -> Self::Return {
+    fn visit_selectStatementBody(&mut self, ctx: &SelectStatementBodyContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6636,10 +6136,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#selectGraphMatchList}.
      * @param ctx the parse tree
      */
-    fn visit_selectGraphMatchList(
-        &mut self,
-        ctx: &SelectGraphMatchListContext<'input>,
-    ) -> Self::Return {
+    fn visit_selectGraphMatchList(&mut self, ctx: &SelectGraphMatchListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6655,10 +6152,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#selectQuerySpecification}.
      * @param ctx the parse tree
      */
-    fn visit_selectQuerySpecification(
-        &mut self,
-        ctx: &SelectQuerySpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_selectQuerySpecification(&mut self, ctx: &SelectQuerySpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6666,10 +6160,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#callProcedureStatement}.
      * @param ctx the parse tree
      */
-    fn visit_callProcedureStatement(
-        &mut self,
-        ctx: &CallProcedureStatementContext<'input>,
-    ) -> Self::Return {
+    fn visit_callProcedureStatement(&mut self, ctx: &CallProcedureStatementContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6685,10 +6176,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#inlineProcedureCall}.
      * @param ctx the parse tree
      */
-    fn visit_inlineProcedureCall(
-        &mut self,
-        ctx: &InlineProcedureCallContext<'input>,
-    ) -> Self::Return {
+    fn visit_inlineProcedureCall(&mut self, ctx: &InlineProcedureCallContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6696,10 +6184,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#variableScopeClause}.
      * @param ctx the parse tree
      */
-    fn visit_variableScopeClause(
-        &mut self,
-        ctx: &VariableScopeClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_variableScopeClause(&mut self, ctx: &VariableScopeClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6707,10 +6192,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#bindingVariableReferenceList}.
      * @param ctx the parse tree
      */
-    fn visit_bindingVariableReferenceList(
-        &mut self,
-        ctx: &BindingVariableReferenceListContext<'input>,
-    ) -> Self::Return {
+    fn visit_bindingVariableReferenceList(&mut self, ctx: &BindingVariableReferenceListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6718,10 +6200,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#namedProcedureCall}.
      * @param ctx the parse tree
      */
-    fn visit_namedProcedureCall(
-        &mut self,
-        ctx: &NamedProcedureCallContext<'input>,
-    ) -> Self::Return {
+    fn visit_namedProcedureCall(&mut self, ctx: &NamedProcedureCallContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6729,10 +6208,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#procedureArgumentList}.
      * @param ctx the parse tree
      */
-    fn visit_procedureArgumentList(
-        &mut self,
-        ctx: &ProcedureArgumentListContext<'input>,
-    ) -> Self::Return {
+    fn visit_procedureArgumentList(&mut self, ctx: &ProcedureArgumentListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6764,10 +6240,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphPatternBindingTable}.
      * @param ctx the parse tree
      */
-    fn visit_graphPatternBindingTable(
-        &mut self,
-        ctx: &GraphPatternBindingTableContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphPatternBindingTable(&mut self, ctx: &GraphPatternBindingTableContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6775,10 +6248,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphPatternYieldClause}.
      * @param ctx the parse tree
      */
-    fn visit_graphPatternYieldClause(
-        &mut self,
-        ctx: &GraphPatternYieldClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphPatternYieldClause(&mut self, ctx: &GraphPatternYieldClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6786,10 +6256,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphPatternYieldItemList}.
      * @param ctx the parse tree
      */
-    fn visit_graphPatternYieldItemList(
-        &mut self,
-        ctx: &GraphPatternYieldItemListContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphPatternYieldItemList(&mut self, ctx: &GraphPatternYieldItemListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6797,10 +6264,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphPatternYieldItem}.
      * @param ctx the parse tree
      */
-    fn visit_graphPatternYieldItem(
-        &mut self,
-        ctx: &GraphPatternYieldItemContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphPatternYieldItem(&mut self, ctx: &GraphPatternYieldItemContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6824,10 +6288,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#repeatableElementsMatchMode}.
      * @param ctx the parse tree
      */
-    fn visit_repeatableElementsMatchMode(
-        &mut self,
-        ctx: &RepeatableElementsMatchModeContext<'input>,
-    ) -> Self::Return {
+    fn visit_repeatableElementsMatchMode(&mut self, ctx: &RepeatableElementsMatchModeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6835,10 +6296,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#differentEdgesMatchMode}.
      * @param ctx the parse tree
      */
-    fn visit_differentEdgesMatchMode(
-        &mut self,
-        ctx: &DifferentEdgesMatchModeContext<'input>,
-    ) -> Self::Return {
+    fn visit_differentEdgesMatchMode(&mut self, ctx: &DifferentEdgesMatchModeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6846,10 +6304,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#elementBindingsOrElements}.
      * @param ctx the parse tree
      */
-    fn visit_elementBindingsOrElements(
-        &mut self,
-        ctx: &ElementBindingsOrElementsContext<'input>,
-    ) -> Self::Return {
+    fn visit_elementBindingsOrElements(&mut self, ctx: &ElementBindingsOrElementsContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6857,10 +6312,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeBindingsOrEdges}.
      * @param ctx the parse tree
      */
-    fn visit_edgeBindingsOrEdges(
-        &mut self,
-        ctx: &EdgeBindingsOrEdgesContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeBindingsOrEdges(&mut self, ctx: &EdgeBindingsOrEdgesContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6884,10 +6336,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#pathVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn visit_pathVariableDeclaration(
-        &mut self,
-        ctx: &PathVariableDeclarationContext<'input>,
-    ) -> Self::Return {
+    fn visit_pathVariableDeclaration(&mut self, ctx: &PathVariableDeclarationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6903,10 +6352,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphPatternWhereClause}.
      * @param ctx the parse tree
      */
-    fn visit_graphPatternWhereClause(
-        &mut self,
-        ctx: &GraphPatternWhereClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphPatternWhereClause(&mut self, ctx: &GraphPatternWhereClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6914,10 +6360,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#insertGraphPattern}.
      * @param ctx the parse tree
      */
-    fn visit_insertGraphPattern(
-        &mut self,
-        ctx: &InsertGraphPatternContext<'input>,
-    ) -> Self::Return {
+    fn visit_insertGraphPattern(&mut self, ctx: &InsertGraphPatternContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6925,10 +6368,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#insertPathPatternList}.
      * @param ctx the parse tree
      */
-    fn visit_insertPathPatternList(
-        &mut self,
-        ctx: &InsertPathPatternListContext<'input>,
-    ) -> Self::Return {
+    fn visit_insertPathPatternList(&mut self, ctx: &InsertPathPatternListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6960,10 +6400,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#insertEdgePointingLeft}.
      * @param ctx the parse tree
      */
-    fn visit_insertEdgePointingLeft(
-        &mut self,
-        ctx: &InsertEdgePointingLeftContext<'input>,
-    ) -> Self::Return {
+    fn visit_insertEdgePointingLeft(&mut self, ctx: &InsertEdgePointingLeftContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6971,10 +6408,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#insertEdgePointingRight}.
      * @param ctx the parse tree
      */
-    fn visit_insertEdgePointingRight(
-        &mut self,
-        ctx: &InsertEdgePointingRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_insertEdgePointingRight(&mut self, ctx: &InsertEdgePointingRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6982,10 +6416,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#insertEdgeUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_insertEdgeUndirected(
-        &mut self,
-        ctx: &InsertEdgeUndirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_insertEdgeUndirected(&mut self, ctx: &InsertEdgeUndirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -6993,10 +6424,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#insertElementPatternFiller}.
      * @param ctx the parse tree
      */
-    fn visit_insertElementPatternFiller(
-        &mut self,
-        ctx: &InsertElementPatternFillerContext<'input>,
-    ) -> Self::Return {
+    fn visit_insertElementPatternFiller(&mut self, ctx: &InsertElementPatternFillerContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7079,10 +6507,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#shortestPathSearch}.
      * @param ctx the parse tree
      */
-    fn visit_shortestPathSearch(
-        &mut self,
-        ctx: &ShortestPathSearchContext<'input>,
-    ) -> Self::Return {
+    fn visit_shortestPathSearch(&mut self, ctx: &ShortestPathSearchContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7090,10 +6515,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#allShortestPathSearch}.
      * @param ctx the parse tree
      */
-    fn visit_allShortestPathSearch(
-        &mut self,
-        ctx: &AllShortestPathSearchContext<'input>,
-    ) -> Self::Return {
+    fn visit_allShortestPathSearch(&mut self, ctx: &AllShortestPathSearchContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7101,10 +6523,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#anyShortestPathSearch}.
      * @param ctx the parse tree
      */
-    fn visit_anyShortestPathSearch(
-        &mut self,
-        ctx: &AnyShortestPathSearchContext<'input>,
-    ) -> Self::Return {
+    fn visit_anyShortestPathSearch(&mut self, ctx: &AnyShortestPathSearchContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7112,10 +6531,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#countedShortestPathSearch}.
      * @param ctx the parse tree
      */
-    fn visit_countedShortestPathSearch(
-        &mut self,
-        ctx: &CountedShortestPathSearchContext<'input>,
-    ) -> Self::Return {
+    fn visit_countedShortestPathSearch(&mut self, ctx: &CountedShortestPathSearchContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7123,10 +6539,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#countedShortestGroupSearch}.
      * @param ctx the parse tree
      */
-    fn visit_countedShortestGroupSearch(
-        &mut self,
-        ctx: &CountedShortestGroupSearchContext<'input>,
-    ) -> Self::Return {
+    fn visit_countedShortestGroupSearch(&mut self, ctx: &CountedShortestGroupSearchContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7152,10 +6565,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#pathPatternExpression}.
      * @param ctx the parse tree
      */
-    fn visit_ppeMultisetAlternation(
-        &mut self,
-        ctx: &PpeMultisetAlternationContext<'input>,
-    ) -> Self::Return {
+    fn visit_ppeMultisetAlternation(&mut self, ctx: &PpeMultisetAlternationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7190,10 +6600,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#pathFactor}.
      * @param ctx the parse tree
      */
-    fn visit_pfQuantifiedPathPrimary(
-        &mut self,
-        ctx: &PfQuantifiedPathPrimaryContext<'input>,
-    ) -> Self::Return {
+    fn visit_pfQuantifiedPathPrimary(&mut self, ctx: &PfQuantifiedPathPrimaryContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7202,10 +6609,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#pathFactor}.
      * @param ctx the parse tree
      */
-    fn visit_pfQuestionedPathPrimary(
-        &mut self,
-        ctx: &PfQuestionedPathPrimaryContext<'input>,
-    ) -> Self::Return {
+    fn visit_pfQuestionedPathPrimary(&mut self, ctx: &PfQuestionedPathPrimaryContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7262,10 +6666,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#elementPatternFiller}.
      * @param ctx the parse tree
      */
-    fn visit_elementPatternFiller(
-        &mut self,
-        ctx: &ElementPatternFillerContext<'input>,
-    ) -> Self::Return {
+    fn visit_elementPatternFiller(&mut self, ctx: &ElementPatternFillerContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7273,10 +6674,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#elementVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn visit_elementVariableDeclaration(
-        &mut self,
-        ctx: &ElementVariableDeclarationContext<'input>,
-    ) -> Self::Return {
+    fn visit_elementVariableDeclaration(&mut self, ctx: &ElementVariableDeclarationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7300,10 +6698,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#elementPatternPredicate}.
      * @param ctx the parse tree
      */
-    fn visit_elementPatternPredicate(
-        &mut self,
-        ctx: &ElementPatternPredicateContext<'input>,
-    ) -> Self::Return {
+    fn visit_elementPatternPredicate(&mut self, ctx: &ElementPatternPredicateContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7311,10 +6706,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#elementPatternWhereClause}.
      * @param ctx the parse tree
      */
-    fn visit_elementPatternWhereClause(
-        &mut self,
-        ctx: &ElementPatternWhereClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_elementPatternWhereClause(&mut self, ctx: &ElementPatternWhereClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7322,10 +6714,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#elementPropertySpecification}.
      * @param ctx the parse tree
      */
-    fn visit_elementPropertySpecification(
-        &mut self,
-        ctx: &ElementPropertySpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_elementPropertySpecification(&mut self, ctx: &ElementPropertySpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7333,10 +6722,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#propertyKeyValuePairList}.
      * @param ctx the parse tree
      */
-    fn visit_propertyKeyValuePairList(
-        &mut self,
-        ctx: &PropertyKeyValuePairListContext<'input>,
-    ) -> Self::Return {
+    fn visit_propertyKeyValuePairList(&mut self, ctx: &PropertyKeyValuePairListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7344,10 +6730,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#propertyKeyValuePair}.
      * @param ctx the parse tree
      */
-    fn visit_propertyKeyValuePair(
-        &mut self,
-        ctx: &PropertyKeyValuePairContext<'input>,
-    ) -> Self::Return {
+    fn visit_propertyKeyValuePair(&mut self, ctx: &PropertyKeyValuePairContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7371,10 +6754,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fullEdgePointingLeft}.
      * @param ctx the parse tree
      */
-    fn visit_fullEdgePointingLeft(
-        &mut self,
-        ctx: &FullEdgePointingLeftContext<'input>,
-    ) -> Self::Return {
+    fn visit_fullEdgePointingLeft(&mut self, ctx: &FullEdgePointingLeftContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7382,10 +6762,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fullEdgeUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_fullEdgeUndirected(
-        &mut self,
-        ctx: &FullEdgeUndirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_fullEdgeUndirected(&mut self, ctx: &FullEdgeUndirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7393,10 +6770,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fullEdgePointingRight}.
      * @param ctx the parse tree
      */
-    fn visit_fullEdgePointingRight(
-        &mut self,
-        ctx: &FullEdgePointingRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_fullEdgePointingRight(&mut self, ctx: &FullEdgePointingRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7404,10 +6778,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fullEdgeLeftOrUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_fullEdgeLeftOrUndirected(
-        &mut self,
-        ctx: &FullEdgeLeftOrUndirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_fullEdgeLeftOrUndirected(&mut self, ctx: &FullEdgeLeftOrUndirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7415,10 +6786,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fullEdgeUndirectedOrRight}.
      * @param ctx the parse tree
      */
-    fn visit_fullEdgeUndirectedOrRight(
-        &mut self,
-        ctx: &FullEdgeUndirectedOrRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_fullEdgeUndirectedOrRight(&mut self, ctx: &FullEdgeUndirectedOrRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7426,10 +6794,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fullEdgeLeftOrRight}.
      * @param ctx the parse tree
      */
-    fn visit_fullEdgeLeftOrRight(
-        &mut self,
-        ctx: &FullEdgeLeftOrRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_fullEdgeLeftOrRight(&mut self, ctx: &FullEdgeLeftOrRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7437,10 +6802,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fullEdgeAnyDirection}.
      * @param ctx the parse tree
      */
-    fn visit_fullEdgeAnyDirection(
-        &mut self,
-        ctx: &FullEdgeAnyDirectionContext<'input>,
-    ) -> Self::Return {
+    fn visit_fullEdgeAnyDirection(&mut self, ctx: &FullEdgeAnyDirectionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7448,10 +6810,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#abbreviatedEdgePattern}.
      * @param ctx the parse tree
      */
-    fn visit_abbreviatedEdgePattern(
-        &mut self,
-        ctx: &AbbreviatedEdgePatternContext<'input>,
-    ) -> Self::Return {
+    fn visit_abbreviatedEdgePattern(&mut self, ctx: &AbbreviatedEdgePatternContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7470,10 +6829,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#subpathVariableDeclaration}.
      * @param ctx the parse tree
      */
-    fn visit_subpathVariableDeclaration(
-        &mut self,
-        ctx: &SubpathVariableDeclarationContext<'input>,
-    ) -> Self::Return {
+    fn visit_subpathVariableDeclaration(&mut self, ctx: &SubpathVariableDeclarationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7493,10 +6849,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionNegation(
-        &mut self,
-        ctx: &LabelExpressionNegationContext<'input>,
-    ) -> Self::Return {
+    fn visit_labelExpressionNegation(&mut self, ctx: &LabelExpressionNegationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7505,10 +6858,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionDisjunction(
-        &mut self,
-        ctx: &LabelExpressionDisjunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_labelExpressionDisjunction(&mut self, ctx: &LabelExpressionDisjunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7517,10 +6867,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionParenthesized(
-        &mut self,
-        ctx: &LabelExpressionParenthesizedContext<'input>,
-    ) -> Self::Return {
+    fn visit_labelExpressionParenthesized(&mut self, ctx: &LabelExpressionParenthesizedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7529,10 +6876,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionWildcard(
-        &mut self,
-        ctx: &LabelExpressionWildcardContext<'input>,
-    ) -> Self::Return {
+    fn visit_labelExpressionWildcard(&mut self, ctx: &LabelExpressionWildcardContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7541,10 +6885,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionConjunction(
-        &mut self,
-        ctx: &LabelExpressionConjunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_labelExpressionConjunction(&mut self, ctx: &LabelExpressionConjunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7553,10 +6894,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#labelExpression}.
      * @param ctx the parse tree
      */
-    fn visit_labelExpressionName(
-        &mut self,
-        ctx: &LabelExpressionNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_labelExpressionName(&mut self, ctx: &LabelExpressionNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7564,10 +6902,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#pathVariableReference}.
      * @param ctx the parse tree
      */
-    fn visit_pathVariableReference(
-        &mut self,
-        ctx: &PathVariableReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_pathVariableReference(&mut self, ctx: &PathVariableReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7575,10 +6910,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#elementVariableReference}.
      * @param ctx the parse tree
      */
-    fn visit_elementVariableReference(
-        &mut self,
-        ctx: &ElementVariableReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_elementVariableReference(&mut self, ctx: &ElementVariableReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7586,10 +6918,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphPatternQuantifier}.
      * @param ctx the parse tree
      */
-    fn visit_graphPatternQuantifier(
-        &mut self,
-        ctx: &GraphPatternQuantifierContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphPatternQuantifier(&mut self, ctx: &GraphPatternQuantifierContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7640,10 +6969,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedDefaultingLeft}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDefaultingLeft(
-        &mut self,
-        ctx: &SimplifiedDefaultingLeftContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedDefaultingLeft(&mut self, ctx: &SimplifiedDefaultingLeftContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7662,10 +6988,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedDefaultingRight}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDefaultingRight(
-        &mut self,
-        ctx: &SimplifiedDefaultingRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedDefaultingRight(&mut self, ctx: &SimplifiedDefaultingRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7717,10 +7040,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedContents}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedContents(
-        &mut self,
-        ctx: &SimplifiedContentsContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedContents(&mut self, ctx: &SimplifiedContentsContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7728,10 +7048,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedPathUnion}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedPathUnion(
-        &mut self,
-        ctx: &SimplifiedPathUnionContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedPathUnion(&mut self, ctx: &SimplifiedPathUnionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7739,10 +7056,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedMultisetAlternation}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedMultisetAlternation(
-        &mut self,
-        ctx: &SimplifiedMultisetAlternationContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedMultisetAlternation(&mut self, ctx: &SimplifiedMultisetAlternationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7751,10 +7065,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#simplifiedTerm}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedFactorLowLabel(
-        &mut self,
-        ctx: &SimplifiedFactorLowLabelContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedFactorLowLabel(&mut self, ctx: &SimplifiedFactorLowLabelContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7763,10 +7074,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#simplifiedTerm}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedConcatenationLabel(
-        &mut self,
-        ctx: &SimplifiedConcatenationLabelContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedConcatenationLabel(&mut self, ctx: &SimplifiedConcatenationLabelContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7775,10 +7083,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#simplifiedFactorLow}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedConjunctionLabel(
-        &mut self,
-        ctx: &SimplifiedConjunctionLabelContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedConjunctionLabel(&mut self, ctx: &SimplifiedConjunctionLabelContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7787,10 +7092,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#simplifiedFactorLow}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedFactorHighLabel(
-        &mut self,
-        ctx: &SimplifiedFactorHighLabelContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedFactorHighLabel(&mut self, ctx: &SimplifiedFactorHighLabelContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7798,10 +7100,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedFactorHigh}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedFactorHigh(
-        &mut self,
-        ctx: &SimplifiedFactorHighContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedFactorHigh(&mut self, ctx: &SimplifiedFactorHighContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7809,10 +7108,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedQuantified}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedQuantified(
-        &mut self,
-        ctx: &SimplifiedQuantifiedContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedQuantified(&mut self, ctx: &SimplifiedQuantifiedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7820,10 +7116,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedQuestioned}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedQuestioned(
-        &mut self,
-        ctx: &SimplifiedQuestionedContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedQuestioned(&mut self, ctx: &SimplifiedQuestionedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7831,10 +7124,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedTertiary}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedTertiary(
-        &mut self,
-        ctx: &SimplifiedTertiaryContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedTertiary(&mut self, ctx: &SimplifiedTertiaryContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7842,10 +7132,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedDirectionOverride}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedDirectionOverride(
-        &mut self,
-        ctx: &SimplifiedDirectionOverrideContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedDirectionOverride(&mut self, ctx: &SimplifiedDirectionOverrideContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7853,10 +7140,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideLeft}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideLeft(
-        &mut self,
-        ctx: &SimplifiedOverrideLeftContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedOverrideLeft(&mut self, ctx: &SimplifiedOverrideLeftContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7864,10 +7148,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideUndirected(
-        &mut self,
-        ctx: &SimplifiedOverrideUndirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedOverrideUndirected(&mut self, ctx: &SimplifiedOverrideUndirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7875,10 +7156,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideRight}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideRight(
-        &mut self,
-        ctx: &SimplifiedOverrideRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedOverrideRight(&mut self, ctx: &SimplifiedOverrideRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7908,10 +7186,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedOverrideLeftOrRight}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedOverrideLeftOrRight(
-        &mut self,
-        ctx: &SimplifiedOverrideLeftOrRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedOverrideLeftOrRight(&mut self, ctx: &SimplifiedOverrideLeftOrRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7930,10 +7205,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedSecondary}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedSecondary(
-        &mut self,
-        ctx: &SimplifiedSecondaryContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedSecondary(&mut self, ctx: &SimplifiedSecondaryContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -7941,10 +7213,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simplifiedNegation}.
      * @param ctx the parse tree
      */
-    fn visit_simplifiedNegation(
-        &mut self,
-        ctx: &SimplifiedNegationContext<'input>,
-    ) -> Self::Return {
+    fn visit_simplifiedNegation(&mut self, ctx: &SimplifiedNegationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8016,10 +7285,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#groupingElementList}.
      * @param ctx the parse tree
      */
-    fn visit_groupingElementList(
-        &mut self,
-        ctx: &GroupingElementListContext<'input>,
-    ) -> Self::Return {
+    fn visit_groupingElementList(&mut self, ctx: &GroupingElementListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8051,10 +7317,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sortSpecificationList}.
      * @param ctx the parse tree
      */
-    fn visit_sortSpecificationList(
-        &mut self,
-        ctx: &SortSpecificationListContext<'input>,
-    ) -> Self::Return {
+    fn visit_sortSpecificationList(&mut self, ctx: &SortSpecificationListContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8078,10 +7341,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#orderingSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_orderingSpecification(
-        &mut self,
-        ctx: &OrderingSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_orderingSpecification(&mut self, ctx: &OrderingSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8140,10 +7400,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#catalogSchemaParentAndName}.
      * @param ctx the parse tree
      */
-    fn visit_catalogSchemaParentAndName(
-        &mut self,
-        ctx: &CatalogSchemaParentAndNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_catalogSchemaParentAndName(&mut self, ctx: &CatalogSchemaParentAndNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8162,10 +7419,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#predefinedSchemaReference}.
      * @param ctx the parse tree
      */
-    fn visit_predefinedSchemaReference(
-        &mut self,
-        ctx: &PredefinedSchemaReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_predefinedSchemaReference(&mut self, ctx: &PredefinedSchemaReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8173,10 +7427,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#absoluteDirectoryPath}.
      * @param ctx the parse tree
      */
-    fn visit_absoluteDirectoryPath(
-        &mut self,
-        ctx: &AbsoluteDirectoryPathContext<'input>,
-    ) -> Self::Return {
+    fn visit_absoluteDirectoryPath(&mut self, ctx: &AbsoluteDirectoryPathContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8184,10 +7435,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#relativeDirectoryPath}.
      * @param ctx the parse tree
      */
-    fn visit_relativeDirectoryPath(
-        &mut self,
-        ctx: &RelativeDirectoryPathContext<'input>,
-    ) -> Self::Return {
+    fn visit_relativeDirectoryPath(&mut self, ctx: &RelativeDirectoryPathContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8195,10 +7443,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#simpleDirectoryPath}.
      * @param ctx the parse tree
      */
-    fn visit_simpleDirectoryPath(
-        &mut self,
-        ctx: &SimpleDirectoryPathContext<'input>,
-    ) -> Self::Return {
+    fn visit_simpleDirectoryPath(&mut self, ctx: &SimpleDirectoryPathContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8214,10 +7459,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#catalogGraphParentAndName}.
      * @param ctx the parse tree
      */
-    fn visit_catalogGraphParentAndName(
-        &mut self,
-        ctx: &CatalogGraphParentAndNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_catalogGraphParentAndName(&mut self, ctx: &CatalogGraphParentAndNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8233,10 +7475,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphTypeReference}.
      * @param ctx the parse tree
      */
-    fn visit_graphTypeReference(
-        &mut self,
-        ctx: &GraphTypeReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphTypeReference(&mut self, ctx: &GraphTypeReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8244,10 +7483,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#catalogGraphTypeParentAndName}.
      * @param ctx the parse tree
      */
-    fn visit_catalogGraphTypeParentAndName(
-        &mut self,
-        ctx: &CatalogGraphTypeParentAndNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_catalogGraphTypeParentAndName(&mut self, ctx: &CatalogGraphTypeParentAndNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8255,10 +7491,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#bindingTableReference}.
      * @param ctx the parse tree
      */
-    fn visit_bindingTableReference(
-        &mut self,
-        ctx: &BindingTableReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_bindingTableReference(&mut self, ctx: &BindingTableReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8266,10 +7499,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#procedureReference}.
      * @param ctx the parse tree
      */
-    fn visit_procedureReference(
-        &mut self,
-        ctx: &ProcedureReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_procedureReference(&mut self, ctx: &ProcedureReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8277,10 +7507,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#catalogProcedureParentAndName}.
      * @param ctx the parse tree
      */
-    fn visit_catalogProcedureParentAndName(
-        &mut self,
-        ctx: &CatalogProcedureParentAndNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_catalogProcedureParentAndName(&mut self, ctx: &CatalogProcedureParentAndNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8288,10 +7515,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#catalogObjectParentReference}.
      * @param ctx the parse tree
      */
-    fn visit_catalogObjectParentReference(
-        &mut self,
-        ctx: &CatalogObjectParentReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_catalogObjectParentReference(&mut self, ctx: &CatalogObjectParentReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8310,10 +7534,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nestedGraphTypeSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_nestedGraphTypeSpecification(
-        &mut self,
-        ctx: &NestedGraphTypeSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_nestedGraphTypeSpecification(&mut self, ctx: &NestedGraphTypeSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8321,10 +7542,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphTypeSpecificationBody}.
      * @param ctx the parse tree
      */
-    fn visit_graphTypeSpecificationBody(
-        &mut self,
-        ctx: &GraphTypeSpecificationBodyContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphTypeSpecificationBody(&mut self, ctx: &GraphTypeSpecificationBodyContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8340,10 +7558,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#elementTypeSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_elementTypeSpecification(
-        &mut self,
-        ctx: &ElementTypeSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_elementTypeSpecification(&mut self, ctx: &ElementTypeSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8351,10 +7566,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nodeTypeSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_nodeTypeSpecification(
-        &mut self,
-        ctx: &NodeTypeSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_nodeTypeSpecification(&mut self, ctx: &NodeTypeSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8378,10 +7590,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nodeTypePhraseFiller}.
      * @param ctx the parse tree
      */
-    fn visit_nodeTypePhraseFiller(
-        &mut self,
-        ctx: &NodeTypePhraseFillerContext<'input>,
-    ) -> Self::Return {
+    fn visit_nodeTypePhraseFiller(&mut self, ctx: &NodeTypePhraseFillerContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8397,10 +7606,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#localNodeTypeAlias}.
      * @param ctx the parse tree
      */
-    fn visit_localNodeTypeAlias(
-        &mut self,
-        ctx: &LocalNodeTypeAliasContext<'input>,
-    ) -> Self::Return {
+    fn visit_localNodeTypeAlias(&mut self, ctx: &LocalNodeTypeAliasContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8408,10 +7614,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nodeTypeImpliedContent}.
      * @param ctx the parse tree
      */
-    fn visit_nodeTypeImpliedContent(
-        &mut self,
-        ctx: &NodeTypeImpliedContentContext<'input>,
-    ) -> Self::Return {
+    fn visit_nodeTypeImpliedContent(&mut self, ctx: &NodeTypeImpliedContentContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8419,10 +7622,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nodeTypeKeyLabelSet}.
      * @param ctx the parse tree
      */
-    fn visit_nodeTypeKeyLabelSet(
-        &mut self,
-        ctx: &NodeTypeKeyLabelSetContext<'input>,
-    ) -> Self::Return {
+    fn visit_nodeTypeKeyLabelSet(&mut self, ctx: &NodeTypeKeyLabelSetContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8438,10 +7638,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nodeTypePropertyTypes}.
      * @param ctx the parse tree
      */
-    fn visit_nodeTypePropertyTypes(
-        &mut self,
-        ctx: &NodeTypePropertyTypesContext<'input>,
-    ) -> Self::Return {
+    fn visit_nodeTypePropertyTypes(&mut self, ctx: &NodeTypePropertyTypesContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8449,10 +7646,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypeSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypeSpecification(
-        &mut self,
-        ctx: &EdgeTypeSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypeSpecification(&mut self, ctx: &EdgeTypeSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8476,10 +7670,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypePhraseFiller}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypePhraseFiller(
-        &mut self,
-        ctx: &EdgeTypePhraseFillerContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypePhraseFiller(&mut self, ctx: &EdgeTypePhraseFillerContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8495,10 +7686,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypeImpliedContent}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypeImpliedContent(
-        &mut self,
-        ctx: &EdgeTypeImpliedContentContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypeImpliedContent(&mut self, ctx: &EdgeTypeImpliedContentContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8506,10 +7694,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypeKeyLabelSet}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypeKeyLabelSet(
-        &mut self,
-        ctx: &EdgeTypeKeyLabelSetContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypeKeyLabelSet(&mut self, ctx: &EdgeTypeKeyLabelSetContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8525,10 +7710,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypePropertyTypes}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypePropertyTypes(
-        &mut self,
-        ctx: &EdgeTypePropertyTypesContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypePropertyTypes(&mut self, ctx: &EdgeTypePropertyTypesContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8536,10 +7718,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypePatternDirected}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypePatternDirected(
-        &mut self,
-        ctx: &EdgeTypePatternDirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypePatternDirected(&mut self, ctx: &EdgeTypePatternDirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8547,10 +7726,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypePatternPointingRight}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypePatternPointingRight(
-        &mut self,
-        ctx: &EdgeTypePatternPointingRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypePatternPointingRight(&mut self, ctx: &EdgeTypePatternPointingRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8558,10 +7734,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypePatternPointingLeft}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypePatternPointingLeft(
-        &mut self,
-        ctx: &EdgeTypePatternPointingLeftContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypePatternPointingLeft(&mut self, ctx: &EdgeTypePatternPointingLeftContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8569,10 +7742,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeTypePatternUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_edgeTypePatternUndirected(
-        &mut self,
-        ctx: &EdgeTypePatternUndirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeTypePatternUndirected(&mut self, ctx: &EdgeTypePatternUndirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8580,10 +7750,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#arcTypePointingRight}.
      * @param ctx the parse tree
      */
-    fn visit_arcTypePointingRight(
-        &mut self,
-        ctx: &ArcTypePointingRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_arcTypePointingRight(&mut self, ctx: &ArcTypePointingRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8591,10 +7758,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#arcTypePointingLeft}.
      * @param ctx the parse tree
      */
-    fn visit_arcTypePointingLeft(
-        &mut self,
-        ctx: &ArcTypePointingLeftContext<'input>,
-    ) -> Self::Return {
+    fn visit_arcTypePointingLeft(&mut self, ctx: &ArcTypePointingLeftContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8610,10 +7774,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sourceNodeTypeReference}.
      * @param ctx the parse tree
      */
-    fn visit_sourceNodeTypeReference(
-        &mut self,
-        ctx: &SourceNodeTypeReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_sourceNodeTypeReference(&mut self, ctx: &SourceNodeTypeReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8621,10 +7782,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#destinationNodeTypeReference}.
      * @param ctx the parse tree
      */
-    fn visit_destinationNodeTypeReference(
-        &mut self,
-        ctx: &DestinationNodeTypeReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_destinationNodeTypeReference(&mut self, ctx: &DestinationNodeTypeReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8640,10 +7798,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#endpointPairPhrase}.
      * @param ctx the parse tree
      */
-    fn visit_endpointPairPhrase(
-        &mut self,
-        ctx: &EndpointPairPhraseContext<'input>,
-    ) -> Self::Return {
+    fn visit_endpointPairPhrase(&mut self, ctx: &EndpointPairPhraseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8659,10 +7814,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#endpointPairDirected}.
      * @param ctx the parse tree
      */
-    fn visit_endpointPairDirected(
-        &mut self,
-        ctx: &EndpointPairDirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_endpointPairDirected(&mut self, ctx: &EndpointPairDirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8670,10 +7822,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#endpointPairPointingRight}.
      * @param ctx the parse tree
      */
-    fn visit_endpointPairPointingRight(
-        &mut self,
-        ctx: &EndpointPairPointingRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_endpointPairPointingRight(&mut self, ctx: &EndpointPairPointingRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8681,10 +7830,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#endpointPairPointingLeft}.
      * @param ctx the parse tree
      */
-    fn visit_endpointPairPointingLeft(
-        &mut self,
-        ctx: &EndpointPairPointingLeftContext<'input>,
-    ) -> Self::Return {
+    fn visit_endpointPairPointingLeft(&mut self, ctx: &EndpointPairPointingLeftContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8692,10 +7838,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#endpointPairUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_endpointPairUndirected(
-        &mut self,
-        ctx: &EndpointPairUndirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_endpointPairUndirected(&mut self, ctx: &EndpointPairUndirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8703,10 +7846,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#connectorPointingRight}.
      * @param ctx the parse tree
      */
-    fn visit_connectorPointingRight(
-        &mut self,
-        ctx: &ConnectorPointingRightContext<'input>,
-    ) -> Self::Return {
+    fn visit_connectorPointingRight(&mut self, ctx: &ConnectorPointingRightContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8714,10 +7854,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#connectorUndirected}.
      * @param ctx the parse tree
      */
-    fn visit_connectorUndirected(
-        &mut self,
-        ctx: &ConnectorUndirectedContext<'input>,
-    ) -> Self::Return {
+    fn visit_connectorUndirected(&mut self, ctx: &ConnectorUndirectedContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8725,10 +7862,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sourceNodeTypeAlias}.
      * @param ctx the parse tree
      */
-    fn visit_sourceNodeTypeAlias(
-        &mut self,
-        ctx: &SourceNodeTypeAliasContext<'input>,
-    ) -> Self::Return {
+    fn visit_sourceNodeTypeAlias(&mut self, ctx: &SourceNodeTypeAliasContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8736,10 +7870,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#destinationNodeTypeAlias}.
      * @param ctx the parse tree
      */
-    fn visit_destinationNodeTypeAlias(
-        &mut self,
-        ctx: &DestinationNodeTypeAliasContext<'input>,
-    ) -> Self::Return {
+    fn visit_destinationNodeTypeAlias(&mut self, ctx: &DestinationNodeTypeAliasContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8755,10 +7886,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#labelSetSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_labelSetSpecification(
-        &mut self,
-        ctx: &LabelSetSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_labelSetSpecification(&mut self, ctx: &LabelSetSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8766,10 +7894,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#propertyTypesSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_propertyTypesSpecification(
-        &mut self,
-        ctx: &PropertyTypesSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_propertyTypesSpecification(&mut self, ctx: &PropertyTypesSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8810,10 +7935,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_dynamicPropertyValueTypeLabel(
-        &mut self,
-        ctx: &DynamicPropertyValueTypeLabelContext<'input>,
-    ) -> Self::Return {
+    fn visit_dynamicPropertyValueTypeLabel(&mut self, ctx: &DynamicPropertyValueTypeLabelContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8822,10 +7944,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedDynamicUnionTypeAtl1(
-        &mut self,
-        ctx: &ClosedDynamicUnionTypeAtl1Context<'input>,
-    ) -> Self::Return {
+    fn visit_closedDynamicUnionTypeAtl1(&mut self, ctx: &ClosedDynamicUnionTypeAtl1Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8834,10 +7953,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedDynamicUnionTypeAtl2(
-        &mut self,
-        ctx: &ClosedDynamicUnionTypeAtl2Context<'input>,
-    ) -> Self::Return {
+    fn visit_closedDynamicUnionTypeAtl2(&mut self, ctx: &ClosedDynamicUnionTypeAtl2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8846,10 +7962,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_pathValueTypeLabel(
-        &mut self,
-        ctx: &PathValueTypeLabelContext<'input>,
-    ) -> Self::Return {
+    fn visit_pathValueTypeLabel(&mut self, ctx: &PathValueTypeLabelContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8885,10 +7998,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_predefinedTypeLabel(
-        &mut self,
-        ctx: &PredefinedTypeLabelContext<'input>,
-    ) -> Self::Return {
+    fn visit_predefinedTypeLabel(&mut self, ctx: &PredefinedTypeLabelContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8906,10 +8016,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueType}.
      * @param ctx the parse tree
      */
-    fn visit_openDynamicUnionTypeLabel(
-        &mut self,
-        ctx: &OpenDynamicUnionTypeLabelContext<'input>,
-    ) -> Self::Return {
+    fn visit_openDynamicUnionTypeLabel(&mut self, ctx: &OpenDynamicUnionTypeLabelContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -8941,10 +8048,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#characterStringType}.
      * @param ctx the parse tree
      */
-    fn visit_characterStringType(
-        &mut self,
-        ctx: &CharacterStringTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_characterStringType(&mut self, ctx: &CharacterStringTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9000,10 +8104,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#binaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn visit_binaryExactNumericType(
-        &mut self,
-        ctx: &BinaryExactNumericTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_binaryExactNumericType(&mut self, ctx: &BinaryExactNumericTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9011,10 +8112,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#signedBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn visit_signedBinaryExactNumericType(
-        &mut self,
-        ctx: &SignedBinaryExactNumericTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_signedBinaryExactNumericType(&mut self, ctx: &SignedBinaryExactNumericTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9033,10 +8131,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#verboseBinaryExactNumericType}.
      * @param ctx the parse tree
      */
-    fn visit_verboseBinaryExactNumericType(
-        &mut self,
-        ctx: &VerboseBinaryExactNumericTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_verboseBinaryExactNumericType(&mut self, ctx: &VerboseBinaryExactNumericTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9044,10 +8139,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#decimalExactNumericType}.
      * @param ctx the parse tree
      */
-    fn visit_decimalExactNumericType(
-        &mut self,
-        ctx: &DecimalExactNumericTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_decimalExactNumericType(&mut self, ctx: &DecimalExactNumericTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9071,10 +8163,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#approximateNumericType}.
      * @param ctx the parse tree
      */
-    fn visit_approximateNumericType(
-        &mut self,
-        ctx: &ApproximateNumericTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_approximateNumericType(&mut self, ctx: &ApproximateNumericTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9090,10 +8179,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#temporalInstantType}.
      * @param ctx the parse tree
      */
-    fn visit_temporalInstantType(
-        &mut self,
-        ctx: &TemporalInstantTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_temporalInstantType(&mut self, ctx: &TemporalInstantTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9141,10 +8227,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#temporalDurationType}.
      * @param ctx the parse tree
      */
-    fn visit_temporalDurationType(
-        &mut self,
-        ctx: &TemporalDurationTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_temporalDurationType(&mut self, ctx: &TemporalDurationTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9152,10 +8235,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#temporalDurationQualifier}.
      * @param ctx the parse tree
      */
-    fn visit_temporalDurationQualifier(
-        &mut self,
-        ctx: &TemporalDurationQualifierContext<'input>,
-    ) -> Self::Return {
+    fn visit_temporalDurationQualifier(&mut self, ctx: &TemporalDurationQualifierContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9163,10 +8243,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#referenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_referenceValueType(
-        &mut self,
-        ctx: &ReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_referenceValueType(&mut self, ctx: &ReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9174,10 +8251,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#immaterialValueType}.
      * @param ctx the parse tree
      */
-    fn visit_immaterialValueType(
-        &mut self,
-        ctx: &ImmaterialValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_immaterialValueType(&mut self, ctx: &ImmaterialValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9201,10 +8275,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#graphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_graphReferenceValueType(
-        &mut self,
-        ctx: &GraphReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_graphReferenceValueType(&mut self, ctx: &GraphReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9212,10 +8283,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#closedGraphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedGraphReferenceValueType(
-        &mut self,
-        ctx: &ClosedGraphReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_closedGraphReferenceValueType(&mut self, ctx: &ClosedGraphReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9223,10 +8291,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#openGraphReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_openGraphReferenceValueType(
-        &mut self,
-        ctx: &OpenGraphReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_openGraphReferenceValueType(&mut self, ctx: &OpenGraphReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9245,10 +8310,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_nodeReferenceValueType(
-        &mut self,
-        ctx: &NodeReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_nodeReferenceValueType(&mut self, ctx: &NodeReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9256,10 +8318,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#closedNodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedNodeReferenceValueType(
-        &mut self,
-        ctx: &ClosedNodeReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_closedNodeReferenceValueType(&mut self, ctx: &ClosedNodeReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9267,10 +8326,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#openNodeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_openNodeReferenceValueType(
-        &mut self,
-        ctx: &OpenNodeReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_openNodeReferenceValueType(&mut self, ctx: &OpenNodeReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9278,10 +8334,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_edgeReferenceValueType(
-        &mut self,
-        ctx: &EdgeReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeReferenceValueType(&mut self, ctx: &EdgeReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9289,10 +8342,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#closedEdgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_closedEdgeReferenceValueType(
-        &mut self,
-        ctx: &ClosedEdgeReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_closedEdgeReferenceValueType(&mut self, ctx: &ClosedEdgeReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9300,10 +8350,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#openEdgeReferenceValueType}.
      * @param ctx the parse tree
      */
-    fn visit_openEdgeReferenceValueType(
-        &mut self,
-        ctx: &OpenEdgeReferenceValueTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_openEdgeReferenceValueType(&mut self, ctx: &OpenEdgeReferenceValueTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9327,10 +8374,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#listValueTypeNameSynonym}.
      * @param ctx the parse tree
      */
-    fn visit_listValueTypeNameSynonym(
-        &mut self,
-        ctx: &ListValueTypeNameSynonymContext<'input>,
-    ) -> Self::Return {
+    fn visit_listValueTypeNameSynonym(&mut self, ctx: &ListValueTypeNameSynonymContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9346,10 +8390,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fieldTypesSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_fieldTypesSpecification(
-        &mut self,
-        ctx: &FieldTypesSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_fieldTypesSpecification(&mut self, ctx: &FieldTypesSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9421,10 +8462,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nullPredicatePart2}.
      * @param ctx the parse tree
      */
-    fn visit_nullPredicatePart2(
-        &mut self,
-        ctx: &NullPredicatePart2Context<'input>,
-    ) -> Self::Return {
+    fn visit_nullPredicatePart2(&mut self, ctx: &NullPredicatePart2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9432,10 +8470,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#valueTypePredicate}.
      * @param ctx the parse tree
      */
-    fn visit_valueTypePredicate(
-        &mut self,
-        ctx: &ValueTypePredicateContext<'input>,
-    ) -> Self::Return {
+    fn visit_valueTypePredicate(&mut self, ctx: &ValueTypePredicateContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9443,10 +8478,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#valueTypePredicatePart2}.
      * @param ctx the parse tree
      */
-    fn visit_valueTypePredicatePart2(
-        &mut self,
-        ctx: &ValueTypePredicatePart2Context<'input>,
-    ) -> Self::Return {
+    fn visit_valueTypePredicatePart2(&mut self, ctx: &ValueTypePredicatePart2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9454,10 +8486,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#normalizedPredicatePart2}.
      * @param ctx the parse tree
      */
-    fn visit_normalizedPredicatePart2(
-        &mut self,
-        ctx: &NormalizedPredicatePart2Context<'input>,
-    ) -> Self::Return {
+    fn visit_normalizedPredicatePart2(&mut self, ctx: &NormalizedPredicatePart2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9473,10 +8502,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#directedPredicatePart2}.
      * @param ctx the parse tree
      */
-    fn visit_directedPredicatePart2(
-        &mut self,
-        ctx: &DirectedPredicatePart2Context<'input>,
-    ) -> Self::Return {
+    fn visit_directedPredicatePart2(&mut self, ctx: &DirectedPredicatePart2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9492,10 +8518,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#labeledPredicatePart2}.
      * @param ctx the parse tree
      */
-    fn visit_labeledPredicatePart2(
-        &mut self,
-        ctx: &LabeledPredicatePart2Context<'input>,
-    ) -> Self::Return {
+    fn visit_labeledPredicatePart2(&mut self, ctx: &LabeledPredicatePart2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9511,10 +8534,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sourceDestinationPredicate}.
      * @param ctx the parse tree
      */
-    fn visit_sourceDestinationPredicate(
-        &mut self,
-        ctx: &SourceDestinationPredicateContext<'input>,
-    ) -> Self::Return {
+    fn visit_sourceDestinationPredicate(&mut self, ctx: &SourceDestinationPredicateContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9530,10 +8550,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#sourcePredicatePart2}.
      * @param ctx the parse tree
      */
-    fn visit_sourcePredicatePart2(
-        &mut self,
-        ctx: &SourcePredicatePart2Context<'input>,
-    ) -> Self::Return {
+    fn visit_sourcePredicatePart2(&mut self, ctx: &SourcePredicatePart2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9541,10 +8558,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#destinationPredicatePart2}.
      * @param ctx the parse tree
      */
-    fn visit_destinationPredicatePart2(
-        &mut self,
-        ctx: &DestinationPredicatePart2Context<'input>,
-    ) -> Self::Return {
+    fn visit_destinationPredicatePart2(&mut self, ctx: &DestinationPredicatePart2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9560,10 +8574,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#all_differentPredicate}.
      * @param ctx the parse tree
      */
-    fn visit_all_differentPredicate(
-        &mut self,
-        ctx: &All_differentPredicateContext<'input>,
-    ) -> Self::Return {
+    fn visit_all_differentPredicate(&mut self, ctx: &All_differentPredicateContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9579,10 +8590,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#property_existsPredicate}.
      * @param ctx the parse tree
      */
-    fn visit_property_existsPredicate(
-        &mut self,
-        ctx: &Property_existsPredicateContext<'input>,
-    ) -> Self::Return {
+    fn visit_property_existsPredicate(&mut self, ctx: &Property_existsPredicateContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9591,10 +8599,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_conjunctiveExprAlt(
-        &mut self,
-        ctx: &ConjunctiveExprAltContext<'input>,
-    ) -> Self::Return {
+    fn visit_conjunctiveExprAlt(&mut self, ctx: &ConjunctiveExprAltContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9603,10 +8608,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_propertyGraphExprAlt(
-        &mut self,
-        ctx: &PropertyGraphExprAltContext<'input>,
-    ) -> Self::Return {
+    fn visit_propertyGraphExprAlt(&mut self, ctx: &PropertyGraphExprAltContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9624,10 +8626,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_bindingTableExprAlt(
-        &mut self,
-        ctx: &BindingTableExprAltContext<'input>,
-    ) -> Self::Return {
+    fn visit_bindingTableExprAlt(&mut self, ctx: &BindingTableExprAltContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9654,10 +8653,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_normalizedPredicateExprAlt(
-        &mut self,
-        ctx: &NormalizedPredicateExprAltContext<'input>,
-    ) -> Self::Return {
+    fn visit_normalizedPredicateExprAlt(&mut self, ctx: &NormalizedPredicateExprAltContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9675,10 +8671,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_valueFunctionExprAlt(
-        &mut self,
-        ctx: &ValueFunctionExprAltContext<'input>,
-    ) -> Self::Return {
+    fn visit_valueFunctionExprAlt(&mut self, ctx: &ValueFunctionExprAltContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9687,10 +8680,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_concatenationExprAlt(
-        &mut self,
-        ctx: &ConcatenationExprAltContext<'input>,
-    ) -> Self::Return {
+    fn visit_concatenationExprAlt(&mut self, ctx: &ConcatenationExprAltContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9699,10 +8689,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_disjunctiveExprAlt(
-        &mut self,
-        ctx: &DisjunctiveExprAltContext<'input>,
-    ) -> Self::Return {
+    fn visit_disjunctiveExprAlt(&mut self, ctx: &DisjunctiveExprAltContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9729,10 +8716,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * labeled alternative in {@link GQLParser#valueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_addSubtractExprAlt(
-        &mut self,
-        ctx: &AddSubtractExprAltContext<'input>,
-    ) -> Self::Return {
+    fn visit_addSubtractExprAlt(&mut self, ctx: &AddSubtractExprAltContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9757,10 +8741,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#booleanValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_booleanValueExpression(
-        &mut self,
-        ctx: &BooleanValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_booleanValueExpression(&mut self, ctx: &BooleanValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9768,10 +8749,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#characterOrByteStringFunction}.
      * @param ctx the parse tree
      */
-    fn visit_characterOrByteStringFunction(
-        &mut self,
-        ctx: &CharacterOrByteStringFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_characterOrByteStringFunction(&mut self, ctx: &CharacterOrByteStringFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9779,10 +8757,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#subCharacterOrByteString}.
      * @param ctx the parse tree
      */
-    fn visit_subCharacterOrByteString(
-        &mut self,
-        ctx: &SubCharacterOrByteStringContext<'input>,
-    ) -> Self::Return {
+    fn visit_subCharacterOrByteString(&mut self, ctx: &SubCharacterOrByteStringContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9801,10 +8776,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#foldCharacterString}.
      * @param ctx the parse tree
      */
-    fn visit_foldCharacterString(
-        &mut self,
-        ctx: &FoldCharacterStringContext<'input>,
-    ) -> Self::Return {
+    fn visit_foldCharacterString(&mut self, ctx: &FoldCharacterStringContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9823,10 +8795,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#normalizeCharacterString}.
      * @param ctx the parse tree
      */
-    fn visit_normalizeCharacterString(
-        &mut self,
-        ctx: &NormalizeCharacterStringContext<'input>,
-    ) -> Self::Return {
+    fn visit_normalizeCharacterString(&mut self, ctx: &NormalizeCharacterStringContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9834,10 +8803,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#nodeReferenceValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_nodeReferenceValueExpression(
-        &mut self,
-        ctx: &NodeReferenceValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_nodeReferenceValueExpression(&mut self, ctx: &NodeReferenceValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9845,10 +8811,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#edgeReferenceValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_edgeReferenceValueExpression(
-        &mut self,
-        ctx: &EdgeReferenceValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_edgeReferenceValueExpression(&mut self, ctx: &EdgeReferenceValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9856,10 +8819,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#aggregatingValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_aggregatingValueExpression(
-        &mut self,
-        ctx: &AggregatingValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_aggregatingValueExpression(&mut self, ctx: &AggregatingValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9867,10 +8827,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#valueExpressionPrimary}.
      * @param ctx the parse tree
      */
-    fn visit_valueExpressionPrimary(
-        &mut self,
-        ctx: &ValueExpressionPrimaryContext<'input>,
-    ) -> Self::Return {
+    fn visit_valueExpressionPrimary(&mut self, ctx: &ValueExpressionPrimaryContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9878,10 +8835,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#parenthesizedValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_parenthesizedValueExpression(
-        &mut self,
-        ctx: &ParenthesizedValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_parenthesizedValueExpression(&mut self, ctx: &ParenthesizedValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9911,10 +8865,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#unsignedValueSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_unsignedValueSpecification(
-        &mut self,
-        ctx: &UnsignedValueSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_unsignedValueSpecification(&mut self, ctx: &UnsignedValueSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9933,10 +8884,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#generalValueSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_generalValueSpecification(
-        &mut self,
-        ctx: &GeneralValueSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_generalValueSpecification(&mut self, ctx: &GeneralValueSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9944,10 +8892,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#dynamicParameterSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_dynamicParameterSpecification(
-        &mut self,
-        ctx: &DynamicParameterSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_dynamicParameterSpecification(&mut self, ctx: &DynamicParameterSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9955,10 +8900,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#letValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_letValueExpression(
-        &mut self,
-        ctx: &LetValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_letValueExpression(&mut self, ctx: &LetValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -9966,10 +8908,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#valueQueryExpression}.
      * @param ctx the parse tree
      */
-    fn visit_valueQueryExpression(
-        &mut self,
-        ctx: &ValueQueryExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_valueQueryExpression(&mut self, ctx: &ValueQueryExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10025,10 +8964,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#searchedWhenClause}.
      * @param ctx the parse tree
      */
-    fn visit_searchedWhenClause(
-        &mut self,
-        ctx: &SearchedWhenClauseContext<'input>,
-    ) -> Self::Return {
+    fn visit_searchedWhenClause(&mut self, ctx: &SearchedWhenClauseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10116,10 +9052,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#generalSetFunction}.
      * @param ctx the parse tree
      */
-    fn visit_generalSetFunction(
-        &mut self,
-        ctx: &GeneralSetFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_generalSetFunction(&mut self, ctx: &GeneralSetFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10135,10 +9068,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#generalSetFunctionType}.
      * @param ctx the parse tree
      */
-    fn visit_generalSetFunctionType(
-        &mut self,
-        ctx: &GeneralSetFunctionTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_generalSetFunctionType(&mut self, ctx: &GeneralSetFunctionTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10154,10 +9084,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#binarySetFunctionType}.
      * @param ctx the parse tree
      */
-    fn visit_binarySetFunctionType(
-        &mut self,
-        ctx: &BinarySetFunctionTypeContext<'input>,
-    ) -> Self::Return {
+    fn visit_binarySetFunctionType(&mut self, ctx: &BinarySetFunctionTypeContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10165,10 +9092,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#dependentValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_dependentValueExpression(
-        &mut self,
-        ctx: &DependentValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_dependentValueExpression(&mut self, ctx: &DependentValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10176,10 +9100,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#independentValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_independentValueExpression(
-        &mut self,
-        ctx: &IndependentValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_independentValueExpression(&mut self, ctx: &IndependentValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10187,10 +9108,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#element_idFunction}.
      * @param ctx the parse tree
      */
-    fn visit_element_idFunction(
-        &mut self,
-        ctx: &Element_idFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_element_idFunction(&mut self, ctx: &Element_idFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10198,10 +9116,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#bindingVariableReference}.
      * @param ctx the parse tree
      */
-    fn visit_bindingVariableReference(
-        &mut self,
-        ctx: &BindingVariableReferenceContext<'input>,
-    ) -> Self::Return {
+    fn visit_bindingVariableReference(&mut self, ctx: &BindingVariableReferenceContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10209,10 +9124,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#pathValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_pathValueExpression(
-        &mut self,
-        ctx: &PathValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_pathValueExpression(&mut self, ctx: &PathValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10220,10 +9132,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#pathValueConstructor}.
      * @param ctx the parse tree
      */
-    fn visit_pathValueConstructor(
-        &mut self,
-        ctx: &PathValueConstructorContext<'input>,
-    ) -> Self::Return {
+    fn visit_pathValueConstructor(&mut self, ctx: &PathValueConstructorContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10250,10 +9159,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#pathElementListStart}.
      * @param ctx the parse tree
      */
-    fn visit_pathElementListStart(
-        &mut self,
-        ctx: &PathElementListStartContext<'input>,
-    ) -> Self::Return {
+    fn visit_pathElementListStart(&mut self, ctx: &PathElementListStartContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10261,10 +9167,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#pathElementListStep}.
      * @param ctx the parse tree
      */
-    fn visit_pathElementListStep(
-        &mut self,
-        ctx: &PathElementListStepContext<'input>,
-    ) -> Self::Return {
+    fn visit_pathElementListStep(&mut self, ctx: &PathElementListStepContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10272,10 +9175,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#listValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_listValueExpression(
-        &mut self,
-        ctx: &ListValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_listValueExpression(&mut self, ctx: &ListValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10307,10 +9207,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#listValueConstructor}.
      * @param ctx the parse tree
      */
-    fn visit_listValueConstructor(
-        &mut self,
-        ctx: &ListValueConstructorContext<'input>,
-    ) -> Self::Return {
+    fn visit_listValueConstructor(&mut self, ctx: &ListValueConstructorContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10353,10 +9250,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#fieldsSpecification}.
      * @param ctx the parse tree
      */
-    fn visit_fieldsSpecification(
-        &mut self,
-        ctx: &FieldsSpecificationContext<'input>,
-    ) -> Self::Return {
+    fn visit_fieldsSpecification(&mut self, ctx: &FieldsSpecificationContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10388,10 +9282,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#numericValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_numericValueExpression(
-        &mut self,
-        ctx: &NumericValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_numericValueExpression(&mut self, ctx: &NumericValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10399,10 +9290,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#numericValueFunction}.
      * @param ctx the parse tree
      */
-    fn visit_numericValueFunction(
-        &mut self,
-        ctx: &NumericValueFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_numericValueFunction(&mut self, ctx: &NumericValueFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10418,10 +9306,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#cardinalityExpression}.
      * @param ctx the parse tree
      */
-    fn visit_cardinalityExpression(
-        &mut self,
-        ctx: &CardinalityExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_cardinalityExpression(&mut self, ctx: &CardinalityExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10429,10 +9314,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#cardinalityExpressionArgument}.
      * @param ctx the parse tree
      */
-    fn visit_cardinalityExpressionArgument(
-        &mut self,
-        ctx: &CardinalityExpressionArgumentContext<'input>,
-    ) -> Self::Return {
+    fn visit_cardinalityExpressionArgument(&mut self, ctx: &CardinalityExpressionArgumentContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10440,10 +9322,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#charLengthExpression}.
      * @param ctx the parse tree
      */
-    fn visit_charLengthExpression(
-        &mut self,
-        ctx: &CharLengthExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_charLengthExpression(&mut self, ctx: &CharLengthExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10451,10 +9330,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#byteLengthExpression}.
      * @param ctx the parse tree
      */
-    fn visit_byteLengthExpression(
-        &mut self,
-        ctx: &ByteLengthExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_byteLengthExpression(&mut self, ctx: &ByteLengthExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10462,10 +9338,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#pathLengthExpression}.
      * @param ctx the parse tree
      */
-    fn visit_pathLengthExpression(
-        &mut self,
-        ctx: &PathLengthExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_pathLengthExpression(&mut self, ctx: &PathLengthExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10473,10 +9346,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#absoluteValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_absoluteValueExpression(
-        &mut self,
-        ctx: &AbsoluteValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_absoluteValueExpression(&mut self, ctx: &AbsoluteValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10503,10 +9373,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#numericValueExpressionDivisor}.
      * @param ctx the parse tree
      */
-    fn visit_numericValueExpressionDivisor(
-        &mut self,
-        ctx: &NumericValueExpressionDivisorContext<'input>,
-    ) -> Self::Return {
+    fn visit_numericValueExpressionDivisor(&mut self, ctx: &NumericValueExpressionDivisorContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10514,10 +9381,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#trigonometricFunction}.
      * @param ctx the parse tree
      */
-    fn visit_trigonometricFunction(
-        &mut self,
-        ctx: &TrigonometricFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_trigonometricFunction(&mut self, ctx: &TrigonometricFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10525,10 +9389,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#trigonometricFunctionName}.
      * @param ctx the parse tree
      */
-    fn visit_trigonometricFunctionName(
-        &mut self,
-        ctx: &TrigonometricFunctionNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_trigonometricFunctionName(&mut self, ctx: &TrigonometricFunctionNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10536,10 +9397,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#generalLogarithmFunction}.
      * @param ctx the parse tree
      */
-    fn visit_generalLogarithmFunction(
-        &mut self,
-        ctx: &GeneralLogarithmFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_generalLogarithmFunction(&mut self, ctx: &GeneralLogarithmFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10547,10 +9405,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#generalLogarithmBase}.
      * @param ctx the parse tree
      */
-    fn visit_generalLogarithmBase(
-        &mut self,
-        ctx: &GeneralLogarithmBaseContext<'input>,
-    ) -> Self::Return {
+    fn visit_generalLogarithmBase(&mut self, ctx: &GeneralLogarithmBaseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10558,10 +9413,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#generalLogarithmArgument}.
      * @param ctx the parse tree
      */
-    fn visit_generalLogarithmArgument(
-        &mut self,
-        ctx: &GeneralLogarithmArgumentContext<'input>,
-    ) -> Self::Return {
+    fn visit_generalLogarithmArgument(&mut self, ctx: &GeneralLogarithmArgumentContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10585,10 +9437,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#exponentialFunction}.
      * @param ctx the parse tree
      */
-    fn visit_exponentialFunction(
-        &mut self,
-        ctx: &ExponentialFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_exponentialFunction(&mut self, ctx: &ExponentialFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10604,10 +9453,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#numericValueExpressionBase}.
      * @param ctx the parse tree
      */
-    fn visit_numericValueExpressionBase(
-        &mut self,
-        ctx: &NumericValueExpressionBaseContext<'input>,
-    ) -> Self::Return {
+    fn visit_numericValueExpressionBase(&mut self, ctx: &NumericValueExpressionBaseContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10661,10 +9507,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#byteStringValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_byteStringValueExpression(
-        &mut self,
-        ctx: &ByteStringValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_byteStringValueExpression(&mut self, ctx: &ByteStringValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10699,10 +9542,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#trimCharacterOrByteString}.
      * @param ctx the parse tree
      */
-    fn visit_trimCharacterOrByteString(
-        &mut self,
-        ctx: &TrimCharacterOrByteStringContext<'input>,
-    ) -> Self::Return {
+    fn visit_trimCharacterOrByteString(&mut self, ctx: &TrimCharacterOrByteStringContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10726,10 +9566,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#datetimeValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeValueExpression(
-        &mut self,
-        ctx: &DatetimeValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_datetimeValueExpression(&mut self, ctx: &DatetimeValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10737,10 +9574,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#datetimeValueFunction}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeValueFunction(
-        &mut self,
-        ctx: &DatetimeValueFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_datetimeValueFunction(&mut self, ctx: &DatetimeValueFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10780,10 +9614,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#localdatetimeFunction}.
      * @param ctx the parse tree
      */
-    fn visit_localdatetimeFunction(
-        &mut self,
-        ctx: &LocaldatetimeFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_localdatetimeFunction(&mut self, ctx: &LocaldatetimeFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10791,10 +9622,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#dateFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn visit_dateFunctionParameters(
-        &mut self,
-        ctx: &DateFunctionParametersContext<'input>,
-    ) -> Self::Return {
+    fn visit_dateFunctionParameters(&mut self, ctx: &DateFunctionParametersContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10802,10 +9630,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#timeFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn visit_timeFunctionParameters(
-        &mut self,
-        ctx: &TimeFunctionParametersContext<'input>,
-    ) -> Self::Return {
+    fn visit_timeFunctionParameters(&mut self, ctx: &TimeFunctionParametersContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10813,10 +9638,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#datetimeFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeFunctionParameters(
-        &mut self,
-        ctx: &DatetimeFunctionParametersContext<'input>,
-    ) -> Self::Return {
+    fn visit_datetimeFunctionParameters(&mut self, ctx: &DatetimeFunctionParametersContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10824,10 +9646,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#durationValueExpression}.
      * @param ctx the parse tree
      */
-    fn visit_durationValueExpression(
-        &mut self,
-        ctx: &DurationValueExpressionContext<'input>,
-    ) -> Self::Return {
+    fn visit_durationValueExpression(&mut self, ctx: &DurationValueExpressionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10835,10 +9654,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#datetimeSubtraction}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeSubtraction(
-        &mut self,
-        ctx: &DatetimeSubtractionContext<'input>,
-    ) -> Self::Return {
+    fn visit_datetimeSubtraction(&mut self, ctx: &DatetimeSubtractionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10846,10 +9662,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#datetimeSubtractionParameters}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeSubtractionParameters(
-        &mut self,
-        ctx: &DatetimeSubtractionParametersContext<'input>,
-    ) -> Self::Return {
+    fn visit_datetimeSubtractionParameters(&mut self, ctx: &DatetimeSubtractionParametersContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10857,10 +9670,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#datetimeValueExpression1}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeValueExpression1(
-        &mut self,
-        ctx: &DatetimeValueExpression1Context<'input>,
-    ) -> Self::Return {
+    fn visit_datetimeValueExpression1(&mut self, ctx: &DatetimeValueExpression1Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10868,10 +9678,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#datetimeValueExpression2}.
      * @param ctx the parse tree
      */
-    fn visit_datetimeValueExpression2(
-        &mut self,
-        ctx: &DatetimeValueExpression2Context<'input>,
-    ) -> Self::Return {
+    fn visit_datetimeValueExpression2(&mut self, ctx: &DatetimeValueExpression2Context<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10879,10 +9686,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#durationValueFunction}.
      * @param ctx the parse tree
      */
-    fn visit_durationValueFunction(
-        &mut self,
-        ctx: &DurationValueFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_durationValueFunction(&mut self, ctx: &DurationValueFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10898,10 +9702,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#durationFunctionParameters}.
      * @param ctx the parse tree
      */
-    fn visit_durationFunctionParameters(
-        &mut self,
-        ctx: &DurationFunctionParametersContext<'input>,
-    ) -> Self::Return {
+    fn visit_durationFunctionParameters(&mut self, ctx: &DurationFunctionParametersContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10917,10 +9718,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#objectNameOrBindingVariable}.
      * @param ctx the parse tree
      */
-    fn visit_objectNameOrBindingVariable(
-        &mut self,
-        ctx: &ObjectNameOrBindingVariableContext<'input>,
-    ) -> Self::Return {
+    fn visit_objectNameOrBindingVariable(&mut self, ctx: &ObjectNameOrBindingVariableContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10952,10 +9750,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#delimitedGraphName}.
      * @param ctx the parse tree
      */
-    fn visit_delimitedGraphName(
-        &mut self,
-        ctx: &DelimitedGraphNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_delimitedGraphName(&mut self, ctx: &DelimitedGraphNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -10995,10 +9790,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#delimitedBindingTableName}.
      * @param ctx the parse tree
      */
-    fn visit_delimitedBindingTableName(
-        &mut self,
-        ctx: &DelimitedBindingTableNameContext<'input>,
-    ) -> Self::Return {
+    fn visit_delimitedBindingTableName(&mut self, ctx: &DelimitedBindingTableNameContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -11158,10 +9950,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#characterStringLiteral}.
      * @param ctx the parse tree
      */
-    fn visit_characterStringLiteral(
-        &mut self,
-        ctx: &CharacterStringLiteralContext<'input>,
-    ) -> Self::Return {
+    fn visit_characterStringLiteral(&mut self, ctx: &CharacterStringLiteralContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -11169,10 +9958,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#unsignedNumericLiteral}.
      * @param ctx the parse tree
      */
-    fn visit_unsignedNumericLiteral(
-        &mut self,
-        ctx: &UnsignedNumericLiteralContext<'input>,
-    ) -> Self::Return {
+    fn visit_unsignedNumericLiteral(&mut self, ctx: &UnsignedNumericLiteralContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -11180,10 +9966,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#exactNumericLiteral}.
      * @param ctx the parse tree
      */
-    fn visit_exactNumericLiteral(
-        &mut self,
-        ctx: &ExactNumericLiteralContext<'input>,
-    ) -> Self::Return {
+    fn visit_exactNumericLiteral(&mut self, ctx: &ExactNumericLiteralContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -11191,10 +9974,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#approximateNumericLiteral}.
      * @param ctx the parse tree
      */
-    fn visit_approximateNumericLiteral(
-        &mut self,
-        ctx: &ApproximateNumericLiteralContext<'input>,
-    ) -> Self::Return {
+    fn visit_approximateNumericLiteral(&mut self, ctx: &ApproximateNumericLiteralContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -11210,10 +9990,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#unsignedDecimalInteger}.
      * @param ctx the parse tree
      */
-    fn visit_unsignedDecimalInteger(
-        &mut self,
-        ctx: &UnsignedDecimalIntegerContext<'input>,
-    ) -> Self::Return {
+    fn visit_unsignedDecimalInteger(&mut self, ctx: &UnsignedDecimalIntegerContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -11293,10 +10070,7 @@ ParseTreeVisitorCompat<'input, Node=GQLParserContextType>
      * Visit a parse tree produced by {@link GQLParser#userDefinedFunction}.
      * @param ctx the parse tree
      */
-    fn visit_userDefinedFunction(
-        &mut self,
-        ctx: &UserDefinedFunctionContext<'input>,
-    ) -> Self::Return {
+    fn visit_userDefinedFunction(&mut self, ctx: &UserDefinedFunctionContext<'input>) -> Self::Return {
         self.visit_children(ctx)
     }
 
@@ -11368,27 +10142,17 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_sessionSetGraphParameterClause(
-        &mut self,
-        ctx: &SessionSetGraphParameterClauseContext<'input>,
-    ) {
+    fn visit_sessionSetGraphParameterClause(&mut self, ctx: &SessionSetGraphParameterClauseContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_sessionSetGraphParameterClause(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_sessionSetBindingTableParameterClause(
-        &mut self,
-        ctx: &SessionSetBindingTableParameterClauseContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_sessionSetBindingTableParameterClause(self, ctx);
+    fn visit_sessionSetBindingTableParameterClause(&mut self, ctx: &SessionSetBindingTableParameterClauseContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_sessionSetBindingTableParameterClause(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_sessionSetValueParameterClause(
-        &mut self,
-        ctx: &SessionSetValueParameterClauseContext<'input>,
-    ) {
+    fn visit_sessionSetValueParameterClause(&mut self, ctx: &SessionSetValueParameterClauseContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_sessionSetValueParameterClause(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -11413,10 +10177,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_sessionParameterSpecification(
-        &mut self,
-        ctx: &SessionParameterSpecificationContext<'input>,
-    ) {
+    fn visit_sessionParameterSpecification(&mut self, ctx: &SessionParameterSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_sessionParameterSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -11426,10 +10187,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_transactionCharacteristics(
-        &mut self,
-        ctx: &TransactionCharacteristicsContext<'input>,
-    ) {
+    fn visit_transactionCharacteristics(&mut self, ctx: &TransactionCharacteristicsContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_transactionCharacteristics(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -11454,10 +10212,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_nestedProcedureSpecification(
-        &mut self,
-        ctx: &NestedProcedureSpecificationContext<'input>,
-    ) {
+    fn visit_nestedProcedureSpecification(&mut self, ctx: &NestedProcedureSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_nestedProcedureSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -11471,8 +10226,7 @@ where
         &mut self,
         ctx: &NestedDataModifyingProcedureSpecificationContext<'input>,
     ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_nestedDataModifyingProcedureSpecification(self, ctx);
+        let result = <Self as GQLVisitorCompat>::visit_nestedDataModifyingProcedureSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -11486,10 +10240,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_bindingVariableDefinitionBlock(
-        &mut self,
-        ctx: &BindingVariableDefinitionBlockContext<'input>,
-    ) {
+    fn visit_bindingVariableDefinitionBlock(&mut self, ctx: &BindingVariableDefinitionBlockContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_bindingVariableDefinitionBlock(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -11529,18 +10280,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_bindingTableVariableDefinition(
-        &mut self,
-        ctx: &BindingTableVariableDefinitionContext<'input>,
-    ) {
+    fn visit_bindingTableVariableDefinition(&mut self, ctx: &BindingTableVariableDefinitionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_bindingTableVariableDefinition(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_optTypedBindingTableInitializer(
-        &mut self,
-        ctx: &OptTypedBindingTableInitializerContext<'input>,
-    ) {
+    fn visit_optTypedBindingTableInitializer(&mut self, ctx: &OptTypedBindingTableInitializerContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_optTypedBindingTableInitializer(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -11580,12 +10325,8 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_nestedBindingTableQuerySpecification(
-        &mut self,
-        ctx: &NestedBindingTableQuerySpecificationContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_nestedBindingTableQuerySpecification(self, ctx);
+    fn visit_nestedBindingTableQuerySpecification(&mut self, ctx: &NestedBindingTableQuerySpecificationContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_nestedBindingTableQuerySpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -11594,28 +10335,18 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_linearCatalogModifyingStatement(
-        &mut self,
-        ctx: &LinearCatalogModifyingStatementContext<'input>,
-    ) {
+    fn visit_linearCatalogModifyingStatement(&mut self, ctx: &LinearCatalogModifyingStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_linearCatalogModifyingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simpleCatalogModifyingStatement(
-        &mut self,
-        ctx: &SimpleCatalogModifyingStatementContext<'input>,
-    ) {
+    fn visit_simpleCatalogModifyingStatement(&mut self, ctx: &SimpleCatalogModifyingStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simpleCatalogModifyingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_primitiveCatalogModifyingStatement(
-        &mut self,
-        ctx: &PrimitiveCatalogModifyingStatementContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_primitiveCatalogModifyingStatement(self, ctx);
+    fn visit_primitiveCatalogModifyingStatement(&mut self, ctx: &PrimitiveCatalogModifyingStatementContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_primitiveCatalogModifyingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -11683,25 +10414,17 @@ where
         &mut self,
         ctx: &CallCatalogModifyingProcedureStatementContext<'input>,
     ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_callCatalogModifyingProcedureStatement(self, ctx);
+        let result = <Self as GQLVisitorCompat>::visit_callCatalogModifyingProcedureStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_linearDataModifyingStatement(
-        &mut self,
-        ctx: &LinearDataModifyingStatementContext<'input>,
-    ) {
+    fn visit_linearDataModifyingStatement(&mut self, ctx: &LinearDataModifyingStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_linearDataModifyingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_focusedLinearDataModifyingStatement(
-        &mut self,
-        ctx: &FocusedLinearDataModifyingStatementContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_focusedLinearDataModifyingStatement(self, ctx);
+    fn visit_focusedLinearDataModifyingStatement(&mut self, ctx: &FocusedLinearDataModifyingStatementContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_focusedLinearDataModifyingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -11709,8 +10432,7 @@ where
         &mut self,
         ctx: &FocusedLinearDataModifyingStatementBodyContext<'input>,
     ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_focusedLinearDataModifyingStatementBody(self, ctx);
+        let result = <Self as GQLVisitorCompat>::visit_focusedLinearDataModifyingStatementBody(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -11718,19 +10440,12 @@ where
         &mut self,
         ctx: &FocusedNestedDataModifyingProcedureSpecificationContext<'input>,
     ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_focusedNestedDataModifyingProcedureSpecification(
-                self, ctx,
-            );
+        let result = <Self as GQLVisitorCompat>::visit_focusedNestedDataModifyingProcedureSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_ambientLinearDataModifyingStatement(
-        &mut self,
-        ctx: &AmbientLinearDataModifyingStatementContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_ambientLinearDataModifyingStatement(self, ctx);
+    fn visit_ambientLinearDataModifyingStatement(&mut self, ctx: &AmbientLinearDataModifyingStatementContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_ambientLinearDataModifyingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -11738,40 +10453,26 @@ where
         &mut self,
         ctx: &AmbientLinearDataModifyingStatementBodyContext<'input>,
     ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_ambientLinearDataModifyingStatementBody(self, ctx);
+        let result = <Self as GQLVisitorCompat>::visit_ambientLinearDataModifyingStatementBody(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simpleLinearDataAccessingStatement(
-        &mut self,
-        ctx: &SimpleLinearDataAccessingStatementContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_simpleLinearDataAccessingStatement(self, ctx);
+    fn visit_simpleLinearDataAccessingStatement(&mut self, ctx: &SimpleLinearDataAccessingStatementContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_simpleLinearDataAccessingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simpleDataAccessingStatement(
-        &mut self,
-        ctx: &SimpleDataAccessingStatementContext<'input>,
-    ) {
+    fn visit_simpleDataAccessingStatement(&mut self, ctx: &SimpleDataAccessingStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simpleDataAccessingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simpleDataModifyingStatement(
-        &mut self,
-        ctx: &SimpleDataModifyingStatementContext<'input>,
-    ) {
+    fn visit_simpleDataModifyingStatement(&mut self, ctx: &SimpleDataModifyingStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simpleDataModifyingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_primitiveDataModifyingStatement(
-        &mut self,
-        ctx: &PrimitiveDataModifyingStatementContext<'input>,
-    ) {
+    fn visit_primitiveDataModifyingStatement(&mut self, ctx: &PrimitiveDataModifyingStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_primitiveDataModifyingStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -11851,12 +10552,8 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_callDataModifyingProcedureStatement(
-        &mut self,
-        ctx: &CallDataModifyingProcedureStatementContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_callDataModifyingProcedureStatement(self, ctx);
+    fn visit_callDataModifyingProcedureStatement(&mut self, ctx: &CallDataModifyingProcedureStatementContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_callDataModifyingProcedureStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -11890,18 +10587,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_focusedLinearQueryStatement(
-        &mut self,
-        ctx: &FocusedLinearQueryStatementContext<'input>,
-    ) {
+    fn visit_focusedLinearQueryStatement(&mut self, ctx: &FocusedLinearQueryStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_focusedLinearQueryStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_focusedLinearQueryStatementPart(
-        &mut self,
-        ctx: &FocusedLinearQueryStatementPartContext<'input>,
-    ) {
+    fn visit_focusedLinearQueryStatementPart(&mut self, ctx: &FocusedLinearQueryStatementPartContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_focusedLinearQueryStatementPart(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -11910,41 +10601,26 @@ where
         &mut self,
         ctx: &FocusedLinearQueryAndPrimitiveResultStatementPartContext<'input>,
     ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_focusedLinearQueryAndPrimitiveResultStatementPart(
-                self, ctx,
-            );
+        let result = <Self as GQLVisitorCompat>::visit_focusedLinearQueryAndPrimitiveResultStatementPart(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_focusedPrimitiveResultStatement(
-        &mut self,
-        ctx: &FocusedPrimitiveResultStatementContext<'input>,
-    ) {
+    fn visit_focusedPrimitiveResultStatement(&mut self, ctx: &FocusedPrimitiveResultStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_focusedPrimitiveResultStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_focusedNestedQuerySpecification(
-        &mut self,
-        ctx: &FocusedNestedQuerySpecificationContext<'input>,
-    ) {
+    fn visit_focusedNestedQuerySpecification(&mut self, ctx: &FocusedNestedQuerySpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_focusedNestedQuerySpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_ambientLinearQueryStatement(
-        &mut self,
-        ctx: &AmbientLinearQueryStatementContext<'input>,
-    ) {
+    fn visit_ambientLinearQueryStatement(&mut self, ctx: &AmbientLinearQueryStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_ambientLinearQueryStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simpleLinearQueryStatement(
-        &mut self,
-        ctx: &SimpleLinearQueryStatementContext<'input>,
-    ) {
+    fn visit_simpleLinearQueryStatement(&mut self, ctx: &SimpleLinearQueryStatementContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simpleLinearQueryStatement(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12134,10 +10810,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_bindingVariableReferenceList(
-        &mut self,
-        ctx: &BindingVariableReferenceListContext<'input>,
-    ) {
+    fn visit_bindingVariableReferenceList(&mut self, ctx: &BindingVariableReferenceListContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_bindingVariableReferenceList(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12197,10 +10870,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_repeatableElementsMatchMode(
-        &mut self,
-        ctx: &RepeatableElementsMatchModeContext<'input>,
-    ) {
+    fn visit_repeatableElementsMatchMode(&mut self, ctx: &RepeatableElementsMatchModeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_repeatableElementsMatchMode(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12285,18 +10955,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_insertElementPatternFiller(
-        &mut self,
-        ctx: &InsertElementPatternFillerContext<'input>,
-    ) {
+    fn visit_insertElementPatternFiller(&mut self, ctx: &InsertElementPatternFillerContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_insertElementPatternFiller(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_labelAndPropertySetSpecification(
-        &mut self,
-        ctx: &LabelAndPropertySetSpecificationContext<'input>,
-    ) {
+    fn visit_labelAndPropertySetSpecification(&mut self, ctx: &LabelAndPropertySetSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_labelAndPropertySetSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12361,10 +11025,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_countedShortestGroupSearch(
-        &mut self,
-        ctx: &CountedShortestGroupSearchContext<'input>,
-    ) {
+    fn visit_countedShortestGroupSearch(&mut self, ctx: &CountedShortestGroupSearchContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_countedShortestGroupSearch(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12414,19 +11075,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_ppParenthesizedPathPatternExpression(
-        &mut self,
-        ctx: &PpParenthesizedPathPatternExpressionContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_ppParenthesizedPathPatternExpression(self, ctx);
+    fn visit_ppParenthesizedPathPatternExpression(&mut self, ctx: &PpParenthesizedPathPatternExpressionContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_ppParenthesizedPathPatternExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_ppSimplifiedPathPatternExpression(
-        &mut self,
-        ctx: &PpSimplifiedPathPatternExpressionContext<'input>,
-    ) {
+    fn visit_ppSimplifiedPathPatternExpression(&mut self, ctx: &PpSimplifiedPathPatternExpressionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_ppSimplifiedPathPatternExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12446,10 +11100,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_elementVariableDeclaration(
-        &mut self,
-        ctx: &ElementVariableDeclarationContext<'input>,
-    ) {
+    fn visit_elementVariableDeclaration(&mut self, ctx: &ElementVariableDeclarationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_elementVariableDeclaration(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12474,10 +11125,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_elementPropertySpecification(
-        &mut self,
-        ctx: &ElementPropertySpecificationContext<'input>,
-    ) {
+    fn visit_elementPropertySpecification(&mut self, ctx: &ElementPropertySpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_elementPropertySpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12542,29 +11190,18 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_parenthesizedPathPatternExpression(
-        &mut self,
-        ctx: &ParenthesizedPathPatternExpressionContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_parenthesizedPathPatternExpression(self, ctx);
+    fn visit_parenthesizedPathPatternExpression(&mut self, ctx: &ParenthesizedPathPatternExpressionContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_parenthesizedPathPatternExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_subpathVariableDeclaration(
-        &mut self,
-        ctx: &SubpathVariableDeclarationContext<'input>,
-    ) {
+    fn visit_subpathVariableDeclaration(&mut self, ctx: &SubpathVariableDeclarationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_subpathVariableDeclaration(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_parenthesizedPathPatternWhereClause(
-        &mut self,
-        ctx: &ParenthesizedPathPatternWhereClauseContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_parenthesizedPathPatternWhereClause(self, ctx);
+    fn visit_parenthesizedPathPatternWhereClause(&mut self, ctx: &ParenthesizedPathPatternWhereClauseContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_parenthesizedPathPatternWhereClause(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -12573,18 +11210,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_labelExpressionDisjunction(
-        &mut self,
-        ctx: &LabelExpressionDisjunctionContext<'input>,
-    ) {
+    fn visit_labelExpressionDisjunction(&mut self, ctx: &LabelExpressionDisjunctionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_labelExpressionDisjunction(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_labelExpressionParenthesized(
-        &mut self,
-        ctx: &LabelExpressionParenthesizedContext<'input>,
-    ) {
+    fn visit_labelExpressionParenthesized(&mut self, ctx: &LabelExpressionParenthesizedContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_labelExpressionParenthesized(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12594,10 +11225,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_labelExpressionConjunction(
-        &mut self,
-        ctx: &LabelExpressionConjunctionContext<'input>,
-    ) {
+    fn visit_labelExpressionConjunction(&mut self, ctx: &LabelExpressionConjunctionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_labelExpressionConjunction(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12642,10 +11270,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedPathPatternExpression(
-        &mut self,
-        ctx: &SimplifiedPathPatternExpressionContext<'input>,
-    ) {
+    fn visit_simplifiedPathPatternExpression(&mut self, ctx: &SimplifiedPathPatternExpressionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedPathPatternExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12655,10 +11280,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedDefaultingUndirected(
-        &mut self,
-        ctx: &SimplifiedDefaultingUndirectedContext<'input>,
-    ) {
+    fn visit_simplifiedDefaultingUndirected(&mut self, ctx: &SimplifiedDefaultingUndirectedContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedDefaultingUndirected(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12668,36 +11290,22 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedDefaultingLeftOrUndirected(
-        &mut self,
-        ctx: &SimplifiedDefaultingLeftOrUndirectedContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_simplifiedDefaultingLeftOrUndirected(self, ctx);
+    fn visit_simplifiedDefaultingLeftOrUndirected(&mut self, ctx: &SimplifiedDefaultingLeftOrUndirectedContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_simplifiedDefaultingLeftOrUndirected(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedDefaultingUndirectedOrRight(
-        &mut self,
-        ctx: &SimplifiedDefaultingUndirectedOrRightContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_simplifiedDefaultingUndirectedOrRight(self, ctx);
+    fn visit_simplifiedDefaultingUndirectedOrRight(&mut self, ctx: &SimplifiedDefaultingUndirectedOrRightContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_simplifiedDefaultingUndirectedOrRight(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedDefaultingLeftOrRight(
-        &mut self,
-        ctx: &SimplifiedDefaultingLeftOrRightContext<'input>,
-    ) {
+    fn visit_simplifiedDefaultingLeftOrRight(&mut self, ctx: &SimplifiedDefaultingLeftOrRightContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedDefaultingLeftOrRight(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedDefaultingAnyDirection(
-        &mut self,
-        ctx: &SimplifiedDefaultingAnyDirectionContext<'input>,
-    ) {
+    fn visit_simplifiedDefaultingAnyDirection(&mut self, ctx: &SimplifiedDefaultingAnyDirectionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedDefaultingAnyDirection(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12712,10 +11320,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedMultisetAlternation(
-        &mut self,
-        ctx: &SimplifiedMultisetAlternationContext<'input>,
-    ) {
+    fn visit_simplifiedMultisetAlternation(&mut self, ctx: &SimplifiedMultisetAlternationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedMultisetAlternation(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12725,18 +11330,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedConcatenationLabel(
-        &mut self,
-        ctx: &SimplifiedConcatenationLabelContext<'input>,
-    ) {
+    fn visit_simplifiedConcatenationLabel(&mut self, ctx: &SimplifiedConcatenationLabelContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedConcatenationLabel(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedConjunctionLabel(
-        &mut self,
-        ctx: &SimplifiedConjunctionLabelContext<'input>,
-    ) {
+    fn visit_simplifiedConjunctionLabel(&mut self, ctx: &SimplifiedConjunctionLabelContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedConjunctionLabel(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12766,10 +11365,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedDirectionOverride(
-        &mut self,
-        ctx: &SimplifiedDirectionOverrideContext<'input>,
-    ) {
+    fn visit_simplifiedDirectionOverride(&mut self, ctx: &SimplifiedDirectionOverrideContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedDirectionOverride(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12779,10 +11375,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedOverrideUndirected(
-        &mut self,
-        ctx: &SimplifiedOverrideUndirectedContext<'input>,
-    ) {
+    fn visit_simplifiedOverrideUndirected(&mut self, ctx: &SimplifiedOverrideUndirectedContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedOverrideUndirected(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12792,36 +11385,22 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedOverrideLeftOrUndirected(
-        &mut self,
-        ctx: &SimplifiedOverrideLeftOrUndirectedContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_simplifiedOverrideLeftOrUndirected(self, ctx);
+    fn visit_simplifiedOverrideLeftOrUndirected(&mut self, ctx: &SimplifiedOverrideLeftOrUndirectedContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_simplifiedOverrideLeftOrUndirected(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedOverrideUndirectedOrRight(
-        &mut self,
-        ctx: &SimplifiedOverrideUndirectedOrRightContext<'input>,
-    ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_simplifiedOverrideUndirectedOrRight(self, ctx);
+    fn visit_simplifiedOverrideUndirectedOrRight(&mut self, ctx: &SimplifiedOverrideUndirectedOrRightContext<'input>) {
+        let result = <Self as GQLVisitorCompat>::visit_simplifiedOverrideUndirectedOrRight(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedOverrideLeftOrRight(
-        &mut self,
-        ctx: &SimplifiedOverrideLeftOrRightContext<'input>,
-    ) {
+    fn visit_simplifiedOverrideLeftOrRight(&mut self, ctx: &SimplifiedOverrideLeftOrRightContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedOverrideLeftOrRight(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_simplifiedOverrideAnyDirection(
-        &mut self,
-        ctx: &SimplifiedOverrideAnyDirectionContext<'input>,
-    ) {
+    fn visit_simplifiedOverrideAnyDirection(&mut self, ctx: &SimplifiedOverrideAnyDirectionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_simplifiedOverrideAnyDirection(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -12941,26 +11520,17 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_absoluteCatalogSchemaReference(
-        &mut self,
-        ctx: &AbsoluteCatalogSchemaReferenceContext<'input>,
-    ) {
+    fn visit_absoluteCatalogSchemaReference(&mut self, ctx: &AbsoluteCatalogSchemaReferenceContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_absoluteCatalogSchemaReference(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_catalogSchemaParentAndName(
-        &mut self,
-        ctx: &CatalogSchemaParentAndNameContext<'input>,
-    ) {
+    fn visit_catalogSchemaParentAndName(&mut self, ctx: &CatalogSchemaParentAndNameContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_catalogSchemaParentAndName(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_relativeCatalogSchemaReference(
-        &mut self,
-        ctx: &RelativeCatalogSchemaReferenceContext<'input>,
-    ) {
+    fn visit_relativeCatalogSchemaReference(&mut self, ctx: &RelativeCatalogSchemaReferenceContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_relativeCatalogSchemaReference(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13005,10 +11575,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_catalogGraphTypeParentAndName(
-        &mut self,
-        ctx: &CatalogGraphTypeParentAndNameContext<'input>,
-    ) {
+    fn visit_catalogGraphTypeParentAndName(&mut self, ctx: &CatalogGraphTypeParentAndNameContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_catalogGraphTypeParentAndName(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13023,42 +11590,27 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_catalogProcedureParentAndName(
-        &mut self,
-        ctx: &CatalogProcedureParentAndNameContext<'input>,
-    ) {
+    fn visit_catalogProcedureParentAndName(&mut self, ctx: &CatalogProcedureParentAndNameContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_catalogProcedureParentAndName(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_catalogObjectParentReference(
-        &mut self,
-        ctx: &CatalogObjectParentReferenceContext<'input>,
-    ) {
+    fn visit_catalogObjectParentReference(&mut self, ctx: &CatalogObjectParentReferenceContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_catalogObjectParentReference(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_referenceParameterSpecification(
-        &mut self,
-        ctx: &ReferenceParameterSpecificationContext<'input>,
-    ) {
+    fn visit_referenceParameterSpecification(&mut self, ctx: &ReferenceParameterSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_referenceParameterSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_nestedGraphTypeSpecification(
-        &mut self,
-        ctx: &NestedGraphTypeSpecificationContext<'input>,
-    ) {
+    fn visit_nestedGraphTypeSpecification(&mut self, ctx: &NestedGraphTypeSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_nestedGraphTypeSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_graphTypeSpecificationBody(
-        &mut self,
-        ctx: &GraphTypeSpecificationBodyContext<'input>,
-    ) {
+    fn visit_graphTypeSpecificationBody(&mut self, ctx: &GraphTypeSpecificationBodyContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_graphTypeSpecificationBody(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13173,18 +11725,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_edgeTypePatternPointingRight(
-        &mut self,
-        ctx: &EdgeTypePatternPointingRightContext<'input>,
-    ) {
+    fn visit_edgeTypePatternPointingRight(&mut self, ctx: &EdgeTypePatternPointingRightContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_edgeTypePatternPointingRight(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_edgeTypePatternPointingLeft(
-        &mut self,
-        ctx: &EdgeTypePatternPointingLeftContext<'input>,
-    ) {
+    fn visit_edgeTypePatternPointingLeft(&mut self, ctx: &EdgeTypePatternPointingLeftContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_edgeTypePatternPointingLeft(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13214,10 +11760,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_destinationNodeTypeReference(
-        &mut self,
-        ctx: &DestinationNodeTypeReferenceContext<'input>,
-    ) {
+    fn visit_destinationNodeTypeReference(&mut self, ctx: &DestinationNodeTypeReferenceContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_destinationNodeTypeReference(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13287,10 +11830,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_propertyTypesSpecification(
-        &mut self,
-        ctx: &PropertyTypesSpecificationContext<'input>,
-    ) {
+    fn visit_propertyTypesSpecification(&mut self, ctx: &PropertyTypesSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_propertyTypesSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13315,26 +11855,17 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_dynamicPropertyValueTypeLabel(
-        &mut self,
-        ctx: &DynamicPropertyValueTypeLabelContext<'input>,
-    ) {
+    fn visit_dynamicPropertyValueTypeLabel(&mut self, ctx: &DynamicPropertyValueTypeLabelContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_dynamicPropertyValueTypeLabel(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_closedDynamicUnionTypeAtl1(
-        &mut self,
-        ctx: &ClosedDynamicUnionTypeAtl1Context<'input>,
-    ) {
+    fn visit_closedDynamicUnionTypeAtl1(&mut self, ctx: &ClosedDynamicUnionTypeAtl1Context<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_closedDynamicUnionTypeAtl1(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_closedDynamicUnionTypeAtl2(
-        &mut self,
-        ctx: &ClosedDynamicUnionTypeAtl2Context<'input>,
-    ) {
+    fn visit_closedDynamicUnionTypeAtl2(&mut self, ctx: &ClosedDynamicUnionTypeAtl2Context<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_closedDynamicUnionTypeAtl2(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13429,26 +11960,17 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_signedBinaryExactNumericType(
-        &mut self,
-        ctx: &SignedBinaryExactNumericTypeContext<'input>,
-    ) {
+    fn visit_signedBinaryExactNumericType(&mut self, ctx: &SignedBinaryExactNumericTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_signedBinaryExactNumericType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_unsignedBinaryExactNumericType(
-        &mut self,
-        ctx: &UnsignedBinaryExactNumericTypeContext<'input>,
-    ) {
+    fn visit_unsignedBinaryExactNumericType(&mut self, ctx: &UnsignedBinaryExactNumericTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_unsignedBinaryExactNumericType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_verboseBinaryExactNumericType(
-        &mut self,
-        ctx: &VerboseBinaryExactNumericTypeContext<'input>,
-    ) {
+    fn visit_verboseBinaryExactNumericType(&mut self, ctx: &VerboseBinaryExactNumericTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_verboseBinaryExactNumericType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13543,26 +12065,17 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_closedGraphReferenceValueType(
-        &mut self,
-        ctx: &ClosedGraphReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_closedGraphReferenceValueType(&mut self, ctx: &ClosedGraphReferenceValueTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_closedGraphReferenceValueType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_openGraphReferenceValueType(
-        &mut self,
-        ctx: &OpenGraphReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_openGraphReferenceValueType(&mut self, ctx: &OpenGraphReferenceValueTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_openGraphReferenceValueType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_bindingTableReferenceValueType(
-        &mut self,
-        ctx: &BindingTableReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_bindingTableReferenceValueType(&mut self, ctx: &BindingTableReferenceValueTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_bindingTableReferenceValueType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13572,18 +12085,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_closedNodeReferenceValueType(
-        &mut self,
-        ctx: &ClosedNodeReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_closedNodeReferenceValueType(&mut self, ctx: &ClosedNodeReferenceValueTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_closedNodeReferenceValueType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_openNodeReferenceValueType(
-        &mut self,
-        ctx: &OpenNodeReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_openNodeReferenceValueType(&mut self, ctx: &OpenNodeReferenceValueTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_openNodeReferenceValueType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13593,18 +12100,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_closedEdgeReferenceValueType(
-        &mut self,
-        ctx: &ClosedEdgeReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_closedEdgeReferenceValueType(&mut self, ctx: &ClosedEdgeReferenceValueTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_closedEdgeReferenceValueType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_openEdgeReferenceValueType(
-        &mut self,
-        ctx: &OpenEdgeReferenceValueTypeContext<'input>,
-    ) {
+    fn visit_openEdgeReferenceValueType(&mut self, ctx: &OpenEdgeReferenceValueTypeContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_openEdgeReferenceValueType(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13719,10 +12220,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_sourceDestinationPredicate(
-        &mut self,
-        ctx: &SourceDestinationPredicateContext<'input>,
-    ) {
+    fn visit_sourceDestinationPredicate(&mut self, ctx: &SourceDestinationPredicateContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_sourceDestinationPredicate(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13792,10 +12290,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_normalizedPredicateExprAlt(
-        &mut self,
-        ctx: &NormalizedPredicateExprAltContext<'input>,
-    ) {
+    fn visit_normalizedPredicateExprAlt(&mut self, ctx: &NormalizedPredicateExprAltContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_normalizedPredicateExprAlt(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13850,10 +12345,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_characterOrByteStringFunction(
-        &mut self,
-        ctx: &CharacterOrByteStringFunctionContext<'input>,
-    ) {
+    fn visit_characterOrByteStringFunction(&mut self, ctx: &CharacterOrByteStringFunctionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_characterOrByteStringFunction(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13863,10 +12355,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_trimSingleCharacterOrByteString(
-        &mut self,
-        ctx: &TrimSingleCharacterOrByteStringContext<'input>,
-    ) {
+    fn visit_trimSingleCharacterOrByteString(&mut self, ctx: &TrimSingleCharacterOrByteStringContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_trimSingleCharacterOrByteString(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13876,10 +12365,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_trimMultiCharacterCharacterString(
-        &mut self,
-        ctx: &TrimMultiCharacterCharacterStringContext<'input>,
-    ) {
+    fn visit_trimMultiCharacterCharacterString(&mut self, ctx: &TrimMultiCharacterCharacterStringContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_trimMultiCharacterCharacterString(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13889,26 +12375,17 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_nodeReferenceValueExpression(
-        &mut self,
-        ctx: &NodeReferenceValueExpressionContext<'input>,
-    ) {
+    fn visit_nodeReferenceValueExpression(&mut self, ctx: &NodeReferenceValueExpressionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_nodeReferenceValueExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_edgeReferenceValueExpression(
-        &mut self,
-        ctx: &EdgeReferenceValueExpressionContext<'input>,
-    ) {
+    fn visit_edgeReferenceValueExpression(&mut self, ctx: &EdgeReferenceValueExpressionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_edgeReferenceValueExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_aggregatingValueExpression(
-        &mut self,
-        ctx: &AggregatingValueExpressionContext<'input>,
-    ) {
+    fn visit_aggregatingValueExpression(&mut self, ctx: &AggregatingValueExpressionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_aggregatingValueExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13918,10 +12395,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_parenthesizedValueExpression(
-        &mut self,
-        ctx: &ParenthesizedValueExpressionContext<'input>,
-    ) {
+    fn visit_parenthesizedValueExpression(&mut self, ctx: &ParenthesizedValueExpressionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_parenthesizedValueExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13930,8 +12404,7 @@ where
         &mut self,
         ctx: &NonParenthesizedValueExpressionPrimaryContext<'input>,
     ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_nonParenthesizedValueExpressionPrimary(self, ctx);
+        let result = <Self as GQLVisitorCompat>::visit_nonParenthesizedValueExpressionPrimary(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
@@ -13939,25 +12412,16 @@ where
         &mut self,
         ctx: &NonParenthesizedValueExpressionPrimarySpecialCaseContext<'input>,
     ) {
-        let result =
-            <Self as GQLVisitorCompat>::visit_nonParenthesizedValueExpressionPrimarySpecialCase(
-                self, ctx,
-            );
+        let result = <Self as GQLVisitorCompat>::visit_nonParenthesizedValueExpressionPrimarySpecialCase(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_unsignedValueSpecification(
-        &mut self,
-        ctx: &UnsignedValueSpecificationContext<'input>,
-    ) {
+    fn visit_unsignedValueSpecification(&mut self, ctx: &UnsignedValueSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_unsignedValueSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_nonNegativeIntegerSpecification(
-        &mut self,
-        ctx: &NonNegativeIntegerSpecificationContext<'input>,
-    ) {
+    fn visit_nonNegativeIntegerSpecification(&mut self, ctx: &NonNegativeIntegerSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_nonNegativeIntegerSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -13967,10 +12431,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_dynamicParameterSpecification(
-        &mut self,
-        ctx: &DynamicParameterSpecificationContext<'input>,
-    ) {
+    fn visit_dynamicParameterSpecification(&mut self, ctx: &DynamicParameterSpecificationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_dynamicParameterSpecification(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14100,10 +12561,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_independentValueExpression(
-        &mut self,
-        ctx: &IndependentValueExpressionContext<'input>,
-    ) {
+    fn visit_independentValueExpression(&mut self, ctx: &IndependentValueExpressionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_independentValueExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14128,10 +12586,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_pathValueConstructorByEnumeration(
-        &mut self,
-        ctx: &PathValueConstructorByEnumerationContext<'input>,
-    ) {
+    fn visit_pathValueConstructorByEnumeration(&mut self, ctx: &PathValueConstructorByEnumerationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_pathValueConstructorByEnumeration(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14176,10 +12631,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_listValueConstructorByEnumeration(
-        &mut self,
-        ctx: &ListValueConstructorByEnumerationContext<'input>,
-    ) {
+    fn visit_listValueConstructorByEnumeration(&mut self, ctx: &ListValueConstructorByEnumerationContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_listValueConstructorByEnumeration(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14239,10 +12691,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_cardinalityExpressionArgument(
-        &mut self,
-        ctx: &CardinalityExpressionArgumentContext<'input>,
-    ) {
+    fn visit_cardinalityExpressionArgument(&mut self, ctx: &CardinalityExpressionArgumentContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_cardinalityExpressionArgument(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14272,18 +12721,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_numericValueExpressionDividend(
-        &mut self,
-        ctx: &NumericValueExpressionDividendContext<'input>,
-    ) {
+    fn visit_numericValueExpressionDividend(&mut self, ctx: &NumericValueExpressionDividendContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_numericValueExpressionDividend(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_numericValueExpressionDivisor(
-        &mut self,
-        ctx: &NumericValueExpressionDivisorContext<'input>,
-    ) {
+    fn visit_numericValueExpressionDivisor(&mut self, ctx: &NumericValueExpressionDivisorContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_numericValueExpressionDivisor(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14333,18 +12776,12 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_numericValueExpressionBase(
-        &mut self,
-        ctx: &NumericValueExpressionBaseContext<'input>,
-    ) {
+    fn visit_numericValueExpressionBase(&mut self, ctx: &NumericValueExpressionBaseContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_numericValueExpressionBase(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_numericValueExpressionExponent(
-        &mut self,
-        ctx: &NumericValueExpressionExponentContext<'input>,
-    ) {
+    fn visit_numericValueExpressionExponent(&mut self, ctx: &NumericValueExpressionExponentContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_numericValueExpressionExponent(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14364,10 +12801,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_characterStringValueExpression(
-        &mut self,
-        ctx: &CharacterStringValueExpressionContext<'input>,
-    ) {
+    fn visit_characterStringValueExpression(&mut self, ctx: &CharacterStringValueExpressionContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_characterStringValueExpression(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14382,10 +12816,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_trimCharacterOrByteStringSource(
-        &mut self,
-        ctx: &TrimCharacterOrByteStringSourceContext<'input>,
-    ) {
+    fn visit_trimCharacterOrByteStringSource(&mut self, ctx: &TrimCharacterOrByteStringSourceContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_trimCharacterOrByteStringSource(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14455,10 +12886,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_datetimeFunctionParameters(
-        &mut self,
-        ctx: &DatetimeFunctionParametersContext<'input>,
-    ) {
+    fn visit_datetimeFunctionParameters(&mut self, ctx: &DatetimeFunctionParametersContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_datetimeFunctionParameters(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14473,10 +12901,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_datetimeSubtractionParameters(
-        &mut self,
-        ctx: &DatetimeSubtractionParametersContext<'input>,
-    ) {
+    fn visit_datetimeSubtractionParameters(&mut self, ctx: &DatetimeSubtractionParametersContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_datetimeSubtractionParameters(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14501,10 +12926,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_durationFunctionParameters(
-        &mut self,
-        ctx: &DurationFunctionParametersContext<'input>,
-    ) {
+    fn visit_durationFunctionParameters(&mut self, ctx: &DurationFunctionParametersContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_durationFunctionParameters(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
@@ -14514,10 +12936,7 @@ where
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
 
-    fn visit_objectNameOrBindingVariable(
-        &mut self,
-        ctx: &ObjectNameOrBindingVariableContext<'input>,
-    ) {
+    fn visit_objectNameOrBindingVariable(&mut self, ctx: &ObjectNameOrBindingVariableContext<'input>) {
         let result = <Self as GQLVisitorCompat>::visit_objectNameOrBindingVariable(self, ctx);
         *<Self as ParseTreeVisitorCompat>::temp_result(self) = result;
     }
