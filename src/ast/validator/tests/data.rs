@@ -77,10 +77,7 @@ fn insert_rejects_empty_path_variable_and_invalid_shape() {
 
 #[test]
 fn projection_helpers_cover_return_finish_and_wildcard_results() {
-    let result = return_result(vec![
-        (integer(1), Some("one")),
-        (string("two"), Some("two")),
-    ]);
+    let result = return_result(vec![(integer(1), Some("one")), (string("two"), Some("two"))]);
     let query = basic_query(result.clone());
 
     assert!(query_produces_return_rows(&query));
@@ -113,7 +110,10 @@ fn projection_helpers_cover_return_finish_and_wildcard_results() {
 #[test]
 fn set_operation_projection_helpers_merge_compatible_branches() {
     let left = basic_query(return_result(vec![(integer(1), Some("value"))]));
-    let right = basic_query(return_result(vec![(Expression::Literal(Literal::Float(2.0)), Some("value"))]));
+    let right = basic_query(return_result(vec![(
+        Expression::Literal(Literal::Float(2.0)),
+        Some("value"),
+    )]));
     let query = Query::SetOperation(set_operation(left, right));
 
     assert!(query_produces_return_rows(&query));
@@ -132,38 +132,24 @@ fn set_operation_projection_helpers_merge_compatible_branches() {
 fn validate_set_operation_rejects_finish_arity_alias_and_type_mismatches() {
     let finish = basic_query(PrimitiveResultStatement::Finish { span: span() });
     let one_column = basic_query(return_result(vec![(integer(1), Some("value"))]));
-    assert!(validate_set_operation_query(
-        &set_operation(finish, one_column.clone()),
-        &mut HashSet::new(),
-    )
-        .is_err());
+    assert!(validate_set_operation_query(&set_operation(finish, one_column.clone()), &mut HashSet::new(),).is_err());
 
     let two_columns = basic_query(return_result(vec![
         (integer(1), Some("value")),
         (integer(2), Some("other")),
     ]));
-    assert!(validate_set_operation_query(
-        &set_operation(one_column.clone(), two_columns),
-        &mut HashSet::new(),
-    )
-        .is_err());
+    assert!(validate_set_operation_query(&set_operation(one_column.clone(), two_columns), &mut HashSet::new(),).is_err());
 
     let different_alias = basic_query(return_result(vec![(integer(1), Some("other"))]));
-    assert!(validate_set_operation_query(
-        &set_operation(one_column.clone(), different_alias),
-        &mut HashSet::new(),
-    )
-        .is_err());
+    assert!(
+        validate_set_operation_query(&set_operation(one_column.clone(), different_alias), &mut HashSet::new(),).is_err()
+    );
 
     let incompatible_type = basic_query(return_result(vec![(
         Expression::Literal(Literal::Boolean(true)),
         Some("value"),
     )]));
-    assert!(validate_set_operation_query(
-        &set_operation(one_column, incompatible_type),
-        &mut HashSet::new(),
-    )
-        .is_err());
+    assert!(validate_set_operation_query(&set_operation(one_column, incompatible_type), &mut HashSet::new(),).is_err());
 }
 
 #[test]

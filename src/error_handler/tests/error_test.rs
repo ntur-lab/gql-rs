@@ -27,13 +27,7 @@ use crate::error_handler::error::{ErrorContext, GqlError};
 fn gql_error_constructors_and_display_cover_all_context_shapes() {
     let parse_error = GqlError::parse("parse failed");
     assert_eq!(parse_error.message(), "parse failed");
-    assert_eq!(
-        parse_error.context(),
-        &ErrorContext {
-            span: None,
-            code: None,
-        }
-    );
+    assert_eq!(parse_error.context(), &ErrorContext { span: None, code: None });
     assert_eq!(format!("{}", parse_error), "Parse error: parse failed");
 
     let parse_span = Span {
@@ -58,17 +52,8 @@ fn gql_error_constructors_and_display_cover_all_context_shapes() {
 
     let validation_error = GqlError::validation("validation failed");
     assert_eq!(validation_error.message(), "validation failed");
-    assert_eq!(
-        validation_error.context(),
-        &ErrorContext {
-            span: Some(Span::default()),
-            code: None,
-        }
-    );
-    assert_eq!(
-        format!("{}", validation_error),
-        "Validation error: validation failed"
-    );
+    assert_eq!(validation_error.context(), &ErrorContext { span: None, code: None });
+    assert_eq!(format!("{}", validation_error), "Validation error: validation failed");
 
     let validation_span = Span {
         start_line: 3,
@@ -76,8 +61,7 @@ fn gql_error_constructors_and_display_cover_all_context_shapes() {
         end_line: 3,
         end_col: 10,
     };
-    let validation_at_error =
-        GqlError::validation_at("validation at span", validation_span.clone());
+    let validation_at_error = GqlError::validation_at("validation at span", validation_span.clone());
     assert_eq!(validation_at_error.message(), "validation at span");
     assert_eq!(
         validation_at_error.context(),
@@ -96,7 +80,7 @@ fn gql_error_constructors_and_display_cover_all_context_shapes() {
     assert_eq!(
         validation_with_code.context(),
         &ErrorContext {
-            span: Some(Span::default()),
+            span: None,
             code: Some("E_VALID".to_string()),
         }
     );
@@ -107,12 +91,33 @@ fn gql_error_constructors_and_display_cover_all_context_shapes() {
 
     let generic_error = GqlError::generic("generic failed");
     assert_eq!(generic_error.message(), "generic failed");
-    assert_eq!(
-        generic_error.context(),
-        &ErrorContext {
-            span: None,
-            code: None,
-        }
-    );
+    assert_eq!(generic_error.context(), &ErrorContext { span: None, code: None });
     assert_eq!(format!("{}", generic_error), "Error: generic failed");
+}
+
+#[test]
+fn errors_preserve_variant_and_context_through_json() {
+    let span = Span {
+        start_line: 2,
+        start_col: 3,
+        end_line: 2,
+        end_col: 8,
+    };
+
+    let errors = [
+        GqlError::parse("syntax error"),
+        GqlError::parse_at("syntax error at token", span.clone()),
+        GqlError::validation("semantic error"),
+        GqlError::validation_at("semantic error at token", span),
+        GqlError::validation_with_code("unknown variable", "E_UNKNOWN"),
+        GqlError::generic("internal error"),
+    ];
+
+    for error in errors {
+        let json = serde_json::to_string(&error).expect("Error must serialize");
+
+        let decoded: GqlError = serde_json::from_str(&json).expect("Error must deserialize");
+
+        assert_eq!(decoded, error);
+    }
 }

@@ -24,26 +24,20 @@ use super::*;
 
 impl GQLAstBuilder {
     /// Builds a Statement AST node from a StatementContext, determining the specific type of statement (query, data modification, catalog modification) based on the presence of specific CST patterns and delegating to specialized builder functions for each statement type. It performs validation to ensure that the expected structure of the CST is present for each statement type and returns an error if any required component is missing or if the structure is not as expected.
-    pub(super) fn build_statement_from_context(
-        statement: &StatementContextAll,
-    ) -> GqlResult<Statement> {
+    pub(super) fn build_statement_from_context(statement: &StatementContextAll) -> GqlResult<Statement> {
         let span = Self::extract_span(statement);
 
         if let Some(composite_query) = statement.compositeQueryStatement() {
-            let composite_expr = composite_query.compositeQueryExpression().ok_or_else(|| {
-                Self::parse_err("Query not valid: missing compositeQueryExpression".into())
-            })?;
-            if let Some(nested_statement) =
-                Self::try_build_statement_from_ambiguous_nested_query(&composite_expr)?
-            {
+            let composite_expr = composite_query
+                .compositeQueryExpression()
+                .ok_or_else(|| Self::parse_err("Query not valid: missing compositeQueryExpression".into()))?;
+            if let Some(nested_statement) = Self::try_build_statement_from_ambiguous_nested_query(&composite_expr)? {
                 return Ok(nested_statement);
             }
             let query = Self::build_query_from_composite_expression(&composite_expr)?;
             Ok(Statement::Query(query))
         } else if let Some(linear_data) = statement.linearDataModifyingStatement() {
-            if let Some(query_like_statement) =
-                Self::try_build_query_like_statement_from_linear_data(&linear_data)?
-            {
+            if let Some(query_like_statement) = Self::try_build_query_like_statement_from_linear_data(&linear_data)? {
                 return Ok(query_like_statement);
             }
 
@@ -61,8 +55,7 @@ impl GQLAstBuilder {
             }
 
             if let Some(prim_res_ctx) = opt_primitive_result {
-                let result_statement =
-                    Self::build_result_statement_from_primitive_result_statement(&prim_res_ctx)?;
+                let result_statement = Self::build_result_statement_from_primitive_result_statement(&prim_res_ctx)?;
                 let prim_span = Self::extract_span(&*prim_res_ctx);
 
                 let query = Query::Basic(BasicQuery {
@@ -90,10 +83,7 @@ impl GQLAstBuilder {
                 for stmt in stmts {
                     if let Some(call_stmt) = stmt.callCatalogModifyingProcedureStatement() {
                         let call_proc = call_stmt.callProcedureStatement().ok_or_else(|| {
-                            Self::parse_err(
-                                "CST not valid: missing callProcedureStatement in catalog CALL"
-                                    .into(),
-                            )
+                            Self::parse_err("CST not valid: missing callProcedureStatement in catalog CALL".into())
                         })?;
                         let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                         catalog_statements.push(CatalogStatement::Call(CallStatement {
@@ -106,13 +96,11 @@ impl GQLAstBuilder {
                     if let Some(primitive) = stmt.primitiveCatalogModifyingStatement() {
                         match Self::build_ddl_statement_from_primitive_catalog(&primitive) {
                             Ok(ddl) => catalog_statements.push(ddl),
-                            Err(err) => catalog_statements.push(CatalogStatement::Raw(
-                                RawCatalogStatement {
-                                    text: primitive.get_text(),
-                                    parse_error: Some(format!("{}", err)),
-                                    span: span.clone(),
-                                },
-                            )),
+                            Err(err) => catalog_statements.push(CatalogStatement::Raw(RawCatalogStatement {
+                                text: primitive.get_text(),
+                                parse_error: Some(format!("{}", err)),
+                                span: span.clone(),
+                            })),
                         }
                     }
                 }
@@ -164,17 +152,15 @@ impl GQLAstBuilder {
             return Ok(None);
         };
         let nested = focused_nested.nestedQuerySpecification().ok_or_else(|| {
-            Self::parse_err(
-                "Query not valid: missing nestedQuerySpecification in focused nested query".into(),
-            )
+            Self::parse_err("Query not valid: missing nestedQuerySpecification in focused nested query".into())
         })?;
         let statement = Self::build_statement_from_nested_query_spec(&nested)?;
-        let use_clause = focused_nested.useGraphClause().ok_or_else(|| {
-            Self::parse_err("Focused nested statement is missing useGraphClause".into())
-        })?;
-        let graph_expression = use_clause.graphExpression().ok_or_else(|| {
-            Self::parse_err("Focused nested statement is missing graphExpression".into())
-        })?;
+        let use_clause = focused_nested
+            .useGraphClause()
+            .ok_or_else(|| Self::parse_err("Focused nested statement is missing useGraphClause".into()))?;
+        let graph_expression = use_clause
+            .graphExpression()
+            .ok_or_else(|| Self::parse_err("Focused nested statement is missing graphExpression".into()))?;
         let graph_clause = Self::build_graph_expression_clause(&graph_expression);
 
         if let Statement::Query(mut query) = statement {
@@ -200,12 +186,12 @@ impl GQLAstBuilder {
         let Some(body) = focused.focusedLinearDataModifyingStatementBody() else {
             return Ok(statement);
         };
-        let use_clause = body.useGraphClause().ok_or_else(|| {
-            Self::parse_err("Focused data-modifying statement is missing useGraphClause".into())
-        })?;
-        let graph_expression = use_clause.graphExpression().ok_or_else(|| {
-            Self::parse_err("Focused data-modifying statement is missing graphExpression".into())
-        })?;
+        let use_clause = body
+            .useGraphClause()
+            .ok_or_else(|| Self::parse_err("Focused data-modifying statement is missing useGraphClause".into()))?;
+        let graph_expression = use_clause
+            .graphExpression()
+            .ok_or_else(|| Self::parse_err("Focused data-modifying statement is missing graphExpression".into()))?;
 
         Ok(Statement::Focused(FocusedStatement {
             graph_expression: Self::build_graph_expression_clause(&graph_expression),
@@ -215,9 +201,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a SessionStatement from a SessionActivityContext and preserves typed SET/RESET payloads.
-    pub(super) fn build_session_command_from_context(
-        cst: &SessionActivityContextAll,
-    ) -> GqlResult<SessionStatement> {
+    pub(super) fn build_session_command_from_context(cst: &SessionActivityContextAll) -> GqlResult<SessionStatement> {
         let set_clauses = cst
             .sessionSetCommand_all()
             .iter()
@@ -234,9 +218,7 @@ impl GQLAstBuilder {
             (false, true) => SessionCommandKind::Reset,
             (true, true) => SessionCommandKind::Activity,
             (false, false) => {
-                return Self::parse_error(
-                    "CST not valid: sessionActivity without SET/RESET commands",
-                );
+                return Self::parse_error("CST not valid: sessionActivity without SET/RESET commands");
             }
         };
 
@@ -279,9 +261,7 @@ impl GQLAstBuilder {
                 .statementBlock()
                 .ok_or_else(|| Self::parse_err("CST not valid: missing statementBlock".into()))?;
 
-            Some(Box::new(Self::build_statement_block_from_context(
-                &statement_block,
-            )?))
+            Some(Box::new(Self::build_statement_block_from_context(&statement_block)?))
         } else {
             None
         };
@@ -314,9 +294,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a START TRANSACTION statement from its CST node.
-    pub(super) fn build_start_transaction_statement(
-        start: &StartTransactionCommandContextAll,
-    ) -> Statement {
+    pub(super) fn build_start_transaction_statement(start: &StartTransactionCommandContextAll) -> Statement {
         Statement::Transaction(TransactionStatement {
             kind: TransactionCommandKind::Start,
             mode: Self::build_transaction_mode_from_start_command(start),
@@ -326,9 +304,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a COMMIT/ROLLBACK statement from its CST node.
-    pub(super) fn build_end_transaction_statement(
-        end: &EndTransactionCommandContextAll,
-    ) -> GqlResult<Statement> {
+    pub(super) fn build_end_transaction_statement(end: &EndTransactionCommandContextAll) -> GqlResult<Statement> {
         if end.commitCommand().is_some() {
             return Ok(Statement::Transaction(TransactionStatement {
                 kind: TransactionCommandKind::Commit,
@@ -354,10 +330,7 @@ impl GQLAstBuilder {
         let span = Self::extract_span(cst);
 
         if let Some(schema) = cst.sessionSetSchemaClause() {
-            let schema_reference = schema
-                .schemaReference()
-                .map(|x| x.get_text())
-                .unwrap_or_default();
+            let schema_reference = schema.schemaReference().map(|x| x.get_text()).unwrap_or_default();
             return SessionSetClause::Schema { schema_reference };
         }
 
@@ -379,19 +352,14 @@ impl GQLAstBuilder {
         }
 
         if let Some(time_zone) = cst.sessionSetTimeZoneClause() {
-            let value = time_zone
-                .setTimeZoneValue()
-                .map(|x| x.get_text())
-                .unwrap_or_default();
+            let value = time_zone.setTimeZoneValue().map(|x| x.get_text()).unwrap_or_default();
             return SessionSetClause::TimeZone {
                 value: SessionTimeZoneValue::Literal(value),
             };
         }
 
         if let Some(parameter) = cst.sessionSetParameterClause() {
-            return SessionSetClause::Parameter(Box::new(
-                Self::build_session_set_parameter_clause(&parameter),
-            ));
+            return SessionSetClause::Parameter(Box::new(Self::build_session_set_parameter_clause(&parameter)));
         }
 
         SessionSetClause::Schema {
@@ -400,9 +368,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a SessionSetParameterClause from a SessionSetParameterClauseContext, determining the specific kind of parameter being set (graph, binding table, value) based on the presence of specific CST patterns and extracting the relevant components to construct the corresponding AST nodes. It performs validation to ensure that the expected structure of the CST is present for each parameter type and returns a default clause if no specific parameter type is identified.
-    fn build_session_set_parameter_clause(
-        cst: &SessionSetParameterClauseContextAll,
-    ) -> SessionSetParameterClause {
+    fn build_session_set_parameter_clause(cst: &SessionSetParameterClauseContextAll) -> SessionSetParameterClause {
         let span = Self::extract_span(cst);
 
         if let Some(graph_param) = cst.sessionSetGraphParameterClause() {
@@ -418,9 +384,7 @@ impl GQLAstBuilder {
                         parameter_specification: String::new(),
                         span: span.clone(),
                     }),
-                initializer: graph_param
-                    .optTypedGraphInitializer()
-                    .map(|init| init.get_text()),
+                initializer: graph_param.optTypedGraphInitializer().map(|init| init.get_text()),
                 graph_initializer: None,
                 value_initializer: None,
                 binding_table_initializer: None,
@@ -460,9 +424,7 @@ impl GQLAstBuilder {
                         parameter_specification: String::new(),
                         span: span.clone(),
                     }),
-                initializer: value_param
-                    .optTypedValueInitializer()
-                    .map(|init| init.get_text()),
+                initializer: value_param.optTypedValueInitializer().map(|init| init.get_text()),
                 graph_initializer: None,
                 value_initializer: None,
                 binding_table_initializer: None,
@@ -484,9 +446,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a SessionSetParameterName from a SessionSetParameterNameContext, extracting the parameter specification and IF NOT EXISTS flag from the CST to construct the corresponding AST node. It performs validation to ensure that the expected structure of the CST is present and returns a default parameter name if no specific information is identified.
-    fn build_session_set_parameter_name(
-        cst: &SessionSetParameterNameContextAll,
-    ) -> SessionSetParameterName {
+    fn build_session_set_parameter_name(cst: &SessionSetParameterNameContextAll) -> SessionSetParameterName {
         let span = Self::extract_span(cst);
 
         SessionSetParameterName {
@@ -499,9 +459,7 @@ impl GQLAstBuilder {
         }
     }
 
-    fn build_session_reset_clause(
-        cst: &SessionResetCommandContextAll,
-    ) -> Option<SessionResetClause> {
+    fn build_session_reset_clause(cst: &SessionResetCommandContextAll) -> Option<SessionResetClause> {
         let args = cst.sessionResetArguments()?;
 
         let target = if args.PARAMETERS().is_some() || args.CHARACTERISTICS().is_some() {
@@ -535,9 +493,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a TransactionMode from a StartTransactionCommandContext by examining the transaction characteristics specified in the CST and determining if a transaction mode (read-only, read-write) is explicitly defined. It checks for the presence of specific CST patterns that correspond to each transaction mode and returns the appropriate TransactionMode variant if a match is found, or None if no explicit transaction mode is defined.
-    fn build_transaction_mode_from_start_command(
-        cst: &StartTransactionCommandContextAll,
-    ) -> Option<TransactionMode> {
+    fn build_transaction_mode_from_start_command(cst: &StartTransactionCommandContextAll) -> Option<TransactionMode> {
         let characteristics = cst.transactionCharacteristics()?;
 
         for mode in characteristics.transactionMode_all() {
@@ -559,27 +515,27 @@ impl GQLAstBuilder {
         primitive: &PrimitiveCatalogModifyingStatementContextAll,
     ) -> GqlResult<CatalogStatement> {
         if let Some(ctx) = primitive.createSchemaStatement() {
-            let target_ctx = ctx.catalogSchemaParentAndName().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing catalogSchemaParentAndName".into())
-            })?;
+            let target_ctx = ctx
+                .catalogSchemaParentAndName()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing catalogSchemaParentAndName".into()))?;
             return Ok(CatalogStatement::CreateSchema(CreateSchema {
                 if_not_exists: ctx.IF().is_some() && ctx.NOT().is_some() && ctx.EXISTS().is_some(),
                 target: Self::build_catalog_schema_name(&target_ctx)?,
             }));
         }
         if let Some(ctx) = primitive.dropSchemaStatement() {
-            let target_ctx = ctx.catalogSchemaParentAndName().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing catalogSchemaParentAndName".into())
-            })?;
+            let target_ctx = ctx
+                .catalogSchemaParentAndName()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing catalogSchemaParentAndName".into()))?;
             return Ok(CatalogStatement::DropSchema(DropSchema {
                 if_exists: ctx.IF().is_some() && ctx.EXISTS().is_some(),
                 target: Self::build_catalog_schema_name(&target_ctx)?,
             }));
         }
         if let Some(ctx) = primitive.createGraphStatement() {
-            let target_ctx = ctx.catalogGraphParentAndName().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing catalogGraphParentAndName".into())
-            })?;
+            let target_ctx = ctx
+                .catalogGraphParentAndName()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing catalogGraphParentAndName".into()))?;
 
             let graph_type_clause = if let Some(open_ctx) = ctx.openGraphType() {
                 CreateGraphTypeClause::Open(OpenGraphTypeClause {
@@ -590,15 +546,13 @@ impl GQLAstBuilder {
             } else if let Some(of_ctx) = ctx.ofGraphType() {
                 Self::build_of_graph_type_clause(&of_ctx)?
             } else {
-                return Self::parse_error(
-                    "CST not valid: missing graph type clause in CREATE GRAPH",
-                );
+                return Self::parse_error("CST not valid: missing graph type clause in CREATE GRAPH");
             };
 
             let graph_source = if let Some(src_ctx) = ctx.graphSource() {
-                let graph_expr = src_ctx.graphExpression().ok_or_else(|| {
-                    Self::parse_err("CST not valid: missing graphExpression in graphSource".into())
-                })?;
+                let graph_expr = src_ctx
+                    .graphExpression()
+                    .ok_or_else(|| Self::parse_err("CST not valid: missing graphExpression in graphSource".into()))?;
                 Some(GraphSourceClause {
                     graph_expression: Self::build_graph_expression_clause(&graph_expr),
                 })
@@ -616,9 +570,9 @@ impl GQLAstBuilder {
             }));
         }
         if let Some(ctx) = primitive.dropGraphStatement() {
-            let target_ctx = ctx.catalogGraphParentAndName().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing catalogGraphParentAndName".into())
-            })?;
+            let target_ctx = ctx
+                .catalogGraphParentAndName()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing catalogGraphParentAndName".into()))?;
             return Ok(CatalogStatement::DropGraph(DropGraph {
                 property_graph_keyword: ctx.PROPERTY().is_some(),
                 if_exists: ctx.IF().is_some() && ctx.EXISTS().is_some(),
@@ -626,9 +580,9 @@ impl GQLAstBuilder {
             }));
         }
         if let Some(ctx) = primitive.createGraphTypeStatement() {
-            let target_ctx = ctx.catalogGraphTypeParentAndName().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing catalogGraphTypeParentAndName".into())
-            })?;
+            let target_ctx = ctx
+                .catalogGraphTypeParentAndName()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing catalogGraphTypeParentAndName".into()))?;
             let source_ctx = ctx
                 .graphTypeSource()
                 .ok_or_else(|| Self::parse_err("CST not valid: missing graphTypeSource".into()))?;
@@ -641,9 +595,9 @@ impl GQLAstBuilder {
             }));
         }
         if let Some(ctx) = primitive.dropGraphTypeStatement() {
-            let target_ctx = ctx.catalogGraphTypeParentAndName().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing catalogGraphTypeParentAndName".into())
-            })?;
+            let target_ctx = ctx
+                .catalogGraphTypeParentAndName()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing catalogGraphTypeParentAndName".into()))?;
             return Ok(CatalogStatement::DropGraphType(DropGraphType {
                 property_graph_keyword: ctx.PROPERTY().is_some(),
                 if_exists: ctx.IF().is_some() && ctx.EXISTS().is_some(),
@@ -658,9 +612,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a CatalogSchemaName from a CatalogSchemaParentAndNameContext, extracting the absolute directory path and schema name from the CST and performing validation to ensure that the required components are present. It returns an error if any required component is missing or if the structure of the CST is not as expected.
-    pub(super) fn build_catalog_schema_name(
-        cst: &CatalogSchemaParentAndNameContextAll,
-    ) -> GqlResult<CatalogSchemaName> {
+    pub(super) fn build_catalog_schema_name(cst: &CatalogSchemaParentAndNameContextAll) -> GqlResult<CatalogSchemaName> {
         let span = Self::extract_span(cst);
 
         let absolute_directory_path = cst
@@ -725,55 +677,41 @@ impl GQLAstBuilder {
     }
 
     /// Builds an OfGraphTypeClause from an OfGraphTypeContext, handling the different variants of the ofGraphType clause (LIKE, TYPED reference, nested specification) and extracting the relevant components from the CST to construct the corresponding AST nodes. It performs validation to ensure that the expected structure of the CST is present for each variant and returns an error if any required component is missing or if the structure is not as expected.
-    pub(super) fn build_of_graph_type_clause(
-        cst: &OfGraphTypeContextAll,
-    ) -> GqlResult<CreateGraphTypeClause> {
+    pub(super) fn build_of_graph_type_clause(cst: &OfGraphTypeContextAll) -> GqlResult<CreateGraphTypeClause> {
         if let Some(like_ctx) = cst.graphTypeLikeGraph() {
-            let graph_expr = like_ctx.graphExpression().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing graphExpression in LIKE".into())
-            })?;
+            let graph_expr = like_ctx
+                .graphExpression()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing graphExpression in LIKE".into()))?;
             return Ok(CreateGraphTypeClause::Of(OfGraphTypeClause::LikeGraph {
                 graph_expression: Self::build_graph_expression_clause(&graph_expr),
             }));
         }
 
         if let Some(reference_ctx) = cst.graphTypeReference() {
-            return Ok(CreateGraphTypeClause::Of(
-                OfGraphTypeClause::TypedReference {
-                    typed: cst.typed().is_some(),
-                    graph_type_reference: reference_ctx.get_text(),
-                },
-            ));
+            return Ok(CreateGraphTypeClause::Of(OfGraphTypeClause::TypedReference {
+                typed: cst.typed().is_some(),
+                graph_type_reference: reference_ctx.get_text(),
+            }));
         }
 
         if let Some(nested_ctx) = cst.nestedGraphTypeSpecification() {
-            return Ok(CreateGraphTypeClause::Of(
-                OfGraphTypeClause::TypedNestedSpecification {
-                    typed: cst.typed().is_some(),
-                    property_graph_keyword: cst.PROPERTY().is_some(),
-                    graph_keyword: cst.GRAPH().is_some(),
-                    nested_graph_type_specification: Self::build_nested_graph_type_specification(
-                        &nested_ctx,
-                    ),
-                },
-            ));
+            return Ok(CreateGraphTypeClause::Of(OfGraphTypeClause::TypedNestedSpecification {
+                typed: cst.typed().is_some(),
+                property_graph_keyword: cst.PROPERTY().is_some(),
+                graph_keyword: cst.GRAPH().is_some(),
+                nested_graph_type_specification: Self::build_nested_graph_type_specification(&nested_ctx),
+            }));
         }
 
         Self::parse_error("CST not valid: unsupported ofGraphType variant")
     }
 
     /// Builds a GraphTypeSourceClause from a GraphTypeSourceContext, handling the different variants of the graphTypeSource clause (COPY OF, LIKE, nested specification) and extracting the relevant components from the CST to construct the corresponding AST nodes. It performs validation to ensure that the expected structure of the CST is present for each variant and returns an error if any required component is missing or if the structure is not as expected.
-    pub(super) fn build_graph_type_source_clause(
-        cst: &GraphTypeSourceContextAll,
-    ) -> GqlResult<GraphTypeSourceClause> {
+    pub(super) fn build_graph_type_source_clause(cst: &GraphTypeSourceContextAll) -> GqlResult<GraphTypeSourceClause> {
         if let Some(copy_ctx) = cst.copyOfGraphType() {
             let graph_type_reference = copy_ctx
                 .graphTypeReference()
-                .ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: missing graphTypeReference in copyOfGraphType".into(),
-                    )
-                })?
+                .ok_or_else(|| Self::parse_err("CST not valid: missing graphTypeReference in copyOfGraphType".into()))?
                 .get_text();
 
             return Ok(GraphTypeSourceClause::CopyOf {
@@ -783,9 +721,9 @@ impl GQLAstBuilder {
         }
 
         if let Some(like_ctx) = cst.graphTypeLikeGraph() {
-            let graph_expr = like_ctx.graphExpression().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing graphExpression in LIKE".into())
-            })?;
+            let graph_expr = like_ctx
+                .graphExpression()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing graphExpression in LIKE".into()))?;
             return Ok(GraphTypeSourceClause::LikeGraph {
                 graph_expression: Self::build_graph_expression_clause(&graph_expr),
             });
@@ -794,9 +732,7 @@ impl GQLAstBuilder {
         if let Some(nested_ctx) = cst.nestedGraphTypeSpecification() {
             return Ok(GraphTypeSourceClause::NestedSpecification {
                 with_as_keyword: cst.AS().is_some(),
-                nested_graph_type_specification: Self::build_nested_graph_type_specification(
-                    &nested_ctx,
-                ),
+                nested_graph_type_specification: Self::build_nested_graph_type_specification(&nested_ctx),
             });
         }
 
@@ -819,9 +755,7 @@ impl GQLAstBuilder {
                                 text: node_spec.get_text(),
                                 local_alias: Self::extract_local_node_type_alias(&node_spec),
                                 type_name: Self::extract_node_type_name(&node_spec),
-                                property_types: Self::extract_property_types_from_node_spec(
-                                    &node_spec,
-                                ),
+                                property_types: Self::extract_property_types_from_node_spec(&node_spec),
                             }));
                         }
 
@@ -832,9 +766,7 @@ impl GQLAstBuilder {
                                 source_alias: Self::extract_source_node_alias(&edge_spec),
                                 destination_alias: Self::extract_destination_node_alias(&edge_spec),
                                 directed: Self::extract_edge_directed_flag(&edge_spec),
-                                property_types: Self::extract_property_types_from_edge_spec(
-                                    &edge_spec,
-                                ),
+                                property_types: Self::extract_property_types_from_edge_spec(&edge_spec),
                             })
                         })
                     })
@@ -893,9 +825,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to extract a local node type alias from a NodeTypeSpecificationContext, checking for the presence of specific CST patterns that correspond to local node type aliases in both node type patterns and phrases, and returning the alias text if a match is found. It returns None if no local node type alias is identified in the CST.
-    pub(super) fn extract_local_node_type_alias(
-        cst: &NodeTypeSpecificationContextAll,
-    ) -> Option<String> {
+    pub(super) fn extract_local_node_type_alias(cst: &NodeTypeSpecificationContextAll) -> Option<String> {
         cst.nodeTypePattern()
             .and_then(|pattern| pattern.localNodeTypeAlias())
             .map(|alias| alias.get_text())
@@ -933,9 +863,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to extract a source node alias from an EdgeTypeSpecificationContext, checking for the presence of specific CST patterns that correspond to source node aliases in both edge type patterns and phrases, and returning the alias text if a match is found. It returns None if no source node alias is identified in the CST.
-    pub(super) fn extract_source_node_alias(
-        cst: &EdgeTypeSpecificationContextAll,
-    ) -> Option<String> {
+    pub(super) fn extract_source_node_alias(cst: &EdgeTypeSpecificationContextAll) -> Option<String> {
         cst.edgeTypePattern()
             .and_then(|pattern| {
                 if let Some(directed) = pattern.edgeTypePatternDirected() {
@@ -972,9 +900,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to extract a destination node alias from an EdgeTypeSpecificationContext, checking for the presence of specific CST patterns that correspond to destination node aliases in both edge type patterns and phrases, and returning the alias text if a match is found. It returns None if no destination node alias is identified in the CST.
-    pub(super) fn extract_destination_node_alias(
-        cst: &EdgeTypeSpecificationContextAll,
-    ) -> Option<String> {
+    pub(super) fn extract_destination_node_alias(cst: &EdgeTypeSpecificationContextAll) -> Option<String> {
         cst.edgeTypePattern()
             .and_then(|pattern| {
                 if let Some(directed) = pattern.edgeTypePatternDirected() {
@@ -1011,9 +937,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to extract a directed flag from an EdgeTypeSpecificationContext, checking for the presence of specific CST patterns that correspond to directed or undirected edge type specifications in both edge type patterns and phrases, and returning true for directed edges, false for undirected edges, or None if no explicit directedness is identified in the CST.
-    pub(super) fn extract_edge_directed_flag(
-        cst: &EdgeTypeSpecificationContextAll,
-    ) -> Option<bool> {
+    pub(super) fn extract_edge_directed_flag(cst: &EdgeTypeSpecificationContextAll) -> Option<bool> {
         if cst
             .edgeTypePattern()
             .and_then(|pattern| pattern.edgeTypePatternDirected())
@@ -1043,9 +967,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to extract property type specifications from a text string, looking for a pattern that matches a property types specification (enclosed in curly braces) and parsing the individual property type entries to construct a PropertyTypesSpecification AST node. It returns None if no valid property types specification is found in the text.
-    pub(super) fn extract_property_types_specification_from_text(
-        text: &str,
-    ) -> Option<PropertyTypesSpecification> {
+    pub(super) fn extract_property_types_specification_from_text(text: &str) -> Option<PropertyTypesSpecification> {
         let open = text.find('{')?;
         let close = text.rfind('}')?;
         if close <= open {
@@ -1107,9 +1029,7 @@ impl GQLAstBuilder {
                         let parsed_value_type = property
                             .propertyValueType()
                             .and_then(|value| value.valueType())
-                            .and_then(|value_type| {
-                                Self::build_type_spec_from_value_type(&value_type).ok()
-                            });
+                            .and_then(|value_type| Self::build_type_spec_from_value_type(&value_type).ok());
 
                         PropertyTypeSpecification {
                             name: property
@@ -1133,9 +1053,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a GraphExpressionClause from a GraphExpressionContext, determining the specific kind of graph expression based on the presence of certain components in the CST (e.g., graph reference, object expression primary, object name or binding variable) and extracting the relevant text to construct the corresponding AST node. It performs validation to ensure that the expected structure of the CST is present for each kind of graph expression and returns an error if the structure is not as expected.
-    pub(super) fn build_graph_expression_clause(
-        cst: &GraphExpressionContextAll,
-    ) -> GraphExpressionClause {
+    pub(super) fn build_graph_expression_clause(cst: &GraphExpressionContextAll) -> GraphExpressionClause {
         let span = Self::extract_span(cst);
 
         let kind = if cst.graphReference().is_some() {
@@ -1151,41 +1069,35 @@ impl GQLAstBuilder {
         GraphExpressionClause {
             kind,
             text: cst.get_text(),
-            graph_reference: cst
-                .graphReference()
-                .map(|x| Self::identifiers_text(&x.get_text())),
-            object_name_or_binding_variable: cst
-                .objectNameOrBindingVariable()
-                .map(|x| x.get_text()),
+            graph_reference: cst.graphReference().map(|x| Self::identifiers_text(&x.get_text())),
+            object_name_or_binding_variable: cst.objectNameOrBindingVariable().map(|x| x.get_text()),
             span: span.clone(),
         }
     }
 
     /// Builds a Query from a CompositeQueryExpressionContext, handling both simple queries and set operations, and extracting the relevant components from the CST.
-    pub(super) fn build_query_from_composite_expression(
-        expr: &CompositeQueryExpressionContextAll,
-    ) -> GqlResult<Query> {
+    pub(super) fn build_query_from_composite_expression(expr: &CompositeQueryExpressionContextAll) -> GqlResult<Query> {
         let span = Self::extract_span(expr);
 
         if let Some(left_expr) = expr.compositeQueryExpression() {
             let left_query = Self::build_query_from_composite_expression(&left_expr)?;
 
-            let conjunction = expr.queryConjunction().ok_or_else(|| {
-                Self::parse_err("Query not valid: missing queryConjunction".into())
-            })?;
+            let conjunction = expr
+                .queryConjunction()
+                .ok_or_else(|| Self::parse_err("Query not valid: missing queryConjunction".into()))?;
 
             let operation = if conjunction.OTHERWISE().is_some() {
                 SetOperationType::Otherwise
             } else {
-                let set_operator = conjunction.setOperator().ok_or_else(|| {
-                    Self::parse_err("Query not valid: missing setOperator".into())
-                })?;
+                let set_operator = conjunction
+                    .setOperator()
+                    .ok_or_else(|| Self::parse_err("Query not valid: missing setOperator".into()))?;
                 Self::build_set_operation_type(&set_operator)?
             };
 
-            let right_primary = expr.compositeQueryPrimary().ok_or_else(|| {
-                Self::parse_err("Query not valid: missing compositeQueryPrimary".into())
-            })?;
+            let right_primary = expr
+                .compositeQueryPrimary()
+                .ok_or_else(|| Self::parse_err("Query not valid: missing compositeQueryPrimary".into()))?;
             let right_query = Self::build_query_from_composite_primary(&right_primary)?;
 
             return Ok(Query::SetOperation(SetOperation {
@@ -1197,17 +1109,15 @@ impl GQLAstBuilder {
                 span: span.clone(),
             }));
         }
-        let primary = expr.compositeQueryPrimary().ok_or_else(|| {
-            Self::parse_err("Query not valid: missing compositeQueryPrimary".into())
-        })?;
+        let primary = expr
+            .compositeQueryPrimary()
+            .ok_or_else(|| Self::parse_err("Query not valid: missing compositeQueryPrimary".into()))?;
 
         Self::build_query_from_composite_primary(&primary)
     }
 
     /// Builds a Statement from a StatementBlockContext, handling both single statements and chains of statements connected by NEXT, and extracting the relevant components from the CST.
-    pub(super) fn build_statement_block_from_context(
-        block: &StatementBlockContextAll,
-    ) -> GqlResult<Statement> {
+    pub(super) fn build_statement_block_from_context(block: &StatementBlockContextAll) -> GqlResult<Statement> {
         let first_ctx = block
             .statement()
             .ok_or_else(|| Self::parse_err("Query not valid: missing statement".into()))?;
@@ -1238,9 +1148,9 @@ impl GQLAstBuilder {
             .get(index)
             .ok_or_else(|| Self::parse_err("NEXT chain index out of bounds".into()))?;
 
-        let target_ctx = next_ctx.statement().ok_or_else(|| {
-            Self::parse_err("Query not valid: missing statement after NEXT".into())
-        })?;
+        let target_ctx = next_ctx
+            .statement()
+            .ok_or_else(|| Self::parse_err("Query not valid: missing statement after NEXT".into()))?;
         let target_statement = Self::build_statement_from_context(&target_ctx)?;
 
         let yield_clause = next_ctx
@@ -1268,12 +1178,10 @@ impl GQLAstBuilder {
     }
 
     /// Builds a Query from a CompositeQueryPrimaryContext, handling both simple queries and set operations, and extracting the relevant components from the CST.
-    pub(super) fn build_query_from_composite_primary(
-        primary: &CompositeQueryPrimaryContextAll,
-    ) -> GqlResult<Query> {
-        let linear = primary.linearQueryStatement().ok_or_else(|| {
-            Self::parse_err("Query not valid: missing linearQueryStatement".into())
-        })?;
+    pub(super) fn build_query_from_composite_primary(primary: &CompositeQueryPrimaryContextAll) -> GqlResult<Query> {
+        let linear = primary
+            .linearQueryStatement()
+            .ok_or_else(|| Self::parse_err("Query not valid: missing linearQueryStatement".into()))?;
 
         if let Some(ambient) = linear.ambientLinearQueryStatement() {
             return Self::build_query_from_ambient_linear_query_statement(&ambient);
@@ -1302,13 +1210,11 @@ impl GQLAstBuilder {
             )?);
         }
 
-        let primitive_result_statement = ambient.primitiveResultStatement().ok_or_else(|| {
-            Self::parse_err("Query not valid: missing primitiveResultStatement".into())
-        })?;
+        let primitive_result_statement = ambient
+            .primitiveResultStatement()
+            .ok_or_else(|| Self::parse_err("Query not valid: missing primitiveResultStatement".into()))?;
 
-        let result_statement = Self::build_result_statement_from_primitive_result_statement(
-            &primitive_result_statement,
-        )?;
+        let result_statement = Self::build_result_statement_from_primitive_result_statement(&primitive_result_statement)?;
 
         Ok(Query::Basic(BasicQuery {
             pipeline,
@@ -1329,10 +1235,7 @@ impl GQLAstBuilder {
 
         if let Some(focused_nested) = focused.focusedNestedQuerySpecification() {
             let nested = focused_nested.nestedQuerySpecification().ok_or_else(|| {
-                Self::parse_err(
-                    "Query not valid: missing nestedQuerySpecification in focused nested query"
-                        .into(),
-                )
+                Self::parse_err("Query not valid: missing nestedQuerySpecification in focused nested query".into())
             })?;
             let mut query = Self::build_query_from_nested_query_spec(&nested)?;
 
@@ -1352,22 +1255,14 @@ impl GQLAstBuilder {
             if let Some(use_clause) = focused_primitive.useGraphClause()
                 && let Some(graph_expr) = use_clause.graphExpression()
             {
-                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
-                    &graph_expr,
-                )));
+                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(&graph_expr)));
             }
 
-            let primitive_result_statement = focused_primitive
-                .primitiveResultStatement()
-                .ok_or_else(|| {
-                    Self::parse_err(
-                        "Query not valid: missing primitiveResultStatement in focused primitive result"
-                            .into(),
-                    )
-                })?;
-            let result_statement = Self::build_result_statement_from_primitive_result_statement(
-                &primitive_result_statement,
-            )?;
+            let primitive_result_statement = focused_primitive.primitiveResultStatement().ok_or_else(|| {
+                Self::parse_err("Query not valid: missing primitiveResultStatement in focused primitive result".into())
+            })?;
+            let result_statement =
+                Self::build_result_statement_from_primitive_result_statement(&primitive_result_statement)?;
 
             return Ok(Query::Basic(BasicQuery {
                 pipeline,
@@ -1381,49 +1276,33 @@ impl GQLAstBuilder {
             if let Some(use_clause) = part.useGraphClause()
                 && let Some(graph_expr) = use_clause.graphExpression()
             {
-                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
-                    &graph_expr,
-                )));
+                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(&graph_expr)));
             }
 
             if let Some(simple_linear) = part.simpleLinearQueryStatement() {
-                pipeline.extend(Self::build_pipeline_from_simple_linear_query_statement(
-                    &simple_linear,
-                )?);
+                pipeline.extend(Self::build_pipeline_from_simple_linear_query_statement(&simple_linear)?);
             }
         }
 
         let final_part = focused
             .focusedLinearQueryAndPrimitiveResultStatementPart()
-            .ok_or_else(|| {
-                Self::parse_err("Query not valid: missing final focused linear query part".into())
-            })?;
+            .ok_or_else(|| Self::parse_err("Query not valid: missing final focused linear query part".into()))?;
 
         if let Some(use_clause) = final_part.useGraphClause()
             && let Some(graph_expr) = use_clause.graphExpression()
         {
-            pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
-                &graph_expr,
-            )));
+            pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(&graph_expr)));
         }
 
         if let Some(simple_linear) = final_part.simpleLinearQueryStatement() {
-            pipeline.extend(Self::build_pipeline_from_simple_linear_query_statement(
-                &simple_linear,
-            )?);
+            pipeline.extend(Self::build_pipeline_from_simple_linear_query_statement(&simple_linear)?);
         }
 
-        let primitive_result_statement =
-            final_part.primitiveResultStatement().ok_or_else(|| {
-                Self::parse_err(
-                    "Query not valid: missing primitiveResultStatement in focused final part"
-                        .into(),
-                )
-            })?;
+        let primitive_result_statement = final_part.primitiveResultStatement().ok_or_else(|| {
+            Self::parse_err("Query not valid: missing primitiveResultStatement in focused final part".into())
+        })?;
 
-        let result_statement = Self::build_result_statement_from_primitive_result_statement(
-            &primitive_result_statement,
-        )?;
+        let result_statement = Self::build_result_statement_from_primitive_result_statement(&primitive_result_statement)?;
 
         Ok(Query::Basic(BasicQuery {
             pipeline,
@@ -1433,9 +1312,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a Query from a NestedQuerySpecificationContext, extracting the procedure body and statement block from the CST, and constructing the corresponding AST nodes for the nested query. It performs validation to ensure that the expected structure of the CST is present and returns an error if any required component is missing or if the structure is not as expected.
-    pub(super) fn build_query_from_nested_query_spec(
-        nested: &NestedQuerySpecificationContextAll,
-    ) -> GqlResult<Query> {
+    pub(super) fn build_query_from_nested_query_spec(nested: &NestedQuerySpecificationContextAll) -> GqlResult<Query> {
         let statement = Self::build_statement_from_nested_query_spec(nested)?;
         match statement {
             Statement::Query(query) => Ok(query),
@@ -1444,30 +1321,23 @@ impl GQLAstBuilder {
     }
 
     /// Builds the statement contained in syntactically ambiguous nested procedure syntax.
-    fn build_statement_from_nested_query_spec(
-        nested: &NestedQuerySpecificationContextAll,
-    ) -> GqlResult<Statement> {
-        let procedure_body = nested.procedureBody().ok_or_else(|| {
-            Self::parse_err("Query not valid: missing procedureBody in nested query".into())
-        })?;
+    fn build_statement_from_nested_query_spec(nested: &NestedQuerySpecificationContextAll) -> GqlResult<Statement> {
+        let procedure_body = nested
+            .procedureBody()
+            .ok_or_else(|| Self::parse_err("Query not valid: missing procedureBody in nested query".into()))?;
 
-        let statement_block = procedure_body.statementBlock().ok_or_else(|| {
-            Self::parse_err("Query not valid: missing statementBlock in nested query".into())
-        })?;
+        let statement_block = procedure_body
+            .statementBlock()
+            .ok_or_else(|| Self::parse_err("Query not valid: missing statementBlock in nested query".into()))?;
 
         Self::build_statement_block_from_context(&statement_block)
     }
 
     /// Helper function to inject a UseGraph clause into a Query, recursively traversing the structure of the query to find the appropriate location to insert the UseGraph step at the beginning of the pipeline for basic queries, or to propagate it down to both sides of a set operation for composite queries. It modifies the query in place and does not return a value.
-    pub(super) fn inject_use_graph_into_query(
-        query: &mut Query,
-        graph_clause: &GraphExpressionClause,
-    ) {
+    pub(super) fn inject_use_graph_into_query(query: &mut Query, graph_clause: &GraphExpressionClause) {
         match query {
             Query::Basic(basic) => {
-                basic
-                    .pipeline
-                    .insert(0, QueryStep::UseGraph(graph_clause.clone()));
+                basic.pipeline.insert(0, QueryStep::UseGraph(graph_clause.clone()));
             }
             Query::SetOperation(set_op) => {
                 Self::inject_use_graph_into_query(&mut set_op.left, graph_clause);
@@ -1533,9 +1403,9 @@ impl GQLAstBuilder {
                     ));
                 }
             } else if let Some(call_query) = simple_query_statement.callQueryStatement() {
-                let call_proc = call_query.callProcedureStatement().ok_or_else(|| {
-                    Self::parse_err("CST not valid: missing callProcedureStatement".into())
-                })?;
+                let call_proc = call_query
+                    .callProcedureStatement()
+                    .ok_or_else(|| Self::parse_err("CST not valid: missing callProcedureStatement".into()))?;
                 let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                 pipeline.push(QueryStep::Call(call_clause));
             } else {
@@ -1566,22 +1436,21 @@ impl GQLAstBuilder {
                 .map(|ctx| Self::build_group_clause_from_context(&ctx))
                 .transpose()?;
 
-            let page_clause =
-                if let Some(order_page) = primitive_result_statement.orderByAndPageStatement() {
-                    let order_clause = order_page
-                        .orderByClause()
-                        .map(|ctx| Self::build_order_clause_from_context(&ctx))
-                        .transpose()?;
-                    let limit_clause = Self::build_limit_clause_from_context(&order_page)?;
+            let page_clause = if let Some(order_page) = primitive_result_statement.orderByAndPageStatement() {
+                let order_clause = order_page
+                    .orderByClause()
+                    .map(|ctx| Self::build_order_clause_from_context(&ctx))
+                    .transpose()?;
+                let limit_clause = Self::build_limit_clause_from_context(&order_page)?;
 
-                    Some(OrderByAndPageStatement {
-                        order_clause,
-                        limit_clause,
-                        span: span.clone(),
-                    })
-                } else {
-                    None
-                };
+                Some(OrderByAndPageStatement {
+                    order_clause,
+                    limit_clause,
+                    span: span.clone(),
+                })
+            } else {
+                None
+            };
 
             return Ok(PrimitiveResultStatement::Return {
                 return_clause,
@@ -1595,9 +1464,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a Query from a SelectStatementContext, handling the various components of a SELECT statement (e.g., MATCH, WHERE, RETURN, GROUP BY, HAVING, ORDER BY, LIMIT) and extracting the relevant components from the CST to construct the corresponding AST nodes for each part of the SELECT statement. It performs validation to ensure that the expected structure of the CST is present and returns an error if any required component is missing or if the structure is not as expected.
-    pub(super) fn build_query_from_select_statement(
-        select_stmt: &SelectStatementContextAll,
-    ) -> GqlResult<Query> {
+    pub(super) fn build_query_from_select_statement(select_stmt: &SelectStatementContextAll) -> GqlResult<Query> {
         let span = Self::extract_span(select_stmt);
         let mut pipeline: Vec<QueryStep> = Vec::new();
 
@@ -1610,14 +1477,11 @@ impl GQLAstBuilder {
                         )));
                     }
 
-                    let match_statement = select_graph_match.matchStatement().ok_or_else(|| {
-                        Self::parse_err(
-                            "CST not valid: missing matchStatement in SELECT FROM".into(),
-                        )
-                    })?;
+                    let match_statement = select_graph_match
+                        .matchStatement()
+                        .ok_or_else(|| Self::parse_err("CST not valid: missing matchStatement in SELECT FROM".into()))?;
 
-                    for (graph_pattern, optional) in Self::extract_graph_patterns(&match_statement)?
-                    {
+                    for (graph_pattern, optional) in Self::extract_graph_patterns(&match_statement)? {
                         let match_clause = Self::build_match_clause(&graph_pattern, optional)?;
                         pipeline.push(QueryStep::Match(match_clause));
 
@@ -1647,16 +1511,10 @@ impl GQLAstBuilder {
         if let Some(where_clause) = select_stmt.whereClause() {
             let condition = where_clause
                 .searchCondition()
-                .ok_or_else(|| {
-                    Self::parse_err("CST not valid: searchCondition missing in SELECT WHERE".into())
-                })?
+                .ok_or_else(|| Self::parse_err("CST not valid: searchCondition missing in SELECT WHERE".into()))?
                 .booleanValueExpression()
                 .and_then(|expr| expr.valueExpression())
-                .ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: booleanValueExpression missing in SELECT WHERE".into(),
-                    )
-                })
+                .ok_or_else(|| Self::parse_err("CST not valid: booleanValueExpression missing in SELECT WHERE".into()))
                 .and_then(|expr| Self::build_expression_from_context(&expr))?;
 
             pipeline.push(QueryStep::Filter(FilterClause {
@@ -1666,9 +1524,7 @@ impl GQLAstBuilder {
         }
 
         let distinct = match select_stmt.setQuantifier() {
-            Some(set_quantifier) if set_quantifier.DISTINCT().is_some() => {
-                DistinctQualifier::Distinct
-            }
+            Some(set_quantifier) if set_quantifier.DISTINCT().is_some() => DistinctQualifier::Distinct,
             Some(set_quantifier) if set_quantifier.ALL().is_some() => DistinctQualifier::All,
             _ => DistinctQualifier::None,
         };
@@ -1681,14 +1537,9 @@ impl GQLAstBuilder {
                     let expression = item
                         .aggregatingValueExpression()
                         .ok_or_else(|| {
-                            Self::parse_err(
-                                "CST not valid: aggregatingValueExpression missing in SELECT item"
-                                    .into(),
-                            )
+                            Self::parse_err("CST not valid: aggregatingValueExpression missing in SELECT item".into())
                         })
-                        .and_then(|agg| {
-                            Self::build_expression_from_aggregating_value_expression(&agg)
-                        })?;
+                        .and_then(|agg| Self::build_expression_from_aggregating_value_expression(&agg))?;
 
                     let alias = item
                         .selectItemAlias()
@@ -1724,16 +1575,10 @@ impl GQLAstBuilder {
         if let Some(having_clause) = select_stmt.havingClause() {
             let condition = having_clause
                 .searchCondition()
-                .ok_or_else(|| {
-                    Self::parse_err("CST not valid: searchCondition missing in HAVING".into())
-                })?
+                .ok_or_else(|| Self::parse_err("CST not valid: searchCondition missing in HAVING".into()))?
                 .booleanValueExpression()
                 .and_then(|expr| expr.valueExpression())
-                .ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: booleanValueExpression missing in HAVING".into(),
-                    )
-                })
+                .ok_or_else(|| Self::parse_err("CST not valid: booleanValueExpression missing in HAVING".into()))
                 .and_then(|expr| Self::build_expression_from_context(&expr))?;
 
             pipeline.push(QueryStep::Having(FilterClause {
@@ -1747,10 +1592,7 @@ impl GQLAstBuilder {
             .map(|ctx| Self::build_order_clause_from_context(&ctx))
             .transpose()?;
 
-        let limit_clause = Self::build_limit_clause_from_optional(
-            select_stmt.offsetClause(),
-            select_stmt.limitClause(),
-        )?;
+        let limit_clause = Self::build_limit_clause_from_optional(select_stmt.offsetClause(), select_stmt.limitClause())?;
 
         let page_clause = if order_clause.is_some() || limit_clause.is_some() {
             Some(OrderByAndPageStatement {
@@ -1809,9 +1651,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a SetOperationType from a SetOperatorContext, handling UNION, INTERSECT, EXCEPT, and their ALL and DISTINCT variants, and extracting the relevant components from the CST.
-    pub(super) fn build_set_operation_type(
-        op: &SetOperatorContextAll,
-    ) -> GqlResult<SetOperationType> {
+    pub(super) fn build_set_operation_type(op: &SetOperatorContextAll) -> GqlResult<SetOperationType> {
         if op.UNION().is_some() {
             return Ok(match op.setQuantifier() {
                 Some(q) if q.ALL().is_some() => SetOperationType::UnionAll,
@@ -1840,9 +1680,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a LetStatement from a LetStatementContext, extracting the list of variable definitions from the CST and constructing the corresponding AST node, handling both binding variable definitions and value variable definitions.
-    pub(super) fn build_let_statement_from_context(
-        cst: &LetStatementContextAll,
-    ) -> GqlResult<LetStatement> {
+    pub(super) fn build_let_statement_from_context(cst: &LetStatementContextAll) -> GqlResult<LetStatement> {
         let span = Self::extract_span(cst);
 
         let list = cst
@@ -1868,39 +1706,30 @@ impl GQLAstBuilder {
     }
 
     /// Builds a CallClause from a CallProcedureStatementContext, extracting the procedure name, arguments, and yield items.
-    pub(super) fn build_call_clause_from_context(
-        cst: &CallProcedureStatementContextAll,
-    ) -> GqlResult<CallClause> {
+    pub(super) fn build_call_clause_from_context(cst: &CallProcedureStatementContextAll) -> GqlResult<CallClause> {
         let span = Self::extract_span(cst);
 
         let is_optional = cst.OPTIONAL().is_some();
-        let proc_call = cst.procedureCall().ok_or_else(|| {
-            Self::parse_err("CST not valid: missing procedureCall in CALL statement".into())
-        })?;
+        let proc_call = cst
+            .procedureCall()
+            .ok_or_else(|| Self::parse_err("CST not valid: missing procedureCall in CALL statement".into()))?;
 
         if let Some(named_call) = proc_call.namedProcedureCall() {
             let procedure_name = named_call
                 .procedureReference()
                 .map(|pr| Self::identifiers_text(&pr.get_text()))
-                .ok_or_else(|| {
-                    Self::parse_err("CST not valid: missing procedureReference".into())
-                })?;
+                .ok_or_else(|| Self::parse_err("CST not valid: missing procedureReference".into()))?;
 
             let mut arguments = Vec::new();
             if let Some(arg_list) = named_call.procedureArgumentList() {
                 for arg in arg_list.procedureArgument_all() {
-                    let expr_ctx = arg.valueExpression().ok_or_else(|| {
-                        Self::parse_err("CST not valid: missing valueExpression in argument".into())
-                    })?;
+                    let expr_ctx = arg
+                        .valueExpression()
+                        .ok_or_else(|| Self::parse_err("CST not valid: missing valueExpression in argument".into()))?;
                     let expression = match Self::build_expression_from_context(&expr_ctx) {
                         Ok(expr) => expr,
-                        Err(_) => Self::build_expression_from_leaf_text(
-                            &expr_ctx.get_text(),
-                            span.clone(),
-                        )
-                            .unwrap_or_else(|_| {
-                                Expression::Literal(Literal::String(expr_ctx.get_text()))
-                            }),
+                        Err(_) => Self::build_expression_from_leaf_text(&expr_ctx.get_text(), span.clone())
+                            .unwrap_or_else(|_| Expression::Literal(Literal::String(expr_ctx.get_text()))),
                     };
                     arguments.push(expression);
                 }
@@ -1923,23 +1752,19 @@ impl GQLAstBuilder {
             })
         } else if let Some(inline_call) = proc_call.inlineProcedureCall() {
             let inline_spec_ctx = inline_call.nestedProcedureSpecification().ok_or_else(|| {
-                Self::parse_err(
-                    "CST not valid: missing nestedProcedureSpecification in inline CALL".into(),
-                )
+                Self::parse_err("CST not valid: missing nestedProcedureSpecification in inline CALL".into())
             })?;
-            let procedure_spec = inline_spec_ctx.procedureSpecification().ok_or_else(|| {
-                Self::parse_err(
-                    "CST not valid: missing procedureSpecification in inline CALL".into(),
-                )
-            })?;
+            let procedure_spec = inline_spec_ctx
+                .procedureSpecification()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing procedureSpecification in inline CALL".into()))?;
 
-            let procedure_body = procedure_spec.procedureBody().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing procedureBody in inline CALL".into())
-            })?;
+            let procedure_body = procedure_spec
+                .procedureBody()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing procedureBody in inline CALL".into()))?;
 
-            let statement_block = procedure_body.statementBlock().ok_or_else(|| {
-                Self::parse_err("CST not valid: missing statementBlock in inline CALL".into())
-            })?;
+            let statement_block = procedure_body
+                .statementBlock()
+                .ok_or_else(|| Self::parse_err("CST not valid: missing statementBlock in inline CALL".into()))?;
 
             let inline_statement = Self::build_statement_block_from_context(&statement_block)?;
 
@@ -1996,18 +1821,14 @@ impl GQLAstBuilder {
         if let Some(value_def) = cst.valueVariableDefinition() {
             let variable_name = value_def
                 .bindingVariable()
-                .ok_or_else(|| {
-                    Self::parse_err("Expected bindingVariable in VALUE definition".to_string())
-                })?
+                .ok_or_else(|| Self::parse_err("Expected bindingVariable in VALUE definition".to_string()))?
                 .get_text();
 
             let value_expr = value_def
                 .optTypedValueInitializer()
                 .and_then(|init| init.valueInitializer())
                 .and_then(|init| init.valueExpression())
-                .ok_or_else(|| {
-                    Self::parse_err("Expected value initializer in VALUE definition".to_string())
-                })?;
+                .ok_or_else(|| Self::parse_err("Expected value initializer in VALUE definition".to_string()))?;
 
             let expression = Self::build_expression_from_context(&value_expr)?;
 
@@ -2048,9 +1869,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a YieldClause from a YieldClauseContext, extracting the list of yield items and their aliases from the CST, and constructing the corresponding AST nodes.
-    pub(super) fn build_yield_clause_from_context(
-        cst: &YieldClauseContextAll,
-    ) -> GqlResult<YieldClause> {
+    pub(super) fn build_yield_clause_from_context(cst: &YieldClauseContextAll) -> GqlResult<YieldClause> {
         let span = Self::extract_span(cst);
 
         let list = cst
@@ -2065,9 +1884,7 @@ impl GQLAstBuilder {
                     .yieldItemName()
                     .and_then(|n| n.fieldName())
                     .map(|f| Self::identifier_text(f.get_text().trim()))
-                    .ok_or_else(|| {
-                        Self::parse_err("CST not valid: yieldItemName missing".into())
-                    })?;
+                    .ok_or_else(|| Self::parse_err("CST not valid: yieldItemName missing".into()))?;
 
                 let alias = it
                     .yieldItemAlias()

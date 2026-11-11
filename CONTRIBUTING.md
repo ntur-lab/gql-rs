@@ -49,6 +49,9 @@ Reading those discussions helps you to learn about the issue, and helps us to ma
 <a id="quickstart"></a>
 ### Quickstart
 
+All contributions must be based on the `dev` branch and submitted through a Pull Request targeting `dev`. 
+Pull Requests targeting`main` are not accepted.
+
 For the impatient, if you want to submit a quick pull request (polishing, trivial fix, documentation fix):
 
 1. API changes require discussion, use cases, etc.
@@ -120,11 +123,11 @@ This section contains some advanced information, mainly targeted at developers o
 <a id="advanced.general"></a>
 ### General
 
-* Fix bugs in `main` first, if it's reasonable to port the fix back into a bugfix branch, try to do so with cherry-picking.
+* All bug fixes and new features must be developed from the `dev` branch and merged back into `dev` through a Pull Request.
 * Try to keep the lifespan of a feature branch as short as possible.
   For simple bug fixes they should only be used for code review in pull requests.
-* On longer running feature branches, don't pull changes that were made to `main` in the meantime.
-  Instead, rebase the feature branch onto the current `main`, sorting out issues and making sure the branch will fast-forward merge eventually.
+* On longer running feature branches, don't pull changes that were made to `dev` in the meantime.
+  Instead, rebase the feature branch onto the current `dev`, sorting out issues and making sure the branch will fast-forward merge eventually.
 
 <a id="advanced.dependency-management"></a>
 ### Dependency management
@@ -171,7 +174,7 @@ Feel free to use or propose anything.
 * Be polite.
   It might be the first time someone contributes to an OpenSource project, so we should forgive violations to the contribution guidelines.
   Use some gut feeling to find out whether it makes sense to ask the reporter to fix stuff or just go ahead and add a polishing commit yourself.
-* Before we merge stuff back into `main`, make sure you rebase the branch.
+* Before we merge stuff back into `dev`, make sure you rebase the branch.
   We generally do not allow merge commits, so a merge should always be fast-forwarded.
   The GitHub issue number and the timestamps give enough tracking information already.
 * The simplest way to merge back a pull request submitted by someone external is ``curl``ing the patch into `git am`.

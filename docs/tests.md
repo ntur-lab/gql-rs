@@ -68,13 +68,21 @@ Run everything, including doctests:
 cargo test
 ```
 
-The three CI-equivalent commands are:
-
+The individual suite commands are:
 ```text
 cargo test --test gql_tck
 cargo test --lib
 cargo test --test integration --test ast_conformance
 ```
+
+Check the generated API documentation and its examples separately:
+
+```sh
+cargo test --doc
+cargo doc --no-deps
+```
+
+The individual suite commands above do not replace doctest execution.
 
 ## Adding tests
 

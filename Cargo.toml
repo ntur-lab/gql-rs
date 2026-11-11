@@ -22,7 +22,7 @@
 
 [package]
 name = "gql-rs"
-version = "0.0.1-ga"
+version = "0.0.2"
 edition = "2024"
 rust-version = "1.99.0"
 authors = [

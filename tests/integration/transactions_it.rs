@@ -20,10 +20,10 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-pub mod test_query_transaction {
+pub mod test_query_transaction_it {
     use gql_rs::{
-        ast::{Query, Statement, TransactionCommandKind}, DefaultGQLQueryAnalyzer,
-        GQLQueryAnalyzer,
+        DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
+        ast::{Query, Statement, TransactionCommandKind},
     };
 
     test_transaction_statement!(
@@ -95,9 +95,7 @@ pub mod test_query_transaction {
     #[test]
     fn test_transaction_activity_body_rollback_preserved_in_ast() {
         let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("RETURN 1 ROLLBACK")
-            .expect("query should parse");
+        analyzer.exec("RETURN 1 ROLLBACK").expect("query should parse");
 
         let ast = analyzer.get_ast().expect("ast must be available");
 

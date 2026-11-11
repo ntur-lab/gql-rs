@@ -23,10 +23,7 @@
 use super::*;
 
 /// Function to validate a Query AST node, ensuring that all components of the query are semantically correct according to the GQL specification. This includes validating the structure of the query, checking for correct usage of variables, ensuring that clauses are consistent with each other, and enforcing any specific rules related to the types of queries (e.g., basic vs set operation). The function takes a mutable reference to a set of declared variables to track variable usage across the query and its subqueries.
-pub(super) fn validate_query(
-    query: &Query,
-    declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_query(query: &Query, declared_variables: &mut HashSet<String>) -> Result<(), GqlError> {
     match query {
         Query::Basic(basic) => validate_basic_query(basic, declared_variables),
         Query::SetOperation(set_op) => validate_set_operation_query(set_op, declared_variables),
@@ -34,10 +31,7 @@ pub(super) fn validate_query(
 }
 
 /// Function to validate a Statement AST node, ensuring that all components of the statement are semantically correct according to the GQL specification.
-pub(super) fn validate_statement(
-    statement: &Statement,
-    declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_statement(statement: &Statement, declared_variables: &mut HashSet<String>) -> Result<(), GqlError> {
     match statement {
         Statement::Query(query) => validate_query(query, declared_variables),
         Statement::Data(data) => validate_data_statement(data, declared_variables),
@@ -94,14 +88,9 @@ pub(super) fn validate_session_statement(session: &SessionStatement) -> Result<(
 }
 
 /// Function to validate Catalog statements, ensuring that each statement in the block is semantically correct according to the GQL specification. This includes validating schema and graph names, checking for consistency in CREATE GRAPH clauses, and ensuring that raw Catalog statements are not empty.
-pub(super) fn validate_catalog_statement_block(
-    block: &CatalogStatementBlock,
-) -> Result<(), GqlError> {
+pub(super) fn validate_catalog_statement_block(block: &CatalogStatementBlock) -> Result<(), GqlError> {
     if block.statements.is_empty() {
-        return Err(validation_err(
-            "Catalog block cannot be empty".to_string(),
-            None,
-        ));
+        return Err(validation_err("Catalog block cannot be empty".to_string(), None));
     }
 
     for statement in &block.statements {
@@ -112,21 +101,17 @@ pub(super) fn validate_catalog_statement_block(
 }
 
 /// Function to validate a Transaction statement, ensuring that the command kind is consistent with the presence of a transaction mode and that only START transactions can carry a mode. This function enforces the rule that COMMIT, ROLLBACK, and ACTIVITY transaction commands cannot have an associated transaction mode, while START commands can optionally include a mode specification.
-pub(super) fn validate_transaction_statement(
-    transaction: &TransactionStatement,
-) -> Result<(), GqlError> {
+pub(super) fn validate_transaction_statement(transaction: &TransactionStatement) -> Result<(), GqlError> {
     match transaction.kind {
         TransactionCommandKind::Start => {}
-        TransactionCommandKind::Commit
-        | TransactionCommandKind::Rollback
-        | TransactionCommandKind::Activity
-        if transaction.mode.is_some() =>
-            {
-                return Err(validation_err(
-                    "Only START transaction can carry a transaction mode".to_string(),
-                    None,
-                ));
-            }
+        TransactionCommandKind::Commit | TransactionCommandKind::Rollback | TransactionCommandKind::Activity
+            if transaction.mode.is_some() =>
+        {
+            return Err(validation_err(
+                "Only START transaction can carry a transaction mode".to_string(),
+                None,
+            ));
+        }
         _ => {}
     }
 
@@ -162,8 +147,7 @@ pub(super) fn validate_catalog_statement(statement: &CatalogStatement) -> Result
         CatalogStatement::CreateGraphType(stmt) => {
             if stmt.or_replace && stmt.if_not_exists {
                 return Err(validation_err(
-                    "CREATE GRAPH TYPE cannot contain both OR REPLACE and IF NOT EXISTS"
-                        .to_string(),
+                    "CREATE GRAPH TYPE cannot contain both OR REPLACE and IF NOT EXISTS".to_string(),
                     Some(&stmt.target.span.clone()),
                 ));
             }
@@ -232,18 +216,13 @@ pub(super) fn validate_catalog_object_name(name: &CatalogObjectName) -> Result<(
 }
 
 /// Function to validate a CALL clause within a Catalog statement, ensuring that the procedure name is not empty and that any provided arguments are semantically correct according to the GQL specification. This includes checking that argument expressions are valid and that any variables used in the arguments are properly declared.
-pub(super) fn validate_create_graph_type_clause(
-    clause: &CreateGraphTypeClause,
-) -> Result<(), GqlError> {
+pub(super) fn validate_create_graph_type_clause(clause: &CreateGraphTypeClause) -> Result<(), GqlError> {
     match clause {
         CreateGraphTypeClause::Open(_) => Ok(()),
         CreateGraphTypeClause::Of(of_clause) => match of_clause {
-            OfGraphTypeClause::LikeGraph { graph_expression } => {
-                validate_graph_expression_clause(graph_expression)
-            }
+            OfGraphTypeClause::LikeGraph { graph_expression } => validate_graph_expression_clause(graph_expression),
             OfGraphTypeClause::TypedReference {
-                graph_type_reference,
-                ..
+                graph_type_reference, ..
             } => {
                 if graph_type_reference.trim().is_empty() {
                     return Err(validation_err(
@@ -262,13 +241,10 @@ pub(super) fn validate_create_graph_type_clause(
 }
 
 /// Function to validate a CALL clause within a Catalog statement, ensuring that the procedure name is not empty and that any provided arguments are semantically correct according to the GQL specification. This includes checking that argument expressions are valid and that any variables used in the arguments are properly declared.
-pub(super) fn validate_graph_type_source_clause(
-    clause: &GraphTypeSourceClause,
-) -> Result<(), GqlError> {
+pub(super) fn validate_graph_type_source_clause(clause: &GraphTypeSourceClause) -> Result<(), GqlError> {
     match clause {
         GraphTypeSourceClause::CopyOf {
-            graph_type_reference,
-            ..
+            graph_type_reference, ..
         } => {
             if graph_type_reference.trim().is_empty() {
                 return Err(validation_err(
@@ -278,9 +254,7 @@ pub(super) fn validate_graph_type_source_clause(
             }
             Ok(())
         }
-        GraphTypeSourceClause::LikeGraph { graph_expression } => {
-            validate_graph_expression_clause(graph_expression)
-        }
+        GraphTypeSourceClause::LikeGraph { graph_expression } => validate_graph_expression_clause(graph_expression),
         GraphTypeSourceClause::NestedSpecification {
             nested_graph_type_specification,
             ..
@@ -299,9 +273,7 @@ pub(super) fn validate_session_set_clause(clause: &SessionSetClause) -> Result<(
                 ));
             }
         }
-        SessionSetClause::Graph {
-            graph_expression, ..
-        } => {
+        SessionSetClause::Graph { graph_expression, .. } => {
             validate_graph_expression_clause(graph_expression)?;
         }
         SessionSetClause::TimeZone { value } => match value {
@@ -314,12 +286,7 @@ pub(super) fn validate_session_set_clause(clause: &SessionSetClause) -> Result<(
             SessionTimeZoneValue::Literal(_) => {}
         },
         SessionSetClause::Parameter(parameter) => {
-            if parameter
-                .parameter_name
-                .parameter_specification
-                .trim()
-                .is_empty()
-            {
+            if parameter.parameter_name.parameter_specification.trim().is_empty() {
                 return Err(validation_err(
                     "SESSION SET parameter specification cannot be empty".to_string(),
                     Some(&parameter.parameter_name.span.clone()),
@@ -405,9 +372,7 @@ pub(super) fn validate_nested_graph_type_specification(
 }
 
 /// Function to validate a CALL clause within a Catalog statement, ensuring that the procedure name is not empty and that any provided arguments are semantically correct according to the GQL specification. This includes checking that argument expressions are valid and that any variables used in the arguments are properly declared.
-pub(super) fn validate_property_types_specification(
-    specification: &PropertyTypesSpecification,
-) -> Result<(), GqlError> {
+pub(super) fn validate_property_types_specification(specification: &PropertyTypesSpecification) -> Result<(), GqlError> {
     for property in &specification.properties {
         if property.name.trim().is_empty() {
             return Err(validation_err(
@@ -428,9 +393,7 @@ pub(super) fn validate_property_types_specification(
 }
 
 /// Function to validate a CALL clause within a Catalog statement, ensuring that the procedure name is not empty and that any provided arguments are semantically correct according to the GQL specification. This includes checking that argument expressions are valid and that any variables used in the arguments are properly declared.
-pub(super) fn validate_graph_expression_clause(
-    graph_expr: &GraphExpressionClause,
-) -> Result<(), GqlError> {
+pub(super) fn validate_graph_expression_clause(graph_expr: &GraphExpressionClause) -> Result<(), GqlError> {
     let trimmed = graph_expr.text.trim();
     if trimmed.is_empty() {
         return Err(validation_err(
@@ -477,8 +440,7 @@ pub(super) fn validate_graph_expression_clause(
         GraphExpressionKind::ObjectNameOrBindingVariable => {
             if contains_structural_delimiters(trimmed) {
                 return Err(validation_err(
-                    "ObjectNameOrBindingVariable cannot contain object-expression delimiters"
-                        .to_string(),
+                    "ObjectNameOrBindingVariable cannot contain object-expression delimiters".to_string(),
                     Some(&graph_expr.span.clone()),
                 ));
             }
@@ -551,12 +513,7 @@ pub(super) fn validate_yield_clause(yield_clause: &YieldClause) -> Result<(), Gq
             ));
         }
 
-        let output_name = item
-            .alias
-            .as_deref()
-            .unwrap_or(&item.column_name)
-            .trim()
-            .to_string();
+        let output_name = item.alias.as_deref().unwrap_or(&item.column_name).trim().to_string();
 
         if !output_names.insert(output_name.clone()) {
             return Err(validation_err(

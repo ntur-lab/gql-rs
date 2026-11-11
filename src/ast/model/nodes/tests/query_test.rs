@@ -188,18 +188,9 @@ fn query_and_basic_query_transaction_intent_cover_read_only_write_and_set_operat
     let read_only_basic = read_only_return_basic_query();
     let write_basic = catalog_write_return_basic_query();
 
-    assert_eq!(
-        finish_basic.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
-    assert_eq!(
-        read_only_basic.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
-    assert_eq!(
-        write_basic.transaction_intent(),
-        TransactionIntent::CatalogWrite
-    );
+    assert_eq!(finish_basic.transaction_intent(), TransactionIntent::ReadOnly);
+    assert_eq!(read_only_basic.transaction_intent(), TransactionIntent::ReadOnly);
+    assert_eq!(write_basic.transaction_intent(), TransactionIntent::CatalogWrite);
 
     assert_eq!(
         Query::Basic(finish_basic.clone()).transaction_intent(),
@@ -223,10 +214,7 @@ fn query_and_basic_query_transaction_intent_cover_read_only_write_and_set_operat
         span: span(),
     });
 
-    assert_eq!(
-        set_operation_query.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
+    assert_eq!(set_operation_query.transaction_intent(), TransactionIntent::ReadOnly);
 }
 
 #[test]
@@ -260,12 +248,6 @@ fn call_statement_transaction_intent_delegates_to_clause() {
         span: span(),
     };
 
-    assert_eq!(
-        read_only_call.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
-    assert_eq!(
-        write_call.transaction_intent(),
-        TransactionIntent::CatalogWrite
-    );
+    assert_eq!(read_only_call.transaction_intent(), TransactionIntent::ReadOnly);
+    assert_eq!(write_call.transaction_intent(), TransactionIntent::CatalogWrite);
 }

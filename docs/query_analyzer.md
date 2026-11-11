@@ -1,131 +1,163 @@
 # Query Analyzer Guide
 
-This document explains how `src/query_analyzer.rs` works and how to use it in
-`gql-rs`.
+The public entry points in `src/query_analyzer.rs` provide stateless parsing, stateless semantic analysis, and stateful analysis.
 
-## Purpose
+All entry points are re-exported from the crate root.
 
-The query analyzer provides a high-level API to convert a GQL query string into a validated AST.
+## Choosing an entry point
 
-It orchestrates three steps:
+| API | Parsing and AST construction | Semantic validation | Retained state |
+|---|---|---|---|
+| `parse(query)` | Yes | No | None |
+| `analyze(query)` | Yes | Yes | None |
+| `DefaultGQLQueryAnalyzer::exec(query)` | Yes | Yes | Query and AST copy |
 
-1. Lexing and parsing via ANTLR.
-2. CST to AST conversion.
-3. Semantic validation.
+Use `analyze()` when the caller needs ownership of a validated AST without retaining another copy.
+Use `parse()` when semantic validation must be deferred or when inspecting the AST before validation.
+Use `DefaultGQLQueryAnalyzer` when the latest successful query and AST must remain accessible through getters.
 
-Main implementation file:
+## Stateless parsing
 
-- src/query_analyzer.rs
+```rust
+use gql_rs::{parse, GqlError};
 
-## Core Types
+fn main() -> Result<(), GqlError> {
+    let ast = parse("RETURN 42 AS answer")?;
 
-### GQLQueryAnalyzer trait
+    // Optional: validate the AST separately.
+    ast.validate()?;
 
-The trait defines the analyzer contract:
+    Ok(())
+}
+```
 
-- exec(query): parses and validates a query, returning QueryAST.
-- get_query(): returns the last analyzed query text.
-- get_ast(): returns the last generated AST.
+`parse()` performs these steps:
 
-This abstraction allows alternative analyzer implementations if needed.
+1. Creates an ANTLR input stream and lexer.
+2. Removes the default lexer listeners and attaches `GqlErrorListener`.
+3. Creates the token stream and parser.
+4. Replaces the parser listeners with a listener sharing the same collection.
+5. Calls the `gqlProgram` entry rule.
+6. Returns the first collected lexical or syntactic diagnostic, if any.
+7. Maps an unsuccessful ANTLR parser result to `GqlError::Parse`.
+8. Builds the typed AST through `QueryAST::build()`.
 
-### DefaultGQLQueryAnalyzer
+ANTLR may recover from an error and return a CST. Collected diagnostics are checked before AST construction so recovery does not turn invalid input into a successful result.
 
-Default stateful implementation with two cached fields:
+The returned error is the first collected diagnostic; the API does not return a list of all diagnostics.
 
-- query: Option<String>
-- ast: Option<QueryAST>
+`parse()` does not call the semantic validator. Grammar acceptance alone also does not guarantee successful AST construction: unsupported mappings may fail, while some catalog constructs may be preserved as `CatalogStatement::Raw`.
 
-It stores the most recent successful analysis result.
+## Stateless analysis
 
-## Execution Flow of exec
+```rust
+use gql_rs::{analyze, GqlError};
 
-DefaultGQLQueryAnalyzer::exec follows this sequence:
+fn main() -> Result<(), GqlError> {
+    let ast = analyze("RETURN 42 AS answer")?;
+    println!("{ast:#?}");
+    Ok(())
+}
+```
 
-1. `clear()`
+`analyze()` calls `parse()`, then `ast.validate()`, and returns the resulting AST.
 
-- Resets internal state to avoid stale query/AST data.
+Neither stateless function retains the query or clones the resulting AST. Stateless analysis still performs the allocations needed by parsing and AST construction.
 
-2. Build ANTLR input pipeline
+## Stateful analysis
 
-- `InputStream` from query text.
-- `GQLLexer` over input.
-- `CommonTokenStream` over lexer.
-- `GQLParser` over token stream.
-- Removes default parser listeners and attaches `GqlErrorListener`.
+`GQLQueryAnalyzer` defines three methods:
 
-3. Parse entry rule
+- `exec(query)`: analyzes a query and returns its AST.
+- `get_query()`: exposes the stored query, if any.
+- `get_ast()`: exposes the stored AST, if any.
 
-- Calls `parser.gqlProgram().`
-- If the custom error listener collected syntax errors, returns the first Parse error.
-- If parser returns an ANTLR error, maps it to GqlError::Parse.
+`DefaultGQLQueryAnalyzer` implements this contract with `Option<String>` and`Option<QueryAST>` fields.
 
-4. Build AST
+```rust
+use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
 
-- Calls `QueryAST::build(cst_root)`.
-- Delegates CST to AST conversion to the internal AST builder layer.
+fn main() -> Result<(), GqlError> {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    let ast = analyzer.exec("RETURN 42 AS answer")?;
 
-5. Validate semantics
+    assert_eq!(analyzer.get_query(), Some("RETURN 42 AS answer"));
+    assert!(analyzer.get_ast().is_some());
 
-- Calls `ast.validate()`.
-- Fails with GqlError::Validation when semantic rules are violated.
+    println!("{ast:#?}");
 
-6. Cache successful result
+    analyzer.clear();
+    assert!(analyzer.get_query().is_none());
+    assert!(analyzer.get_ast().is_none());
 
-- Stores query and ast in analyzer state.
-- Returns the AST.
+    Ok(())
+}
+```
 
-## Error Model
+The default implementation:
 
-The analyzer exposes errors through `GqlResult<QueryAST>`.
+1. Clears its previous state.
+2. Calls `analyze(query)`.
+3. Stores the query and a clone of the successful AST.
+4. Returns the original AST.
 
-Typical categories:
+On failure, the state remains empty. A later call can succeed normally.
 
-- Parse errors
-    - Syntax errors collected by GqlErrorListener.
-    - ANTLR parsing failure mapped from parser result.
-- Validation errors
-    - Semantic inconsistencies detected by the AST validator.
-- Generic errors
-    - Reserved for other crate-level failures (if produced by deeper layers).
+## Error categories
 
-## Why a custom error listener is used
+All entry points return `GqlResult<QueryAST>`.
 
-GqlErrorListener captures syntax errors with line/column context and lets the analyzer return structured Parse errors
-consistently.
+- `GqlError::Parse` covers lexical, syntactic, and AST construction failures.
+- `GqlError::Validation` covers semantic validation failures.
+- `GqlError::Generic` is available for other crate-level failures.
 
-Practical effects:
+`parse()` does not run semantic validation. `analyze()` and the default stateful analyzer do.
 
-- Explicit syntax diagnostics from ANTLR callbacks.
-- Deterministic error propagation through Result.
-- Clear separation between syntax failures and semantic validation failures.
+Errors implement `Display` and `std::error::Error`. Applications can inspect the enum variants directly or use `message()` and `context()`.
 
-## State Management Notes
+## Diagnostic positions
 
-The analyzer is intentionally stateful:
+Lexer and parser callbacks produce `GqlError::Parse` values with:
 
-- get_query and get_ast expose only the latest successful run.
-- `clear` is called at the start of `exec`, so failed runs do not keep stale success state.
+- a human-readable message containing the reported line and column;
+- `context.span = Some(span)`;
+- `context.code = None`.
 
-If you need immutable/stateless behavior, create a fresh analyzer per request.
+These spans identify a point:
 
-## Typical Usage
+```text
+start_line == end_line
+start_col  == end_col
+```
 
-Example pattern:
+They do not describe the full offending token. EOF also uses a zero-width span.
 
-1. Create DefaultGQLQueryAnalyzer.
-2. Call exec with query text.
-3. Use returned AST or inspect stored state with get_query/get_ast.
+Lines are one-based; columns are zero-based. Listener columns count Unicode characters rather than UTF-8 bytes. Consumers using UTF-16 offsets or display columns must convert positions using the original source.
 
-This is the recommended entry point for application code that does not need direct CST handling.
+Other errors may have a source range or no position. In particular,`GqlError::parse()`, `validation()`, `validation_with_code()`, and `generic()`create errors without a known position. The `_at()` constructors retain the span supplied by the caller.
 
-## Integration with Other Layers
+Always inspect the `Option` rather than assuming every error has a span.
 
-query_analyzer.rs sits between parser infrastructure and semantic tooling:
+## Error serialization
 
-- Grammar and generated parser: resources/GQL.g4 and src/antlr/
-- AST model facade: src/ast/model/query_ast.rs
-- CST to AST builder modules: src/ast/builder/
-- Semantic validator modules: src/ast/validator/
+`GqlError` and `ErrorContext` derive Serde `Serialize` and `Deserialize`. 
+Applications using JSON must add `serde_json` to their own dependencies.
 
-In short, it is the facade layer for `parse + build + validate`.
+```rust
+use gql_rs::GqlError;
+
+fn main() -> Result<(), serde_json::Error> {
+    let error =
+        GqlError::validation_with_code("Unknown variable", "E_UNKNOWN");
+
+    let json = serde_json::to_string_pretty(&error)?;
+    let restored: GqlError = serde_json::from_str(&json)?;
+
+    assert_eq!(restored, error);
+    println!("{json}");
+
+    Ok(())
+}
+```
+
+Serialization preserves the error variant, message, and context. It does not perform query parsing or semantic validation. The serialized representation remains subject to the crate's evolving API.

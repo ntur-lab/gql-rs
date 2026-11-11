@@ -54,9 +54,7 @@ fn validate_expression_checks_property_access() {
 
     assert!(validate_expression_with_types(&property("", "name"), &declared, &inferred).is_err());
 
-    assert!(
-        validate_expression_with_types(&property("missing", "name"), &declared, &inferred).is_err()
-    );
+    assert!(validate_expression_with_types(&property("missing", "name"), &declared, &inferred).is_err());
 
     assert!(validate_expression_with_types(&property("n", ""), &declared, &inferred).is_err());
 
@@ -68,28 +66,13 @@ fn validate_expression_checks_element_id() {
     let inferred = HashMap::new();
     let declared = HashSet::from(["n".to_string()]);
 
-    assert!(
-        validate_expression_with_types(&function("ELEMENT_ID", vec![]), &declared, &inferred)
-            .is_err()
-    );
+    assert!(validate_expression_with_types(&function("ELEMENT_ID", vec![]), &declared, &inferred).is_err());
 
     assert!(
-        validate_expression_with_types(
-            &function("ELEMENT_ID", vec![variable("missing")]),
-            &declared,
-            &inferred
-        )
-            .is_err()
+        validate_expression_with_types(&function("ELEMENT_ID", vec![variable("missing")]), &declared, &inferred).is_err()
     );
 
-    assert!(
-        validate_expression_with_types(
-            &function("ELEMENT_ID", vec![variable("n")]),
-            &declared,
-            &inferred
-        )
-            .is_ok()
-    );
+    assert!(validate_expression_with_types(&function("ELEMENT_ID", vec![variable("n")]), &declared, &inferred).is_ok());
 }
 
 #[test]
@@ -98,14 +81,7 @@ fn validate_expression_checks_left_and_right_arguments() {
     let declared = HashSet::new();
 
     for name in ["LEFT", "RIGHT"] {
-        assert!(
-            validate_expression_with_types(
-                &function(name, vec![string("hello")]),
-                &declared,
-                &inferred
-            )
-                .is_err()
-        );
+        assert!(validate_expression_with_types(&function(name, vec![string("hello")]), &declared, &inferred).is_err());
 
         assert!(
             validate_expression_with_types(
@@ -113,7 +89,7 @@ fn validate_expression_checks_left_and_right_arguments() {
                 &declared,
                 &inferred
             )
-                .is_err()
+            .is_err()
         );
 
         assert!(
@@ -122,15 +98,11 @@ fn validate_expression_checks_left_and_right_arguments() {
                 &declared,
                 &inferred
             )
-                .is_err()
+            .is_err()
         );
 
         assert!(
-            validate_expression_with_types(
-                &function(name, vec![string("hello"), integer(2)]),
-                &declared,
-                &inferred
-            )
+            validate_expression_with_types(&function(name, vec![string("hello"), integer(2)]), &declared, &inferred)
                 .is_ok()
         );
     }
@@ -163,45 +135,42 @@ fn validate_expression_checks_path_constructor_shape() {
     let inferred = HashMap::new();
     let declared = HashSet::from(["a".to_string(), "e".to_string(), "b".to_string()]);
 
+    assert!(validate_expression_with_types(&Expression::PathConstructor(vec![]), &declared, &inferred).is_err());
+
     assert!(
-        validate_expression_with_types(&Expression::PathConstructor(vec![]), &declared, &inferred)
-            .is_err()
+        validate_expression_with_types(
+            &Expression::PathConstructor(vec![variable("a"), variable("e"),]),
+            &declared,
+            &inferred
+        )
+        .is_err()
     );
 
     assert!(
         validate_expression_with_types(
-            &Expression::PathConstructor(vec![variable("a"), variable("e"), ]),
+            &Expression::PathConstructor(vec![variable("a"), integer(1), variable("b"),]),
             &declared,
             &inferred
         )
-            .is_err()
+        .is_err()
     );
 
     assert!(
         validate_expression_with_types(
-            &Expression::PathConstructor(vec![variable("a"), integer(1), variable("b"), ]),
+            &Expression::PathConstructor(vec![variable("a"), variable("missing"), variable("b"),]),
             &declared,
             &inferred
         )
-            .is_err()
+        .is_err()
     );
 
     assert!(
         validate_expression_with_types(
-            &Expression::PathConstructor(vec![variable("a"), variable("missing"), variable("b"), ]),
+            &Expression::PathConstructor(vec![variable("a"), variable("e"), variable("b"),]),
             &declared,
             &inferred
         )
-            .is_err()
-    );
-
-    assert!(
-        validate_expression_with_types(
-            &Expression::PathConstructor(vec![variable("a"), variable("e"), variable("b"), ]),
-            &declared,
-            &inferred
-        )
-            .is_ok()
+        .is_ok()
     );
 }
 
@@ -298,34 +267,15 @@ fn validate_unary_operator_type_checks_not_and_numeric_signs() {
     let declared = HashSet::new();
     let inferred = HashMap::new();
 
-    assert!(
-        validate_unary_operator_type(&unary(Operator::Not, boolean(true)), &declared, &inferred)
-            .is_ok()
-    );
+    assert!(validate_unary_operator_type(&unary(Operator::Not, boolean(true)), &declared, &inferred).is_ok());
 
-    assert!(
-        validate_unary_operator_type(&unary(Operator::Not, integer(1)), &declared, &inferred)
-            .is_err()
-    );
+    assert!(validate_unary_operator_type(&unary(Operator::Not, integer(1)), &declared, &inferred).is_err());
 
-    assert!(
-        validate_unary_operator_type(&unary(Operator::Minus, integer(1)), &declared, &inferred)
-            .is_ok()
-    );
+    assert!(validate_unary_operator_type(&unary(Operator::Minus, integer(1)), &declared, &inferred).is_ok());
 
-    assert!(
-        validate_unary_operator_type(&unary(Operator::Plus, string("one")), &declared, &inferred)
-            .is_err()
-    );
+    assert!(validate_unary_operator_type(&unary(Operator::Plus, string("one")), &declared, &inferred).is_err());
 
-    assert!(
-        validate_unary_operator_type(
-            &unary(Operator::Minus, variable("unknown")),
-            &declared,
-            &inferred
-        )
-            .is_ok()
-    );
+    assert!(validate_unary_operator_type(&unary(Operator::Minus, variable("unknown")), &declared, &inferred).is_ok());
 }
 
 #[test]
@@ -360,9 +310,7 @@ fn validate_is_predicate_types_checks_boolean_and_typed_predicates() {
     let invalid_typed = IsPredicateExpression {
         expression: Box::new(boolean(true)),
         negated: false,
-        predicate: IsPredicateKind::Typed(TypeSpec::Graph {
-            graph_type_spec: None,
-        }),
+        predicate: IsPredicateKind::Typed(TypeSpec::Graph { graph_type_spec: None }),
         span: span(),
     };
     assert!(validate_is_predicate_types(&invalid_typed, &declared, &inferred).is_err());
@@ -389,10 +337,7 @@ fn validate_function_signatures_reject_invalid_calls() {
         function_call("LOWER", vec![boolean(true)]),
         function_call("UPPER", vec![integer(1)]),
         function_call("TRIM", vec![]),
-        function_call(
-            "TRIM",
-            vec![string("a"), string("b"), string("c"), string("d")],
-        ),
+        function_call("TRIM", vec![string("a"), string("b"), string("c"), string("d")]),
         function_call("SUM", vec![]),
         function_call("SUM", vec![boolean(true)]),
         function_call("AVG", vec![string("not numeric")]),
@@ -531,11 +476,7 @@ fn contains_aggregate_function_traverses_expression_variants() {
             span: span(),
         }]),
         Expression::Case(simple_case(integer(1), integer(1), aggregate.clone(), None)),
-        Expression::Case(searched_case(
-            boolean(true),
-            integer(1),
-            Some(aggregate.clone()),
-        )),
+        Expression::Case(searched_case(boolean(true), integer(1), Some(aggregate.clone()))),
         Expression::Cast(CastExpression {
             expression: Box::new(aggregate.clone()),
             target_type: TypeSpec::Integer,
@@ -564,9 +505,10 @@ fn contains_aggregate_function_traverses_expression_variants() {
     }
 
     assert!(!contains_aggregate_function(&integer(1)));
-    assert!(!contains_aggregate_function(&Expression::Subquery(
-        scalar_subquery(return_query(vec![function("SUM", vec![integer(1)])]), false, )
-    )));
+    assert!(!contains_aggregate_function(&Expression::Subquery(scalar_subquery(
+        return_query(vec![function("SUM", vec![integer(1)])]),
+        false,
+    ))));
 }
 
 #[test]
@@ -579,38 +521,18 @@ fn comparison_type_compatibility_covers_type_families() {
         with_timezone: false,
     };
 
-    assert!(are_comparison_types_compatible(
-        &TypeSpec::Integer,
-        &TypeSpec::Integer
-    ));
+    assert!(are_comparison_types_compatible(&TypeSpec::Integer, &TypeSpec::Integer));
     assert!(are_comparison_types_compatible(
         &TypeSpec::Any,
-        &TypeSpec::Graph {
-            graph_type_spec: None,
-        }
+        &TypeSpec::Graph { graph_type_spec: None }
     ));
-    assert!(are_comparison_types_compatible(
-        &TypeSpec::Integer,
-        &float_type
-    ));
+    assert!(are_comparison_types_compatible(&TypeSpec::Integer, &float_type));
     assert!(are_comparison_types_compatible(&string_type, &bytes_type));
     assert!(are_comparison_types_compatible(&TypeSpec::Date, &timestamp));
-    assert!(are_comparison_types_compatible(
-        &TypeSpec::Boolean,
-        &TypeSpec::Boolean
-    ));
-    assert!(are_comparison_types_compatible(
-        &TypeSpec::Path,
-        &TypeSpec::Path
-    ));
-    assert!(are_comparison_types_compatible(
-        &TypeSpec::Record,
-        &TypeSpec::Record
-    ));
-    assert!(!are_comparison_types_compatible(
-        &TypeSpec::Boolean,
-        &TypeSpec::Integer
-    ));
+    assert!(are_comparison_types_compatible(&TypeSpec::Boolean, &TypeSpec::Boolean));
+    assert!(are_comparison_types_compatible(&TypeSpec::Path, &TypeSpec::Path));
+    assert!(are_comparison_types_compatible(&TypeSpec::Record, &TypeSpec::Record));
+    assert!(!are_comparison_types_compatible(&TypeSpec::Boolean, &TypeSpec::Integer));
 }
 
 #[test]
@@ -681,9 +603,7 @@ fn validate_cast_target_checks_dynamic_lists_and_incompatible_types() {
     assert!(validate_cast_target(&dynamic_list, &declared, &inferred).is_err());
 
     let invalid_temporal_cast = CastExpression {
-        expression: Box::new(Expression::Literal(Literal::DateTime(
-            "2026-01-01".to_string(),
-        ))),
+        expression: Box::new(Expression::Literal(Literal::DateTime("2026-01-01".to_string()))),
         target_type: TypeSpec::Integer,
         span: span(),
     };
@@ -746,11 +666,7 @@ fn infer_expression_type_covers_primary_expression_variants() {
     );
 
     assert_eq!(
-        infer_expression_type(
-            &Expression::PathConstructor(vec![]),
-            &inferred,
-            Some(&declared)
-        ),
+        infer_expression_type(&Expression::PathConstructor(vec![]), &inferred, Some(&declared)),
         Some(TypeSpec::Path)
     );
 }
@@ -760,20 +676,12 @@ fn infer_expression_type_covers_unary_and_binary_results() {
     let inferred = HashMap::new();
 
     assert_eq!(
-        infer_expression_type(
-            &Expression::Unary(unary(Operator::Not, boolean(true))),
-            &inferred,
-            None
-        ),
+        infer_expression_type(&Expression::Unary(unary(Operator::Not, boolean(true))), &inferred, None),
         Some(TypeSpec::Boolean)
     );
 
     assert_eq!(
-        infer_expression_type(
-            &Expression::Unary(unary(Operator::Minus, integer(1))),
-            &inferred,
-            None
-        ),
+        infer_expression_type(&Expression::Unary(unary(Operator::Minus, integer(1))), &inferred, None),
         Some(TypeSpec::Integer)
     );
 
@@ -787,38 +695,22 @@ fn infer_expression_type_covers_unary_and_binary_results() {
     );
 
     assert_eq!(
-        infer_expression_type(
-            &binary(integer(1), Operator::Plus, float(2.0)),
-            &inferred,
-            None
-        ),
+        infer_expression_type(&binary(integer(1), Operator::Plus, float(2.0)), &inferred, None),
         Some(TypeSpec::Float { precision: None })
     );
 
     assert_eq!(
-        infer_expression_type(
-            &binary(string("a"), Operator::Concat, string("b")),
-            &inferred,
-            None
-        ),
+        infer_expression_type(&binary(string("a"), Operator::Concat, string("b")), &inferred, None),
         Some(TypeSpec::String { max_length: None })
     );
 
     assert_eq!(
-        infer_expression_type(
-            &binary(integer(1), Operator::GreaterThan, integer(0)),
-            &inferred,
-            None
-        ),
+        infer_expression_type(&binary(integer(1), Operator::GreaterThan, integer(0)), &inferred, None),
         Some(TypeSpec::Boolean)
     );
 
     assert_eq!(
-        infer_expression_type(
-            &binary(string("a"), Operator::Star, integer(2)),
-            &inferred,
-            None
-        ),
+        infer_expression_type(&binary(string("a"), Operator::Star, integer(2)), &inferred, None),
         None
     );
 }
@@ -839,7 +731,7 @@ fn infer_case_type_returns_single_or_union_type() {
     assert_eq!(
         infer_case_type(&mixed_type, &inferred, None),
         Some(TypeSpec::Union {
-            members: vec![TypeSpec::Integer, TypeSpec::String { max_length: None }, ],
+            members: vec![TypeSpec::Integer, TypeSpec::String { max_length: None },],
         })
     );
 
@@ -859,22 +751,13 @@ fn infer_function_call_type_covers_builtin_families() {
     let inferred = HashMap::new();
 
     let cases = vec![
-        (
-            function_call("COUNT", vec![integer(1)]),
-            Some(TypeSpec::Integer),
-        ),
-        (
-            function_call("PATH_LENGTH", vec![integer(1)]),
-            Some(TypeSpec::Integer),
-        ),
+        (function_call("COUNT", vec![integer(1)]), Some(TypeSpec::Integer)),
+        (function_call("PATH_LENGTH", vec![integer(1)]), Some(TypeSpec::Integer)),
         (
             function_call("AVG", vec![integer(1)]),
             Some(TypeSpec::Float { precision: None }),
         ),
-        (
-            function_call("SUM", vec![integer(1)]),
-            Some(TypeSpec::Integer),
-        ),
+        (function_call("SUM", vec![integer(1)]), Some(TypeSpec::Integer)),
         (
             function_call("LOWER", vec![string("ABC")]),
             Some(TypeSpec::String { max_length: None }),
@@ -895,10 +778,7 @@ fn infer_function_call_type_covers_builtin_families() {
                 qualifier: None,
             }),
         ),
-        (
-            function_call("ELEMENTS", vec![]),
-            Some(list_type(TypeSpec::Any)),
-        ),
+        (function_call("ELEMENTS", vec![]), Some(list_type(TypeSpec::Any))),
         (function_call("unknown_function", vec![]), None),
     ];
 
@@ -941,10 +821,7 @@ fn type_from_literal_maps_every_literal_family() {
             Literal::TimeWindow("window".to_string()),
             TypeSpec::String { max_length: None },
         ),
-        (
-            Literal::Vector(vec![1.0, 2.0]),
-            TypeSpec::Vector { dimension: Some(2) },
-        ),
+        (Literal::Vector(vec![1.0, 2.0]), TypeSpec::Vector { dimension: Some(2) }),
         (Literal::Parameter("$value".to_string()), TypeSpec::Any),
     ];
 
@@ -953,17 +830,11 @@ fn type_from_literal_maps_every_literal_family() {
     }
 
     assert_eq!(
-        type_from_literal(&Literal::List(vec![
-            Literal::Integer(1),
-            Literal::Float(2.0),
-        ])),
+        type_from_literal(&Literal::List(vec![Literal::Integer(1), Literal::Float(2.0),])),
         list_type(TypeSpec::Float { precision: None })
     );
 
-    assert_eq!(
-        type_from_literal(&Literal::List(vec![])),
-        list_type(TypeSpec::Any)
-    );
+    assert_eq!(type_from_literal(&Literal::List(vec![])), list_type(TypeSpec::Any));
 }
 
 #[test]
@@ -993,10 +864,7 @@ fn array_type_compatibility_covers_nested_and_dynamic_types() {
         &TypeSpec::Integer
     ));
 
-    assert!(are_array_element_types_compatible(
-        &TypeSpec::Any,
-        &TypeSpec::Boolean
-    ));
+    assert!(are_array_element_types_compatible(&TypeSpec::Any, &TypeSpec::Boolean));
 
     assert!(are_array_element_types_compatible(
         &TypeSpec::Integer,
@@ -1098,11 +966,7 @@ fn dynamic_parameter_detection_traverses_expression_variants() {
             span: span(),
         }]),
         Expression::Case(simple_case(parameter.clone(), integer(1), integer(1), None)),
-        Expression::Case(searched_case(
-            boolean(true),
-            integer(1),
-            Some(parameter.clone()),
-        )),
+        Expression::Case(searched_case(boolean(true), integer(1), Some(parameter.clone()))),
         Expression::Cast(CastExpression {
             expression: Box::new(parameter.clone()),
             target_type: TypeSpec::String { max_length: None },
@@ -1135,15 +999,10 @@ fn dynamic_parameter_detection_traverses_expression_variants() {
     }
 
     assert!(!contains_dynamic_parameter_reference(&integer(1)));
-    assert!(!contains_dynamic_parameter_reference(&property(
-        "n", "name"
+    assert!(!contains_dynamic_parameter_reference(&property("n", "name")));
+    assert!(!contains_dynamic_parameter_reference(&Expression::Subquery(
+        scalar_subquery(return_query(vec![variable("$inside")]), false,)
     )));
-    assert!(!contains_dynamic_parameter_reference(
-        &Expression::Subquery(scalar_subquery(
-            return_query(vec![variable("$inside")]),
-            false,
-        ))
-    ));
 }
 
 #[test]
@@ -1206,9 +1065,7 @@ fn type_classification_helpers_cover_every_family() {
 
     assert!(is_string_like_type(&TypeSpec::String { max_length: None }));
     assert!(is_string_like_type(&TypeSpec::Bytes { max_length: None }));
-    assert!(is_concat_compatible_type(&TypeSpec::String {
-        max_length: None
-    }));
+    assert!(is_concat_compatible_type(&TypeSpec::String { max_length: None }));
     assert!(is_concat_compatible_type(&TypeSpec::Path));
 }
 
@@ -1252,7 +1109,7 @@ fn cast_compatibility_covers_scalar_union_and_list_rules() {
     assert!(is_cast_compatible(
         &TypeSpec::Integer,
         &TypeSpec::Union {
-            members: vec![TypeSpec::Boolean, TypeSpec::Double, ],
+            members: vec![TypeSpec::Boolean, TypeSpec::Double,],
         }
     ));
 
@@ -1271,9 +1128,7 @@ fn cast_compatibility_covers_scalar_union_and_list_rules() {
 
     assert!(!is_cast_compatible(
         &TypeSpec::Boolean,
-        &TypeSpec::Graph {
-            graph_type_spec: None,
-        }
+        &TypeSpec::Graph { graph_type_spec: None }
     ));
 }
 
@@ -1316,15 +1171,9 @@ fn type_name_covers_all_type_spec_variants() {
             "TIMESTAMP",
         ),
         (TypeSpec::ZonedTime { precision: None }, "ZONED TIME"),
-        (
-            TypeSpec::ZonedDateTime { precision: None },
-            "ZONED DATETIME",
-        ),
+        (TypeSpec::ZonedDateTime { precision: None }, "ZONED DATETIME"),
         (TypeSpec::LocalTime { precision: None }, "LOCAL TIME"),
-        (
-            TypeSpec::LocalDateTime { precision: None },
-            "LOCAL DATETIME",
-        ),
+        (TypeSpec::LocalDateTime { precision: None }, "LOCAL DATETIME"),
         (
             TypeSpec::Duration {
                 precision: None,
@@ -1336,12 +1185,7 @@ fn type_name_covers_all_type_spec_variants() {
         (TypeSpec::Path, "PATH"),
         (list_type(TypeSpec::Any), "LIST"),
         (TypeSpec::Record, "RECORD"),
-        (
-            TypeSpec::Graph {
-                graph_type_spec: None,
-            },
-            "GRAPH",
-        ),
+        (TypeSpec::Graph { graph_type_spec: None }, "GRAPH"),
         (TypeSpec::BindingTable, "BINDING TABLE"),
         (
             TypeSpec::Union {

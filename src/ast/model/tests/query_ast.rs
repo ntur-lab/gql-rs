@@ -25,9 +25,7 @@ use crate::ast::model::*;
 fn finish_statement() -> Statement {
     Statement::Query(Query::Basic(BasicQuery {
         pipeline: vec![],
-        result_statement: PrimitiveResultStatement::Finish {
-            span: Span::default(),
-        },
+        result_statement: PrimitiveResultStatement::Finish { span: Span::default() },
         span: Span::default(),
     }))
 }
@@ -87,15 +85,12 @@ fn validate_rejects_unknown_return_variable() {
         })),
     };
 
-    let error = ast.validate().expect_err(
-        "an undeclared RETURN variable must fail validation",
-    );
+    let error = ast
+        .validate()
+        .expect_err("an undeclared RETURN variable must fail validation");
 
     assert!(
-        matches!(
-            error,
-            crate::error_handler::error::GqlError::Validation { .. }
-        ),
+        matches!(error, crate::error_handler::error::GqlError::Validation { .. }),
         "expected a validation error, got {error:?}"
     );
     assert!(
@@ -107,14 +102,10 @@ fn validate_rejects_unknown_return_variable() {
 #[test]
 fn validate_rejects_empty_catalog_block() {
     let ast = QueryAST {
-        statement: Statement::Catalog(CatalogStatementBlock {
-            statements: vec![],
-        }),
+        statement: Statement::Catalog(CatalogStatementBlock { statements: vec![] }),
     };
 
-    let error = ast
-        .validate()
-        .expect_err("an empty catalog block must fail validation");
+    let error = ast.validate().expect_err("an empty catalog block must fail validation");
 
     assert!(
         error.to_string().contains("Catalog block cannot be empty"),
@@ -128,10 +119,7 @@ fn transaction_intent_returns_read_only_for_query() {
         statement: finish_statement(),
     };
 
-    assert_eq!(
-        ast.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
+    assert_eq!(ast.transaction_intent(), TransactionIntent::ReadOnly);
 }
 
 #[test]
@@ -140,10 +128,7 @@ fn transaction_intent_returns_data_write_for_data_statement() {
         statement: data_statement(),
     };
 
-    assert_eq!(
-        ast.transaction_intent(),
-        TransactionIntent::DataWrite
-    );
+    assert_eq!(ast.transaction_intent(), TransactionIntent::DataWrite);
 }
 
 #[test]
@@ -152,10 +137,7 @@ fn transaction_intent_returns_catalog_write_for_catalog_statement() {
         statement: catalog_statement(),
     };
 
-    assert_eq!(
-        ast.transaction_intent(),
-        TransactionIntent::CatalogWrite
-    );
+    assert_eq!(ast.transaction_intent(), TransactionIntent::CatalogWrite);
 }
 
 #[test]
@@ -170,10 +152,7 @@ fn transaction_intent_combines_data_and_catalog_writes() {
         }),
     };
 
-    assert_eq!(
-        ast.transaction_intent(),
-        TransactionIntent::DataAndCatalogWrite
-    );
+    assert_eq!(ast.transaction_intent(), TransactionIntent::DataAndCatalogWrite);
 }
 
 #[test]
@@ -192,8 +171,5 @@ fn transaction_intent_preserves_intent_through_focused_statement() {
         }),
     };
 
-    assert_eq!(
-        ast.transaction_intent(),
-        TransactionIntent::DataWrite
-    );
+    assert_eq!(ast.transaction_intent(), TransactionIntent::DataWrite);
 }

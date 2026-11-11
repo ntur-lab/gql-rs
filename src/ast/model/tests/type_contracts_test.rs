@@ -21,14 +21,15 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 use crate::ast::*;
-use serde::de::DeserializeOwned;
 use serde::Serialize;
+use serde::de::DeserializeOwned;
 use std::fmt::Debug;
 
 fn assert_model_contract<T>()
 where
     T: Clone + Debug + Serialize + DeserializeOwned,
-{}
+{
+}
 
 macro_rules! assert_contracts {
     ($($model:ty),+ $(,)?) => {
@@ -228,8 +229,7 @@ fn representative_expression_and_pattern_round_trip_preserves_structure() {
     };
 
     let json = serde_json::to_value(&pattern).expect("path pattern should serialize");
-    let decoded: PathPattern =
-        serde_json::from_value(json.clone()).expect("path pattern should deserialize");
+    let decoded: PathPattern = serde_json::from_value(json.clone()).expect("path pattern should deserialize");
     let round_trip = serde_json::to_value(decoded).expect("decoded path should serialize");
 
     assert_eq!(round_trip, json);

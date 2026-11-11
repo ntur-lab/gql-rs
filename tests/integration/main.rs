@@ -24,19 +24,21 @@
 #[path = "support.rs"]
 mod support;
 
-#[path = "catalog_and_session.rs"]
-mod catalog_and_session;
-#[path = "expressions.rs"]
-mod expressions;
-#[path = "graph_patterns.rs"]
-mod graph_patterns;
-#[path = "query_composition.rs"]
-mod query_composition;
-#[path = "set_operations.rs"]
-mod set_operations;
-#[path = "string_literal.rs"]
-mod string_literal;
-#[path = "syntax_errors.rs"]
-mod syntax_errors;
-#[path = "transactions.rs"]
-mod transactions;
+#[path = "catalog_and_session_it.rs"]
+mod catalog_and_session_it;
+#[path = "expressions_it.rs"]
+mod expressions_it;
+#[path = "graph_patterns_it.rs"]
+mod graph_patterns_it;
+#[path = "query_composition_it.rs"]
+mod query_composition_it;
+#[path = "set_operations_it.rs"]
+mod set_operations_it;
+#[path = "stateless_api_it.rs"]
+mod stateless_api;
+#[path = "string_literal_it.rs"]
+mod string_literal_it;
+#[path = "syntax_errors_it.rs"]
+mod syntax_errors_it;
+#[path = "transactions_it.rs"]
+mod transactions_it;

@@ -27,9 +27,9 @@ impl GQLAstBuilder {
     pub(super) fn build_return_item(item_ctx: &ReturnItemContextAll) -> GqlResult<ReturnItem> {
         let span = Self::extract_span(item_ctx);
 
-        let aggregating_expression = item_ctx.aggregatingValueExpression().ok_or_else(|| {
-            Self::parse_err("CST not valid: aggregatingValueExpression missing".into())
-        })?;
+        let aggregating_expression = item_ctx
+            .aggregatingValueExpression()
+            .ok_or_else(|| Self::parse_err("CST not valid: aggregatingValueExpression missing".into()))?;
 
         let expression = aggregating_expression
             .valueExpression()
@@ -64,9 +64,7 @@ impl GQLAstBuilder {
             .ok_or_else(|| Self::parse_err("CST not valid: returnStatementBody missing".into()))?;
 
         let distinct = match body.setQuantifier() {
-            Some(set_quantifier) if set_quantifier.DISTINCT().is_some() => {
-                DistinctQualifier::Distinct
-            }
+            Some(set_quantifier) if set_quantifier.DISTINCT().is_some() => DistinctQualifier::Distinct,
             Some(set_quantifier) if set_quantifier.ALL().is_some() => DistinctQualifier::All,
             _ => DistinctQualifier::None,
         };
@@ -83,22 +81,16 @@ impl GQLAstBuilder {
             .transpose()?
             .unwrap_or_default();
 
-        Ok(ReturnClause {
-            distinct,
-            items,
-            span,
-        })
+        Ok(ReturnClause { distinct, items, span })
     }
 
     /// Function to build a GroupClause from a GroupByClauseContext
-    pub(super) fn build_group_clause_from_context(
-        group_by_clause: &GroupByClauseContextAll,
-    ) -> GqlResult<GroupClause> {
+    pub(super) fn build_group_clause_from_context(group_by_clause: &GroupByClauseContextAll) -> GqlResult<GroupClause> {
         let span = Self::extract_span(group_by_clause);
 
-        let list = group_by_clause.groupingElementList().ok_or_else(|| {
-            Self::parse_err("CST not valid: groupingElementList missing in GROUP BY".into())
-        })?;
+        let list = group_by_clause
+            .groupingElementList()
+            .ok_or_else(|| Self::parse_err("CST not valid: groupingElementList missing in GROUP BY".into()))?;
         if list.emptyGroupingSet().is_some() {
             return Ok(GroupClause {
                 keys: None,
@@ -121,16 +113,12 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a GroupKey from a GroupingElementContext, handling only grouping by binding variable for now and extracting the relevant components from the CST.
-    pub(super) fn build_grouping_element_from_context(
-        grouping_element: &GroupingElementContextAll,
-    ) -> GqlResult<GroupKey> {
+    pub(super) fn build_grouping_element_from_context(grouping_element: &GroupingElementContextAll) -> GqlResult<GroupKey> {
         let span = Self::extract_span(grouping_element);
 
-        let binding_ref = grouping_element.bindingVariableReference().ok_or_else(|| {
-            Self::parse_err(
-                "CST not valid: bindingVariableReference missing in groupingElement".into(),
-            )
-        })?;
+        let binding_ref = grouping_element
+            .bindingVariableReference()
+            .ok_or_else(|| Self::parse_err("CST not valid: bindingVariableReference missing in groupingElement".into()))?;
 
         Ok(GroupKey::BindingVariable {
             name: binding_ref.get_text(),
@@ -139,14 +127,12 @@ impl GQLAstBuilder {
     }
 
     /// Function to build an OrderClause from an OrderByClauseContext, extracting the list of sort specifications and building the corresponding OrderItems.
-    pub(super) fn build_order_clause_from_context(
-        order_by_clause: &OrderByClauseContextAll,
-    ) -> GqlResult<OrderClause> {
+    pub(super) fn build_order_clause_from_context(order_by_clause: &OrderByClauseContextAll) -> GqlResult<OrderClause> {
         let span = Self::extract_span(order_by_clause);
 
-        let sort_list = order_by_clause.sortSpecificationList().ok_or_else(|| {
-            Self::parse_err("CST not valid: sortSpecificationList missing".into())
-        })?;
+        let sort_list = order_by_clause
+            .sortSpecificationList()
+            .ok_or_else(|| Self::parse_err("CST not valid: sortSpecificationList missing".into()))?;
 
         let items = sort_list
             .sortSpecification_all()
@@ -158,26 +144,21 @@ impl GQLAstBuilder {
     }
 
     /// Function to build an OrderItem from a SortSpecificationContext, extracting the sort key, ordering specification and null ordering, and building the corresponding expression and order item components.
-    pub(super) fn build_order_item_from_context(
-        sort_spec: &SortSpecificationContextAll,
-    ) -> GqlResult<OrderItem> {
+    pub(super) fn build_order_item_from_context(sort_spec: &SortSpecificationContextAll) -> GqlResult<OrderItem> {
         let span = Self::extract_span(sort_spec);
 
         let sort_key = sort_spec
             .sortKey()
             .ok_or_else(|| Self::parse_err("CST not valid: sortKey missing".into()))?;
 
-        let aggregating_expression = sort_key.aggregatingValueExpression().ok_or_else(|| {
-            Self::parse_err("CST not valid: aggregatingValueExpression missing in sortKey".into())
-        })?;
+        let aggregating_expression = sort_key
+            .aggregatingValueExpression()
+            .ok_or_else(|| Self::parse_err("CST not valid: aggregatingValueExpression missing in sortKey".into()))?;
 
-        let expression =
-            Self::build_expression_from_aggregating_value_expression(&aggregating_expression)?;
+        let expression = Self::build_expression_from_aggregating_value_expression(&aggregating_expression)?;
 
         let direction = match sort_spec.orderingSpecification() {
-            Some(ordering) if ordering.DESC().is_some() || ordering.DESCENDING().is_some() => {
-                OrderDirection::Descending
-            }
+            Some(ordering) if ordering.DESC().is_some() || ordering.DESCENDING().is_some() => OrderDirection::Descending,
             _ => OrderDirection::Ascending,
         };
 
@@ -233,11 +214,7 @@ impl GQLAstBuilder {
             return Ok(None);
         }
 
-        Ok(Some(LimitClause {
-            count,
-            offset,
-            span,
-        }))
+        Ok(Some(LimitClause { count, offset, span }))
     }
 
     /// Function to parse a nonNegativeIntegerSpecification, which can be either a literal unsigned integer or a dynamic parameter, and return the corresponding PageValue.
@@ -251,10 +228,7 @@ impl GQLAstBuilder {
                 .get_text()
                 .parse::<usize>()
                 .map_err(|_| Self::parse_err("Invalid unsigned integer in LIMIT/OFFSET".into()))?;
-            return Ok(PageValue::Number {
-                value: parsed,
-                span,
-            });
+            return Ok(PageValue::Number { value: parsed, span });
         }
 
         if let Some(param) = spec.dynamicParameterSpecification() {

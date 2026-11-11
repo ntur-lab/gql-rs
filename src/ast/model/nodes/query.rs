@@ -222,9 +222,7 @@ pub struct SetOperation {
 impl SetOperation {
     /// A set operation requires the strongest mode across both branches.
     pub fn transaction_intent(&self) -> TransactionIntent {
-        self.left
-            .transaction_intent()
-            .merge(self.right.transaction_intent())
+        self.left.transaction_intent().merge(self.right.transaction_intent())
     }
 }
 

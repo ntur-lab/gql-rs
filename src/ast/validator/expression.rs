@@ -23,10 +23,7 @@
 use super::*;
 
 /// Function to validate an expression, ensuring that all variables are declared and that the expression adheres to the semantic rules of the language. This function serves as a general entry point for validating expressions in various contexts, such as WHERE clauses, RETURN statements, and other places where expressions are used.
-pub(super) fn validate_expression(
-    expression: &Expression,
-    declared_variables: &HashSet<String>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_expression(expression: &Expression, declared_variables: &HashSet<String>) -> Result<(), GqlError> {
     let inferred_types = HashMap::new();
     validate_expression_with_types(expression, declared_variables, &inferred_types)
 }
@@ -76,10 +73,7 @@ pub(super) fn validate_expression_with_types(
                 ));
             } else if !declared_variables.contains(property_access.object.as_str()) {
                 return Err(validation_err(
-                    format!(
-                        "Unknown variable '{}' in property access",
-                        property_access.object
-                    ),
+                    format!("Unknown variable '{}' in property access", property_access.object),
                     Some(&property_access.span.clone()),
                 ));
             }
@@ -107,8 +101,7 @@ pub(super) fn validate_expression_with_types(
                         "ELEMENT_ID requires exactly one argument".to_string(),
                         Some(&function_call.span.clone()),
                     ));
-                } else if let Some(Expression::Variable { name: var, span }) =
-                    function_call.arguments.first()
+                } else if let Some(Expression::Variable { name: var, span }) = function_call.arguments.first()
                     && !declared_variables.contains(var.as_str())
                 {
                     return Err(validation_err(
@@ -129,9 +122,7 @@ pub(super) fn validate_expression_with_types(
                 let len_arg = &function_call.arguments[1];
                 let ok_len = match len_arg {
                     Expression::Literal(Literal::Integer(v)) => *v >= 0,
-                    Expression::Variable { name: v, span: _ } => {
-                        v.parse::<i64>().map(|n| n >= 0).unwrap_or(false)
-                    }
+                    Expression::Variable { name: v, span: _ } => v.parse::<i64>().map(|n| n >= 0).unwrap_or(false),
                     _ => false,
                 };
 
@@ -150,11 +141,7 @@ pub(super) fn validate_expression_with_types(
             }
         }
         Expression::IsPredicate(predicate) => {
-            validate_expression_with_types(
-                &predicate.expression,
-                declared_variables,
-                inferred_types,
-            )?;
+            validate_expression_with_types(&predicate.expression, declared_variables, inferred_types)?;
             validate_is_predicate_types(predicate, declared_variables, inferred_types)?;
         }
         Expression::Array(array) => {
@@ -168,11 +155,7 @@ pub(super) fn validate_expression_with_types(
             validate_case_expression(case_expression, declared_variables)?;
         }
         Expression::Cast(cast_expression) => {
-            validate_expression_with_types(
-                &cast_expression.expression,
-                declared_variables,
-                inferred_types,
-            )?;
+            validate_expression_with_types(&cast_expression.expression, declared_variables, inferred_types)?;
             validate_cast_target(cast_expression, declared_variables, inferred_types)?;
         }
         Expression::Subquery(subquery) => {
@@ -189,11 +172,7 @@ pub(super) fn validate_expression_with_types(
                         Some(&property.span.clone()),
                     ));
                 }
-                validate_expression_with_types(
-                    &property.value,
-                    declared_variables,
-                    inferred_types,
-                )?;
+                validate_expression_with_types(&property.value, declared_variables, inferred_types)?;
             }
         }
         Expression::InlineLet(expr) => {
@@ -204,32 +183,22 @@ pub(super) fn validate_expression_with_types(
                 validate_expression_with_types(&def.expression, &local_scope, &local_types)?;
 
                 let trimmed_name = def.variable_name.trim().to_string();
-                if let Some(inferred) =
-                    infer_expression_type(&def.expression, &local_types, Some(&local_scope))
-                {
+                if let Some(inferred) = infer_expression_type(&def.expression, &local_types, Some(&local_scope)) {
                     local_types.insert(trimmed_name.clone(), inferred);
                 }
 
                 local_scope.insert(trimmed_name);
             }
-            validate_expression_with_types(
-                &expr.evaluation_expression,
-                &local_scope,
-                &local_types,
-            )?;
+            validate_expression_with_types(&expr.evaluation_expression, &local_scope, &local_types)?;
         }
         Expression::PathConstructor(elements) => {
             if elements.is_empty() {
-                return Err(validation_err(
-                    "Path constructor cannot be empty".to_string(),
-                    None,
-                ));
+                return Err(validation_err("Path constructor cannot be empty".to_string(), None));
             }
 
             if elements.len() % 2 == 0 {
                 return Err(validation_err(
-                    "Path constructor must contain an odd number of elements (node, edge, node, ...)"
-                        .to_string(),
+                    "Path constructor must contain an odd number of elements (node, edge, node, ...)".to_string(),
                     None,
                 ));
             }
@@ -239,10 +208,7 @@ pub(super) fn validate_expression_with_types(
                     let trimmed = name.trim();
                     if !declared_variables.is_empty() && !declared_variables.contains(trimmed) {
                         return Err(validation_err(
-                            format!(
-                                "Path constructor references undeclared variable '{}'",
-                                trimmed
-                            ),
+                            format!("Path constructor references undeclared variable '{}'", trimmed),
                             Some(&span.clone()),
                         ));
                     }
@@ -282,22 +248,14 @@ pub(super) fn validate_expression_with_types(
                     let valid = matches!(upper.as_str(), "NFC" | "NFD" | "NFKC" | "NFKD");
                     if !valid {
                         return Err(validation_err(
-                            format!(
-                                "Normalized WHEN operand uses unsupported normal form '{}'",
-                                trimmed
-                            ),
+                            format!("Normalized WHEN operand uses unsupported normal form '{}'", trimmed),
                             Some(&operand.span.clone()),
                         ));
                     }
                 }
             }
-            WhenOperandKind::LabeledPredicate {
-                label_expression, ..
-            } => {
-                let valid_label = label_expression
-                    .as_ref()
-                    .map(|x| !x.trim().is_empty())
-                    .unwrap_or(false);
+            WhenOperandKind::LabeledPredicate { label_expression, .. } => {
+                let valid_label = label_expression.as_ref().map(|x| !x.trim().is_empty()).unwrap_or(false);
 
                 if !valid_label {
                     return Err(validation_err(
@@ -320,9 +278,7 @@ pub(super) fn validate_expression_with_types(
                     ));
                 };
 
-                if !declared_variables.is_empty()
-                    && !declared_variables.contains(edge_name.as_str())
-                {
+                if !declared_variables.is_empty() && !declared_variables.contains(edge_name.as_str()) {
                     return Err(validation_err(
                         format!(
                             "Source/Destination WHEN operand references undeclared edge variable '{}'",
@@ -344,9 +300,7 @@ pub(super) fn validate_unary_operator_type(
     declared_variables: &HashSet<String>,
     inferred_types: &HashMap<String, TypeSpec>,
 ) -> Result<(), GqlError> {
-    let Some(operand_type) =
-        infer_expression_type(&unary.expression, inferred_types, Some(declared_variables))
-    else {
+    let Some(operand_type) = infer_expression_type(&unary.expression, inferred_types, Some(declared_variables)) else {
         return Ok(());
     };
 
@@ -365,18 +319,16 @@ pub(super) fn validate_unary_operator_type(
                 ));
             }
         }
-        Operator::Plus | Operator::Minus
-        if !is_numeric_type(&operand_type) && !matches!(operand_type, TypeSpec::Any) =>
-            {
-                return Err(validation_err(
-                    format!(
-                        "Unary operator '{:?}' requires numeric operand, got {}",
-                        unary.operator,
-                        type_name(&operand_type)
-                    ),
-                    Some(&unary.span.clone()),
-                ));
-            }
+        Operator::Plus | Operator::Minus if !is_numeric_type(&operand_type) && !matches!(operand_type, TypeSpec::Any) => {
+            return Err(validation_err(
+                format!(
+                    "Unary operator '{:?}' requires numeric operand, got {}",
+                    unary.operator,
+                    type_name(&operand_type)
+                ),
+                Some(&unary.span.clone()),
+            ));
+        }
         _ => {}
     }
 
@@ -389,11 +341,7 @@ pub(super) fn validate_is_predicate_types(
     declared_variables: &HashSet<String>,
     inferred_types: &HashMap<String, TypeSpec>,
 ) -> Result<(), GqlError> {
-    let Some(expr_type) = infer_expression_type(
-        &predicate.expression,
-        inferred_types,
-        Some(declared_variables),
-    ) else {
+    let Some(expr_type) = infer_expression_type(&predicate.expression, inferred_types, Some(declared_variables)) else {
         return Ok(());
     };
 
@@ -435,12 +383,7 @@ pub(super) fn validate_function_call_signature(
 ) -> Result<(), GqlError> {
     let name = function_call.name.to_ascii_uppercase();
 
-    if is_aggregate_function_name(name.as_str())
-        && function_call
-        .arguments
-        .iter()
-        .any(contains_aggregate_function)
-    {
+    if is_aggregate_function_name(name.as_str()) && function_call.arguments.iter().any(contains_aggregate_function) {
         return Err(validation_err(
             format!(
                 "Aggregate function '{}' cannot contain nested aggregate expressions",
@@ -511,10 +454,7 @@ pub(super) fn validate_function_call_signature(
                 let ok = is_string_like_type(&t)
                     || matches!(
                         t,
-                        TypeSpec::List { .. }
-                            | TypeSpec::Path
-                            | TypeSpec::BindingTable
-                            | TypeSpec::Any
+                        TypeSpec::List { .. } | TypeSpec::Path | TypeSpec::BindingTable | TypeSpec::Any
                     );
                 if !ok {
                     return Err(validation_err(
@@ -542,8 +482,7 @@ pub(super) fn validate_function_call_signature(
 
             let mut acc: Option<TypeSpec> = None;
             for arg in &function_call.arguments {
-                let Some(t) = infer_expression_type(arg, inferred_types, Some(declared_variables))
-                else {
+                let Some(t) = infer_expression_type(arg, inferred_types, Some(declared_variables)) else {
                     continue;
                 };
 
@@ -595,8 +534,7 @@ pub(super) fn validate_function_call_signature(
 
             if let (Some(left), Some(right)) = (arg_type(0), arg_type(1)) {
                 let temporal_ok = is_temporal_like_type(&left) && is_temporal_like_type(&right);
-                if !temporal_ok && !matches!(left, TypeSpec::Any) && !matches!(right, TypeSpec::Any)
-                {
+                if !temporal_ok && !matches!(left, TypeSpec::Any) && !matches!(right, TypeSpec::Any) {
                     return Err(validation_err(
                         "DURATION_BETWEEN requires temporal-compatible arguments".to_string(),
                         Some(&function_call.span.clone()),
@@ -611,9 +549,7 @@ pub(super) fn validate_function_call_signature(
 }
 
 /// Function to validate a scalar subquery projection, ensuring that the subquery returns exactly one column and is not an EXISTS subquery. This function checks the structure of the subquery's result statement to determine its arity and validates it against the requirements for scalar subqueries, which must return a single value.
-pub(super) fn validate_scalar_subquery_projection(
-    subquery: &SubqueryExpression,
-) -> Result<(), GqlError> {
+pub(super) fn validate_scalar_subquery_projection(subquery: &SubqueryExpression) -> Result<(), GqlError> {
     if subquery.is_exists {
         return Ok(());
     }
@@ -627,10 +563,7 @@ pub(super) fn validate_scalar_subquery_projection(
 
     if arity != 1 {
         return Err(validation_err(
-            format!(
-                "Scalar subquery must return exactly one column, found {}",
-                arity
-            ),
+            format!("Scalar subquery must return exactly one column, found {}", arity),
             Some(&subquery.span.clone()),
         ));
     }
@@ -656,33 +589,32 @@ pub(super) fn contains_aggregate_function(expression: &Expression) -> bool {
         Expression::Unary(unary) => contains_aggregate_function(&unary.expression),
         Expression::IsPredicate(pred) => contains_aggregate_function(&pred.expression),
         Expression::Array(arr) => arr.elements.iter().any(contains_aggregate_function),
-        Expression::Map(items) => items
-            .iter()
-            .any(|item| contains_aggregate_function(&item.value)),
-        Expression::Case(case_expr) => match &case_expr.case_type {
-            CaseType::Simple(simple) => {
-                contains_aggregate_function(&simple.test_expression)
-                    || simple.when_branches.iter().any(|b| {
-                    b.when_values.iter().any(contains_aggregate_function)
-                        || contains_aggregate_function(&b.then_expression)
-                })
-                    || simple
-                    .else_expression
-                    .as_ref()
-                    .map(|e| contains_aggregate_function(e))
-                    .unwrap_or(false)
+        Expression::Map(items) => items.iter().any(|item| contains_aggregate_function(&item.value)),
+        Expression::Case(case_expr) => {
+            match &case_expr.case_type {
+                CaseType::Simple(simple) => {
+                    contains_aggregate_function(&simple.test_expression)
+                        || simple.when_branches.iter().any(|b| {
+                            b.when_values.iter().any(contains_aggregate_function)
+                                || contains_aggregate_function(&b.then_expression)
+                        })
+                        || simple
+                            .else_expression
+                            .as_ref()
+                            .map(|e| contains_aggregate_function(e))
+                            .unwrap_or(false)
+                }
+                CaseType::Searched(searched) => {
+                    searched.when_branches.iter().any(|b| {
+                        contains_aggregate_function(&b.condition) || contains_aggregate_function(&b.then_expression)
+                    }) || searched
+                        .else_expression
+                        .as_ref()
+                        .map(|e| contains_aggregate_function(e))
+                        .unwrap_or(false)
+                }
             }
-            CaseType::Searched(searched) => {
-                searched.when_branches.iter().any(|b| {
-                    contains_aggregate_function(&b.condition)
-                        || contains_aggregate_function(&b.then_expression)
-                }) || searched
-                    .else_expression
-                    .as_ref()
-                    .map(|e| contains_aggregate_function(e))
-                    .unwrap_or(false)
-            }
-        },
+        }
         Expression::Cast(cast_expr) => contains_aggregate_function(&cast_expr.expression),
         Expression::InlineLet(expr) => {
             expr.variable_definitions
@@ -723,9 +655,7 @@ pub(super) fn are_comparison_types_compatible(left: &TypeSpec, right: &TypeSpec)
 
     matches!(
         (left, right),
-        (TypeSpec::Boolean, TypeSpec::Boolean)
-            | (TypeSpec::Path, TypeSpec::Path)
-            | (TypeSpec::Record, TypeSpec::Record)
+        (TypeSpec::Boolean, TypeSpec::Boolean) | (TypeSpec::Path, TypeSpec::Path) | (TypeSpec::Record, TypeSpec::Record)
     )
 }
 
@@ -753,10 +683,7 @@ pub(super) fn validate_binary_operator_types(
 
             let left_known = !matches!(left_type, TypeSpec::Any);
             let right_known = !matches!(right_type, TypeSpec::Any);
-            if left_known
-                && right_known
-                && (!is_boolean_type(&left_type) || !is_boolean_type(&right_type))
-            {
+            if left_known && right_known && (!is_boolean_type(&left_type) || !is_boolean_type(&right_type)) {
                 return Err(validation_err(
                     format!(
                         "Logical operator '{:?}' requires BOOLEAN operands, got {} and {}",
@@ -768,12 +695,7 @@ pub(super) fn validate_binary_operator_types(
                 ));
             }
         }
-        Operator::Plus
-        | Operator::Minus
-        | Operator::Star
-        | Operator::Slash
-        | Operator::Percent
-        | Operator::Caret => {
+        Operator::Plus | Operator::Minus | Operator::Star | Operator::Slash | Operator::Percent | Operator::Caret => {
             let left_numeric = is_numeric_type(&left_type);
             let right_numeric = is_numeric_type(&right_type);
             let left_duration = is_duration_type(&left_type);
@@ -791,12 +713,8 @@ pub(super) fn validate_binary_operator_types(
 
             match binary.operator {
                 Operator::Plus | Operator::Minus => {
-                    let unknown =
-                        matches!(left_type, TypeSpec::Any) || matches!(right_type, TypeSpec::Any);
-                    if !(left_numeric && right_numeric)
-                        && !(left_duration && right_duration)
-                        && !unknown
-                    {
+                    let unknown = matches!(left_type, TypeSpec::Any) || matches!(right_type, TypeSpec::Any);
+                    if !(left_numeric && right_numeric) && !(left_duration && right_duration) && !unknown {
                         return Err(validation_err(
                             format!(
                                 "Operator '{:?}' requires compatible numeric or duration operands, got {} and {}",
@@ -809,8 +727,7 @@ pub(super) fn validate_binary_operator_types(
                     }
                 }
                 _ => {
-                    let unknown =
-                        matches!(left_type, TypeSpec::Any) || matches!(right_type, TypeSpec::Any);
+                    let unknown = matches!(left_type, TypeSpec::Any) || matches!(right_type, TypeSpec::Any);
                     if !(left_numeric && right_numeric) && !unknown {
                         return Err(validation_err(
                             format!(
@@ -827,9 +744,7 @@ pub(super) fn validate_binary_operator_types(
         }
         Operator::Concat => {
             let unknown = matches!(left_type, TypeSpec::Any) || matches!(right_type, TypeSpec::Any);
-            if (!is_concat_compatible_type(&left_type) || !is_concat_compatible_type(&right_type))
-                && !unknown
-            {
+            if (!is_concat_compatible_type(&left_type) || !is_concat_compatible_type(&right_type)) && !unknown {
                 return Err(validation_err(
                     format!(
                         "Operator '{:?}' requires string-like operands, got {} and {}",
@@ -842,10 +757,7 @@ pub(super) fn validate_binary_operator_types(
             }
         }
         Operator::Equal | Operator::NotEqual => {}
-        Operator::LessThan
-        | Operator::LessEqual
-        | Operator::GreaterThan
-        | Operator::GreaterEqual => {
+        Operator::LessThan | Operator::LessEqual | Operator::GreaterThan | Operator::GreaterEqual => {
             let unknown = matches!(left_type, TypeSpec::Any) || matches!(right_type, TypeSpec::Any);
             if !are_comparison_types_compatible(&left_type, &right_type) && !unknown {
                 return Err(validation_err(
@@ -895,11 +807,8 @@ pub(super) fn validate_cast_target(
         ));
     }
 
-    let Some(source_type) = infer_expression_type(
-        &cast_expression.expression,
-        inferred_types,
-        Some(declared_variables),
-    ) else {
+    let Some(source_type) = infer_expression_type(&cast_expression.expression, inferred_types, Some(declared_variables))
+    else {
         return Ok(());
     };
 
@@ -937,28 +846,22 @@ pub(super) fn infer_expression_type(
             if trimmed.parse::<f64>().is_ok() {
                 return Some(TypeSpec::Float { precision: None });
             }
-            if declared_variables
-                .map(|vars| vars.contains(trimmed))
-                .unwrap_or(false)
-            {
+            if declared_variables.map(|vars| vars.contains(trimmed)).unwrap_or(false) {
                 return Some(TypeSpec::Any);
             }
             None
         }
         Expression::PropertyAccess(property_access) => {
-            let object_type = inferred_types
-                .get(property_access.object.trim())
-                .cloned()
-                .or_else(|| {
-                    if declared_variables
-                        .map(|vars| vars.contains(property_access.object.trim()))
-                        .unwrap_or(false)
-                    {
-                        Some(TypeSpec::Any)
-                    } else {
-                        None
-                    }
-                })?;
+            let object_type = inferred_types.get(property_access.object.trim()).cloned().or_else(|| {
+                if declared_variables
+                    .map(|vars| vars.contains(property_access.object.trim()))
+                    .unwrap_or(false)
+                {
+                    Some(TypeSpec::Any)
+                } else {
+                    None
+                }
+            })?;
 
             match object_type {
                 TypeSpec::Record
@@ -976,9 +879,7 @@ pub(super) fn infer_expression_type(
         Expression::Array(array) => {
             let mut inferred_element: Option<TypeSpec> = None;
             for item in &array.elements {
-                let Some(item_type) =
-                    infer_expression_type(item, inferred_types, declared_variables)
-                else {
+                let Some(item_type) = infer_expression_type(item, inferred_types, declared_variables) else {
                     inferred_element = None;
                     break;
                 };
@@ -995,9 +896,7 @@ pub(super) fn infer_expression_type(
             })
         }
         Expression::Map(_) => Some(TypeSpec::Record),
-        Expression::Case(case_expression) => {
-            infer_case_type(case_expression, inferred_types, declared_variables)
-        }
+        Expression::Case(case_expression) => infer_case_type(case_expression, inferred_types, declared_variables),
         Expression::Subquery(subquery) => {
             if subquery.is_exists {
                 return Some(TypeSpec::Boolean);
@@ -1016,22 +915,15 @@ pub(super) fn infer_expression_type(
         Expression::InlineLet(inline_let) => {
             let mut local = inferred_types.clone();
             for def in &inline_let.variable_definitions {
-                if let Some(def_type) =
-                    infer_expression_type(&def.expression, &local, declared_variables)
-                {
+                if let Some(def_type) = infer_expression_type(&def.expression, &local, declared_variables) {
                     local.insert(def.variable_name.trim().to_string(), def_type);
                 }
             }
-            infer_expression_type(
-                &inline_let.evaluation_expression,
-                &local,
-                declared_variables,
-            )
+            infer_expression_type(&inline_let.evaluation_expression, &local, declared_variables)
         }
         Expression::PathConstructor(_) => Some(TypeSpec::Path),
         Expression::Unary(unary) => {
-            let operand_type =
-                infer_expression_type(&unary.expression, inferred_types, declared_variables)?;
+            let operand_type = infer_expression_type(&unary.expression, inferred_types, declared_variables)?;
             match unary.operator {
                 Operator::Not => Some(TypeSpec::Boolean),
                 Operator::Plus | Operator::Minus => {
@@ -1045,10 +937,8 @@ pub(super) fn infer_expression_type(
             }
         }
         Expression::Binary(binary) => {
-            let left_type =
-                infer_expression_type(&binary.left, inferred_types, declared_variables)?;
-            let right_type =
-                infer_expression_type(&binary.right, inferred_types, declared_variables)?;
+            let left_type = infer_expression_type(&binary.left, inferred_types, declared_variables)?;
+            let right_type = infer_expression_type(&binary.right, inferred_types, declared_variables)?;
 
             match binary.operator {
                 Operator::And
@@ -1095,8 +985,7 @@ fn infer_scalar_subquery_type(
 ) -> Option<TypeSpec> {
     match query {
         Query::Basic(basic) => {
-            let PrimitiveResultStatement::Return { return_clause, .. } = &basic.result_statement
-            else {
+            let PrimitiveResultStatement::Return { return_clause, .. } = &basic.result_statement else {
                 return None;
             };
 
@@ -1104,17 +993,12 @@ fn infer_scalar_subquery_type(
                 return None;
             }
 
-            infer_expression_type(
-                &return_clause.items[0].expression,
-                inferred_types,
-                declared_variables,
-            )
+            infer_expression_type(&return_clause.items[0].expression, inferred_types, declared_variables)
                 .or(Some(TypeSpec::Any))
         }
         Query::SetOperation(set_op) => {
             let left = infer_scalar_subquery_type(&set_op.left, inferred_types, declared_variables);
-            let right =
-                infer_scalar_subquery_type(&set_op.right, inferred_types, declared_variables);
+            let right = infer_scalar_subquery_type(&set_op.right, inferred_types, declared_variables);
 
             match (left, right) {
                 (Some(left_type), Some(right_type)) if left_type == right_type => Some(left_type),
@@ -1138,34 +1022,24 @@ pub(super) fn infer_case_type(
     match &case_expression.case_type {
         CaseType::Simple(simple_case) => {
             for branch in &simple_case.when_branches {
-                if let Some(t) = infer_expression_type(
-                    &branch.then_expression,
-                    inferred_types,
-                    declared_variables,
-                ) {
+                if let Some(t) = infer_expression_type(&branch.then_expression, inferred_types, declared_variables) {
                     candidates.push(t);
                 }
             }
             if let Some(else_expr) = &simple_case.else_expression
-                && let Some(t) =
-                infer_expression_type(else_expr, inferred_types, declared_variables)
+                && let Some(t) = infer_expression_type(else_expr, inferred_types, declared_variables)
             {
                 candidates.push(t);
             }
         }
         CaseType::Searched(searched_case) => {
             for branch in &searched_case.when_branches {
-                if let Some(t) = infer_expression_type(
-                    &branch.then_expression,
-                    inferred_types,
-                    declared_variables,
-                ) {
+                if let Some(t) = infer_expression_type(&branch.then_expression, inferred_types, declared_variables) {
                     candidates.push(t);
                 }
             }
             if let Some(else_expr) = &searched_case.else_expression
-                && let Some(t) =
-                infer_expression_type(else_expr, inferred_types, declared_variables)
+                && let Some(t) = infer_expression_type(else_expr, inferred_types, declared_variables)
             {
                 candidates.push(t);
             }
@@ -1192,11 +1066,7 @@ pub(super) fn infer_function_call_type(
 ) -> Option<TypeSpec> {
     let name = function_call.name.to_ascii_uppercase();
 
-    if name == fn_names::COUNT
-        || name == fn_names::PATH_LENGTH
-        || name == "CARDINALITY"
-        || name == "SIZE"
-    {
+    if name == fn_names::COUNT || name == fn_names::PATH_LENGTH || name == "CARDINALITY" || name == "SIZE" {
         return Some(TypeSpec::Integer);
     }
 
@@ -1245,8 +1115,7 @@ pub(super) fn infer_function_call_type(
         });
     }
 
-    if name == fn_names::ELEMENTS || name == fn_names::COLLECT_LIST || name == fn_names::COLLECT_SET
-    {
+    if name == fn_names::ELEMENTS || name == fn_names::COLLECT_LIST || name == fn_names::COLLECT_SET {
         return Some(TypeSpec::List {
             element_type: Box::new(TypeSpec::Any),
             max_length: None,
@@ -1305,8 +1174,7 @@ pub(super) fn validate_array_element_consistency(
     let mut inferred_element: Option<TypeSpec> = None;
 
     for item in &array.elements {
-        let Some(item_type) = infer_expression_type(item, inferred_types, Some(declared_variables))
-        else {
+        let Some(item_type) = infer_expression_type(item, inferred_types, Some(declared_variables)) else {
             continue;
         };
 
@@ -1347,14 +1215,9 @@ pub(super) fn are_array_element_types_compatible(left: &TypeSpec, right: &TypeSp
     }
 
     match (left, right) {
-        (
-            TypeSpec::List {
-                element_type: l, ..
-            },
-            TypeSpec::List {
-                element_type: r, ..
-            },
-        ) => are_array_element_types_compatible(l, r),
+        (TypeSpec::List { element_type: l, .. }, TypeSpec::List { element_type: r, .. }) => {
+            are_array_element_types_compatible(l, r)
+        }
         // A nested list is a value, not a flattened sequence of outer elements.
         // Its own contents are validated recursively before this check.
         (TypeSpec::List { .. }, _) | (_, TypeSpec::List { .. }) => true,
@@ -1427,22 +1290,13 @@ pub(super) fn contains_dynamic_parameter_reference(expression: &Expression) -> b
     match expression {
         Expression::Variable { name, span: _ } => name.trim().starts_with('$'),
         Expression::Binary(binary) => {
-            contains_dynamic_parameter_reference(&binary.left)
-                || contains_dynamic_parameter_reference(&binary.right)
+            contains_dynamic_parameter_reference(&binary.left) || contains_dynamic_parameter_reference(&binary.right)
         }
         Expression::Unary(unary) => contains_dynamic_parameter_reference(&unary.expression),
         Expression::PropertyAccess(_) => false,
-        Expression::FunctionCall(call) => call
-            .arguments
-            .iter()
-            .any(contains_dynamic_parameter_reference),
-        Expression::IsPredicate(predicate) => {
-            contains_dynamic_parameter_reference(&predicate.expression)
-        }
-        Expression::Array(array) => array
-            .elements
-            .iter()
-            .any(contains_dynamic_parameter_reference),
+        Expression::FunctionCall(call) => call.arguments.iter().any(contains_dynamic_parameter_reference),
+        Expression::IsPredicate(predicate) => contains_dynamic_parameter_reference(&predicate.expression),
+        Expression::Array(array) => array.elements.iter().any(contains_dynamic_parameter_reference),
         Expression::Map(properties) => properties
             .iter()
             .any(|item| contains_dynamic_parameter_reference(&item.value)),
@@ -1450,17 +1304,14 @@ pub(super) fn contains_dynamic_parameter_reference(expression: &Expression) -> b
             CaseType::Simple(simple_case) => {
                 contains_dynamic_parameter_reference(&simple_case.test_expression)
                     || simple_case.when_branches.iter().any(|branch| {
-                    branch
-                        .when_values
-                        .iter()
-                        .any(contains_dynamic_parameter_reference)
-                        || contains_dynamic_parameter_reference(&branch.then_expression)
-                })
+                        branch.when_values.iter().any(contains_dynamic_parameter_reference)
+                            || contains_dynamic_parameter_reference(&branch.then_expression)
+                    })
                     || simple_case
-                    .else_expression
-                    .as_ref()
-                    .map(|expr| contains_dynamic_parameter_reference(expr))
-                    .unwrap_or(false)
+                        .else_expression
+                        .as_ref()
+                        .map(|expr| contains_dynamic_parameter_reference(expr))
+                        .unwrap_or(false)
             }
             CaseType::Searched(searched_case) => {
                 searched_case.when_branches.iter().any(|branch| {
@@ -1474,22 +1325,16 @@ pub(super) fn contains_dynamic_parameter_reference(expression: &Expression) -> b
             }
         },
         Expression::Subquery(_) => false,
-        Expression::Cast(cast_expression) => {
-            contains_dynamic_parameter_reference(&cast_expression.expression)
-        }
+        Expression::Cast(cast_expression) => contains_dynamic_parameter_reference(&cast_expression.expression),
         Expression::InlineLet(expr) => {
             expr.variable_definitions
                 .iter()
                 .any(|def| contains_dynamic_parameter_reference(&def.expression))
                 || contains_dynamic_parameter_reference(&expr.evaluation_expression)
         }
-        Expression::PathConstructor(elements) => {
-            elements.iter().any(contains_dynamic_parameter_reference)
-        }
+        Expression::PathConstructor(elements) => elements.iter().any(contains_dynamic_parameter_reference),
         Expression::WhenOperand(operand) => match &operand.kind {
-            WhenOperandKind::Comparison { right, .. } => {
-                contains_dynamic_parameter_reference(right)
-            }
+            WhenOperandKind::Comparison { right, .. } => contains_dynamic_parameter_reference(right),
             _ => false,
         },
         Expression::Literal(_) => false,
@@ -1509,11 +1354,7 @@ pub(super) fn promote_numeric_type(left: &TypeSpec, right: &TypeSpec) -> TypeSpe
 pub(super) fn is_float_like_type(t: &TypeSpec) -> bool {
     matches!(
         t,
-        TypeSpec::Float { .. }
-            | TypeSpec::Float32
-            | TypeSpec::Real
-            | TypeSpec::Double
-            | TypeSpec::Decimal { .. }
+        TypeSpec::Float { .. } | TypeSpec::Float32 | TypeSpec::Real | TypeSpec::Double | TypeSpec::Decimal { .. }
     )
 }
 
@@ -1587,16 +1428,10 @@ pub(super) fn is_cast_compatible(source: &TypeSpec, target: &TypeSpec) -> bool {
         (TypeSpec::Any, _) => true,
         (TypeSpec::Union { members }, _) => members.iter().all(|m| is_cast_compatible(m, target)),
         (_, TypeSpec::Union { members }) => members.iter().any(|m| is_cast_compatible(source, m)),
-        (TypeSpec::String { .. }, t) => {
-            is_numeric_type(t) || is_temporal_like_type(t) || is_boolean_type(t)
-        }
-        (s, t) if is_numeric_type(s) => {
-            is_numeric_type(t) || is_boolean_type(t) || matches!(t, TypeSpec::String { .. })
-        }
+        (TypeSpec::String { .. }, t) => is_numeric_type(t) || is_temporal_like_type(t) || is_boolean_type(t),
+        (s, t) if is_numeric_type(s) => is_numeric_type(t) || is_boolean_type(t) || matches!(t, TypeSpec::String { .. }),
         (TypeSpec::Boolean, t) => matches!(t, TypeSpec::Boolean | TypeSpec::String { .. }),
-        (s, t) if is_temporal_like_type(s) => {
-            is_temporal_like_type(t) || matches!(t, TypeSpec::String { .. })
-        }
+        (s, t) if is_temporal_like_type(s) => is_temporal_like_type(t) || matches!(t, TypeSpec::String { .. }),
         (
             TypeSpec::List {
                 element_type: source_elem,
@@ -1607,9 +1442,7 @@ pub(super) fn is_cast_compatible(source: &TypeSpec, target: &TypeSpec) -> bool {
                 ..
             },
         ) => {
-            if matches!(source_elem.as_ref(), TypeSpec::Any)
-                && !matches!(target_elem.as_ref(), TypeSpec::Any)
-            {
+            if matches!(source_elem.as_ref(), TypeSpec::Any) && !matches!(target_elem.as_ref(), TypeSpec::Any) {
                 return false;
             }
 
@@ -1677,15 +1510,12 @@ pub(super) fn validate_call_clause(
             ));
         }
 
-        let inline_stmt = call_clause
-            .inline_procedure_statement
-            .as_ref()
-            .ok_or_else(|| {
-                validation_err(
-                    "Inline CALL must preserve structured nested statement".to_string(),
-                    Some(&call_clause.span.clone()),
-                )
-            })?;
+        let inline_stmt = call_clause.inline_procedure_statement.as_ref().ok_or_else(|| {
+            validation_err(
+                "Inline CALL must preserve structured nested statement".to_string(),
+                Some(&call_clause.span.clone()),
+            )
+        })?;
 
         let mut nested_scope = declared_variables.clone();
         let mut inline_scope_vars = HashSet::new();
@@ -1695,10 +1525,7 @@ pub(super) fn validate_call_clause(
                 let trimmed = name.trim().to_string();
                 if !inline_scope_vars.insert(trimmed.clone()) {
                     return Err(validation_err(
-                        format!(
-                            "Inline CALL scope contains duplicate variable '{}'",
-                            trimmed
-                        ),
+                        format!("Inline CALL scope contains duplicate variable '{}'", trimmed),
                         Some(&span.clone()),
                     ));
                 }

@@ -89,60 +89,34 @@ fn statement_transaction_intent_and_requires_write_tx_cover_all_variants() {
     let catalog_statement = Statement::Catalog(CatalogStatementBlock { statements: vec![] });
     let mixed_next_statement = Statement::Next(NextStatement {
         source_statement: Box::new(write_data_statement()),
-        target_statement: Box::new(Statement::Catalog(CatalogStatementBlock {
-            statements: vec![],
-        })),
+        target_statement: Box::new(Statement::Catalog(CatalogStatementBlock { statements: vec![] })),
         yield_clause: None,
         next: None,
         span: span(),
     });
 
-    assert_eq!(
-        read_only_query.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
+    assert_eq!(read_only_query.transaction_intent(), TransactionIntent::ReadOnly);
     assert!(!read_only_query.requires_write_tx());
 
-    assert_eq!(
-        write_data.transaction_intent(),
-        TransactionIntent::DataWrite
-    );
+    assert_eq!(write_data.transaction_intent(), TransactionIntent::DataWrite);
     assert!(write_data.requires_write_tx());
 
-    assert_eq!(
-        focused_statement.transaction_intent(),
-        TransactionIntent::DataWrite
-    );
+    assert_eq!(focused_statement.transaction_intent(), TransactionIntent::DataWrite);
     assert!(focused_statement.requires_write_tx());
 
-    assert_eq!(
-        next_statement.transaction_intent(),
-        TransactionIntent::DataWrite
-    );
+    assert_eq!(next_statement.transaction_intent(), TransactionIntent::DataWrite);
     assert!(next_statement.requires_write_tx());
 
-    assert_eq!(
-        let_statement.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
+    assert_eq!(let_statement.transaction_intent(), TransactionIntent::ReadOnly);
     assert!(!let_statement.requires_write_tx());
 
-    assert_eq!(
-        session_statement.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
+    assert_eq!(session_statement.transaction_intent(), TransactionIntent::ReadOnly);
     assert!(!session_statement.requires_write_tx());
 
-    assert_eq!(
-        transaction_statement.transaction_intent(),
-        TransactionIntent::ReadOnly
-    );
+    assert_eq!(transaction_statement.transaction_intent(), TransactionIntent::ReadOnly);
     assert!(!transaction_statement.requires_write_tx());
 
-    assert_eq!(
-        catalog_statement.transaction_intent(),
-        TransactionIntent::CatalogWrite
-    );
+    assert_eq!(catalog_statement.transaction_intent(), TransactionIntent::CatalogWrite);
     assert!(catalog_statement.requires_write_tx());
 
     assert_eq!(
