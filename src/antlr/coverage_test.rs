@@ -22,7 +22,7 @@
 
 use super::gqllexer::GQLLexer;
 use super::gqllistener::GQLListener;
-use super::gqlparser::{ruleNames, GQLParser, GQLParserContext, GQLParserContextType};
+use super::gqlparser::{GQLParser, GQLParserContext, GQLParserContextType, ruleNames};
 use antlr_rust::common_token_stream::CommonTokenStream;
 use antlr_rust::tree::{ParseTreeListener, ParseTreeWalker};
 use antlr_rust::{InputStream, Parser};
@@ -65,11 +65,7 @@ fn tck_covers_all_reachable_parser_rules() {
             .iter()
             .chain(feature.rules.iter().flat_map(|rule| rule.scenarios.iter()))
         {
-            for query in scenario
-                .steps
-                .iter()
-                .filter_map(|step| step.docstring.as_deref())
-            {
+            for query in scenario.steps.iter().filter_map(|step| step.docstring.as_deref()) {
                 query_count += 1;
                 let input = InputStream::new(query.trim());
                 let lexer = GQLLexer::new(input);
@@ -79,10 +75,8 @@ fn tck_covers_all_reachable_parser_rules() {
                 let tree = parser
                     .gqlProgram()
                     .unwrap_or_else(|error| panic!("cannot parse TCK query: {error:?}\n{query}"));
-                coverage = *ParseTreeWalker::<GQLParserContextType, dyn GQLListener<'_>>::walk(
-                    Box::new(coverage),
-                    tree.as_ref(),
-                );
+                coverage =
+                    *ParseTreeWalker::<GQLParserContextType, dyn GQLListener<'_>>::walk(Box::new(coverage), tree.as_ref());
             }
         }
     }
@@ -108,11 +102,7 @@ fn tck_covers_all_reachable_parser_rules() {
         ruleNames.len(),
         query_count
     );
-    eprintln!(
-        "Uncovered parser rules ({}): {}",
-        missing.len(),
-        missing.join(", ")
-    );
+    eprintln!("Uncovered parser rules ({}): {}", missing.len(), missing.join(", "));
 
     assert_eq!(
         missing, structurally_unreachable,
@@ -121,8 +111,7 @@ fn tck_covers_all_reachable_parser_rules() {
 }
 
 fn collect_feature_paths(directory: &Path, paths: &mut Vec<PathBuf>) {
-    let entries = fs::read_dir(directory)
-        .unwrap_or_else(|error| panic!("cannot read {}: {error}", directory.display()));
+    let entries = fs::read_dir(directory).unwrap_or_else(|error| panic!("cannot read {}: {error}", directory.display()));
 
     for entry in entries {
         let path = entry.expect("cannot read TCK directory entry").path();

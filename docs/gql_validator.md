@@ -23,7 +23,10 @@ Examples of checks:
 - structural validity of patterns and data operations.
 
 ## Entry Point
+Application code can call `QueryAST::validate()` on an existing AST. 
+Both `gql_rs::analyze(query)` and `DefaultGQLQueryAnalyzer::exec(query)`invoke validation automatically; `gql_rs::parse(query)` does not.
 
+The internal validation entry point is:
 - `validate_query_ast(ast)`
 
 Flow:
@@ -155,5 +158,13 @@ This prevents references to variables not introduced by the query plan.
 
 ## Error Model
 
-- Semantic errors are returned as GqlError::Validation.
-- Messages are descriptive and aimed at debugging tests and edge cases.
+Semantic errors are returned as `GqlError::Validation`.
+
+`ErrorContext` contains an optional source span and an optional diagnostic code. 
+Constructors without position information use `span: None`; `validation_at()` stores the supplied span.
+
+Applications should inspect the variant and structured context instead of extracting positions from the human-readable message.
+
+`GqlError` and `ErrorContext` support Serde serialization and deserialization.
+
+See the [query analyzer guide](query_analyzer.md) for examples.

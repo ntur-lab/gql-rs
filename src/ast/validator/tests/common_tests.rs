@@ -20,7 +20,13 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-use crate::{BasicQuery, BinaryExpression, CaseExpression, CaseType, CatalogObjectName, CatalogSchemaName, DistinctQualifier, Edge, EdgeDirection, Expression, FunctionCall, GraphExpressionClause, GraphExpressionKind, GroupClause, GroupKey, Literal, Node, Operator, PathPattern, PatternElement, PrimitiveResultStatement, PropertyAccess, Query, ReturnClause, ReturnItem, SearchedCaseExpression, SearchedWhenBranch, SessionResetClause, SessionResetTarget, SetOperation, SetOperationType, SimpleCaseExpression, SimpleWhenBranch, Span, Statement, SubqueryExpression, TypeSpec, UnaryExpression, YieldItem};
+use crate::{
+    BasicQuery, BinaryExpression, CaseExpression, CaseType, CatalogObjectName, CatalogSchemaName, DistinctQualifier, Edge,
+    EdgeDirection, Expression, FunctionCall, GraphExpressionClause, GraphExpressionKind, GroupClause, GroupKey, Literal,
+    Node, Operator, PathPattern, PatternElement, PrimitiveResultStatement, PropertyAccess, Query, ReturnClause, ReturnItem,
+    SearchedCaseExpression, SearchedWhenBranch, SessionResetClause, SessionResetTarget, SetOperation, SetOperationType,
+    SimpleCaseExpression, SimpleWhenBranch, Span, Statement, SubqueryExpression, TypeSpec, UnaryExpression, YieldItem,
+};
 
 pub(crate) fn span() -> Span {
     Span::default()
@@ -127,11 +133,9 @@ pub(crate) fn float(value: f64) -> Expression {
     Expression::Literal(Literal::Float(value))
 }
 
-
 pub(crate) fn boolean(value: bool) -> Expression {
     Expression::Literal(Literal::Boolean(value))
 }
-
 
 pub(crate) fn property(object: &str, name: &str) -> Expression {
     Expression::PropertyAccess(PropertyAccess {
@@ -220,7 +224,12 @@ pub(crate) fn scalar_subquery(query: Query, is_exists: bool) -> SubqueryExpressi
     }
 }
 
-pub(crate) fn simple_case(test_expression: Expression, when_value: Expression, then_expression: Expression, else_expression: Option<Expression>) -> CaseExpression {
+pub(crate) fn simple_case(
+    test_expression: Expression,
+    when_value: Expression,
+    then_expression: Expression,
+    else_expression: Option<Expression>,
+) -> CaseExpression {
     CaseExpression {
         case_type: CaseType::Simple(SimpleCaseExpression {
             test_expression: Box::new(test_expression),
@@ -235,7 +244,11 @@ pub(crate) fn simple_case(test_expression: Expression, when_value: Expression, t
     }
 }
 
-pub(crate) fn searched_case(condition: Expression, then_expression: Expression, else_expression: Option<Expression>) -> CaseExpression {
+pub(crate) fn searched_case(
+    condition: Expression,
+    then_expression: Expression,
+    else_expression: Option<Expression>,
+) -> CaseExpression {
     CaseExpression {
         case_type: CaseType::Searched(SearchedCaseExpression {
             when_branches: vec![SearchedWhenBranch {

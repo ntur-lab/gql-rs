@@ -32,21 +32,15 @@ impl GQLAstBuilder {
         let simple_linear = if let Some(ambient) = cst.ambientLinearDataModifyingStatement() {
             let body = ambient
                 .ambientLinearDataModifyingStatementBody()
-                .ok_or_else(|| {
-                    Self::parse_err("Expected ambientLinearDataModifyingStatementBody".to_string())
-                })?;
-            body.simpleLinearDataAccessingStatement().ok_or_else(|| {
-                Self::parse_err("Expected simpleLinearDataAccessingStatement".to_string())
-            })?
+                .ok_or_else(|| Self::parse_err("Expected ambientLinearDataModifyingStatementBody".to_string()))?;
+            body.simpleLinearDataAccessingStatement()
+                .ok_or_else(|| Self::parse_err("Expected simpleLinearDataAccessingStatement".to_string()))?
         } else if let Some(focused) = cst.focusedLinearDataModifyingStatement() {
             let body = focused
                 .focusedLinearDataModifyingStatementBody()
-                .ok_or_else(|| {
-                    Self::parse_err("Expected focusedLinearDataModifyingStatementBody".to_string())
-                })?;
-            body.simpleLinearDataAccessingStatement().ok_or_else(|| {
-                Self::parse_err("Expected simpleLinearDataAccessingStatement".to_string())
-            })?
+                .ok_or_else(|| Self::parse_err("Expected focusedLinearDataModifyingStatementBody".to_string()))?;
+            body.simpleLinearDataAccessingStatement()
+                .ok_or_else(|| Self::parse_err("Expected simpleLinearDataAccessingStatement".to_string()))?
         } else {
             return Err(Self::parse_err(
                 "Expected ambient or focused linear data modifying statement".to_string(),
@@ -56,9 +50,7 @@ impl GQLAstBuilder {
         let stmts = simple_linear.simpleDataAccessingStatement_all();
 
         if stmts.is_empty() {
-            return Err(Self::parse_err(
-                "No statements in data modifying statement".to_string(),
-            ));
+            return Err(Self::parse_err("No statements in data modifying statement".to_string()));
         }
 
         if let Some(data_stmt) = stmts[0].simpleDataModifyingStatement() {
@@ -85,8 +77,7 @@ impl GQLAstBuilder {
                     let delete_item_list = delete_stmt
                         .deleteItemList()
                         .ok_or_else(|| Self::parse_err("Expected deleteItemList".to_string()))?;
-                    let expressions =
-                        Self::build_expressions_from_delete_item_list(&delete_item_list)?;
+                    let expressions = Self::build_expressions_from_delete_item_list(&delete_item_list)?;
                     Ok(DataStatement::Delete(DeleteStatement {
                         delete_clause: DeleteClause {
                             expressions,
@@ -99,16 +90,13 @@ impl GQLAstBuilder {
                     Self::build_insert_statement_from_context(&insert_stmt)
                 } else {
                     Err(Self::parse_err(
-                        "Expected setStatement, removeStatement, deleteStatement, or insertStatement"
-                            .to_string(),
+                        "Expected setStatement, removeStatement, deleteStatement, or insertStatement".to_string(),
                     ))
                 }
             } else if let Some(call_data_stmt) = data_stmt.callDataModifyingProcedureStatement() {
-                let call_proc = call_data_stmt.callProcedureStatement().ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: missing callProcedureStatement in data CALL".into(),
-                    )
-                })?;
+                let call_proc = call_data_stmt
+                    .callProcedureStatement()
+                    .ok_or_else(|| Self::parse_err("CST not valid: missing callProcedureStatement in data CALL".into()))?;
                 let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                 Ok(DataStatement::Call(CallStatement {
                     call_clause,
@@ -139,12 +127,12 @@ impl GQLAstBuilder {
             }
             let match_clauses = vec![match_clause];
 
-            let data_stmt = stmts[1].simpleDataModifyingStatement().ok_or_else(|| {
-                Self::parse_err("Expected simpleDataModifyingStatement".to_string())
-            })?;
-            let prim = data_stmt.primitiveDataModifyingStatement().ok_or_else(|| {
-                Self::parse_err("Expected primitiveDataModifyingStatement".to_string())
-            })?;
+            let data_stmt = stmts[1]
+                .simpleDataModifyingStatement()
+                .ok_or_else(|| Self::parse_err("Expected simpleDataModifyingStatement".to_string()))?;
+            let prim = data_stmt
+                .primitiveDataModifyingStatement()
+                .ok_or_else(|| Self::parse_err("Expected primitiveDataModifyingStatement".to_string()))?;
 
             if let Some(set_stmt) = prim.setStatement() {
                 let items = Self::build_set_items_from_context(&set_stmt)?;
@@ -184,9 +172,7 @@ impl GQLAstBuilder {
                 ))
             }
         } else {
-            Err(Self::parse_err(
-                "Unsupported data statement type".to_string(),
-            ))
+            Err(Self::parse_err("Unsupported data statement type".to_string()))
         }
     }
 
@@ -205,9 +191,7 @@ impl GQLAstBuilder {
             if let Some(use_clause) = body.useGraphClause()
                 && let Some(graph_expr) = use_clause.graphExpression()
             {
-                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(
-                    &graph_expr,
-                )));
+                pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(&graph_expr)));
             }
             if let Some(simple_linear) = body.simpleLinearDataAccessingStatement() {
                 for statement in simple_linear.simpleDataAccessingStatement_all() {
@@ -215,13 +199,11 @@ impl GQLAstBuilder {
                         if let Some(primitive) = query_stmt.primitiveQueryStatement() {
                             if let Some(m) = primitive.matchStatement() {
                                 let (graph_pattern, optional) = Self::extract_graph_pattern(&m)?;
-                                let match_clause =
-                                    Self::build_match_clause(&graph_pattern, optional)?;
+                                let match_clause = Self::build_match_clause(&graph_pattern, optional)?;
                                 pipeline.push(QueryStep::Match(match_clause));
 
                                 if let Some(where_ctx) = graph_pattern.graphPatternWhereClause() {
-                                    let where_clause =
-                                        Self::build_where_clause_from_context(&where_ctx)?;
+                                    let where_clause = Self::build_where_clause_from_context(&where_ctx)?;
                                     pipeline.push(QueryStep::Filter(FilterClause {
                                         condition: where_clause.condition,
                                         span: span.clone(),
@@ -238,27 +220,17 @@ impl GQLAstBuilder {
                                 pipeline.push(QueryStep::For(for_clause));
                             }
                         } else if let Some(call_query) = query_stmt.callQueryStatement() {
-                            let call_proc =
-                                call_query.callProcedureStatement().ok_or_else(|| {
-                                    Self::parse_err(
-                                        "CST not valid: missing callProcedureStatement in query CALL"
-                                            .into(),
-                                    )
-                                })?;
+                            let call_proc = call_query.callProcedureStatement().ok_or_else(|| {
+                                Self::parse_err("CST not valid: missing callProcedureStatement in query CALL".into())
+                            })?;
                             let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                             pipeline.push(QueryStep::Call(call_clause));
                         }
                     } else if let Some(data_stmt) = statement.simpleDataModifyingStatement() {
-                        if let Some(call_data_stmt) =
-                            data_stmt.callDataModifyingProcedureStatement()
-                        {
-                            let call_proc =
-                                call_data_stmt.callProcedureStatement().ok_or_else(|| {
-                                    Self::parse_err(
-                                        "CST not valid: missing callProcedureStatement in data CALL"
-                                            .into(),
-                                    )
-                                })?;
+                        if let Some(call_data_stmt) = data_stmt.callDataModifyingProcedureStatement() {
+                            let call_proc = call_data_stmt.callProcedureStatement().ok_or_else(|| {
+                                Self::parse_err("CST not valid: missing callProcedureStatement in data CALL".into())
+                            })?;
                             let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                             pipeline.push(QueryStep::Call(call_clause));
                         } else {
@@ -283,8 +255,7 @@ impl GQLAstBuilder {
                             pipeline.push(QueryStep::Match(match_clause));
 
                             if let Some(where_ctx) = graph_pattern.graphPatternWhereClause() {
-                                let where_clause =
-                                    Self::build_where_clause_from_context(&where_ctx)?;
+                                let where_clause = Self::build_where_clause_from_context(&where_ctx)?;
                                 pipeline.push(QueryStep::Filter(FilterClause {
                                     condition: where_clause.condition,
                                     span: span.clone(),
@@ -302,23 +273,16 @@ impl GQLAstBuilder {
                         }
                     } else if let Some(call_query) = query_stmt.callQueryStatement() {
                         let call_proc = call_query.callProcedureStatement().ok_or_else(|| {
-                            Self::parse_err(
-                                "CST not valid: missing callProcedureStatement in query CALL"
-                                    .into(),
-                            )
+                            Self::parse_err("CST not valid: missing callProcedureStatement in query CALL".into())
                         })?;
                         let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                         pipeline.push(QueryStep::Call(call_clause));
                     }
                 } else if let Some(data_stmt) = statement.simpleDataModifyingStatement() {
                     if let Some(call_data_stmt) = data_stmt.callDataModifyingProcedureStatement() {
-                        let call_proc =
-                            call_data_stmt.callProcedureStatement().ok_or_else(|| {
-                                Self::parse_err(
-                                    "CST not valid: missing callProcedureStatement in data CALL"
-                                        .into(),
-                                )
-                            })?;
+                        let call_proc = call_data_stmt.callProcedureStatement().ok_or_else(|| {
+                            Self::parse_err("CST not valid: missing callProcedureStatement in data CALL".into())
+                        })?;
                         let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                         pipeline.push(QueryStep::Call(call_clause));
                     } else {
@@ -342,9 +306,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build an InsertStatement from an InsertStatementContext, extracting the graph pattern and constructing the corresponding AST nodes for the INSERT operation. This function also includes error handling to ensure that the CST structure is valid and contains the expected elements for an INSERT statement, such as the graph pattern and the list of path patterns to be inserted. --- IGNORE ---
-    pub(super) fn build_insert_statement_from_context(
-        cst: &InsertStatementContextAll,
-    ) -> GqlResult<DataStatement> {
+    pub(super) fn build_insert_statement_from_context(cst: &InsertStatementContextAll) -> GqlResult<DataStatement> {
         let span = Self::extract_span(cst);
 
         let graph = cst
@@ -368,9 +330,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a PathPattern from an InsertPathPatternContext, extracting the sequence of node and edge patterns that define the path to be inserted, and constructing the corresponding AST nodes for the path pattern. This function also includes error handling to ensure that the CST structure is valid and contains the expected elements for an INSERT path pattern, such as at least one node and a consistent sequence of nodes and edges. --- IGNORE ---
-    pub(super) fn build_insert_path_pattern_from_context(
-        cst: &InsertPathPatternContextAll,
-    ) -> GqlResult<PathPattern> {
+    pub(super) fn build_insert_path_pattern_from_context(cst: &InsertPathPatternContextAll) -> GqlResult<PathPattern> {
         let span = Self::extract_span(cst);
 
         let nodes = cst.insertNodePattern_all();
@@ -385,14 +345,10 @@ impl GQLAstBuilder {
 
         let mut elements = Vec::with_capacity(nodes.len() + edges.len());
 
-        elements.push(PatternElement::Node(Self::build_insert_node_from_context(
-            &nodes[0],
-        )?));
+        elements.push(PatternElement::Node(Self::build_insert_node_from_context(&nodes[0])?));
 
         for i in 0..edges.len() {
-            elements.push(PatternElement::Edge(Self::build_insert_edge_from_context(
-                &edges[i],
-            )?));
+            elements.push(PatternElement::Edge(Self::build_insert_edge_from_context(&edges[i])?));
             elements.push(PatternElement::Node(Self::build_insert_node_from_context(
                 &nodes[i + 1],
             )?));
@@ -410,9 +366,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a Node from an InsertNodePatternContext, extracting the variable name, labels, and properties for the node to be inserted, and constructing the corresponding AST node for the node pattern. This function also includes error handling to ensure that the CST structure is valid and contains the expected elements for an INSERT node pattern, such as a valid variable declaration and properly specified labels and properties. --- IGNORE ---
-    pub(super) fn build_insert_node_from_context(
-        cst: &InsertNodePatternContextAll,
-    ) -> GqlResult<Node> {
+    pub(super) fn build_insert_node_from_context(cst: &InsertNodePatternContextAll) -> GqlResult<Node> {
         let span = Self::extract_span(cst);
 
         let filler = cst.insertElementPatternFiller();
@@ -446,9 +400,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build an Edge from an InsertEdgePatternContext, extracting the variable name, labels, properties, and direction for the edge to be inserted, and constructing the corresponding AST node for the edge pattern. This function also includes error handling to ensure that the CST structure is valid and contains the expected elements for an INSERT edge pattern, such as a valid variable declaration and properly specified labels and properties. --- IGNORE ---
-    pub(super) fn build_insert_edge_from_context(
-        cst: &InsertEdgePatternContextAll,
-    ) -> GqlResult<Edge> {
+    pub(super) fn build_insert_edge_from_context(cst: &InsertEdgePatternContextAll) -> GqlResult<Edge> {
         let span = Self::extract_span(cst);
 
         let direction = if cst.insertEdgePointingLeft().is_some() {
@@ -500,9 +452,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build an Expression representing a set of labels from a LabelSetSpecificationContext, extracting the label names and constructing a logical expression that represents the presence of those labels. This function also includes error handling to ensure that the CST structure is valid and contains at least one label, as well as constructing the appropriate AST nodes for the label expression. --- IGNORE ---
-    pub(super) fn build_insert_labels_expression(
-        cst: &LabelSetSpecificationContextAll,
-    ) -> GqlResult<Expression> {
+    pub(super) fn build_insert_labels_expression(cst: &LabelSetSpecificationContextAll) -> GqlResult<Expression> {
         let span = Self::extract_span(cst);
 
         let labels = cst.labelName_all();
@@ -510,9 +460,7 @@ impl GQLAstBuilder {
             return Self::parse_error("Empty labelSetSpecification in INSERT");
         }
 
-        let mut expr = Expression::Literal(Literal::String(Self::identifier_text(
-            &labels[0].get_text(),
-        )));
+        let mut expr = Expression::Literal(Literal::String(Self::identifier_text(&labels[0].get_text())));
         for label in labels.into_iter().skip(1) {
             expr = Expression::Binary(BinaryExpression {
                 left: Box::new(expr),
@@ -528,9 +476,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a list of SetItem from a SetStatementContext, handling different types of SET items (property setting, label setting, variable setting) and extracting the relevant components from the CST to construct the corresponding AST nodes for each type of SET item. This function also includes error handling to ensure that the CST structure is valid and contains the expected elements for each type of SET item. --- IGNORE ---
-    pub(super) fn build_set_items_from_context(
-        cst: &SetStatementContextAll,
-    ) -> GqlResult<Vec<SetItem>> {
+    pub(super) fn build_set_items_from_context(cst: &SetStatementContextAll) -> GqlResult<Vec<SetItem>> {
         let set_item_list = cst
             .setItemList()
             .ok_or_else(|| Self::parse_err("Expected setItemList".to_string()))?;
@@ -618,9 +564,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a list of RemoveItem from a RemoveStatementContext, handling different types of REMOVE items (property removal, label removal, variable removal) and extracting the relevant components from the CST to construct the corresponding AST nodes for each type of REMOVE item. This function also includes error handling to ensure that the CST structure is valid and contains the expected elements for each type of REMOVE item. --- IGNORE ---
-    pub(super) fn build_remove_items_from_context(
-        cst: &RemoveStatementContextAll,
-    ) -> GqlResult<Vec<RemoveItem>> {
+    pub(super) fn build_remove_items_from_context(cst: &RemoveStatementContextAll) -> GqlResult<Vec<RemoveItem>> {
         let remove_item_list = cst
             .removeItemList()
             .ok_or_else(|| Self::parse_err("Expected removeItemList".to_string()))?;
@@ -632,9 +576,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a RemoveItem from a RemoveItemContext, handling property removal, label removal, and variable removal, and extracting the relevant components from the CST. --- IGNORE ---
-    pub(super) fn build_remove_item_from_context(
-        cst: &RemoveItemContextAll,
-    ) -> GqlResult<RemoveItem> {
+    pub(super) fn build_remove_item_from_context(cst: &RemoveItemContextAll) -> GqlResult<RemoveItem> {
         let span = Self::extract_span(cst);
 
         if let Some(prop) = cst.removePropertyItem() {
@@ -680,16 +622,14 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a list of Expressions from a DeleteItemListContext, extracting the value expressions for each delete item in the CST and constructing the corresponding AST nodes for the delete clause. This function also includes error handling to ensure that the CST structure is valid and contains the expected elements for each delete item, such as a value expression. --- IGNORE ---
-    pub(super) fn build_expressions_from_delete_item_list(
-        cst: &DeleteItemListContextAll,
-    ) -> GqlResult<Vec<Expression>> {
+    pub(super) fn build_expressions_from_delete_item_list(cst: &DeleteItemListContextAll) -> GqlResult<Vec<Expression>> {
         let delete_items = cst.deleteItem_all();
         delete_items
             .iter()
             .map(|item| {
-                let value_expr = item.valueExpression().ok_or_else(|| {
-                    Self::parse_err("Expected valueExpression in deleteItem".to_string())
-                })?;
+                let value_expr = item
+                    .valueExpression()
+                    .ok_or_else(|| Self::parse_err("Expected valueExpression in deleteItem".to_string()))?;
                 Self::build_expression_from_context(&value_expr)
             })
             .collect()

@@ -203,10 +203,7 @@ fn projected_output_names_prefer_aliases_and_derive_stable_names() {
     assert!(derive_output_names_from_expression(&integer(1)).is_empty());
 
     let result = PrimitiveResultStatement::Return {
-        return_clause: return_clause(vec![
-            (variable("n"), Some("person")),
-            (property("n", "name"), None),
-        ]),
+        return_clause: return_clause(vec![(variable("n"), Some("person")), (property("n", "name"), None)]),
         group_clause: None,
         page_clause: None,
         span: span(),
@@ -220,31 +217,13 @@ fn projected_output_names_prefer_aliases_and_derive_stable_names() {
 #[test]
 fn return_clause_rejects_empty_and_duplicate_aliases() {
     let empty = return_clause(vec![]);
-    assert!(validate_return_clause_with_aliases(
-        &empty,
-        &HashSet::new(),
-        &mut HashSet::new(),
-    )
-        .is_err());
+    assert!(validate_return_clause_with_aliases(&empty, &HashSet::new(), &mut HashSet::new(),).is_err());
 
     let bad_alias = return_clause(vec![(integer(1), Some(" "))]);
-    assert!(validate_return_clause_with_aliases(
-        &bad_alias,
-        &HashSet::new(),
-        &mut HashSet::new(),
-    )
-        .is_err());
+    assert!(validate_return_clause_with_aliases(&bad_alias, &HashSet::new(), &mut HashSet::new(),).is_err());
 
-    let duplicate = return_clause(vec![
-        (integer(1), Some("value")),
-        (integer(2), Some("value")),
-    ]);
-    assert!(validate_return_clause_with_aliases(
-        &duplicate,
-        &HashSet::new(),
-        &mut HashSet::new(),
-    )
-        .is_err());
+    let duplicate = return_clause(vec![(integer(1), Some("value")), (integer(2), Some("value"))]);
+    assert!(validate_return_clause_with_aliases(&duplicate, &HashSet::new(), &mut HashSet::new(),).is_err());
 }
 
 #[test]
@@ -267,23 +246,11 @@ fn non_aggregated_return_variables_must_be_grouped() {
         (variable("n"), None),
         (function("COUNT", vec![variable("m")]), Some("total")),
     ]);
-    assert!(validate_non_aggregated_return_variables_in_group_by(
-        &returns,
-        &group(Some(vec!["n"]), false),
-    )
-        .is_ok());
-    assert!(validate_non_aggregated_return_variables_in_group_by(
-        &returns,
-        &group(Some(vec!["other"]), false),
-    )
-        .is_err());
+    assert!(validate_non_aggregated_return_variables_in_group_by(&returns, &group(Some(vec!["n"]), false),).is_ok());
+    assert!(validate_non_aggregated_return_variables_in_group_by(&returns, &group(Some(vec!["other"]), false),).is_err());
 
     let aliased = return_clause(vec![(property("n", "name"), Some("person"))]);
-    assert!(validate_non_aggregated_return_variables_in_group_by(
-        &aliased,
-        &group(Some(vec!["person"]), false),
-    )
-        .is_ok());
+    assert!(validate_non_aggregated_return_variables_in_group_by(&aliased, &group(Some(vec!["person"]), false),).is_ok());
 }
 
 #[test]
@@ -315,11 +282,7 @@ fn collect_non_aggregated_refs_traverses_composite_expressions() {
     assert_eq!(refs, HashSet::from(["a".to_string(), "b".to_string(), "c".to_string()]));
 
     let mut aggregate_refs = HashSet::new();
-    collect_non_aggregated_variable_refs(
-        &function("SUM", vec![variable("ignored")]),
-        false,
-        &mut aggregate_refs,
-    );
+    collect_non_aggregated_variable_refs(&function("SUM", vec![variable("ignored")]), false, &mut aggregate_refs);
     assert!(aggregate_refs.is_empty());
 }
 
@@ -340,12 +303,7 @@ fn order_limit_and_page_values_validate_shape() {
         }],
         span: span(),
     };
-    assert!(validate_order_clause(
-        &order,
-        &HashSet::new(),
-        Some(&HashSet::from(["alias".to_string()])),
-    )
-        .is_ok());
+    assert!(validate_order_clause(&order, &HashSet::new(), Some(&HashSet::from(["alias".to_string()])),).is_ok());
 
     let empty_limit = LimitClause {
         count: None,
@@ -353,21 +311,36 @@ fn order_limit_and_page_values_validate_shape() {
         span: span(),
     };
     assert!(validate_limit_clause(&empty_limit).is_err());
-    assert!(validate_page_value(
-        "LIMIT",
-        &PageValue::Parameter { name: "".to_string(), span: span() },
-    )
-        .is_err());
-    assert!(validate_page_value(
-        "LIMIT",
-        &PageValue::Parameter { name: "limit".to_string(), span: span() },
-    )
-        .is_err());
-    assert!(validate_page_value(
-        "LIMIT",
-        &PageValue::Parameter { name: "$limit".to_string(), span: span() },
-    )
-        .is_ok());
+    assert!(
+        validate_page_value(
+            "LIMIT",
+            &PageValue::Parameter {
+                name: "".to_string(),
+                span: span()
+            },
+        )
+        .is_err()
+    );
+    assert!(
+        validate_page_value(
+            "LIMIT",
+            &PageValue::Parameter {
+                name: "limit".to_string(),
+                span: span()
+            },
+        )
+        .is_err()
+    );
+    assert!(
+        validate_page_value(
+            "LIMIT",
+            &PageValue::Parameter {
+                name: "$limit".to_string(),
+                span: span()
+            },
+        )
+        .is_ok()
+    );
 }
 
 #[test]

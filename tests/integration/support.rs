@@ -121,7 +121,7 @@ macro_rules! test_graph_type_specification {
     ($test_name:ident, $query:expr, expected_elements: $element_count:expr) => {
         #[test]
         fn $test_name() {
-            use gql_rs::ast::{Statement, CatalogStatement};
+            use gql_rs::ast::{CatalogStatement, Statement};
 
             let query_str = $query;
             println!("Testing CREATE GRAPH TYPE: {}", query_str);
@@ -132,25 +132,20 @@ macro_rules! test_graph_type_specification {
                     if let Some(ast) = analyzer.get_ast() {
                         match &ast.statement {
                             Statement::Catalog(block) => {
-                                if let Some(CatalogStatement::CreateGraphType(create_gt)) =
-                                    block.statements.first()
-                                {
+                                if let Some(CatalogStatement::CreateGraphType(create_gt)) = block.statements.first() {
                                     if let gql_rs::ast::GraphTypeSourceClause::NestedSpecification {
                                         nested_graph_type_specification,
                                         ..
                                     } = &create_gt.source
                                     {
-                                        let element_count = nested_graph_type_specification
-                                            .element_type_specifications
-                                            .len();
+                                        let element_count =
+                                            nested_graph_type_specification.element_type_specifications.len();
                                         println!("Element count: {}", element_count);
 
                                         assert_eq!(
-                                            element_count,
-                                            $element_count,
+                                            element_count, $element_count,
                                             "Expected {} elements, got {}",
-                                            $element_count,
-                                            element_count
+                                            $element_count, element_count
                                         );
                                     } else {
                                         panic!("Expected nested specification in CREATE GRAPH TYPE");
