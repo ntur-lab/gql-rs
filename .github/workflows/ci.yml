@@ -1,0 +1,168 @@
+name: Rust
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUST_TOOLCHAIN: 1.99.0
+
+concurrency:
+  group: rust-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_TOOLCHAIN" \
+            --profile minimal \
+            --component clippy
+          rustup default "$RUST_TOOLCHAIN"
+
+      - name: Cache Clippy dependencies
+        uses: Swatinem/rust-cache@v2.9.3
+        with:
+          shared-key: clippy
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Run Clippy
+        run: >
+          cargo clippy
+          --all-targets
+          --all-features
+          --verbose
+          --
+          -D warnings
+
+  build-release:
+    name: Build release
+    needs: clippy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal
+          rustup default "$RUST_TOOLCHAIN"
+
+      - name: Cache release dependencies
+        uses: Swatinem/rust-cache@v2.9.3
+        with:
+          shared-key: release
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build release
+        run: >
+          cargo build
+          --release
+          --all-features
+          --verbose
+
+  tests-release:
+    name: Test release — ${{ matrix.name }}
+    needs: build-release
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Unit
+            arguments: --lib
+
+          - name: Integration
+            arguments: --test integration
+
+          - name: TCK
+            arguments: --test gql_tck
+
+          - name: AST fixtures
+            arguments: --test ast_conformance
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal
+          rustup default "$RUST_TOOLCHAIN"
+
+      - name: Restore release cache
+        uses: Swatinem/rust-cache@v2.9.3
+        with:
+          shared-key: release
+          save-if: false
+
+      - name: Run ${{ matrix.name }} tests
+        run: >
+          cargo test
+          --release
+          --all-features
+          --verbose
+          ${{ matrix.arguments }}
+
+  documentation:
+    name: Documentation
+    needs: tests-release
+    runs-on: ubuntu-latest
+
+    env:
+      RUSTDOCFLAGS: -D warnings
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust toolchain
+        run: |
+          rustup toolchain install "$RUST_TOOLCHAIN" --profile minimal
+          rustup default "$RUST_TOOLCHAIN"
+
+      - name: Cache documentation dependencies
+        uses: Swatinem/rust-cache@v2.9.3
+        with:
+          shared-key: documentation-release
+          save-if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Build documentation
+        run: >
+          cargo doc
+          --release
+          --all-features
+          --no-deps
+          --verbose
+
+      - name: Run documentation tests
+        run: >
+          cargo test
+          --release
+          --all-features
+          --doc
+          --verbose
