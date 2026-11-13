@@ -96,6 +96,41 @@ mod catalog_and_session_it {
         expected_reset_count: 0
     );
 
+    #[test]
+    fn test_session_activity_followed_by_close_preserves_source_order() {
+        use gql_rs::ast::SessionCommandKind;
+
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("SESSION SET SCHEMA CURRENT_SCHEMA SESSION CLOSE")
+            .expect("session activity followed by close should parse");
+
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Next(sequence) = &ast.statement else {
+            panic!("expected session activity and close sequence");
+        };
+
+        let Statement::Session(activity) = sequence.source_statement.as_ref() else {
+            panic!("expected session activity first");
+        };
+        assert!(matches!(activity.kind, SessionCommandKind::Set));
+
+        let Statement::Session(close) = sequence.target_statement.as_ref() else {
+            panic!("expected SESSION CLOSE second");
+        };
+        assert!(matches!(close.kind, SessionCommandKind::Close));
+
+        let serialized = serde_json::to_value(ast).expect("ast should serialize");
+        assert_eq!(
+            serialized["statement"]["Next"]["source_statement"]["Session"]["kind"],
+            "Set"
+        );
+        assert_eq!(
+            serialized["statement"]["Next"]["target_statement"]["Session"]["kind"],
+            "Close"
+        );
+    }
+
     test_graph_type_specification!(
         test_create_graph_type_single_node,
         "CREATE GRAPH TYPE simple { NODE TYPE Person }",
