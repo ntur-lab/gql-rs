@@ -56,7 +56,7 @@ impl GQLAstBuilder {
         if let Some(data_stmt) = stmts[0].simpleDataModifyingStatement() {
             if stmts.len() != 1 {
                 return Err(Self::parse_err(
-                    "Standalone SET/REMOVE/DELETE should have only one statement".to_string(),
+                    "Standalone INSERT/SET/REMOVE/DELETE should have only one statement".to_string(),
                 ));
             }
             if let Some(prim) = data_stmt.primitiveDataModifyingStatement() {
@@ -110,7 +110,7 @@ impl GQLAstBuilder {
         } else if let Some(query_stmt) = stmts[0].simpleQueryStatement() {
             if stmts.len() != 2 {
                 return Err(Self::parse_err(
-                    "MATCH SET/REMOVE/DELETE should have exactly two statements".to_string(),
+                    "MATCH INSERT/SET/REMOVE/DELETE should have exactly two statements".to_string(),
                 ));
             }
             let primitive = query_stmt
@@ -168,7 +168,7 @@ impl GQLAstBuilder {
                 }))
             } else {
                 Err(Self::parse_err(
-                    "Expected setStatement, removeStatement, or deleteStatement".to_string(),
+                    "Expected insertStatement, setStatement, removeStatement, or deleteStatement".to_string(),
                 ))
             }
         } else {
@@ -184,6 +184,8 @@ impl GQLAstBuilder {
 
         let mut pipeline = Vec::new();
         let mut has_data_modify = false;
+        let mut has_input_query = false;
+        let mut input_insert = None;
 
         if let Some(focused) = linear_data.focusedLinearDataModifyingStatement()
             && let Some(body) = focused.focusedLinearDataModifyingStatementBody()
@@ -196,6 +198,7 @@ impl GQLAstBuilder {
             if let Some(simple_linear) = body.simpleLinearDataAccessingStatement() {
                 for statement in simple_linear.simpleDataAccessingStatement_all() {
                     if let Some(query_stmt) = statement.simpleQueryStatement() {
+                        has_input_query = true;
                         if let Some(primitive) = query_stmt.primitiveQueryStatement() {
                             if let Some(m) = primitive.matchStatement() {
                                 let (graph_pattern, optional) = Self::extract_graph_pattern(&m)?;
@@ -233,6 +236,12 @@ impl GQLAstBuilder {
                             })?;
                             let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                             pipeline.push(QueryStep::Call(call_clause));
+                        } else if let Some(insert_stmt) = data_stmt
+                            .primitiveDataModifyingStatement()
+                            .and_then(|primitive| primitive.insertStatement())
+                        {
+                            input_insert = Some(Self::build_insert_statement_from_context(&insert_stmt)?);
+                            break;
                         } else {
                             has_data_modify = true;
                             break;
@@ -248,6 +257,7 @@ impl GQLAstBuilder {
         {
             for statement in simple_linear.simpleDataAccessingStatement_all() {
                 if let Some(query_stmt) = statement.simpleQueryStatement() {
+                    has_input_query = true;
                     if let Some(primitive) = query_stmt.primitiveQueryStatement() {
                         if let Some(m) = primitive.matchStatement() {
                             let (graph_pattern, optional) = Self::extract_graph_pattern(&m)?;
@@ -285,12 +295,35 @@ impl GQLAstBuilder {
                         })?;
                         let call_clause = Self::build_call_clause_from_context(&call_proc)?;
                         pipeline.push(QueryStep::Call(call_clause));
+                    } else if let Some(insert_stmt) = data_stmt
+                        .primitiveDataModifyingStatement()
+                        .and_then(|primitive| primitive.insertStatement())
+                    {
+                        input_insert = Some(Self::build_insert_statement_from_context(&insert_stmt)?);
+                        break;
                     } else {
                         has_data_modify = true;
                         break;
                     }
                 }
             }
+        }
+
+        if has_input_query
+            && let Some(insert) = input_insert
+        {
+            let query = Query::Basic(BasicQuery {
+                pipeline,
+                result_statement: PrimitiveResultStatement::Finish { span: span.clone() },
+                span: span.clone(),
+            });
+            return Ok(Some(Statement::Next(NextStatement {
+                source_statement: Box::new(Statement::Query(query)),
+                target_statement: Box::new(Statement::Data(insert)),
+                yield_clause: None,
+                next: None,
+                span,
+            })));
         }
 
         if !has_data_modify && !pipeline.is_empty() {

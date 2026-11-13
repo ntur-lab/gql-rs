@@ -1,0 +1,279 @@
+{
+  "statement": {
+    "Next": {
+      "next": null,
+      "source_statement": {
+        "Query": {
+          "Basic": {
+            "pipeline": [
+              {
+                "Match": {
+                  "match_clause": {
+                    "patterns": [
+                      {
+                        "alternation": null,
+                        "elements": [
+                          {
+                            "Node": {
+                              "id": "a",
+                              "labels": {
+                                "Literal": {
+                                  "String": "Person"
+                                }
+                              },
+                              "properties": null,
+                              "span": {
+                                "end_col": 16,
+                                "end_line": 1,
+                                "start_col": 6,
+                                "start_line": 1
+                              },
+                              "where_clause": null
+                            }
+                          }
+                        ],
+                        "path_mode": null,
+                        "path_search": null,
+                        "simplified_pattern": null,
+                        "span": {
+                          "end_col": 16,
+                          "end_line": 1,
+                          "start_col": 6,
+                          "start_line": 1
+                        },
+                        "variable": null
+                      },
+                      {
+                        "alternation": null,
+                        "elements": [
+                          {
+                            "Node": {
+                              "id": "b",
+                              "labels": {
+                                "Literal": {
+                                  "String": "Person"
+                                }
+                              },
+                              "properties": null,
+                              "span": {
+                                "end_col": 28,
+                                "end_line": 1,
+                                "start_col": 18,
+                                "start_line": 1
+                              },
+                              "where_clause": null
+                            }
+                          }
+                        ],
+                        "path_mode": null,
+                        "path_search": null,
+                        "simplified_pattern": null,
+                        "span": {
+                          "end_col": 28,
+                          "end_line": 1,
+                          "start_col": 18,
+                          "start_line": 1
+                        },
+                        "variable": null
+                      }
+                    ],
+                    "span": {
+                      "end_col": 37,
+                      "end_line": 2,
+                      "start_col": 6,
+                      "start_line": 1
+                    }
+                  },
+                  "optional": false,
+                  "span": {
+                    "end_col": 37,
+                    "end_line": 2,
+                    "start_col": 6,
+                    "start_line": 1
+                  }
+                }
+              },
+              {
+                "Filter": {
+                  "condition": {
+                    "Binary": {
+                      "left": {
+                        "Binary": {
+                          "left": {
+                            "PropertyAccess": {
+                              "object": "a",
+                              "property": "name",
+                              "span": {
+                                "end_col": 12,
+                                "end_line": 2,
+                                "start_col": 6,
+                                "start_line": 2
+                              }
+                            }
+                          },
+                          "operator": "Equal",
+                          "right": {
+                            "Literal": {
+                              "String": "P1"
+                            }
+                          },
+                          "span": {
+                            "end_col": 19,
+                            "end_line": 2,
+                            "start_col": 6,
+                            "start_line": 2
+                          }
+                        }
+                      },
+                      "operator": "And",
+                      "right": {
+                        "Binary": {
+                          "left": {
+                            "PropertyAccess": {
+                              "object": "b",
+                              "property": "name",
+                              "span": {
+                                "end_col": 30,
+                                "end_line": 2,
+                                "start_col": 24,
+                                "start_line": 2
+                              }
+                            }
+                          },
+                          "operator": "Equal",
+                          "right": {
+                            "Literal": {
+                              "String": "P3"
+                            }
+                          },
+                          "span": {
+                            "end_col": 37,
+                            "end_line": 2,
+                            "start_col": 24,
+                            "start_line": 2
+                          }
+                        }
+                      },
+                      "span": {
+                        "end_col": 37,
+                        "end_line": 2,
+                        "start_col": 6,
+                        "start_line": 2
+                      }
+                    }
+                  },
+                  "span": {
+                    "end_col": 24,
+                    "end_line": 3,
+                    "start_col": 0,
+                    "start_line": 1
+                  }
+                }
+              }
+            ],
+            "result_statement": {
+              "Finish": {
+                "span": {
+                  "end_col": 24,
+                  "end_line": 3,
+                  "start_col": 0,
+                  "start_line": 1
+                }
+              }
+            },
+            "span": {
+              "end_col": 24,
+              "end_line": 3,
+              "start_col": 0,
+              "start_line": 1
+            }
+          }
+        }
+      },
+      "span": {
+        "end_col": 24,
+        "end_line": 3,
+        "start_col": 0,
+        "start_line": 1
+      },
+      "target_statement": {
+        "Data": {
+          "Insert": {
+            "patterns": [
+              {
+                "alternation": null,
+                "elements": [
+                  {
+                    "Node": {
+                      "id": "a",
+                      "labels": null,
+                      "properties": null,
+                      "span": {
+                        "end_col": 10,
+                        "end_line": 3,
+                        "start_col": 7,
+                        "start_line": 3
+                      },
+                      "where_clause": null
+                    }
+                  },
+                  {
+                    "Edge": {
+                      "direction": "Outgoing",
+                      "id": null,
+                      "labels": {
+                        "Literal": {
+                          "String": "LIKES"
+                        }
+                      },
+                      "properties": null,
+                      "quantifier": null,
+                      "span": {
+                        "end_col": 21,
+                        "end_line": 3,
+                        "start_col": 10,
+                        "start_line": 3
+                      },
+                      "where_clause": null
+                    }
+                  },
+                  {
+                    "Node": {
+                      "id": "b",
+                      "labels": null,
+                      "properties": null,
+                      "span": {
+                        "end_col": 24,
+                        "end_line": 3,
+                        "start_col": 21,
+                        "start_line": 3
+                      },
+                      "where_clause": null
+                    }
+                  }
+                ],
+                "path_mode": null,
+                "path_search": null,
+                "simplified_pattern": null,
+                "span": {
+                  "end_col": 24,
+                  "end_line": 3,
+                  "start_col": 7,
+                  "start_line": 3
+                },
+                "variable": null
+              }
+            ],
+            "span": {
+              "end_col": 24,
+              "end_line": 3,
+              "start_col": 0,
+              "start_line": 3
+            }
+          }
+        }
+      },
+      "yield_clause": null
+    }
+  }
+}
