@@ -51,28 +51,31 @@
             "page_clause": null,
             "return_clause": {
               "distinct": "None",
-              "items": [
-                {
-                  "alias": null,
-                  "expression": {
-                    "Variable": {
-                      "name": "score",
-                      "span": {
-                        "end_col": 58,
-                        "end_line": 1,
-                        "start_col": 53,
-                        "start_line": 1
+              "projection": {
+                "items": [
+                  {
+                    "alias": null,
+                    "expression": {
+                      "Variable": {
+                        "name": "score",
+                        "span": {
+                          "end_col": 58,
+                          "end_line": 1,
+                          "start_col": 53,
+                          "start_line": 1
+                        }
                       }
+                    },
+                    "span": {
+                      "end_col": 58,
+                      "end_line": 1,
+                      "start_col": 53,
+                      "start_line": 1
                     }
-                  },
-                  "span": {
-                    "end_col": 58,
-                    "end_line": 1,
-                    "start_col": 53,
-                    "start_line": 1
                   }
-                }
-              ],
+                ],
+                "kind": "items"
+              },
               "span": {
                 "end_col": 58,
                 "end_line": 1,

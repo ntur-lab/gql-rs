@@ -87,29 +87,32 @@
             "page_clause": null,
             "return_clause": {
               "distinct": "None",
-              "items": [
-                {
-                  "alias": null,
-                  "expression": {
-                    "PropertyAccess": {
-                      "object": "n",
-                      "property": "displayName",
-                      "span": {
-                        "end_col": 56,
-                        "end_line": 1,
-                        "start_col": 43,
-                        "start_line": 1
+              "projection": {
+                "items": [
+                  {
+                    "alias": null,
+                    "expression": {
+                      "PropertyAccess": {
+                        "object": "n",
+                        "property": "displayName",
+                        "span": {
+                          "end_col": 56,
+                          "end_line": 1,
+                          "start_col": 43,
+                          "start_line": 1
+                        }
                       }
+                    },
+                    "span": {
+                      "end_col": 56,
+                      "end_line": 1,
+                      "start_col": 43,
+                      "start_line": 1
                     }
-                  },
-                  "span": {
-                    "end_col": 56,
-                    "end_line": 1,
-                    "start_col": 43,
-                    "start_line": 1
                   }
-                }
-              ],
+                ],
+                "kind": "items"
+              },
               "span": {
                 "end_col": 56,
                 "end_line": 1,

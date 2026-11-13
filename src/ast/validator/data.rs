@@ -270,16 +270,10 @@ pub(super) fn infer_result_projection_arity(result: &PrimitiveResultStatement) -
         return None;
     };
 
-    if return_clause.items.iter().any(|item| {
-        matches!(
-            &item.expression,
-            Expression::Literal(Literal::String(s)) if s.trim() == "*"
-        )
-    }) {
-        return None;
+    match &return_clause.projection {
+        ReturnProjection::Wildcard => None,
+        ReturnProjection::Items(items) => Some(items.len()),
     }
-
-    Some(return_clause.items.len())
 }
 
 /// Helper functions to infer the arity, projected aliases, and column types of a query's result set, which are used for validating set operations and procedure call projections. These functions analyze the structure of the query and its result statements to determine the characteristics of the projected output.
@@ -305,8 +299,12 @@ pub(super) fn infer_result_projection_signature(result: &PrimitiveResultStatemen
         return None;
     };
 
-    let mut signature = Vec::with_capacity(return_clause.items.len());
-    for item in &return_clause.items {
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return None;
+    };
+
+    let mut signature = Vec::with_capacity(items.len());
+    for item in items {
         let Some(alias) = &item.alias else {
             return None;
         };
@@ -356,9 +354,12 @@ pub(super) fn infer_result_projection_types(result: &PrimitiveResultStatement) -
         return None;
     };
 
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return None;
+    };
+
     let inferred = HashMap::new();
-    let types = return_clause
-        .items
+    let types = items
         .iter()
         .map(|item| infer_expression_type(&item.expression, &inferred, None))
         .collect();

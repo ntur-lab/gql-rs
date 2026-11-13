@@ -64,84 +64,87 @@
             "page_clause": null,
             "return_clause": {
               "distinct": "None",
-              "items": [
-                {
-                  "alias": "displayName",
-                  "expression": {
-                    "Case": {
-                      "case_type": {
-                        "Searched": {
-                          "else_expression": {
-                            "Literal": {
-                              "String": "inactive"
-                            }
-                          },
-                          "when_branches": [
-                            {
-                              "condition": {
-                                "PropertyAccess": {
-                                  "object": "n",
-                                  "property": "active",
-                                  "span": {
-                                    "end_col": 25,
-                                    "end_line": 2,
-                                    "start_col": 17,
-                                    "start_line": 2
+              "projection": {
+                "items": [
+                  {
+                    "alias": "displayName",
+                    "expression": {
+                      "Case": {
+                        "case_type": {
+                          "Searched": {
+                            "else_expression": {
+                              "Literal": {
+                                "String": "inactive"
+                              }
+                            },
+                            "when_branches": [
+                              {
+                                "condition": {
+                                  "PropertyAccess": {
+                                    "object": "n",
+                                    "property": "active",
+                                    "span": {
+                                      "end_col": 25,
+                                      "end_line": 2,
+                                      "start_col": 17,
+                                      "start_line": 2
+                                    }
                                   }
-                                }
-                              },
-                              "span": {
-                                "end_col": 44,
-                                "end_line": 2,
-                                "start_col": 12,
-                                "start_line": 2
-                              },
-                              "then_expression": {
-                                "FunctionCall": {
-                                  "arguments": [
-                                    {
-                                      "PropertyAccess": {
-                                        "object": "n",
-                                        "property": "name",
-                                        "span": {
-                                          "end_col": 43,
-                                          "end_line": 2,
-                                          "start_col": 37,
-                                          "start_line": 2
+                                },
+                                "span": {
+                                  "end_col": 44,
+                                  "end_line": 2,
+                                  "start_col": 12,
+                                  "start_line": 2
+                                },
+                                "then_expression": {
+                                  "FunctionCall": {
+                                    "arguments": [
+                                      {
+                                        "PropertyAccess": {
+                                          "object": "n",
+                                          "property": "name",
+                                          "span": {
+                                            "end_col": 43,
+                                            "end_line": 2,
+                                            "start_col": 37,
+                                            "start_line": 2
+                                          }
                                         }
                                       }
+                                    ],
+                                    "distinct": "None",
+                                    "name": "UPPER",
+                                    "span": {
+                                      "end_col": 44,
+                                      "end_line": 2,
+                                      "start_col": 31,
+                                      "start_line": 2
                                     }
-                                  ],
-                                  "distinct": "None",
-                                  "name": "UPPER",
-                                  "span": {
-                                    "end_col": 44,
-                                    "end_line": 2,
-                                    "start_col": 31,
-                                    "start_line": 2
                                   }
                                 }
                               }
-                            }
-                          ]
+                            ]
+                          }
+                        },
+                        "span": {
+                          "end_col": 64,
+                          "end_line": 2,
+                          "start_col": 7,
+                          "start_line": 2
                         }
-                      },
-                      "span": {
-                        "end_col": 64,
-                        "end_line": 2,
-                        "start_col": 7,
-                        "start_line": 2
                       }
+                    },
+                    "span": {
+                      "end_col": 79,
+                      "end_line": 2,
+                      "start_col": 7,
+                      "start_line": 2
                     }
-                  },
-                  "span": {
-                    "end_col": 79,
-                    "end_line": 2,
-                    "start_col": 7,
-                    "start_line": 2
                   }
-                }
-              ],
+                ],
+                "kind": "items"
+              },
               "span": {
                 "end_col": 79,
                 "end_line": 2,
