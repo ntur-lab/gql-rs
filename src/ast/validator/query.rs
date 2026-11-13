@@ -285,7 +285,11 @@ pub(super) fn collect_projected_output_names_from_result(result: &PrimitiveResul
         return names;
     };
 
-    for item in &return_clause.items {
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return names;
+    };
+
+    for item in items {
         if let Some(alias) = &item.alias {
             let trimmed = alias.trim();
             if !trimmed.is_empty() {
@@ -494,14 +498,18 @@ pub(super) fn validate_return_clause_with_aliases(
     declared_variables: &HashSet<String>,
     return_aliases: &mut HashSet<String>,
 ) -> Result<(), GqlError> {
-    if return_clause.items.is_empty() {
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return Ok(());
+    };
+
+    if items.is_empty() {
         return Err(validation_err(
             "RETURN clause must contain at least one item".to_string(),
             Some(&return_clause.span.clone()),
         ));
     }
 
-    for item in &return_clause.items {
+    for item in items {
         validate_expression(&item.expression, declared_variables)?;
 
         if let Some(alias) = &item.alias {
@@ -590,7 +598,11 @@ pub(super) fn validate_non_aggregated_return_variables_in_group_by(
         })
         .unwrap_or_default();
 
-    for item in &return_clause.items {
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return Ok(());
+    };
+
+    for item in items {
         let mut non_aggregated_refs = HashSet::new();
         collect_non_aggregated_variable_refs(&item.expression, false, &mut non_aggregated_refs);
 

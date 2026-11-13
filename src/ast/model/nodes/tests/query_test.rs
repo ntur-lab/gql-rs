@@ -139,11 +139,11 @@ fn from_subquery_step() -> QueryStep {
 fn return_clause() -> ReturnClause {
     ReturnClause {
         distinct: DistinctQualifier::None,
-        items: vec![ReturnItem {
+        projection: ReturnProjection::Items(vec![ReturnItem {
             expression: boolean_literal(true),
             alias: None,
             span: span(),
-        }],
+        }]),
         span: span(),
     }
 }
