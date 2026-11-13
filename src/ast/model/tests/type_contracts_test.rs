@@ -107,6 +107,7 @@ fn data_statement_types_implement_the_model_contract() {
         MatchClauseItem,
         WhereClause,
         ReturnClause,
+        ReturnProjection,
         ReturnItem,
         DistinctQualifier,
         OrderClause,

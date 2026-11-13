@@ -989,11 +989,14 @@ fn infer_scalar_subquery_type(
                 return None;
             };
 
-            if return_clause.items.len() != 1 {
+            let ReturnProjection::Items(items) = &return_clause.projection else {
+                return None;
+            };
+            if items.len() != 1 {
                 return None;
             }
 
-            infer_expression_type(&return_clause.items[0].expression, inferred_types, declared_variables)
+            infer_expression_type(&items[0].expression, inferred_types, declared_variables)
                 .or(Some(TypeSpec::Any))
         }
         Query::SetOperation(set_op) => {

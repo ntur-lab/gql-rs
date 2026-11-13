@@ -67,14 +67,14 @@ fn validate_rejects_unknown_return_variable() {
             result_statement: PrimitiveResultStatement::Return {
                 return_clause: ReturnClause {
                     distinct: DistinctQualifier::None,
-                    items: vec![ReturnItem {
+                    projection: ReturnProjection::Items(vec![ReturnItem {
                         expression: Expression::Variable {
                             name: "missing".to_string(),
                             span: Span::default(),
                         },
                         alias: None,
                         span: Span::default(),
-                    }],
+                    }]),
                     span: Span::default(),
                 },
                 group_clause: None,

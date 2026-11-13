@@ -140,50 +140,53 @@
             "page_clause": null,
             "return_clause": {
               "distinct": "None",
-              "items": [
-                {
-                  "alias": "name",
-                  "expression": {
-                    "PropertyAccess": {
-                      "object": "person",
-                      "property": "name",
-                      "span": {
-                        "end_col": 18,
-                        "end_line": 3,
-                        "start_col": 7,
-                        "start_line": 3
+              "projection": {
+                "items": [
+                  {
+                    "alias": "name",
+                    "expression": {
+                      "PropertyAccess": {
+                        "object": "person",
+                        "property": "name",
+                        "span": {
+                          "end_col": 18,
+                          "end_line": 3,
+                          "start_col": 7,
+                          "start_line": 3
+                        }
                       }
+                    },
+                    "span": {
+                      "end_col": 26,
+                      "end_line": 3,
+                      "start_col": 7,
+                      "start_line": 3
                     }
                   },
-                  "span": {
-                    "end_col": 26,
-                    "end_line": 3,
-                    "start_col": 7,
-                    "start_line": 3
-                  }
-                },
-                {
-                  "alias": "friendName",
-                  "expression": {
-                    "PropertyAccess": {
-                      "object": "friend",
-                      "property": "name",
-                      "span": {
-                        "end_col": 39,
-                        "end_line": 3,
-                        "start_col": 28,
-                        "start_line": 3
+                  {
+                    "alias": "friendName",
+                    "expression": {
+                      "PropertyAccess": {
+                        "object": "friend",
+                        "property": "name",
+                        "span": {
+                          "end_col": 39,
+                          "end_line": 3,
+                          "start_col": 28,
+                          "start_line": 3
+                        }
                       }
+                    },
+                    "span": {
+                      "end_col": 53,
+                      "end_line": 3,
+                      "start_col": 28,
+                      "start_line": 3
                     }
-                  },
-                  "span": {
-                    "end_col": 53,
-                    "end_line": 3,
-                    "start_col": 28,
-                    "start_line": 3
                   }
-                }
-              ],
+                ],
+                "kind": "items"
+              },
               "span": {
                 "end_col": 53,
                 "end_line": 3,

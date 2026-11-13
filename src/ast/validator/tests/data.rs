@@ -102,9 +102,19 @@ fn projection_helpers_cover_return_finish_and_wildcard_results() {
     assert_eq!(infer_result_projection_signature(&finish), None);
     assert_eq!(infer_result_projection_types(&finish), None);
 
-    let wildcard = return_result(vec![(string("*"), None)]);
+    let wildcard = PrimitiveResultStatement::Return {
+        return_clause: ReturnClause {
+            distinct: DistinctQualifier::None,
+            projection: ReturnProjection::Wildcard,
+            span: span(),
+        },
+        group_clause: None,
+        page_clause: None,
+        span: span(),
+    };
     assert_eq!(infer_result_projection_arity(&wildcard), None);
     assert_eq!(infer_result_projection_signature(&wildcard), None);
+    assert_eq!(infer_result_projection_types(&wildcard), None);
 }
 
 #[test]
@@ -126,6 +136,25 @@ fn set_operation_projection_helpers_merge_compatible_branches() {
         infer_query_projection_types(&query),
         Some(vec![Some(TypeSpec::Integer)])
     );
+}
+
+#[test]
+fn wildcard_projection_has_unknown_set_operation_arity() {
+    let wildcard = basic_query(PrimitiveResultStatement::Return {
+        return_clause: ReturnClause {
+            distinct: DistinctQualifier::None,
+            projection: ReturnProjection::Wildcard,
+            span: span(),
+        },
+        group_clause: None,
+        page_clause: None,
+        span: span(),
+    });
+    let explicit = basic_query(return_result(vec![(integer(1), Some("value"))]));
+    let set_operation = set_operation(wildcard, explicit);
+
+    assert_eq!(infer_query_projection_arity(&Query::SetOperation(set_operation.clone())), None);
+    assert!(validate_set_operation_query(&set_operation, &mut HashSet::new()).is_ok());
 }
 
 #[test]
