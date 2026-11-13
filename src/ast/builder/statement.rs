@@ -1529,8 +1529,8 @@ impl GQLAstBuilder {
             _ => DistinctQualifier::None,
         };
 
-        let items = if let Some(select_item_list) = select_stmt.selectItemList() {
-            select_item_list
+        let projection = if let Some(select_item_list) = select_stmt.selectItemList() {
+            ReturnProjection::Items(select_item_list
                 .selectItem_all()
                 .into_iter()
                 .map(|item| {
@@ -1552,18 +1552,14 @@ impl GQLAstBuilder {
                         span: span.clone(),
                     })
                 })
-                .collect::<GqlResult<Vec<_>>>()?
+                .collect::<GqlResult<Vec<_>>>()?)
         } else {
-            vec![ReturnItem {
-                expression: Expression::Literal(Literal::String("*".to_string())),
-                alias: None,
-                span: span.clone(),
-            }]
+            ReturnProjection::Wildcard
         };
 
         let return_clause = ReturnClause {
             distinct,
-            items,
+            projection,
             span: span.clone(),
         };
 

@@ -24,6 +24,7 @@ use crate::{
     BasicQuery, BinaryExpression, CaseExpression, CaseType, CatalogObjectName, CatalogSchemaName, DistinctQualifier, Edge,
     EdgeDirection, Expression, FunctionCall, GraphExpressionClause, GraphExpressionKind, GroupClause, GroupKey, Literal,
     Node, Operator, PathPattern, PatternElement, PrimitiveResultStatement, PropertyAccess, Query, ReturnClause, ReturnItem,
+    ReturnProjection,
     SearchedCaseExpression, SearchedWhenBranch, SessionResetClause, SessionResetTarget, SetOperation, SetOperationType,
     SimpleCaseExpression, SimpleWhenBranch, Span, Statement, SubqueryExpression, TypeSpec, UnaryExpression, YieldItem,
 };
@@ -94,14 +95,14 @@ pub(crate) fn return_result(items: Vec<(Expression, Option<&str>)>) -> Primitive
     PrimitiveResultStatement::Return {
         return_clause: ReturnClause {
             distinct: DistinctQualifier::None,
-            items: items
+            projection: ReturnProjection::Items(items
                 .into_iter()
                 .map(|(expression, alias)| ReturnItem {
                     expression,
                     alias: alias.map(str::to_string),
                     span: span(),
                 })
-                .collect(),
+                .collect()),
             span: span(),
         },
         group_clause: None,
@@ -188,14 +189,14 @@ pub(crate) fn return_query(expressions: Vec<Expression>) -> Query {
         result_statement: PrimitiveResultStatement::Return {
             return_clause: ReturnClause {
                 distinct: DistinctQualifier::None,
-                items: expressions
+                projection: ReturnProjection::Items(expressions
                     .into_iter()
                     .map(|expression| ReturnItem {
                         expression,
                         alias: None,
                         span: span(),
                     })
-                    .collect(),
+                    .collect()),
                 span: span(),
             },
             group_clause: None,
@@ -265,14 +266,14 @@ pub(crate) fn searched_case(
 pub(crate) fn return_clause(items: Vec<(Expression, Option<&str>)>) -> ReturnClause {
     ReturnClause {
         distinct: DistinctQualifier::None,
-        items: items
+        projection: ReturnProjection::Items(items
             .into_iter()
             .map(|(expression, alias)| ReturnItem {
                 expression,
                 alias: alias.map(str::to_string),
                 span: span(),
             })
-            .collect(),
+            .collect()),
         span: span(),
     }
 }

@@ -65,3 +65,27 @@ fn next_statement_transaction_intent_merges_recursive_chains() {
         TransactionIntent::CatalogWrite
     );
 }
+
+#[test]
+fn return_projection_serialization_distinguishes_wildcard_from_items() {
+    let wildcard = ReturnProjection::Wildcard;
+    let wildcard_json = serde_json::to_value(&wildcard).unwrap();
+    assert_eq!(wildcard_json, serde_json::json!({ "kind": "wildcard" }));
+    assert!(matches!(
+        serde_json::from_value::<ReturnProjection>(wildcard_json).unwrap(),
+        ReturnProjection::Wildcard
+    ));
+
+    let items = ReturnProjection::Items(vec![ReturnItem {
+        expression: Expression::Literal(Literal::Integer(1)),
+        alias: Some("one".to_string()),
+        span: span(),
+    }]);
+    let items_json = serde_json::to_value(&items).unwrap();
+    assert_eq!(items_json["kind"], "items");
+    assert_eq!(items_json["items"].as_array().unwrap().len(), 1);
+    assert!(matches!(
+        serde_json::from_value::<ReturnProjection>(items_json).unwrap(),
+        ReturnProjection::Items(decoded) if decoded.len() == 1
+    ));
+}
