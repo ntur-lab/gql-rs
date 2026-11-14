@@ -23,7 +23,7 @@
 use super::*;
 
 /// Function to validate a query, ensuring that all components of the query are structurally and semantically correct according to the rules of the query language. This function recursively validates each part of the query, including MATCH clauses, LET statements, FILTER conditions, HAVING conditions, FOR clauses, pagination clauses, CALL clauses, and subqueries. It also manages the scope of declared variables to ensure that all references are valid and that there are no naming conflicts.
-pub(super) fn validate_basic_query(basic: &BasicQuery, declared_variables: &mut HashSet<String>) -> Result<(), GqlError> {
+pub(super) fn validate_basic_query(basic: &BasicQuery, declared_variables: &mut HashSet<String>) -> Result<HashSet<String>, GqlError> {
     for step in &basic.pipeline {
         match step {
             QueryStep::Match(match_clause) => {
@@ -79,9 +79,7 @@ pub(super) fn validate_basic_query(basic: &BasicQuery, declared_variables: &mut 
             }
             QueryStep::FromSubquery(from_query) => {
                 let mut nested_scope = declared_variables.clone();
-                validate_query(from_query, &mut nested_scope)?;
-
-                for output_name in collect_projected_output_names(from_query) {
+                for output_name in validate_query_output(from_query, &mut nested_scope)? {
                     declared_variables.insert(output_name);
                 }
             }
@@ -103,6 +101,21 @@ pub(super) fn validate_basic_query(basic: &BasicQuery, declared_variables: &mut 
             if let Some(group) = group_clause {
                 validate_group_clause(group, declared_variables, &return_aliases)?;
                 validate_non_aggregated_return_variables_in_group_by(return_clause, group)?;
+                if matches!(return_clause.projection, ReturnProjection::Wildcard) {
+                    let grouped: HashSet<&str> = group.keys.as_ref().into_iter().flatten()
+                        .map(|key| match key { GroupKey::BindingVariable { name, .. } => name.trim() })
+                        .collect();
+                    let mut variables: Vec<&String> = declared_variables.iter().collect();
+                    variables.sort();
+                    for variable in variables {
+                        if !grouped.contains(variable.as_str()) {
+                            return Err(validation_err(
+                                format!("Non-aggregated variable '{}' in RETURN * must appear in GROUP BY", variable),
+                                Some(&return_clause.span),
+                            ));
+                        }
+                    }
+                }
             }
 
             if let Some(page) = page_clause {
@@ -116,7 +129,12 @@ pub(super) fn validate_basic_query(basic: &BasicQuery, declared_variables: &mut 
         }
     }
 
-    Ok(())
+    let names = match &basic.result_statement {
+        PrimitiveResultStatement::Return { return_clause, .. }
+            if matches!(return_clause.projection, ReturnProjection::Wildcard) => declared_variables.clone(),
+        _ => collect_projected_output_names_from_result(&basic.result_statement),
+    };
+    Ok(names)
 }
 
 /// Function to validate a MATCH clause, ensuring that all patterns and their components are structurally and semantically correct. This includes checking that path patterns are well-formed, that any variables used are properly declared and do not conflict with each other, and that any mode-specific constraints on patterns are respected. The function also manages the scope of declared variables to ensure that they are available for subsequent query steps.
@@ -260,21 +278,6 @@ pub(super) fn validate_path_mode_cycle_constraints(pattern: &PathPattern) -> Res
     }
 
     Ok(())
-}
-
-/// Function to collect output names projected by a query for outer-scope propagation.
-pub(super) fn collect_projected_output_names(query: &Query) -> HashSet<String> {
-    match query {
-        Query::Basic(basic) => collect_projected_output_names_from_result(&basic.result_statement),
-        Query::SetOperation(set_op) => {
-            let left = collect_projected_output_names(&set_op.left);
-            if left.is_empty() {
-                collect_projected_output_names(&set_op.right)
-            } else {
-                left
-            }
-        }
-    }
 }
 
 /// Helper function to extract projected names from a terminal RETURN result statement.
