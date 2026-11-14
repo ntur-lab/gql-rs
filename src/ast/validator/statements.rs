@@ -24,6 +24,14 @@ use super::*;
 
 /// Function to validate a Query AST node, ensuring that all components of the query are semantically correct according to the GQL specification. This includes validating the structure of the query, checking for correct usage of variables, ensuring that clauses are consistent with each other, and enforcing any specific rules related to the types of queries (e.g., basic vs set operation). The function takes a mutable reference to a set of declared variables to track variable usage across the query and its subqueries.
 pub(super) fn validate_query(query: &Query, declared_variables: &mut HashSet<String>) -> Result<(), GqlError> {
+    validate_query_output(query, declared_variables).map(|_| ())
+}
+
+/// Validates a query and returns only the bindings exposed by its result.
+pub(super) fn validate_query_output(
+    query: &Query,
+    declared_variables: &mut HashSet<String>,
+) -> Result<HashSet<String>, GqlError> {
     match query {
         Query::Basic(basic) => validate_basic_query(basic, declared_variables),
         Query::SetOperation(set_op) => validate_set_operation_query(set_op, declared_variables),

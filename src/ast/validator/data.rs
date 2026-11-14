@@ -158,9 +158,9 @@ pub(super) fn validate_insert_pattern(
 pub(super) fn validate_set_operation_query(
     set_op: &SetOperation,
     declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+) -> Result<HashSet<String>, GqlError> {
     let mut left_scope = declared_variables.clone();
-    validate_query(&set_op.left, &mut left_scope)?;
+    let output_names = validate_query_output(&set_op.left, &mut left_scope)?;
 
     let mut right_scope = declared_variables.clone();
     validate_query(&set_op.right, &mut right_scope)?;
@@ -234,7 +234,7 @@ pub(super) fn validate_set_operation_query(
         validate_order_clause(order_clause, &merged_scope, None)?;
     }
 
-    Ok(())
+    Ok(output_names)
 }
 
 /// Function to validate projection in procedure calls, ensuring that the projection items are valid expressions, that any aliases are properly declared and do not conflict with existing variables, and that the overall structure of the projection adheres to the semantic rules of the language.
