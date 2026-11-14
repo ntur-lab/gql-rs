@@ -176,7 +176,7 @@ impl GQLAstBuilder {
     }
 
     /// Preserves the graph selected by a focused data-modifying statement.
-    fn wrap_focused_linear_data_statement(
+    pub(super) fn wrap_focused_linear_data_statement(
         linear_data: &LinearDataModifyingStatementContextAll,
         statement: Statement,
     ) -> GqlResult<Statement> {

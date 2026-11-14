@@ -186,17 +186,20 @@ impl GQLAstBuilder {
         let mut has_data_modify = false;
         let mut has_input_query = false;
         let mut input_insert = None;
+        let mut terminal_result = None;
 
         if let Some(focused) = linear_data.focusedLinearDataModifyingStatement()
             && let Some(body) = focused.focusedLinearDataModifyingStatementBody()
         {
+            terminal_result = body.primitiveResultStatement();
             if let Some(use_clause) = body.useGraphClause()
                 && let Some(graph_expr) = use_clause.graphExpression()
             {
                 pipeline.push(QueryStep::UseGraph(Self::build_graph_expression_clause(&graph_expr)));
             }
             if let Some(simple_linear) = body.simpleLinearDataAccessingStatement() {
-                for statement in simple_linear.simpleDataAccessingStatement_all() {
+                let statements = simple_linear.simpleDataAccessingStatement_all();
+                for (index, statement) in statements.iter().enumerate() {
                     if let Some(query_stmt) = statement.simpleQueryStatement() {
                         has_input_query = true;
                         if let Some(primitive) = query_stmt.primitiveQueryStatement() {
@@ -221,6 +224,17 @@ impl GQLAstBuilder {
                             } else if let Some(f) = primitive.forStatement() {
                                 let for_clause = Self::build_for_clause_from_context(&f)?;
                                 pipeline.push(QueryStep::For(for_clause));
+                            } else if let Some(page) = primitive.orderByAndPageStatement() {
+                                let order_clause = page.orderByClause()
+                                    .map(|ctx| Self::build_order_clause_from_context(&ctx)).transpose()?;
+                                let limit_clause = Self::build_limit_clause_from_context(&page)?;
+                                pipeline.push(QueryStep::Page(OrderByAndPageStatement {
+                                    order_clause,
+                                    limit_clause,
+                                    span: Self::extract_span(&*page),
+                                }));
+                            } else {
+                                return Self::parse_error("Unsupported input query clause before data modification");
                             }
                         } else if let Some(call_query) = query_stmt.callQueryStatement() {
                             let call_proc = call_query.callProcedureStatement().ok_or_else(|| {
@@ -240,6 +254,10 @@ impl GQLAstBuilder {
                             .primitiveDataModifyingStatement()
                             .and_then(|primitive| primitive.insertStatement())
                         {
+                            if index + 1 != statements.len() {
+                                return Self::parse_error("Operations after INSERT are not supported by the current AST builder");
+                            }
+                            has_data_modify = true;
                             input_insert = Some(Self::build_insert_statement_from_context(&insert_stmt)?);
                             break;
                         } else {
@@ -255,7 +273,9 @@ impl GQLAstBuilder {
             && let Some(body) = ambient.ambientLinearDataModifyingStatementBody()
             && let Some(simple_linear) = body.simpleLinearDataAccessingStatement()
         {
-            for statement in simple_linear.simpleDataAccessingStatement_all() {
+            terminal_result = body.primitiveResultStatement();
+            let statements = simple_linear.simpleDataAccessingStatement_all();
+            for (index, statement) in statements.iter().enumerate() {
                 if let Some(query_stmt) = statement.simpleQueryStatement() {
                     has_input_query = true;
                     if let Some(primitive) = query_stmt.primitiveQueryStatement() {
@@ -280,6 +300,17 @@ impl GQLAstBuilder {
                         } else if let Some(f) = primitive.forStatement() {
                             let for_clause = Self::build_for_clause_from_context(&f)?;
                             pipeline.push(QueryStep::For(for_clause));
+                        } else if let Some(page) = primitive.orderByAndPageStatement() {
+                            let order_clause = page.orderByClause()
+                                .map(|ctx| Self::build_order_clause_from_context(&ctx)).transpose()?;
+                            let limit_clause = Self::build_limit_clause_from_context(&page)?;
+                            pipeline.push(QueryStep::Page(OrderByAndPageStatement {
+                                order_clause,
+                                limit_clause,
+                                span: Self::extract_span(&*page),
+                            }));
+                        } else {
+                            return Self::parse_error("Unsupported input query clause before data modification");
                         }
                     } else if let Some(call_query) = query_stmt.callQueryStatement() {
                         let call_proc = call_query.callProcedureStatement().ok_or_else(|| {
@@ -299,6 +330,10 @@ impl GQLAstBuilder {
                         .primitiveDataModifyingStatement()
                         .and_then(|primitive| primitive.insertStatement())
                     {
+                        if index + 1 != statements.len() {
+                            return Self::parse_error("Operations after INSERT are not supported by the current AST builder");
+                        }
+                        has_data_modify = true;
                         input_insert = Some(Self::build_insert_statement_from_context(&insert_stmt)?);
                         break;
                     } else {
@@ -312,18 +347,39 @@ impl GQLAstBuilder {
         if has_input_query
             && let Some(insert) = input_insert
         {
+            // Graph focus must cover the mutation and result, not just its input.
+            if matches!(pipeline.first(), Some(QueryStep::UseGraph(_))) {
+                pipeline.remove(0);
+            }
             let query = Query::Basic(BasicQuery {
                 pipeline,
                 result_statement: PrimitiveResultStatement::Finish { span: span.clone() },
                 span: span.clone(),
             });
-            return Ok(Some(Statement::Next(NextStatement {
+            let mut target = Statement::Data(insert);
+            if let Some(result) = terminal_result {
+                let result_statement = Self::build_result_statement_from_primitive_result_statement(&result)?;
+                let result_span = Self::extract_span(&*result);
+                target = Statement::Next(NextStatement {
+                    source_statement: Box::new(target),
+                    target_statement: Box::new(Statement::Query(Query::Basic(BasicQuery {
+                        pipeline: Vec::new(),
+                        result_statement,
+                        span: result_span,
+                    }))),
+                    yield_clause: None,
+                    next: None,
+                    span: span.clone(),
+                });
+            }
+            let statement = Statement::Next(NextStatement {
                 source_statement: Box::new(Statement::Query(query)),
-                target_statement: Box::new(Statement::Data(insert)),
+                target_statement: Box::new(target),
                 yield_clause: None,
                 next: None,
                 span,
-            })));
+            });
+            return Self::wrap_focused_linear_data_statement(linear_data, statement).map(Some);
         }
 
         if !has_data_modify && !pipeline.is_empty() {
