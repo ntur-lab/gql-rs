@@ -69,19 +69,25 @@ impl GQLAstBuilder {
             _ => DistinctQualifier::None,
         };
 
-        let items = body
-            .returnItemList()
-            .map(|item_list| {
-                item_list
-                    .returnItem_all()
-                    .into_iter()
-                    .map(|item_ctx| Self::build_return_item(&item_ctx))
-                    .collect::<GqlResult<Vec<_>>>()
-            })
-            .transpose()?
-            .unwrap_or_default();
+        let projection = if body.ASTERISK().is_some() {
+            ReturnProjection::Wildcard
+        } else {
+            let items = body
+                .returnItemList()
+                .ok_or_else(|| Self::parse_err("CST not valid: RETURN projection missing".into()))?
+                .returnItem_all()
+                .into_iter()
+                .map(|item_ctx| Self::build_return_item(&item_ctx))
+                .collect::<GqlResult<Vec<_>>>()?;
 
-        Ok(ReturnClause { distinct, items, span })
+            ReturnProjection::Items(items)
+        };
+
+        Ok(ReturnClause {
+            distinct,
+            projection,
+            span,
+        })
     }
 
     /// Function to build a GroupClause from a GroupByClauseContext

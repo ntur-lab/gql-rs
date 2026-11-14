@@ -82,7 +82,7 @@ mod expression_it {
             let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
                 panic!("expected RETURN result statement");
             };
-            let Expression::Literal(Literal::String(value)) = &return_clause.items[0].expression else {
+            let Expression::Literal(Literal::String(value)) = &return_clause.items().unwrap()[0].expression else {
                 panic!("expected string literal for {query_text}");
             };
             assert_eq!(value, expected, "query: {query_text}");
@@ -105,7 +105,7 @@ mod expression_it {
             let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
                 panic!("expected RETURN");
             };
-            let Expression::Array(array) = &return_clause.items[0].expression else {
+            let Expression::Array(array) = &return_clause.items().unwrap()[0].expression else {
                 panic!("expected list")
             };
             assert_eq!(array.elements.len(), 3);
@@ -143,7 +143,7 @@ mod expression_it {
                 panic!("expected RETURN result statement");
             };
 
-            let Expression::PropertyAccess(property_access) = &return_clause.items[0].expression else {
+            let Expression::PropertyAccess(property_access) = &return_clause.items().unwrap()[0].expression else {
                 panic!("expected property access expression");
             };
 
@@ -195,8 +195,8 @@ mod expression_it {
         let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
             panic!("expected RETURN result statement");
         };
-        assert_eq!(return_clause.items[0].alias.as_deref(), Some("result"));
-        let Expression::Map(properties) = &return_clause.items[0].expression else {
+        assert_eq!(return_clause.items().unwrap()[0].alias.as_deref(), Some("result"));
+        let Expression::Map(properties) = &return_clause.items().unwrap()[0].expression else {
             panic!("expected record literal");
         };
         assert_eq!(properties[0].key, "year");
@@ -273,7 +273,7 @@ mod expression_it {
             panic!("expected RETURN result statement");
         };
 
-        let first_item = return_clause.items.first().expect("return item should exist");
+        let first_item = return_clause.items().unwrap().first().expect("return item should exist");
 
         let Expression::Map(properties) = &first_item.expression else {
             panic!("record literal must map to Expression::Map");
@@ -300,7 +300,7 @@ mod expression_it {
             panic!("expected RETURN result statement");
         };
 
-        let first_item = return_clause.items.first().expect("return item should exist");
+        let first_item = return_clause.items().unwrap().first().expect("return item should exist");
 
         let Expression::Cast(cast_expr) = &first_item.expression else {
             panic!("expected CAST expression");
@@ -329,7 +329,7 @@ mod expression_it {
             panic!("expected RETURN result statement");
         };
 
-        let first_item = return_clause.items.first().expect("return item should exist");
+        let first_item = return_clause.items().unwrap().first().expect("return item should exist");
 
         let Expression::Cast(cast_expr) = &first_item.expression else {
             panic!("expected CAST expression");
@@ -617,7 +617,7 @@ mod expression_it {
 
         let expected_names = ["ABS", "CEIL", "FLOOR", "SQRT"];
         for (i, expected_name) in expected_names.iter().enumerate() {
-            let Expression::FunctionCall(call) = &return_clause.items[i].expression else {
+            let Expression::FunctionCall(call) = &return_clause.items().unwrap()[i].expression else {
                 panic!("item {i} must be FunctionCall");
             };
             assert_eq!(call.name, *expected_name);
@@ -636,7 +636,7 @@ mod expression_it {
         let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
             panic!("expected return");
         };
-        let Expression::Binary(binary) = &return_clause.items[0].expression else {
+        let Expression::Binary(binary) = &return_clause.items().unwrap()[0].expression else {
             panic!("expected binary minus expression");
         };
         assert_eq!(binary.operator, Operator::Minus);
@@ -672,7 +672,7 @@ mod expression_it {
         let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
             panic!("expected return");
         };
-        let Expression::FunctionCall(call) = &return_clause.items[0].expression else {
+        let Expression::FunctionCall(call) = &return_clause.items().unwrap()[0].expression else {
             panic!("expected function call for MOD");
         };
         assert_eq!(call.name, "MOD");
@@ -693,7 +693,7 @@ mod expression_it {
         let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
             panic!("expected return");
         };
-        let Expression::FunctionCall(call) = &return_clause.items[0].expression else {
+        let Expression::FunctionCall(call) = &return_clause.items().unwrap()[0].expression else {
             panic!("expected FunctionCall for TRIM");
         };
         assert_eq!(call.name, "TRIM");
@@ -732,7 +732,7 @@ mod expression_it {
         let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
             panic!("expected return");
         };
-        let Expression::Case(case_expr) = &return_clause.items[0].expression else {
+        let Expression::Case(case_expr) = &return_clause.items().unwrap()[0].expression else {
             panic!("expected Case expression");
         };
 

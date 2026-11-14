@@ -11,22 +11,25 @@
                 "page_clause": null,
                 "return_clause": {
                   "distinct": "None",
-                  "items": [
-                    {
-                      "alias": "result",
-                      "expression": {
-                        "Literal": {
-                          "Integer": 1
+                  "projection": {
+                    "items": [
+                      {
+                        "alias": "result",
+                        "expression": {
+                          "Literal": {
+                            "Integer": 1
+                          }
+                        },
+                        "span": {
+                          "end_col": 18,
+                          "end_line": 1,
+                          "start_col": 7,
+                          "start_line": 1
                         }
-                      },
-                      "span": {
-                        "end_col": 18,
-                        "end_line": 1,
-                        "start_col": 7,
-                        "start_line": 1
                       }
-                    }
-                  ],
+                    ],
+                    "kind": "items"
+                  },
                   "span": {
                     "end_col": 18,
                     "end_line": 1,
@@ -62,22 +65,25 @@
                 "page_clause": null,
                 "return_clause": {
                   "distinct": "None",
-                  "items": [
-                    {
-                      "alias": "result",
-                      "expression": {
-                        "Literal": {
-                          "Integer": 2
+                  "projection": {
+                    "items": [
+                      {
+                        "alias": "result",
+                        "expression": {
+                          "Literal": {
+                            "Integer": 2
+                          }
+                        },
+                        "span": {
+                          "end_col": 47,
+                          "end_line": 1,
+                          "start_col": 36,
+                          "start_line": 1
                         }
-                      },
-                      "span": {
-                        "end_col": 47,
-                        "end_line": 1,
-                        "start_col": 36,
-                        "start_line": 1
                       }
-                    }
-                  ],
+                    ],
+                    "kind": "items"
+                  },
                   "span": {
                     "end_col": 47,
                     "end_line": 1,

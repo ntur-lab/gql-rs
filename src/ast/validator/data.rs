@@ -158,9 +158,9 @@ pub(super) fn validate_insert_pattern(
 pub(super) fn validate_set_operation_query(
     set_op: &SetOperation,
     declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+) -> Result<HashSet<String>, GqlError> {
     let mut left_scope = declared_variables.clone();
-    validate_query(&set_op.left, &mut left_scope)?;
+    let output_names = validate_query_output(&set_op.left, &mut left_scope)?;
 
     let mut right_scope = declared_variables.clone();
     validate_query(&set_op.right, &mut right_scope)?;
@@ -234,7 +234,7 @@ pub(super) fn validate_set_operation_query(
         validate_order_clause(order_clause, &merged_scope, None)?;
     }
 
-    Ok(())
+    Ok(output_names)
 }
 
 /// Function to validate projection in procedure calls, ensuring that the projection items are valid expressions, that any aliases are properly declared and do not conflict with existing variables, and that the overall structure of the projection adheres to the semantic rules of the language.
@@ -270,16 +270,10 @@ pub(super) fn infer_result_projection_arity(result: &PrimitiveResultStatement) -
         return None;
     };
 
-    if return_clause.items.iter().any(|item| {
-        matches!(
-            &item.expression,
-            Expression::Literal(Literal::String(s)) if s.trim() == "*"
-        )
-    }) {
-        return None;
+    match &return_clause.projection {
+        ReturnProjection::Wildcard => None,
+        ReturnProjection::Items(items) => Some(items.len()),
     }
-
-    Some(return_clause.items.len())
 }
 
 /// Helper functions to infer the arity, projected aliases, and column types of a query's result set, which are used for validating set operations and procedure call projections. These functions analyze the structure of the query and its result statements to determine the characteristics of the projected output.
@@ -305,8 +299,12 @@ pub(super) fn infer_result_projection_signature(result: &PrimitiveResultStatemen
         return None;
     };
 
-    let mut signature = Vec::with_capacity(return_clause.items.len());
-    for item in &return_clause.items {
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return None;
+    };
+
+    let mut signature = Vec::with_capacity(items.len());
+    for item in items {
         let Some(alias) = &item.alias else {
             return None;
         };
@@ -356,9 +354,12 @@ pub(super) fn infer_result_projection_types(result: &PrimitiveResultStatement) -
         return None;
     };
 
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return None;
+    };
+
     let inferred = HashMap::new();
-    let types = return_clause
-        .items
+    let types = items
         .iter()
         .map(|item| infer_expression_type(&item.expression, &inferred, None))
         .collect();

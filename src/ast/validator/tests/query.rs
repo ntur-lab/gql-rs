@@ -227,6 +227,17 @@ fn return_clause_rejects_empty_and_duplicate_aliases() {
 }
 
 #[test]
+fn return_clause_accepts_wildcard_projection() {
+    let wildcard = ReturnClause {
+        distinct: DistinctQualifier::None,
+        projection: ReturnProjection::Wildcard,
+        span: span(),
+    };
+
+    assert!(validate_return_clause_with_aliases(&wildcard, &HashSet::new(), &mut HashSet::new()).is_ok());
+}
+
+#[test]
 fn group_clause_validates_empty_sets_keys_and_scope() {
     let declared = HashSet::from(["n".to_string()]);
     let aliases = HashSet::from(["person".to_string()]);
