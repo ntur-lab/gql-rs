@@ -300,4 +300,28 @@ mod catalog_and_session_it {
             gql_rs::ast::GraphTypeSourceClause::NestedSpecification { .. }
         ));
     }
+
+    #[test]
+    fn activity_close_span_excludes_eof_and_round_trips() {
+        let query = "RETURN 1 SESSION CLOSE /* trailing comment */\n";
+        let ast = gql_rs::analyze(query).expect("activity and close should analyze");
+        let Statement::Next(sequence) = &ast.statement else {
+            panic!("expected activity and close");
+        };
+        assert_eq!(sequence.span.start_col, 0);
+        assert_eq!(sequence.span.end_line, 1);
+        assert_eq!(sequence.span.end_col, "RETURN 1 SESSION CLOSE".len() as isize);
+        let encoded = serde_json::to_value(&ast).unwrap();
+        let decoded: gql_rs::ast::QueryAST = serde_json::from_value(encoded.clone()).unwrap();
+        assert_eq!(serde_json::to_value(decoded).unwrap(), encoded);
+    }
+
+    #[test]
+    fn close_does_not_hide_activity_validation_errors() {
+        assert!(matches!(
+            gql_rs::analyze("RETURN missing SESSION CLOSE"),
+            Err(gql_rs::GqlError::Validation { .. })
+        ));
+    }
+
 }
