@@ -1544,12 +1544,12 @@ pub(super) fn validate_call_clause(
         let mut nested_ctx = ValidationContext {
             declared_variables: nested_scope,
         };
-        validate_dispatch(inline_stmt, &mut nested_ctx)?;
-
         if let Statement::Query(query) = inline_stmt.as_ref() {
-            for output_name in collect_projected_output_names(query) {
+            for output_name in validate_query_output(query, &mut nested_ctx.declared_variables)? {
                 declared_variables.insert(output_name);
             }
+        } else {
+            validate_dispatch(inline_stmt, &mut nested_ctx)?;
         }
     } else if call_clause.inline_procedure_statement.is_some() {
         return Err(validation_err(
