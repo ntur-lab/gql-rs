@@ -201,28 +201,33 @@ impl GQLAstBuilder {
 
     /// Builds a QueryAST from the CST root and dispatches top-level statement families.
     pub(crate) fn build_from_cst_root(cst_root: &GqlProgramContextAll) -> GqlResult<QueryAST> {
-        let session_close = cst_root.sessionCloseCommand().map(|_| {
-            Statement::Session(SessionStatement {
+        let session_close = cst_root.sessionCloseCommand().map(|close| {
+            let statement = Statement::Session(SessionStatement {
                 kind: SessionCommandKind::Close,
                 set_clauses: Vec::new(),
                 reset_clauses: Vec::new(),
-            })
+            });
+            (statement, Self::extract_span(&*close))
         });
 
         let Some(program_activity) = cst_root.programActivity() else {
             return session_close
-                .map(|statement| QueryAST { statement })
+                .map(|(statement, _)| QueryAST { statement })
                 .ok_or_else(|| Self::parse_err("CST not valid: missing programActivity or sessionCloseCommand".into()));
         };
 
         let activity = Self::build_program_activity(&program_activity)?;
         let statement = match session_close {
-            Some(close) => Statement::Next(NextStatement {
+            Some((close, close_span)) => Statement::Next(NextStatement {
                 source_statement: Box::new(activity),
                 target_statement: Box::new(close),
                 yield_clause: None,
                 next: None,
-                span: Self::extract_span(cst_root),
+                span: Span {
+                    end_line: close_span.end_line,
+                    end_col: close_span.end_col,
+                    ..Self::extract_span(&*program_activity)
+                },
             }),
             None => activity,
         };
