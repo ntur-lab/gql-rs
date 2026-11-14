@@ -26,6 +26,8 @@ mod support;
 
 #[path = "catalog_and_session_it.rs"]
 mod catalog_and_session_it;
+#[path = "data_modification_it.rs"]
+mod data_modification_it;
 #[path = "expressions_it.rs"]
 mod expressions_it;
 #[path = "graph_patterns_it.rs"]
