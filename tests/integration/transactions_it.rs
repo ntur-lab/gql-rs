@@ -23,7 +23,7 @@
 pub mod test_query_transaction_it {
     use gql_rs::{
         DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
-        ast::{Query, Statement, TransactionCommandKind},
+        ast::{Query, SessionCommandKind, Statement, TransactionCommandKind, TransactionIntent},
     };
 
     test_transaction_statement!(
@@ -111,5 +111,32 @@ pub mod test_query_transaction_it {
             panic!("expected rollback transaction statement");
         };
         assert!(matches!(rollback_tx.kind, TransactionCommandKind::Rollback));
+    }
+
+    #[test]
+    fn test_write_transaction_activity_followed_by_close_preserves_both_nodes_and_intent() {
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("START TRANSACTION MATCH (n) SET n.active = TRUE FINISH COMMIT SESSION CLOSE")
+            .expect("write transaction activity followed by close should parse");
+
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Next(sequence) = &ast.statement else {
+            panic!("expected transaction activity and close sequence");
+        };
+
+        assert!(matches!(sequence.source_statement.as_ref(), Statement::Next(_)));
+        let Statement::Session(close) = sequence.target_statement.as_ref() else {
+            panic!("expected SESSION CLOSE after transaction activity");
+        };
+        assert!(matches!(close.kind, SessionCommandKind::Close));
+        assert_eq!(ast.transaction_intent(), TransactionIntent::DataWrite);
+
+        let serialized = serde_json::to_value(ast).expect("ast should serialize");
+        assert!(serialized["statement"]["Next"]["source_statement"]["Next"].is_object());
+        assert_eq!(
+            serialized["statement"]["Next"]["target_statement"]["Session"]["kind"],
+            "Close"
+        );
     }
 }

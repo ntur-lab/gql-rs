@@ -96,6 +96,41 @@ mod catalog_and_session_it {
         expected_reset_count: 0
     );
 
+    #[test]
+    fn test_session_activity_followed_by_close_preserves_source_order() {
+        use gql_rs::ast::SessionCommandKind;
+
+        let mut analyzer = DefaultGQLQueryAnalyzer::new();
+        analyzer
+            .exec("SESSION SET SCHEMA CURRENT_SCHEMA SESSION CLOSE")
+            .expect("session activity followed by close should parse");
+
+        let ast = analyzer.get_ast().expect("ast must be available");
+        let Statement::Next(sequence) = &ast.statement else {
+            panic!("expected session activity and close sequence");
+        };
+
+        let Statement::Session(activity) = sequence.source_statement.as_ref() else {
+            panic!("expected session activity first");
+        };
+        assert!(matches!(activity.kind, SessionCommandKind::Set));
+
+        let Statement::Session(close) = sequence.target_statement.as_ref() else {
+            panic!("expected SESSION CLOSE second");
+        };
+        assert!(matches!(close.kind, SessionCommandKind::Close));
+
+        let serialized = serde_json::to_value(ast).expect("ast should serialize");
+        assert_eq!(
+            serialized["statement"]["Next"]["source_statement"]["Session"]["kind"],
+            "Set"
+        );
+        assert_eq!(
+            serialized["statement"]["Next"]["target_statement"]["Session"]["kind"],
+            "Close"
+        );
+    }
+
     test_graph_type_specification!(
         test_create_graph_type_single_node,
         "CREATE GRAPH TYPE simple { NODE TYPE Person }",
@@ -265,4 +300,28 @@ mod catalog_and_session_it {
             gql_rs::ast::GraphTypeSourceClause::NestedSpecification { .. }
         ));
     }
+
+    #[test]
+    fn activity_close_span_excludes_eof_and_round_trips() {
+        let query = "RETURN 1 SESSION CLOSE /* trailing comment */\n";
+        let ast = gql_rs::analyze(query).expect("activity and close should analyze");
+        let Statement::Next(sequence) = &ast.statement else {
+            panic!("expected activity and close");
+        };
+        assert_eq!(sequence.span.start_col, 0);
+        assert_eq!(sequence.span.end_line, 1);
+        assert_eq!(sequence.span.end_col, "RETURN 1 SESSION CLOSE".len() as isize);
+        let encoded = serde_json::to_value(&ast).unwrap();
+        let decoded: gql_rs::ast::QueryAST = serde_json::from_value(encoded.clone()).unwrap();
+        assert_eq!(serde_json::to_value(decoded).unwrap(), encoded);
+    }
+
+    #[test]
+    fn close_does_not_hide_activity_validation_errors() {
+        assert!(matches!(
+            gql_rs::analyze("RETURN missing SESSION CLOSE"),
+            Err(gql_rs::GqlError::Validation { .. })
+        ));
+    }
+
 }

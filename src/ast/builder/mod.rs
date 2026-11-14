@@ -201,24 +201,46 @@ impl GQLAstBuilder {
 
     /// Builds a QueryAST from the CST root and dispatches top-level statement families.
     pub(crate) fn build_from_cst_root(cst_root: &GqlProgramContextAll) -> GqlResult<QueryAST> {
-        if let Some(_session_close) = cst_root.sessionCloseCommand() {
-            return Ok(QueryAST {
-                statement: Statement::Session(SessionStatement {
-                    kind: SessionCommandKind::Close,
-                    set_clauses: Vec::new(),
-                    reset_clauses: Vec::new(),
-                }),
+        let session_close = cst_root.sessionCloseCommand().map(|close| {
+            let statement = Statement::Session(SessionStatement {
+                kind: SessionCommandKind::Close,
+                set_clauses: Vec::new(),
+                reset_clauses: Vec::new(),
             });
-        }
+            (statement, Self::extract_span(&*close))
+        });
 
-        let program_activity = cst_root
-            .programActivity()
-            .ok_or_else(|| Self::parse_err("CST not valid: missing programActivity".into()))?;
+        let Some(program_activity) = cst_root.programActivity() else {
+            return session_close
+                .map(|(statement, _)| QueryAST { statement })
+                .ok_or_else(|| Self::parse_err("CST not valid: missing programActivity or sessionCloseCommand".into()));
+        };
 
+        let activity = Self::build_program_activity(&program_activity)?;
+        let statement = match session_close {
+            Some((close, close_span)) => Statement::Next(NextStatement {
+                source_statement: Box::new(activity),
+                target_statement: Box::new(close),
+                yield_clause: None,
+                next: None,
+                span: Span {
+                    end_line: close_span.end_line,
+                    end_col: close_span.end_col,
+                    ..Self::extract_span(&*program_activity)
+                },
+            }),
+            None => activity,
+        };
+
+        Ok(QueryAST { statement })
+    }
+
+    /// Builds the activity that precedes an optional top-level SESSION CLOSE command.
+    fn build_program_activity(program_activity: &ProgramActivityContextAll) -> GqlResult<Statement> {
         if let Some(session_activity) = program_activity.sessionActivity() {
-            return Ok(QueryAST {
-                statement: Statement::Session(Self::build_session_command_from_context(&session_activity)?),
-            });
+            return Ok(Statement::Session(Self::build_session_command_from_context(
+                &session_activity,
+            )?));
         }
 
         let transaction_activity = program_activity
@@ -228,9 +250,7 @@ impl GQLAstBuilder {
         let procedure_spec = match transaction_activity.procedureSpecification() {
             Some(spec) => spec,
             None => {
-                return Ok(QueryAST {
-                    statement: Self::build_transaction_or_catalog_statement_from_context(&transaction_activity)?,
-                });
+                return Self::build_transaction_or_catalog_statement_from_context(&transaction_activity);
             }
         };
 
@@ -264,7 +284,7 @@ impl GQLAstBuilder {
             });
         }
 
-        Ok(QueryAST { statement })
+        Ok(statement)
     }
 
     /// Extracts a Span from a given parser context, using the start and stop tokens.
