@@ -38,6 +38,18 @@ semantic checks implemented by the validator.
 | Transaction intent     | Covered      | Statements are classified as read-only, data-writing, catalog-writing, or both.                                                                                                                       |
 | Query execution        | Not provided | The crate does not execute GQL or connect to a graph database.                                                                                                                                        |
 
+## Analysis APIs and diagnostics
+
+- `parse(query)` builds a typed AST without semantic validation.
+- `analyze(query)` builds and validates an AST without retaining analyzer state.
+- `DefaultGQLQueryAnalyzer::exec(query)` additionally retains the query and an AST copy after success.
+- Lexer and parser diagnostics are propagated through `GqlError::Parse`with structured point spans.
+- Errors without known positions use `ErrorContext.span = None`.
+- `GqlError` and `ErrorContext` support Serde serialization and deserialization.
+
+These API capabilities do not expand the set of supported GQL constructs.
+See the [query analyzer guide](query_analyzer.md) for usage and limitations.
+
 ## Important compatibility notes
 
 ### Grammar acceptance and typed AST coverage differ

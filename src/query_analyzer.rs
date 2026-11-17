@@ -20,30 +20,32 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-//! High-level interface for parsing and validating GQL source text.
+//! Public entry points for parsing and validating GQL source.
 //!
-//! [`DefaultGQLQueryAnalyzer`] is the recommended application-facing entry
-//! point. Calling [`GQLQueryAnalyzer::exec`] performs the complete pipeline:
+//! - [`parse`] performs lexical analysis, parsing, and typed AST construction.
+//! - [`analyze`] additionally runs semantic validation.
+//! - [`DefaultGQLQueryAnalyzer`] retains the latest successful query and an AST
+//!   copy through the [`GQLQueryAnalyzer`] interface.
 //!
-//! 1. lexical and syntactic analysis;
-//! 2. CST-to-AST conversion;
-//! 3. semantic validation.
+//! Both stateless functions return an owned [`QueryAST`] without retaining
+//! the query or cloning the resulting AST.
 //!
-//! A successful execution returns a [`QueryAST`] and stores the query and AST
-//! in the analyzer. The stored state is cleared before each execution, so a
-//! failed analysis never exposes a previous successful result.
+//! Lexer and parser listeners share a diagnostic collection. The first
+//! collected error is returned before AST construction, even when ANTLR
+//! recovers and produces a CST.
 //!
 //! # Example
 //!
 //! ```rust
-//! use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+//! use gql_rs::{analyze, parse, GqlError};
 //!
-//! fn main() -> Result<(), gql_rs::GqlError> {
-//!     let mut analyzer = DefaultGQLQueryAnalyzer::new();
-//!     let ast = analyzer.exec("MATCH (p:Person)-[:WORKS_FOR]->(c:Company) WHERE c.name = 'Ntur Lab' RETURN p.name")?;
+//! fn main() -> Result<(), GqlError> {
+//!     let validated_ast = analyze("RETURN 42 AS answer")?;
+//!     println!("{validated_ast:#?}");
 //!
-//!     assert_eq!(analyzer.get_query(), Some("MATCH (p:Person)-[:WORKS_FOR]->(c:Company) WHERE c.name = 'Ntur Lab' RETURN p.name"));
-//!     println!("{ast:#?}");
+//!     let ast = parse("RETURN 42 AS answer")?;
+//!     ast.validate()?;
+//!
 //!     Ok(())
 //! }
 //! ```
@@ -56,6 +58,72 @@ use crate::error_handler::error_listener::GqlErrorListener;
 use crate::types::GqlResult;
 use antlr_rust::common_token_stream::CommonTokenStream;
 use antlr_rust::{InputStream, Parser};
+use std::rc::Rc;
+
+/// Parses GQL source and builds a typed AST without semantic validation.
+///
+/// The first collected lexical or syntactic diagnostic is returned after
+/// parsing, before AST construction. AST construction errors are propagated.
+/// Constructs accepted by the grammar may still fail if the AST builder
+/// does not support them.
+///
+/// This function does not retain the query or clone the resulting AST.
+///
+/// # Example
+///
+/// ```
+/// let ast = gql_rs::parse("RETURN 42 AS answer")?;
+/// # Ok::<(), gql_rs::GqlError>(())
+/// ```
+pub fn parse(query: &str) -> GqlResult<QueryAST> {
+    let input = InputStream::new(query);
+    let mut lexer = GQLLexer::new(input);
+
+    let listener = GqlErrorListener::new();
+    let error_collector = Rc::clone(&listener.errors);
+
+    lexer.remove_error_listeners();
+    lexer.add_error_listener(Box::new(listener.clone()));
+
+    let token_stream = CommonTokenStream::new(lexer);
+    let mut parser = GQLParser::new(token_stream);
+
+    parser.remove_error_listeners();
+    parser.add_error_listener(Box::new(listener));
+
+    let cst_root_result = parser.gqlProgram();
+
+    // Recovery may produce a CST despite lexical or syntactic errors.
+    // Do not turn such a CST into a successful result.
+    let first_error = {
+        let errors = error_collector.borrow();
+        errors.first().cloned()
+    };
+
+    if let Some(error) = first_error {
+        return Err(error);
+    }
+
+    let cst_root = cst_root_result.map_err(|error| GqlError::parse(format!("ANTLR parsing failed: {:?}", error)))?;
+
+    QueryAST::build(&cst_root)
+}
+
+/// Parses GQL source, builds its typed AST, and validates its semantics.
+///
+/// This function does not retain the query or clone the resulting AST.
+///
+/// # Example
+///
+/// ```
+/// let ast = gql_rs::analyze("RETURN 42 AS answer")?;
+/// # Ok::<(), gql_rs::GqlError>(())
+/// ```
+pub fn analyze(query: &str) -> GqlResult<QueryAST> {
+    let ast = parse(query)?;
+    ast.validate()?;
+    Ok(ast)
+}
 
 /// Trait for analyzing GQL queries and converting them to Abstract Syntax Trees (AST).
 /// This trait defines the interface for query analysis functionality, allowing implementations
@@ -70,16 +138,16 @@ pub trait GQLQueryAnalyzer {
     /// * `GqlResult<QueryAST>` - The resulting Abstract Syntax Tree if successful, or a GqlError on failure
     fn exec(&mut self, query: &str) -> GqlResult<QueryAST>;
 
-    /// Retrieves the last analyzed query string.
+    /// Retrieves the stored query, if any.
     ///
-    /// # Returns
-    /// * `Option<&str>` - A reference to the last query analyzed, or None if no query has been analyzed yet
+    /// The default implementation returns `None` before its first successful
+    /// analysis, after `clear()`, and after a failed execution.
     fn get_query(&self) -> Option<&str>;
 
-    /// Retrieves the last generated Abstract Syntax Tree.
+    /// Retrieves the stored AST, if any.
     ///
-    /// # Returns
-    /// * `Option<&QueryAST>` - A reference to the last AST generated, or None if no query has been analyzed yet
+    /// The default implementation returns `None` before its first successful
+    /// analysis, after `clear()`, and after a failed execution.
     fn get_ast(&self) -> Option<&QueryAST>;
 }
 
@@ -117,10 +185,7 @@ impl DefaultGQLQueryAnalyzer {
     /// # Returns
     /// * `Self` - A new analyzer instance ready to process queries
     pub fn new() -> Self {
-        DefaultGQLQueryAnalyzer {
-            query: None,
-            ast: None,
-        }
+        DefaultGQLQueryAnalyzer { query: None, ast: None }
     }
 
     /// Clears the internal state of the analyzer, removing any stored query and AST.
@@ -138,47 +203,24 @@ impl Default for DefaultGQLQueryAnalyzer {
 }
 
 impl GQLQueryAnalyzer for DefaultGQLQueryAnalyzer {
+    /// See [GQLQueryAnalyzer::exec]
     fn exec(&mut self, query: &str) -> GqlResult<QueryAST> {
         self.clear();
 
-        // Build the ANTLR input pipeline.
-        let input = InputStream::new(query);
-        let lexer = GQLLexer::new(input);
-        let listener = GqlErrorListener::new();
-        let error_collector = listener.errors.clone();
+        let ast = analyze(query)?;
 
-        let token_stream = CommonTokenStream::new(lexer);
-        let mut parser = GQLParser::new(token_stream);
-
-        // Replace the default parser error handling with structured collection.
-        parser.remove_error_listeners();
-        parser.add_error_listener(Box::new(listener));
-
-        // Parse the program entry rule and inspect collected syntax errors first.
-        let cst_root_result = parser.gqlProgram();
-
-        let syntax_errors = error_collector.borrow();
-        if let Some(first_err) = syntax_errors.first() {
-            return Err(first_err.clone());
-        }
-
-        // Convert CST -> AST and run semantic validation on the resulting model.
-        let cst_root = cst_root_result
-            .map_err(|e| GqlError::parse(format!("ANTLR parsing failed: {:?}", e)))?;
-        let ast = QueryAST::build(&cst_root)?;
-        ast.validate()?;
-
-        // Cache the most recent successful analysis.
         self.query = Some(query.to_string());
         self.ast = Some(ast.clone());
 
         Ok(ast)
     }
 
+    /// See [GQLQueryAnalyzer::get_query]
     fn get_query(&self) -> Option<&str> {
         self.query.as_deref()
     }
 
+    /// See [GQLQueryAnalyzer::get_ast]
     fn get_ast(&self) -> Option<&QueryAST> {
         self.ast.as_ref()
     }

@@ -39,12 +39,8 @@ impl TransactionIntent {
     /// Combines two intents, preserving the strongest requirement.
     pub fn merge(self, other: Self) -> Self {
         match (self, other) {
-            (Self::DataAndCatalogWrite, _) | (_, Self::DataAndCatalogWrite) => {
-                Self::DataAndCatalogWrite
-            }
-            (Self::DataWrite, Self::CatalogWrite) | (Self::CatalogWrite, Self::DataWrite) => {
-                Self::DataAndCatalogWrite
-            }
+            (Self::DataAndCatalogWrite, _) | (_, Self::DataAndCatalogWrite) => Self::DataAndCatalogWrite,
+            (Self::DataWrite, Self::CatalogWrite) | (Self::CatalogWrite, Self::DataWrite) => Self::DataAndCatalogWrite,
             (Self::DataWrite, _) | (_, Self::DataWrite) => Self::DataWrite,
             (Self::CatalogWrite, _) | (_, Self::CatalogWrite) => Self::CatalogWrite,
             (Self::ReadOnly, Self::ReadOnly) => Self::ReadOnly,

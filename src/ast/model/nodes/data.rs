@@ -274,10 +274,30 @@ pub struct WhereClause {
 pub struct ReturnClause {
     /// DISTINCT/ALL qualifier.
     pub distinct: DistinctQualifier,
-    /// Return projection items.
-    pub items: Vec<ReturnItem>,
+    /// Projected wildcard or explicit return items.
+    pub projection: ReturnProjection,
     /// Source range covered by this AST node.
     pub span: Span,
+}
+
+/// Represents the projection selected by a RETURN clause.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "kind", content = "items", rename_all = "snake_case")]
+pub enum ReturnProjection {
+    /// Projects every variable currently in scope.
+    Wildcard,
+    /// Projects an explicit list of expressions.
+    Items(Vec<ReturnItem>),
+}
+
+impl ReturnClause {
+    /// Returns explicit projection items, or `None` for a wildcard projection.
+    pub fn items(&self) -> Option<&[ReturnItem]> {
+        match &self.projection {
+            ReturnProjection::Wildcard => None,
+            ReturnProjection::Items(items) => Some(items),
+        }
+    }
 }
 
 /// Represents an item in a RETURN clause.

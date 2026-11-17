@@ -63,8 +63,7 @@ fn load_trials(root: &Path) -> Result<Vec<Trial>, String> {
 }
 
 fn collect_query_paths(directory: &Path, paths: &mut Vec<PathBuf>) -> Result<(), String> {
-    let entries = fs::read_dir(directory)
-        .map_err(|error| format!("cannot read {}: {error}", directory.display()))?;
+    let entries = fs::read_dir(directory).map_err(|error| format!("cannot read {}: {error}", directory.display()))?;
 
     for entry in entries {
         let entry = entry.map_err(|error| error.to_string())?;
@@ -80,14 +79,13 @@ fn collect_query_paths(directory: &Path, paths: &mut Vec<PathBuf>) -> Result<(),
 }
 
 fn compare_ast(query_path: &Path, expected_path: &Path) -> Result<(), Failed> {
-    let query = fs::read_to_string(query_path)
-        .map_err(|error| format!("cannot read {}: {error}", query_path.display()))?;
+    let query = fs::read_to_string(query_path).map_err(|error| format!("cannot read {}: {error}", query_path.display()))?;
     let mut analyzer = DefaultGQLQueryAnalyzer::new();
     let ast = analyzer
         .exec(&query)
         .map_err(|error| format!("cannot analyze {}: {error:?}", query_path.display()))?;
-    let actual = serde_json::to_value(ast)
-        .map_err(|error| format!("cannot serialize AST for {}: {error}", query_path.display()))?;
+    let actual =
+        serde_json::to_value(ast).map_err(|error| format!("cannot serialize AST for {}: {error}", query_path.display()))?;
 
     if std::env::var_os("UPDATE_AST_FIXTURES").is_some() {
         let mut serialized = serde_json::to_string_pretty(&actual)
@@ -98,22 +96,21 @@ fn compare_ast(query_path: &Path, expected_path: &Path) -> Result<(), Failed> {
         return Ok(());
     }
 
-    let expected_source = fs::read_to_string(expected_path)
-        .map_err(|error| format!("cannot read {}: {error}", expected_path.display()))?;
+    let expected_source =
+        fs::read_to_string(expected_path).map_err(|error| format!("cannot read {}: {error}", expected_path.display()))?;
     let expected: Value = serde_json::from_str(&expected_source)
         .map_err(|error| format!("invalid JSON in {}: {error}", expected_path.display()))?;
 
     if actual != expected {
         let expected_pretty = serde_json::to_string_pretty(&expected).unwrap_or(expected_source);
-        let actual_pretty = serde_json::to_string_pretty(&actual)
-            .unwrap_or_else(|_| "<unprintable AST>".to_string());
+        let actual_pretty = serde_json::to_string_pretty(&actual).unwrap_or_else(|_| "<unprintable AST>".to_string());
         return Err(format!(
             "AST mismatch for {}\n\nexpected:\n{}\n\nactual:\n{}",
             query_path.display(),
             expected_pretty,
             actual_pretty
         )
-            .into());
+        .into());
     }
 
     Ok(())

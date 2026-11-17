@@ -27,6 +27,11 @@ Main builder modules:
 
 ## Entry Point
 
+For application code, `gql_rs::parse(query)` performs lexing, parsing, and typed AST construction without invoking the semantic validator.
+Use `gql_rs::analyze(query)` to include semantic validation.
+
+The functions described below are builder implementation details.
+
 - `build_from_cst_root(cst_root)`
 
 High-level behavior:
@@ -157,3 +162,9 @@ Pattern used:
 
 - structural CST errors -> `GqlError::Parse`
 - explicit contextual messages to simplify grammar-to-AST mapping debugging.
+
+The public parsing pipeline checks collected lexer and parser diagnostics before invoking the builder.
+
+Builder errors created without a known source position have
+`ErrorContext.span = None`. Consumers must not assume that every
+`GqlError::Parse` carries the point span produced by the ANTLR listeners.
