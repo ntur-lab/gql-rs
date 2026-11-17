@@ -20,308 +20,305 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-mod catalog_and_session_it {
-    use gql_rs::{
-        DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
-        ast::{CatalogStatement, Statement},
+use gql_rs::{
+    DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
+    ast::{CatalogStatement, Statement},
+};
+
+test_session_statement!(
+    test_session_set_schema_struct,
+    "SESSION SET SCHEMA CURRENT_SCHEMA",
+    expected_set_count: 1,
+    expected_reset_count: 0
+);
+
+test_session_statement!(
+    test_session_set_graph_struct,
+    "SESSION SET GRAPH $g = my_graph",
+    expected_set_count: 1,
+    expected_reset_count: 0
+);
+
+test_session_statement!(
+    test_session_set_timezone_struct,
+    "SESSION SET TIME ZONE 'America/New_York'",
+    expected_set_count: 1,
+    expected_reset_count: 0
+);
+
+test_session_statement!(
+    test_session_set_parameter_value,
+    "SESSION SET VALUE $v = 42",
+    expected_set_count: 1,
+    expected_reset_count: 0
+);
+
+test_session_statement!(
+    test_session_reset_schema_struct,
+    "SESSION RESET SCHEMA",
+    expected_set_count: 0,
+    expected_reset_count: 1
+);
+
+test_session_statement!(
+    test_session_reset_graph_struct,
+    "SESSION RESET GRAPH",
+    expected_set_count: 0,
+    expected_reset_count: 1
+);
+
+test_session_statement!(
+    test_session_reset_timezone_struct,
+    "SESSION RESET TIME ZONE",
+    expected_set_count: 0,
+    expected_reset_count: 1
+);
+
+test_session_statement!(
+    test_session_reset_all_parameters_struct,
+    "SESSION RESET ALL PARAMETERS",
+    expected_set_count: 0,
+    expected_reset_count: 1
+);
+
+test_session_statement!(
+    test_session_mixed_set_reset,
+    "SESSION SET GRAPH CURRENT_GRAPH SESSION RESET SCHEMA",
+    expected_set_count: 1,
+    expected_reset_count: 1
+);
+
+test_session_statement!(
+    test_session_close_struct,
+    "SESSION CLOSE",
+    expected_set_count: 0,
+    expected_reset_count: 0
+);
+
+#[test]
+fn test_session_activity_followed_by_close_preserves_source_order() {
+    use gql_rs::ast::SessionCommandKind;
+
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    analyzer
+        .exec("SESSION SET SCHEMA CURRENT_SCHEMA SESSION CLOSE")
+        .expect("session activity followed by close should parse");
+
+    let ast = analyzer.get_ast().expect("ast must be available");
+    let Statement::Next(sequence) = &ast.statement else {
+        panic!("expected session activity and close sequence");
     };
 
-    test_session_statement!(
-        test_session_set_schema_struct,
-        "SESSION SET SCHEMA CURRENT_SCHEMA",
-        expected_set_count: 1,
-        expected_reset_count: 0
+    let Statement::Session(activity) = sequence.source_statement.as_ref() else {
+        panic!("expected session activity first");
+    };
+    assert!(matches!(activity.kind, SessionCommandKind::Set));
+
+    let Statement::Session(close) = sequence.target_statement.as_ref() else {
+        panic!("expected SESSION CLOSE second");
+    };
+    assert!(matches!(close.kind, SessionCommandKind::Close));
+
+    let serialized = serde_json::to_value(ast).expect("ast should serialize");
+    assert_eq!(
+        serialized["statement"]["Next"]["source_statement"]["Session"]["kind"],
+        "Set"
     );
-
-    test_session_statement!(
-        test_session_set_graph_struct,
-        "SESSION SET GRAPH $g = my_graph",
-        expected_set_count: 1,
-        expected_reset_count: 0
+    assert_eq!(
+        serialized["statement"]["Next"]["target_statement"]["Session"]["kind"],
+        "Close"
     );
+}
 
-    test_session_statement!(
-        test_session_set_timezone_struct,
-        "SESSION SET TIME ZONE 'America/New_York'",
-        expected_set_count: 1,
-        expected_reset_count: 0
+test_graph_type_specification!(
+    test_create_graph_type_single_node,
+    "CREATE GRAPH TYPE simple { NODE TYPE Person }",
+    expected_elements: 1
+);
+
+test_graph_type_specification!(
+    test_create_graph_type_multiple_nodes,
+    "CREATE GRAPH TYPE social { NODE TYPE Person, NODE TYPE Company }",
+    expected_elements: 2
+);
+
+#[test]
+fn test_catalog_create_schema_is_typed_not_raw() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    analyzer
+        .exec("CREATE SCHEMA /myschemas/foo")
+        .expect("query should parse");
+
+    let ast = analyzer.get_ast().expect("ast must be available");
+    let Statement::Catalog(block) = &ast.statement else {
+        panic!("expected catalog statement block");
+    };
+
+    let first = block
+        .statements
+        .first()
+        .expect("catalog block should contain one statement");
+
+    assert!(
+        matches!(first, CatalogStatement::CreateSchema(_)),
+        "expected typed CreateSchema, got {:?}",
+        first
     );
+}
 
-    test_session_statement!(
-        test_session_set_parameter_value,
-        "SESSION SET VALUE $v = 42",
-        expected_set_count: 1,
-        expected_reset_count: 0
+#[test]
+fn test_catalog_create_graph_type_like_is_typed_not_raw() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    analyzer
+        .exec("CREATE GRAPH TYPE my_type LIKE CURRENT_GRAPH")
+        .expect("query should parse");
+
+    let ast = analyzer.get_ast().expect("ast must be available");
+    let Statement::Catalog(block) = &ast.statement else {
+        panic!("expected catalog statement block");
+    };
+
+    let first = block
+        .statements
+        .first()
+        .expect("catalog block should contain one statement");
+
+    assert!(
+        matches!(first, CatalogStatement::CreateGraphType(_)),
+        "expected typed CreateGraphType, got {:?}",
+        first
     );
+}
 
-    test_session_statement!(
-        test_session_reset_schema_struct,
-        "SESSION RESET SCHEMA",
-        expected_set_count: 0,
-        expected_reset_count: 1
-    );
+#[test]
+fn test_create_graph_of_typed_reference_maps_to_of_typed_reference_clause() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    analyzer
+        .exec("CREATE GRAPH social_graph TYPED my_graph_type")
+        .expect("query should parse");
 
-    test_session_statement!(
-        test_session_reset_graph_struct,
-        "SESSION RESET GRAPH",
-        expected_set_count: 0,
-        expected_reset_count: 1
-    );
+    let ast = analyzer.get_ast().expect("ast must be available");
+    let Statement::Catalog(block) = &ast.statement else {
+        panic!("expected catalog statement block");
+    };
 
-    test_session_statement!(
-        test_session_reset_timezone_struct,
-        "SESSION RESET TIME ZONE",
-        expected_set_count: 0,
-        expected_reset_count: 1
-    );
+    let Some(CatalogStatement::CreateGraph(create_graph)) = block.statements.first() else {
+        panic!("expected CreateGraph statement");
+    };
 
-    test_session_statement!(
-        test_session_reset_all_parameters_struct,
-        "SESSION RESET ALL PARAMETERS",
-        expected_set_count: 0,
-        expected_reset_count: 1
-    );
+    assert!(matches!(
+        &create_graph.graph_type_clause,
+        gql_rs::ast::CreateGraphTypeClause::Of(gql_rs::ast::OfGraphTypeClause::TypedReference { .. })
+    ));
+}
 
-    test_session_statement!(
-        test_session_mixed_set_reset,
-        "SESSION SET GRAPH CURRENT_GRAPH SESSION RESET SCHEMA",
-        expected_set_count: 1,
-        expected_reset_count: 1
-    );
+#[test]
+fn test_create_graph_type_copy_of_maps_to_copy_of_source_clause() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    analyzer
+        .exec("CREATE GRAPH TYPE my_graph_type COPY OF base_graph_type")
+        .expect("query should parse");
 
-    test_session_statement!(
-        test_session_close_struct,
-        "SESSION CLOSE",
-        expected_set_count: 0,
-        expected_reset_count: 0
-    );
+    let ast = analyzer.get_ast().expect("ast must be available");
+    let Statement::Catalog(block) = &ast.statement else {
+        panic!("expected catalog statement block");
+    };
 
-    #[test]
-    fn test_session_activity_followed_by_close_preserves_source_order() {
-        use gql_rs::ast::SessionCommandKind;
+    let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
+        panic!("expected CreateGraphType statement");
+    };
 
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("SESSION SET SCHEMA CURRENT_SCHEMA SESSION CLOSE")
-            .expect("session activity followed by close should parse");
+    assert!(matches!(
+        &create_graph_type.source,
+        gql_rs::ast::GraphTypeSourceClause::CopyOf { .. }
+    ));
+}
 
-        let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Next(sequence) = &ast.statement else {
-            panic!("expected session activity and close sequence");
-        };
+#[test]
+fn test_create_graph_type_like_maps_to_like_source_clause() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    analyzer
+        .exec("CREATE GRAPH TYPE my_graph_type LIKE CURRENT_GRAPH")
+        .expect("query should parse");
 
-        let Statement::Session(activity) = sequence.source_statement.as_ref() else {
-            panic!("expected session activity first");
-        };
-        assert!(matches!(activity.kind, SessionCommandKind::Set));
+    let ast = analyzer.get_ast().expect("ast must be available");
+    let Statement::Catalog(block) = &ast.statement else {
+        panic!("expected catalog statement block");
+    };
 
-        let Statement::Session(close) = sequence.target_statement.as_ref() else {
-            panic!("expected SESSION CLOSE second");
-        };
-        assert!(matches!(close.kind, SessionCommandKind::Close));
+    let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
+        panic!("expected CreateGraphType statement");
+    };
 
-        let serialized = serde_json::to_value(ast).expect("ast should serialize");
-        assert_eq!(
-            serialized["statement"]["Next"]["source_statement"]["Session"]["kind"],
-            "Set"
-        );
-        assert_eq!(
-            serialized["statement"]["Next"]["target_statement"]["Session"]["kind"],
-            "Close"
-        );
-    }
+    assert!(matches!(
+        &create_graph_type.source,
+        gql_rs::ast::GraphTypeSourceClause::LikeGraph { .. }
+    ));
+}
 
-    test_graph_type_specification!(
-        test_create_graph_type_single_node,
-        "CREATE GRAPH TYPE simple { NODE TYPE Person }",
-        expected_elements: 1
-    );
+#[test]
+fn test_create_graph_type_nested_spec_maps_to_nested_source_clause() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    analyzer
+        .exec("CREATE GRAPH TYPE my_graph_type { NODE TYPE Person }")
+        .expect("query should parse");
 
-    test_graph_type_specification!(
-        test_create_graph_type_multiple_nodes,
-        "CREATE GRAPH TYPE social { NODE TYPE Person, NODE TYPE Company }",
-        expected_elements: 2
-    );
+    let ast = analyzer.get_ast().expect("ast must be available");
+    let Statement::Catalog(block) = &ast.statement else {
+        panic!("expected catalog statement block");
+    };
 
-    #[test]
-    fn test_catalog_create_schema_is_typed_not_raw() {
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("CREATE SCHEMA /myschemas/foo")
-            .expect("query should parse");
+    let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
+        panic!("expected CreateGraphType statement");
+    };
 
-        let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Catalog(block) = &ast.statement else {
-            panic!("expected catalog statement block");
-        };
+    assert!(matches!(
+        &create_graph_type.source,
+        gql_rs::ast::GraphTypeSourceClause::NestedSpecification { .. }
+    ));
+}
 
-        let first = block
-            .statements
-            .first()
-            .expect("catalog block should contain one statement");
+#[test]
+fn test_create_graph_type_as_nested_spec_maps_to_nested_source_clause() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    analyzer
+        .exec("CREATE GRAPH TYPE my_graph_type AS { NODE TYPE Person }")
+        .expect("query should parse");
 
-        assert!(
-            matches!(first, CatalogStatement::CreateSchema(_)),
-            "expected typed CreateSchema, got {:?}",
-            first
-        );
-    }
+    let ast = analyzer.get_ast().expect("ast must be available");
+    let Statement::Catalog(block) = &ast.statement else {
+        panic!("expected catalog statement block");
+    };
 
-    #[test]
-    fn test_catalog_create_graph_type_like_is_typed_not_raw() {
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("CREATE GRAPH TYPE my_type LIKE CURRENT_GRAPH")
-            .expect("query should parse");
+    let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
+        panic!("expected CreateGraphType statement");
+    };
 
-        let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Catalog(block) = &ast.statement else {
-            panic!("expected catalog statement block");
-        };
+    assert!(matches!(
+        &create_graph_type.source,
+        gql_rs::ast::GraphTypeSourceClause::NestedSpecification { .. }
+    ));
+}
 
-        let first = block
-            .statements
-            .first()
-            .expect("catalog block should contain one statement");
+#[test]
+fn activity_close_span_excludes_eof_and_round_trips() {
+    let query = "RETURN 1 SESSION CLOSE /* trailing comment */\n";
+    let ast = gql_rs::analyze(query).expect("activity and close should analyze");
+    let Statement::Next(sequence) = &ast.statement else {
+        panic!("expected activity and close");
+    };
+    assert_eq!(sequence.span.start_col, 0);
+    assert_eq!(sequence.span.end_line, 1);
+    assert_eq!(sequence.span.end_col, "RETURN 1 SESSION CLOSE".len() as isize);
+    let encoded = serde_json::to_value(&ast).unwrap();
+    let decoded: gql_rs::ast::QueryAST = serde_json::from_value(encoded.clone()).unwrap();
+    assert_eq!(serde_json::to_value(decoded).unwrap(), encoded);
+}
 
-        assert!(
-            matches!(first, CatalogStatement::CreateGraphType(_)),
-            "expected typed CreateGraphType, got {:?}",
-            first
-        );
-    }
-
-    #[test]
-    fn test_create_graph_of_typed_reference_maps_to_of_typed_reference_clause() {
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("CREATE GRAPH social_graph TYPED my_graph_type")
-            .expect("query should parse");
-
-        let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Catalog(block) = &ast.statement else {
-            panic!("expected catalog statement block");
-        };
-
-        let Some(CatalogStatement::CreateGraph(create_graph)) = block.statements.first() else {
-            panic!("expected CreateGraph statement");
-        };
-
-        assert!(matches!(
-            &create_graph.graph_type_clause,
-            gql_rs::ast::CreateGraphTypeClause::Of(gql_rs::ast::OfGraphTypeClause::TypedReference { .. })
-        ));
-    }
-
-    #[test]
-    fn test_create_graph_type_copy_of_maps_to_copy_of_source_clause() {
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("CREATE GRAPH TYPE my_graph_type COPY OF base_graph_type")
-            .expect("query should parse");
-
-        let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Catalog(block) = &ast.statement else {
-            panic!("expected catalog statement block");
-        };
-
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
-            panic!("expected CreateGraphType statement");
-        };
-
-        assert!(matches!(
-            &create_graph_type.source,
-            gql_rs::ast::GraphTypeSourceClause::CopyOf { .. }
-        ));
-    }
-
-    #[test]
-    fn test_create_graph_type_like_maps_to_like_source_clause() {
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("CREATE GRAPH TYPE my_graph_type LIKE CURRENT_GRAPH")
-            .expect("query should parse");
-
-        let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Catalog(block) = &ast.statement else {
-            panic!("expected catalog statement block");
-        };
-
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
-            panic!("expected CreateGraphType statement");
-        };
-
-        assert!(matches!(
-            &create_graph_type.source,
-            gql_rs::ast::GraphTypeSourceClause::LikeGraph { .. }
-        ));
-    }
-
-    #[test]
-    fn test_create_graph_type_nested_spec_maps_to_nested_source_clause() {
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("CREATE GRAPH TYPE my_graph_type { NODE TYPE Person }")
-            .expect("query should parse");
-
-        let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Catalog(block) = &ast.statement else {
-            panic!("expected catalog statement block");
-        };
-
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
-            panic!("expected CreateGraphType statement");
-        };
-
-        assert!(matches!(
-            &create_graph_type.source,
-            gql_rs::ast::GraphTypeSourceClause::NestedSpecification { .. }
-        ));
-    }
-
-    #[test]
-    fn test_create_graph_type_as_nested_spec_maps_to_nested_source_clause() {
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        analyzer
-            .exec("CREATE GRAPH TYPE my_graph_type AS { NODE TYPE Person }")
-            .expect("query should parse");
-
-        let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Catalog(block) = &ast.statement else {
-            panic!("expected catalog statement block");
-        };
-
-        let Some(CatalogStatement::CreateGraphType(create_graph_type)) = block.statements.first() else {
-            panic!("expected CreateGraphType statement");
-        };
-
-        assert!(matches!(
-            &create_graph_type.source,
-            gql_rs::ast::GraphTypeSourceClause::NestedSpecification { .. }
-        ));
-    }
-
-    #[test]
-    fn activity_close_span_excludes_eof_and_round_trips() {
-        let query = "RETURN 1 SESSION CLOSE /* trailing comment */\n";
-        let ast = gql_rs::analyze(query).expect("activity and close should analyze");
-        let Statement::Next(sequence) = &ast.statement else {
-            panic!("expected activity and close");
-        };
-        assert_eq!(sequence.span.start_col, 0);
-        assert_eq!(sequence.span.end_line, 1);
-        assert_eq!(sequence.span.end_col, "RETURN 1 SESSION CLOSE".len() as isize);
-        let encoded = serde_json::to_value(&ast).unwrap();
-        let decoded: gql_rs::ast::QueryAST = serde_json::from_value(encoded.clone()).unwrap();
-        assert_eq!(serde_json::to_value(decoded).unwrap(), encoded);
-    }
-
-    #[test]
-    fn close_does_not_hide_activity_validation_errors() {
-        assert!(matches!(
-            gql_rs::analyze("RETURN missing SESSION CLOSE"),
-            Err(gql_rs::GqlError::Validation { .. })
-        ));
-    }
-
+#[test]
+fn close_does_not_hide_activity_validation_errors() {
+    assert!(matches!(
+        gql_rs::analyze("RETURN missing SESSION CLOSE"),
+        Err(gql_rs::GqlError::Validation { .. })
+    ));
 }
