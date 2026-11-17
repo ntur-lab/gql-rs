@@ -20,23 +20,21 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-mod set_operation_it {
-    use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
+use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
 
-    #[test]
-    fn test_set_operation_rejects_incompatible_column_types() {
-        let mut analyzer = DefaultGQLQueryAnalyzer::new();
-        let result = analyzer.exec("RETURN 1 AS result_value UNION RETURN 'x' AS result_value");
+#[test]
+fn test_set_operation_rejects_incompatible_column_types() {
+    let mut analyzer = DefaultGQLQueryAnalyzer::new();
+    let result = analyzer.exec("RETURN 1 AS result_value UNION RETURN 'x' AS result_value");
 
-        match result {
-            Err(GqlError::Validation { message: msg, .. }) => {
-                assert!(
-                    msg.contains("Set operation column 1 has incompatible types"),
-                    "Unexpected validation error: {}",
-                    msg
-                );
-            }
-            other => panic!("Expected validation error, got: {:?}", other),
+    match result {
+        Err(GqlError::Validation { message: msg, .. }) => {
+            assert!(
+                msg.contains("Set operation column 1 has incompatible types"),
+                "Unexpected validation error: {}",
+                msg
+            );
         }
+        other => panic!("Expected validation error, got: {:?}", other),
     }
 }
