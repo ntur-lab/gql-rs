@@ -32,7 +32,7 @@
 //! The `_at` constructors retain the supplied span. Diagnostic codes are
 //! optional.
 //!
-//! [`GqlError`] and [`ErrorContext`] support Serde serialization and
+//! [`crate::GqlError`] and [`crate::ErrorContext`] support Serde serialization and
 //! deserialization. The enum uses Serde's default externally tagged format.
 //! Serialized error representations may change as the public API evolves.
 //! # Example

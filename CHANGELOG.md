@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.3] - 2026-11-17
+
+### Added
+
+- Explicit `ReturnProjection` AST representation for wildcard and item-based
+  projections.
+- Support for `RETURN *`, `RETURN ALL *`, and `RETURN DISTINCT *`.
+- AST fixtures and integration coverage for `MATCH ... INSERT`, wildcard
+  projections, and activities followed by `SESSION CLOSE`.
+
+### Changed
+
+- `ReturnClause` now stores a `projection: ReturnProjection` instead of an
+  `items: Vec<ReturnItem>` field. The new `items()` helper returns explicit
+  projection items or `None` for wildcard projections.
+- `MATCH ... INSERT` statements are represented as an ordered query and data
+  modification sequence, preserving matched bindings, graph context, and
+  terminal result clauses.
+
+### Fixed
+
+- `MATCH ... INSERT` no longer fails during AST construction and can reuse
+  variables bound by the preceding `MATCH`.
+- Terminal results following `MATCH ... INSERT` are preserved.
+- Program activities preceding `SESSION CLOSE` are no longer discarded.
+- Transaction intent and source order are preserved when an activity is
+  followed by `SESSION CLOSE`.
+- The combined activity and `SESSION CLOSE` source span now ends at the close
+  command.
+- Wildcard projections from nested queries are propagated into the enclosing
+  scope.
+- Wildcard projections are handled correctly during grouping and set-operation
+  validation.
+
 ## [0.0.2] - 2026-11-11
 
 ### Added

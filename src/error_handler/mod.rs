@@ -29,7 +29,7 @@
 //! - generic crate-level errors.
 //!
 //! Every error contains a human-readable message and an
-//! [`ErrorContext`](crate::error_handler::error::ErrorContext). Context can
+//! [`crate::ErrorContext`]. Context can
 //! include a source span and a diagnostic code when that information is
 //! available.
 
