@@ -39,7 +39,7 @@ Add the crate to your project:
 
 ```toml
 [dependencies]
-gql-rs = "0.0.2"
+gql-rs = "0.0.3"
 ```
 
 The Cargo package is named `gql-rs` and its Rust library is imported as
