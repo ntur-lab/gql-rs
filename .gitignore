@@ -22,7 +22,6 @@
 
 # Rust build artifacts
 /target/
-*.lock
 
 # IDE and editor-local settings
 /.idea/
