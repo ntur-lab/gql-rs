@@ -27,9 +27,13 @@
 //! `gql-rs` parses GQL source text, builds a typed abstract syntax tree, and
 //! applies semantic validation to the resulting model.
 //!
-//! The recommended entry point is [`DefaultGQLQueryAnalyzer`], used through
-//! the [`GQLQueryAnalyzer`] trait. A successful analysis returns a [`QueryAST`];
-//! failures are reported as [`GqlError`] values.
+//! Use [`analyze`] to build and semantically validate an AST without retaining
+//! analyzer state. Use [`parse`] to build an AST without semantic validation.
+//!
+//! [`DefaultGQLQueryAnalyzer`], used through [`GQLQueryAnalyzer`], additionally
+//! retains the latest successful query and an AST copy.
+//!
+//! Successful calls return a [`QueryAST`]; failures are reported as [`GqlError`].
 //!
 //! The crate does not execute queries or connect to a graph database. Its
 //! public API and AST representation are still evolving.
@@ -40,8 +44,10 @@
 //! - Conversion from the ANTLR concrete syntax tree to a typed Rust AST.
 //! - Semantic validation of variables, expressions, types, graph patterns,
 //!   queries, catalog statements, and data-modifying statements.
-//! - Source spans for AST nodes and validation errors.
-//! - Serde support for AST serialization and deserialization.
+//! - Stateless parsing and analysis through [`parse`] and [`analyze`].
+//! - Structured positions for lexer and parser diagnostics.
+//! - Source spans for AST nodes and semantic errors when available.
+//! - Serde support for AST nodes, [`GqlError`], and [`ErrorContext`].
 //! - Transaction intent classification.
 //! - Case-insensitive GQL keywords with identifier spelling preservation.
 //! - Portable behavior coverage through the GQL Technology Compatibility Kit.
@@ -75,11 +81,31 @@
 //! GQL source -> lexer/parser -> CST -> typed AST -> semantic validation
 //! ```
 //!
+//! ## Stateless entry points
+//!
+//! ```rust
+//! use gql_rs::{analyze, parse, GqlError};
+//!
+//! fn main() -> Result<(), GqlError> {
+//!     let validated_ast = analyze("RETURN 42 AS answer")?;
+//!     println!("{validated_ast:#?}");
+//!
+//!     let ast = parse("RETURN 42 AS answer")?;
+//!     ast.validate()?;
+//!
+//!     Ok(())
+//! }
+//! ```
+//!
+//! Neither function retains the query or clones the resulting AST.
+//! `parse` still rejects lexical, syntactic, and AST construction failures.
+//! A successful parse alone does not establish semantic validity.
+//!
 //! ## Errors
 //!
 //! Analysis can return:
 //!
-//! - [`GqlError::Parse`] for invalid syntax or CST construction failures;
+//! - [`GqlError::Parse`] for lexical, syntactic, or AST construction failures;
 //! - [`GqlError::Validation`] for semantic errors;
 //! - [`GqlError::Generic`] for crate-level fallback errors.
 //!
@@ -100,9 +126,14 @@
 //! }
 //! ```
 //!
-//! Parser diagnostics currently include line and column information in their
-//! message. Structured context is available through `GqlError::context()` when
-//! the originating parser or validator can provide it.
+//! Lexer and parser diagnostics include a structured zero-width span:
+//! the start and end positions are identical, including at EOF.
+//! Lines are one-based and columns are zero-based Unicode character offsets.
+//! Columns are not UTF-8 byte offsets, UTF-16 offsets, or display widths.
+//!
+//! Errors without a known position have `context().span == None`.
+//! Diagnostic codes are optional. [`GqlError`] and [`ErrorContext`] support
+//! Serde serialization and deserialization.
 //!
 //! ## GQL support
 //!
@@ -142,9 +173,9 @@ pub mod query_analyzer;
 /// Flattened public AST surface (includes `QueryAST` and all AST nodes).
 pub use ast::*;
 /// Public error type returned by parsing and validation flows.
-pub use error_handler::error::GqlError;
-/// Public query analyzer trait and default implementation.
-pub use query_analyzer::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
+pub use error_handler::error::{ErrorContext, GqlError};
+/// Public stateless entry points, query analyzer trait, and default implementation.
+pub use query_analyzer::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, analyze, parse};
 /// Public result alias used by crate APIs.
 pub use types::GqlResult;
 

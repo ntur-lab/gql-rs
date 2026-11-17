@@ -21,7 +21,7 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 use crate::ast::model::*;
-use crate::constants::{function_names as fn_names, AGGREGATE_FUNCTIONS};
+use crate::constants::{AGGREGATE_FUNCTIONS, function_names as fn_names};
 use crate::error_handler::error::GqlError;
 use std::collections::{HashMap, HashSet};
 
@@ -59,18 +59,13 @@ pub fn validate_query_ast(ast: &QueryAST) -> Result<(), GqlError> {
 }
 
 /// Dispatches validation to the correct statement-specific routine.
-pub(super) fn validate_dispatch(
-    statement: &Statement,
-    ctx: &mut ValidationContext,
-) -> Result<(), GqlError> {
+pub(super) fn validate_dispatch(statement: &Statement, ctx: &mut ValidationContext) -> Result<(), GqlError> {
     // Each top-level statement family has its own semantic validation path.
     match statement {
         Statement::Query(query) => validate_query(query, &mut ctx.declared_variables),
         Statement::Data(data) => validate_data_statement(data, &mut ctx.declared_variables),
         Statement::Focused(focused) => validate_dispatch(&focused.statement, ctx),
-        Statement::Next(next_stmt) => {
-            validate_next_statement(next_stmt, &mut ctx.declared_variables)
-        }
+        Statement::Next(next_stmt) => validate_next_statement(next_stmt, &mut ctx.declared_variables),
         Statement::Let(let_stmt) => validate_let_statement(let_stmt, &mut ctx.declared_variables),
         Statement::Session(session) => validate_session_statement(session),
         Statement::Transaction(transaction) => validate_transaction_statement(transaction),

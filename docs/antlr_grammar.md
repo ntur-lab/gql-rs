@@ -33,6 +33,12 @@ Parsing pipeline in this project:
 
 So ANTLR stops at syntax and CST production; semantic checks happen later.
 
+The public `parse()` function runs the pipeline through AST construction.`analyze()` and `DefaultGQLQueryAnalyzer::exec()` also run semantic validation.
+Both the lexer and parser use custom listeners sharing one diagnostic collection. After `gqlProgram()` returns, the first collected error is propagated before AST construction, even if ANTLR recovered and produced a CST.
+Listener diagnostics contain a structured, zero-width source span, including for EOF. 
+
+See the [query analyzer guide](query_analyzer.md) for position conventions and error handling.
+
 ## Grammar structure and style
 
 At the top of GQL.g4:

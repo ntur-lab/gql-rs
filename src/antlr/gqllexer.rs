@@ -25,6 +25,8 @@
 #![allow(nonstandard_style)]
 #![allow(unused_imports)]
 #![allow(unused_variables)]
+use antlr_rust::PredictionContextCache;
+use antlr_rust::TokenSource;
 use antlr_rust::atn::ATN;
 use antlr_rust::atn_deserializer::ATNDeserializer;
 use antlr_rust::char_stream::CharStream;
@@ -36,10 +38,8 @@ use antlr_rust::recognizer::Actions;
 use antlr_rust::rule_context::{BaseRuleContext, EmptyCustomRuleContext};
 use antlr_rust::token_factory::{CommonTokenFactory, TokenAware, TokenFactory};
 use antlr_rust::vocabulary::{Vocabulary, VocabularyImpl};
-use antlr_rust::PredictionContextCache;
-use antlr_rust::TokenSource;
 
-use antlr_rust::{lazy_static, TidAble};
+use antlr_rust::{TidAble, lazy_static};
 
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
@@ -1694,17 +1694,12 @@ pub const _SYMBOLIC_NAMES: [Option<&'static str>; 391] = [
     Some("SIMPLE_COMMENT_MINUS"),
 ];
 lazy_static! {
-    static ref _shared_context_cache: Arc<PredictionContextCache> =
-        Arc::new(PredictionContextCache::new());
-    static ref VOCABULARY: Box<dyn Vocabulary> = Box::new(VocabularyImpl::new(
-        _LITERAL_NAMES.iter(),
-        _SYMBOLIC_NAMES.iter(),
-        None
-    ));
+    static ref _shared_context_cache: Arc<PredictionContextCache> = Arc::new(PredictionContextCache::new());
+    static ref VOCABULARY: Box<dyn Vocabulary> =
+        Box::new(VocabularyImpl::new(_LITERAL_NAMES.iter(), _SYMBOLIC_NAMES.iter(), None));
 }
 
-pub type LexerContext<'input> =
-BaseRuleContext<'input, EmptyCustomRuleContext<'input, LocalTokenFactory<'input>>>;
+pub type LexerContext<'input> = BaseRuleContext<'input, EmptyCustomRuleContext<'input, LocalTokenFactory<'input>>>;
 pub type LocalTokenFactory<'input> = CommonTokenFactory;
 
 type From<'a> = <LocalTokenFactory<'a> as TokenFactory<'a>>::From;
@@ -1776,16 +1771,16 @@ pub struct GQLLexerActions {}
 impl GQLLexerActions {}
 
 impl<'input, Input: CharStream<From<'input>>>
-Actions<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>>
-for GQLLexerActions
-{}
+    Actions<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>> for GQLLexerActions
+{
+}
 
 impl<'input, Input: CharStream<From<'input>>> GQLLexer<'input, Input> {}
 
 impl<'input, Input: CharStream<From<'input>>>
-LexerRecog<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>>
-for GQLLexerActions
-{}
+    LexerRecog<'input, BaseLexer<'input, GQLLexerActions, Input, LocalTokenFactory<'input>>> for GQLLexerActions
+{
+}
 impl<'input> TokenAware<'input> for GQLLexerActions {
     type TF = LocalTokenFactory<'input>;
 }
@@ -1819,8 +1814,7 @@ impl<'input, Input: CharStream<From<'input>>> TokenSource<'input> for GQLLexer<'
 }
 
 lazy_static! {
-    static ref _ATN: Arc<ATN> =
-        Arc::new(ATNDeserializer::new(None).deserialize(_serializedATN.chars()));
+    static ref _ATN: Arc<ATN> = Arc::new(ATNDeserializer::new(None).deserialize(_serializedATN.chars()));
     static ref _decision_to_DFA: Arc<Vec<antlr_rust::RwLock<DFA>>> = {
         let mut dfa = Vec::new();
         let size = _ATN.decision_to_state.len();

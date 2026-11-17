@@ -31,9 +31,7 @@ impl GQLAstBuilder {
             let graph_pattern = simple_match
                 .graphPatternBindingTable()
                 .and_then(|binding_table| binding_table.graphPattern())
-                .ok_or_else(|| {
-                    Self::parse_err("CST not valid: graphPattern missing in MATCH".into())
-                })?;
+                .ok_or_else(|| Self::parse_err("CST not valid: graphPattern missing in MATCH".into()))?;
 
             return Ok(vec![(graph_pattern, false)]);
         }
@@ -41,17 +39,13 @@ impl GQLAstBuilder {
         let operand = match_statement
             .optionalMatchStatement()
             .and_then(|optional_match| optional_match.optionalOperand())
-            .ok_or_else(|| {
-                Self::parse_err("CST not valid: optionalOperand missing in OPTIONAL MATCH".into())
-            })?;
+            .ok_or_else(|| Self::parse_err("CST not valid: optionalOperand missing in OPTIONAL MATCH".into()))?;
 
         if let Some(simple_match) = operand.simpleMatchStatement() {
             let graph_pattern = simple_match
                 .graphPatternBindingTable()
                 .and_then(|binding_table| binding_table.graphPattern())
-                .ok_or_else(|| {
-                    Self::parse_err("CST not valid: graphPattern missing in OPTIONAL MATCH".into())
-                })?;
+                .ok_or_else(|| Self::parse_err("CST not valid: graphPattern missing in OPTIONAL MATCH".into()))?;
 
             return Ok(vec![(graph_pattern, true)]);
         }
@@ -59,9 +53,7 @@ impl GQLAstBuilder {
         if let Some(match_block) = operand.matchStatementBlock() {
             let nested_matches = match_block.matchStatement_all();
             if nested_matches.is_empty() {
-                return Self::parse_error(
-                    "CST not valid: empty matchStatementBlock in OPTIONAL MATCH",
-                );
+                return Self::parse_error("CST not valid: empty matchStatementBlock in OPTIONAL MATCH");
             }
 
             let mut flattened = Vec::new();
@@ -84,26 +76,19 @@ impl GQLAstBuilder {
     ) -> GqlResult<(Rc<GraphPatternContextAll<'input>>, bool)> {
         let mut patterns = Self::extract_graph_patterns(match_statement)?;
         if patterns.len() != 1 {
-            return Self::parse_error(
-                "CST not valid: expected a single graph pattern but got multiple",
-            );
+            return Self::parse_error("CST not valid: expected a single graph pattern but got multiple");
         }
 
         Ok(patterns.remove(0))
     }
 
     /// Function to build a PropertyAccess from a PropertyAccessContext, extracting the object and property expressions from the context, building the corresponding Expressions for each, and returning the resulting PropertyAccess. If the CST structure does not match the expected format for a property access, it returns a parse error indicating that the CST is not valid.
-    pub(super) fn build_match_clause(
-        graph_pattern: &GraphPatternContextAll,
-        optional: bool,
-    ) -> GqlResult<MatchClause> {
+    pub(super) fn build_match_clause(graph_pattern: &GraphPatternContextAll, optional: bool) -> GqlResult<MatchClause> {
         let span = Self::extract_span(graph_pattern);
 
         let patterns = graph_pattern
             .pathPatternList()
-            .ok_or_else(|| {
-                Self::parse_err("CST not valid: pathPatternList missing in graphPattern".into())
-            })?
+            .ok_or_else(|| Self::parse_err("CST not valid: pathPatternList missing in graphPattern".into()))?
             .pathPattern_all()
             .into_iter()
             .map(|path_pattern| Self::build_path_pattern_from_context(&path_pattern))
@@ -120,14 +105,12 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a PropertyAccess from a PropertyAccessContext, extracting the object and property expressions from the context, building the corresponding Expressions for each, and returning the resulting PropertyAccess. If the CST structure does not match the expected format for a property access, it returns a parse error indicating that the CST is not valid.
-    pub(super) fn build_path_pattern_from_context(
-        path_pattern: &PathPatternContextAll,
-    ) -> GqlResult<PathPattern> {
+    pub(super) fn build_path_pattern_from_context(path_pattern: &PathPatternContextAll) -> GqlResult<PathPattern> {
         let span = Self::extract_span(path_pattern);
 
-        let path_expression = path_pattern.pathPatternExpression().ok_or_else(|| {
-            Self::parse_err("CST not valid: pathPatternExpression missing".into())
-        })?;
+        let path_expression = path_pattern
+            .pathPatternExpression()
+            .ok_or_else(|| Self::parse_err("CST not valid: pathPatternExpression missing".into()))?;
         let expression_flavor = Self::path_expression_flavor(&path_expression);
 
         let search_prefix = path_pattern
@@ -154,9 +137,7 @@ impl GQLAstBuilder {
                     PathMode::Acyclic
                 }
             })
-            .or_else(|| {
-                search_prefix.and_then(|sp| Self::extract_path_mode_from_search_prefix(&sp))
-            });
+            .or_else(|| search_prefix.and_then(|sp| Self::extract_path_mode_from_search_prefix(&sp)));
 
         let mut alternatives: Vec<Vec<PatternElement>> = Vec::new();
         for path_term in Self::extract_path_terms(path_pattern)? {
@@ -206,9 +187,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to determine the flavor of a path expression based on its structure, classifying it as Single, Union, or MultisetAlternation depending on the presence of union or alternation operators in the expression. This classification is used to preserve the semantics of path expressions during AST construction and validation.
-    pub(super) fn extract_path_mode_from_search_prefix(
-        search_prefix: &PathSearchPrefixContextAll,
-    ) -> Option<PathMode> {
+    pub(super) fn extract_path_mode_from_search_prefix(search_prefix: &PathSearchPrefixContextAll) -> Option<PathMode> {
         let text = search_prefix.get_text().to_ascii_uppercase();
         if text.contains("WALK") {
             return Some(PathMode::Walk);
@@ -231,18 +210,13 @@ impl GQLAstBuilder {
             return Ok(());
         }
 
-        path_pattern.elements = Self::normalize_simplified_path_elements(
-            std::mem::take(&mut path_pattern.elements),
-            path_pattern.span.clone(),
-        );
+        path_pattern.elements =
+            Self::normalize_simplified_path_elements(std::mem::take(&mut path_pattern.elements), path_pattern.span.clone());
         Self::validate_alternating_node_edge(&path_pattern.elements)?;
 
         if let Some(alternation) = &mut path_pattern.alternation {
             for elements in &mut alternation.alternatives {
-                *elements = Self::normalize_simplified_path_elements(
-                    std::mem::take(elements),
-                    path_pattern.span.clone(),
-                );
+                *elements = Self::normalize_simplified_path_elements(std::mem::take(elements), path_pattern.span.clone());
                 Self::validate_alternating_node_edge(elements)?;
             }
         }
@@ -268,9 +242,7 @@ impl GQLAstBuilder {
             let left_is_node = matches!(pair[0], PatternElement::Node(_));
             let right_is_node = matches!(pair[1], PatternElement::Node(_));
             if left_is_node == right_is_node {
-                return Self::parse_error(
-                    "Simplified path desugaring failed to produce alternating Node/Edge elements",
-                );
+                return Self::parse_error("Simplified path desugaring failed to produce alternating Node/Edge elements");
             }
         }
 
@@ -278,10 +250,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to determine the flavor of a path expression based on its structure, classifying it as Single, Union, or MultisetAlternation depending on the presence of union or alternation operators in the expression. This classification is used to preserve the semantics of path expressions during AST construction and validation.
-    pub(super) fn normalize_simplified_path_elements(
-        elements: Vec<PatternElement>,
-        span: Span,
-    ) -> Vec<PatternElement> {
+    pub(super) fn normalize_simplified_path_elements(elements: Vec<PatternElement>, span: Span) -> Vec<PatternElement> {
         let mut normalized = Vec::new();
 
         for element in elements {
@@ -293,9 +262,7 @@ impl GQLAstBuilder {
                 continue;
             }
 
-            if matches!(normalized.last(), Some(PatternElement::Edge(_)))
-                && matches!(element, PatternElement::Edge(_))
-            {
+            if matches!(normalized.last(), Some(PatternElement::Edge(_))) && matches!(element, PatternElement::Edge(_)) {
                 normalized.push(Self::anonymous_path_node(span.clone()));
             }
 
@@ -321,9 +288,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to determine the flavor of a path expression based on its structure, classifying it as Single, Union, or MultisetAlternation depending on the presence of union or alternation operators in the expression. This classification is used to preserve the semantics of path expressions during AST construction and validation.
-    pub(super) fn extract_simplified_pattern_text(
-        path_pattern: &PathPatternContextAll,
-    ) -> Option<String> {
+    pub(super) fn extract_simplified_pattern_text(path_pattern: &PathPatternContextAll) -> Option<String> {
         let path_expression = path_pattern.pathPatternExpression()?;
         let path_terms = Self::extract_path_terms_from_expression(&path_expression).ok()?;
 
@@ -332,33 +297,27 @@ impl GQLAstBuilder {
                 match &*path_factor {
                     PathFactorContextAll::PfPathPrimaryContext(ctx) => {
                         if let Some(path_primary) = ctx.pathPrimary()
-                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
-                            simplified_ctx,
-                        ) = &*path_primary
-                            && let Some(simplified_expr) =
-                            simplified_ctx.simplifiedPathPatternExpression()
+                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(simplified_ctx) =
+                                &*path_primary
+                            && let Some(simplified_expr) = simplified_ctx.simplifiedPathPatternExpression()
                         {
                             return Some(simplified_expr.get_text());
                         }
                     }
                     PathFactorContextAll::PfQuantifiedPathPrimaryContext(ctx) => {
                         if let Some(path_primary) = ctx.pathPrimary()
-                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
-                            simplified_ctx,
-                        ) = &*path_primary
-                            && let Some(simplified_expr) =
-                            simplified_ctx.simplifiedPathPatternExpression()
+                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(simplified_ctx) =
+                                &*path_primary
+                            && let Some(simplified_expr) = simplified_ctx.simplifiedPathPatternExpression()
                         {
                             return Some(simplified_expr.get_text());
                         }
                     }
                     PathFactorContextAll::PfQuestionedPathPrimaryContext(ctx) => {
                         if let Some(path_primary) = ctx.pathPrimary()
-                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(
-                            simplified_ctx,
-                        ) = &*path_primary
-                            && let Some(simplified_expr) =
-                            simplified_ctx.simplifiedPathPatternExpression()
+                            && let PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(simplified_ctx) =
+                                &*path_primary
+                            && let Some(simplified_expr) = simplified_ctx.simplifiedPathPatternExpression()
                         {
                             return Some(simplified_expr.get_text());
                         }
@@ -372,9 +331,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a PathSearch from a PathSearchPrefixContext
-    pub(super) fn build_path_search_from_prefix(
-        prefix: &PathSearchPrefixContextAll,
-    ) -> Option<PathSearch> {
+    pub(super) fn build_path_search_from_prefix(prefix: &PathSearchPrefixContextAll) -> Option<PathSearch> {
         if prefix.allPathSearch().is_some() {
             return Some(PathSearch::All);
         }
@@ -412,14 +369,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to extract a pathTerm from a PathPatternContext, with validation that it is present and unique
-    pub(super) fn build_quantifier_from_context(
-        ctx: &GraphPatternQuantifierContextAll,
-    ) -> GqlResult<PathQuantifier> {
+    pub(super) fn build_quantifier_from_context(ctx: &GraphPatternQuantifierContextAll) -> GqlResult<PathQuantifier> {
         if ctx.ASTERISK().is_some() {
-            return Ok(PathQuantifier::Range {
-                min: 0,
-                max: u32::MAX,
-            });
+            return Ok(PathQuantifier::Range { min: 0, max: u32::MAX });
         }
         if ctx.PLUS_SIGN().is_some() {
             return Ok(PathQuantifier::AtLeast(1));
@@ -450,10 +402,7 @@ impl GQLAstBuilder {
                 .map_err(|_| Self::parse_err("Invalid upper bound in quantifier".into()))?;
 
             return Ok(match (min, max) {
-                (0, None) => PathQuantifier::Range {
-                    min: 0,
-                    max: u32::MAX,
-                },
+                (0, None) => PathQuantifier::Range { min: 0, max: u32::MAX },
                 (0, Some(m)) => PathQuantifier::AtMost(m),
                 (m, None) => PathQuantifier::AtLeast(m),
                 (m, Some(n)) => PathQuantifier::Range { min: m, max: n },
@@ -464,14 +413,12 @@ impl GQLAstBuilder {
     }
 
     /// Function to build one or more PatternElement from a PathPrimaryContext.
-    pub(super) fn build_elements_from_primary(
-        path_primary: &PathPrimaryContextAll,
-    ) -> GqlResult<Vec<PatternElement>> {
+    pub(super) fn build_elements_from_primary(path_primary: &PathPrimaryContextAll) -> GqlResult<Vec<PatternElement>> {
         match path_primary {
             PathPrimaryContextAll::PpElementPatternContext(ctx) => {
-                let element_pattern = ctx.elementPattern().ok_or_else(|| {
-                    Self::parse_err("CST not valid: elementPattern missing in pathPrimary".into())
-                })?;
+                let element_pattern = ctx
+                    .elementPattern()
+                    .ok_or_else(|| Self::parse_err("CST not valid: elementPattern missing in pathPrimary".into()))?;
 
                 if let Some(node_pattern) = element_pattern.nodePattern() {
                     Ok(vec![PatternElement::Node(Self::build_node_from_context(
@@ -486,14 +433,12 @@ impl GQLAstBuilder {
                 }
             }
             PathPrimaryContextAll::PpParenthesizedPathPatternExpressionContext(ctx) => {
-                let parenthesized = ctx.parenthesizedPathPatternExpression().ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: missing parenthesizedPathPatternExpression".into(),
-                    )
-                })?;
-                let expression = parenthesized.pathPatternExpression().ok_or_else(|| {
-                    Self::parse_err("CST not valid: missing pathPatternExpression".into())
-                })?;
+                let parenthesized = ctx
+                    .parenthesizedPathPatternExpression()
+                    .ok_or_else(|| Self::parse_err("CST not valid: missing parenthesizedPathPatternExpression".into()))?;
+                let expression = parenthesized
+                    .pathPatternExpression()
+                    .ok_or_else(|| Self::parse_err("CST not valid: missing pathPatternExpression".into()))?;
 
                 let mut elements: Vec<PatternElement> = Vec::new();
                 for path_term in Self::extract_path_terms_from_expression(&expression)? {
@@ -504,9 +449,9 @@ impl GQLAstBuilder {
                 Ok(elements)
             }
             PathPrimaryContextAll::PpSimplifiedPathPatternExpressionContext(ctx) => {
-                let simplified = ctx.simplifiedPathPatternExpression().ok_or_else(|| {
-                    Self::parse_err("CST not valid: missing simplifiedPathPatternExpression".into())
-                })?;
+                let simplified = ctx
+                    .simplifiedPathPatternExpression()
+                    .ok_or_else(|| Self::parse_err("CST not valid: missing simplifiedPathPatternExpression".into()))?;
                 Self::build_elements_from_simplified_path_context(&simplified)
             }
             _ => Self::parse_error("Unsupported pathPrimary variant"),
@@ -537,8 +482,7 @@ impl GQLAstBuilder {
             return Self::parse_error("CST not valid: unknown simplified path defaulting");
         };
 
-        let contents = contents
-            .ok_or_else(|| Self::parse_err("CST not valid: simplifiedContents missing".into()))?;
+        let contents = contents.ok_or_else(|| Self::parse_err("CST not valid: simplifiedContents missing".into()))?;
 
         let atoms = Self::build_simplified_atoms_from_contents(&contents, default_direction)?;
         if atoms.is_empty() {
@@ -586,10 +530,7 @@ impl GQLAstBuilder {
         }
 
         if let Some(multiset) = contents.simplifiedMultisetAlternation() {
-            return Self::build_simplified_atoms_from_multiset_alternation(
-                &multiset,
-                default_direction,
-            );
+            return Self::build_simplified_atoms_from_multiset_alternation(&multiset, default_direction);
         }
 
         if let Some(union) = contents.simplifiedPathUnion() {
@@ -609,29 +550,21 @@ impl GQLAstBuilder {
         }
 
         if let Some(q) = high.simplifiedQuantified() {
-            let tertiary = q.simplifiedTertiary().ok_or_else(|| {
-                Self::parse_err("CST not valid: simplifiedTertiary missing in quantified".into())
-            })?;
+            let tertiary = q
+                .simplifiedTertiary()
+                .ok_or_else(|| Self::parse_err("CST not valid: simplifiedTertiary missing in quantified".into()))?;
             let quantifier = q
                 .graphPatternQuantifier()
                 .map(|ctx| Self::build_quantifier_from_context(&ctx))
                 .transpose()?;
-            return Self::build_simplified_atom_from_tertiary(
-                &tertiary,
-                default_direction,
-                quantifier,
-            );
+            return Self::build_simplified_atom_from_tertiary(&tertiary, default_direction, quantifier);
         }
 
         if let Some(qm) = high.simplifiedQuestioned() {
-            let tertiary = qm.simplifiedTertiary().ok_or_else(|| {
-                Self::parse_err("CST not valid: simplifiedTertiary missing in questioned".into())
-            })?;
-            return Self::build_simplified_atom_from_tertiary(
-                &tertiary,
-                default_direction,
-                Some(PathQuantifier::Optional),
-            );
+            let tertiary = qm
+                .simplifiedTertiary()
+                .ok_or_else(|| Self::parse_err("CST not valid: simplifiedTertiary missing in questioned".into()))?;
+            return Self::build_simplified_atom_from_tertiary(&tertiary, default_direction, Some(PathQuantifier::Optional));
         }
 
         Self::parse_error("CST not valid: unsupported simplifiedFactorHigh variant")
@@ -663,9 +596,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to extract the secondary context from a simplified direction override context, which may contain additional label information that can be used to construct the labels for the corresponding edge atom in the AST.
-    pub(super) fn direction_from_simplified_override(
-        ctx: &SimplifiedDirectionOverrideContextAll,
-    ) -> EdgeDirection {
+    pub(super) fn direction_from_simplified_override(ctx: &SimplifiedDirectionOverrideContextAll) -> EdgeDirection {
         if ctx.simplifiedOverrideLeft().is_some() {
             EdgeDirection::Incoming
         } else if ctx.simplifiedOverrideUndirected().is_some() {
@@ -678,9 +609,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to extract the secondary context from a simplified direction override context, which may contain additional label information that can be used to construct the labels for the corresponding edge atom in the AST.
-    pub(super) fn label_expr_from_simplified_secondary(
-        sec: &SimplifiedSecondaryContextAll,
-    ) -> Option<Expression> {
+    pub(super) fn label_expr_from_simplified_secondary(sec: &SimplifiedSecondaryContextAll) -> Option<Expression> {
         let span = Self::extract_span(sec);
 
         if let Some(primary) = sec.simplifiedPrimary() {
@@ -702,9 +631,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to extract a label expression from a simplified primary context, which may represent a simple label or a parenthesized expression that can be recursively processed to construct more complex label expressions for edge atoms in the AST.  
-    pub(super) fn label_expr_from_simplified_primary(
-        primary: &SimplifiedPrimaryContextAll,
-    ) -> Option<Expression> {
+    pub(super) fn label_expr_from_simplified_primary(primary: &SimplifiedPrimaryContextAll) -> Option<Expression> {
         if let Some(label) = primary.labelName() {
             return Some(Expression::Literal(Literal::String(Self::identifier_text(
                 &label.get_text(),
@@ -712,8 +639,7 @@ impl GQLAstBuilder {
         }
 
         if let Some(contents) = primary.simplifiedContents() {
-            let atoms =
-                Self::build_simplified_atoms_from_contents(&contents, EdgeDirection::Both).ok()?;
+            let atoms = Self::build_simplified_atoms_from_contents(&contents, EdgeDirection::Both).ok()?;
 
             if atoms.len() != 1 {
                 return None;
@@ -732,25 +658,21 @@ impl GQLAstBuilder {
     ) -> GqlResult<Vec<SimplifiedEdgeAtom>> {
         match term {
             SimplifiedTermContextAll::SimplifiedFactorLowLabelContext(ctx) => {
-                let low = ctx.simplifiedFactorLow().ok_or_else(|| {
-                    Self::parse_err("CST not valid: simplifiedFactorLow missing".into())
-                })?;
+                let low = ctx
+                    .simplifiedFactorLow()
+                    .ok_or_else(|| Self::parse_err("CST not valid: simplifiedFactorLow missing".into()))?;
                 Self::build_simplified_atoms_from_factor_low(&low, default_direction)
             }
             SimplifiedTermContextAll::SimplifiedConcatenationLabelContext(ctx) => {
-                let left_term = ctx.simplifiedTerm().ok_or_else(|| {
-                    Self::parse_err("CST not valid: simplifiedTerm missing in concatenation".into())
-                })?;
-                let right_low = ctx.simplifiedFactorLow().ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: simplifiedFactorLow missing in concatenation".into(),
-                    )
-                })?;
+                let left_term = ctx
+                    .simplifiedTerm()
+                    .ok_or_else(|| Self::parse_err("CST not valid: simplifiedTerm missing in concatenation".into()))?;
+                let right_low = ctx
+                    .simplifiedFactorLow()
+                    .ok_or_else(|| Self::parse_err("CST not valid: simplifiedFactorLow missing in concatenation".into()))?;
 
-                let mut left =
-                    Self::build_simplified_atoms_from_term(&left_term, default_direction.clone())?;
-                let mut right =
-                    Self::build_simplified_atoms_from_factor_low(&right_low, default_direction)?;
+                let mut left = Self::build_simplified_atoms_from_term(&left_term, default_direction.clone())?;
+                let mut right = Self::build_simplified_atoms_from_factor_low(&right_low, default_direction)?;
                 left.append(&mut right);
                 Ok(left)
             }
@@ -766,49 +688,33 @@ impl GQLAstBuilder {
 
         match low {
             SimplifiedFactorLowContextAll::SimplifiedFactorHighLabelContext(ctx) => {
-                let high = ctx.simplifiedFactorHigh().ok_or_else(|| {
-                    Self::parse_err("CST not valid: simplifiedFactorHigh missing".into())
-                })?;
+                let high = ctx
+                    .simplifiedFactorHigh()
+                    .ok_or_else(|| Self::parse_err("CST not valid: simplifiedFactorHigh missing".into()))?;
                 let atom = Self::build_simplified_atom_from_factor_high(&high, default_direction)?;
                 Ok(vec![atom])
             }
             SimplifiedFactorLowContextAll::SimplifiedConjunctionLabelContext(ctx) => {
-                let left = ctx.simplifiedFactorLow().ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: simplifiedFactorLow missing in conjunction".into(),
-                    )
-                })?;
-                let right = ctx.simplifiedFactorHigh().ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: simplifiedFactorHigh missing in conjunction".into(),
-                    )
-                })?;
+                let left = ctx
+                    .simplifiedFactorLow()
+                    .ok_or_else(|| Self::parse_err("CST not valid: simplifiedFactorLow missing in conjunction".into()))?;
+                let right = ctx
+                    .simplifiedFactorHigh()
+                    .ok_or_else(|| Self::parse_err("CST not valid: simplifiedFactorHigh missing in conjunction".into()))?;
 
-                let mut left_atoms =
-                    Self::build_simplified_atoms_from_factor_low(&left, default_direction.clone())?;
+                let mut left_atoms = Self::build_simplified_atoms_from_factor_low(&left, default_direction.clone())?;
                 if left_atoms.len() != 1 {
-                    return Self::parse_error(
-                        "Simplified conjunction currently supports a single edge atom on each side",
-                    );
+                    return Self::parse_error("Simplified conjunction currently supports a single edge atom on each side");
                 }
 
                 let mut left_atom = left_atoms.remove(0);
-                let right_atom =
-                    Self::build_simplified_atom_from_factor_high(&right, default_direction)?;
+                let right_atom = Self::build_simplified_atom_from_factor_high(&right, default_direction)?;
 
-                if left_atom.direction != right_atom.direction
-                    || left_atom.quantifier != right_atom.quantifier
-                {
-                    return Self::parse_error(
-                        "Simplified conjunction requires homogeneous direction and quantifier",
-                    );
+                if left_atom.direction != right_atom.direction || left_atom.quantifier != right_atom.quantifier {
+                    return Self::parse_error("Simplified conjunction requires homogeneous direction and quantifier");
                 }
 
-                left_atom.labels = Self::merge_conjunctive_labels(
-                    left_atom.labels,
-                    right_atom.labels,
-                    span.clone(),
-                );
+                left_atom.labels = Self::merge_conjunctive_labels(left_atom.labels, right_atom.labels, span.clone());
 
                 Ok(vec![left_atom])
             }
@@ -842,11 +748,7 @@ impl GQLAstBuilder {
             return Self::parse_error("CST not valid: empty simplified multiset alternation");
         }
 
-        Self::reduce_simplified_alternative_terms(
-            terms,
-            default_direction,
-            "Simplified multiset alternation",
-        )
+        Self::reduce_simplified_alternative_terms(terms, default_direction, "Simplified multiset alternation")
     }
 
     pub(super) fn build_simplified_atoms_from_path_union(
@@ -882,33 +784,23 @@ impl GQLAstBuilder {
         }
 
         let expected_hops = alternatives.first().map(|atoms| atoms.len()).unwrap_or(0);
-        if alternatives
-            .iter()
-            .any(|atoms| atoms.len() != expected_hops)
-        {
-            return Self::parse_error(format!(
-                "{} requires alternatives with equal hop length",
-                family_name
-            ));
+        if alternatives.iter().any(|atoms| atoms.len() != expected_hops) {
+            return Self::parse_error(format!("{} requires alternatives with equal hop length", family_name));
         }
 
         let mut merged = alternatives.remove(0);
 
         for alternative in alternatives {
             for (idx, atom) in alternative.into_iter().enumerate() {
-                let slot = merged.get_mut(idx).ok_or_else(|| {
-                    Self::parse_err("CST not valid: alternative hop index out of bounds".into())
-                })?;
+                let slot = merged
+                    .get_mut(idx)
+                    .ok_or_else(|| Self::parse_err("CST not valid: alternative hop index out of bounds".into()))?;
 
                 if atom.direction != slot.direction || atom.quantifier != slot.quantifier {
-                    return Self::parse_error(format!(
-                        "{} requires homogeneous direction and quantifier",
-                        family_name
-                    ));
+                    return Self::parse_error(format!("{} requires homogeneous direction and quantifier", family_name));
                 }
 
-                slot.labels =
-                    Self::merge_alternative_labels(slot.labels.clone(), atom.labels, span.clone());
+                slot.labels = Self::merge_alternative_labels(slot.labels.clone(), atom.labels, span.clone());
             }
         }
 
@@ -962,9 +854,9 @@ impl GQLAstBuilder {
     pub(super) fn extract_path_terms<'input>(
         path_pattern: &PathPatternContextAll<'input>,
     ) -> GqlResult<Vec<Rc<PathTermContextAll<'input>>>> {
-        let path_expression = path_pattern.pathPatternExpression().ok_or_else(|| {
-            Self::parse_err("CST not valid: pathPatternExpression missing".into())
-        })?;
+        let path_expression = path_pattern
+            .pathPatternExpression()
+            .ok_or_else(|| Self::parse_err("CST not valid: pathPatternExpression missing".into()))?;
 
         Self::extract_path_terms_from_expression(&path_expression)
     }
@@ -974,12 +866,8 @@ impl GQLAstBuilder {
     ) -> PathExpressionFlavor {
         match path_expression {
             PathPatternExpressionContextAll::PpePathTermContext(_) => PathExpressionFlavor::Single,
-            PathPatternExpressionContextAll::PpePatternUnionContext(_) => {
-                PathExpressionFlavor::Union
-            }
-            PathPatternExpressionContextAll::PpeMultisetAlternationContext(_) => {
-                PathExpressionFlavor::MultisetAlternation
-            }
+            PathPatternExpressionContextAll::PpePatternUnionContext(_) => PathExpressionFlavor::Union,
+            PathPatternExpressionContextAll::PpeMultisetAlternationContext(_) => PathExpressionFlavor::MultisetAlternation,
             _ => PathExpressionFlavor::Single,
         }
     }
@@ -988,40 +876,31 @@ impl GQLAstBuilder {
         path_expression: &PathPatternExpressionContextAll<'input>,
     ) -> GqlResult<Vec<Rc<PathTermContextAll<'input>>>> {
         match path_expression {
-            PathPatternExpressionContextAll::PpePathTermContext(context) => {
-                context.pathTerm().map(|t| vec![t]).ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: pathTerm missing in pathPatternExpression".into(),
-                    )
-                })
-            }
-            PathPatternExpressionContextAll::PpePatternUnionContext(context) => {
-                Ok(context.pathTerm_all())
-            }
-            PathPatternExpressionContextAll::PpeMultisetAlternationContext(context) => {
-                Ok(context.pathTerm_all())
-            }
+            PathPatternExpressionContextAll::PpePathTermContext(context) => context
+                .pathTerm()
+                .map(|t| vec![t])
+                .ok_or_else(|| Self::parse_err("CST not valid: pathTerm missing in pathPatternExpression".into())),
+            PathPatternExpressionContextAll::PpePatternUnionContext(context) => Ok(context.pathTerm_all()),
+            PathPatternExpressionContextAll::PpeMultisetAlternationContext(context) => Ok(context.pathTerm_all()),
             _ => Ok(Vec::new()),
         }
     }
 
-    pub(super) fn build_elements_from_factor(
-        path_factor: &PathFactorContextAll,
-    ) -> GqlResult<Vec<PatternElement>> {
+    pub(super) fn build_elements_from_factor(path_factor: &PathFactorContextAll) -> GqlResult<Vec<PatternElement>> {
         match path_factor {
             PathFactorContextAll::PfPathPrimaryContext(ctx) => {
-                let primary = ctx.pathPrimary().ok_or_else(|| {
-                    Self::parse_err("CST not valid: pathPrimary missing in pathFactor".into())
-                })?;
+                let primary = ctx
+                    .pathPrimary()
+                    .ok_or_else(|| Self::parse_err("CST not valid: pathPrimary missing in pathFactor".into()))?;
                 Self::build_elements_from_primary(&primary)
             }
             PathFactorContextAll::PfQuantifiedPathPrimaryContext(ctx) => {
-                let primary = ctx.pathPrimary().ok_or_else(|| {
-                    Self::parse_err("CST not valid: pathPrimary missing in pathFactor".into())
-                })?;
-                let quantifier_ctx = ctx.graphPatternQuantifier().ok_or_else(|| {
-                    Self::parse_err("CST not valid: graphPatternQuantifier missing".into())
-                })?;
+                let primary = ctx
+                    .pathPrimary()
+                    .ok_or_else(|| Self::parse_err("CST not valid: pathPrimary missing in pathFactor".into()))?;
+                let quantifier_ctx = ctx
+                    .graphPatternQuantifier()
+                    .ok_or_else(|| Self::parse_err("CST not valid: graphPatternQuantifier missing".into()))?;
 
                 let quantifier = Self::build_quantifier_from_context(&quantifier_ctx)?;
                 let mut elements = Self::build_elements_from_primary(&primary)?;
@@ -1037,9 +916,9 @@ impl GQLAstBuilder {
                 Ok(elements)
             }
             PathFactorContextAll::PfQuestionedPathPrimaryContext(ctx) => {
-                let primary = ctx.pathPrimary().ok_or_else(|| {
-                    Self::parse_err("CST not valid: pathPrimary missing in pathFactor".into())
-                })?;
+                let primary = ctx
+                    .pathPrimary()
+                    .ok_or_else(|| Self::parse_err("CST not valid: pathPrimary missing in pathFactor".into()))?;
                 let mut elements = Self::build_elements_from_primary(&primary)?;
 
                 if let Some(PatternElement::Edge(edge)) = elements
@@ -1060,9 +939,9 @@ impl GQLAstBuilder {
     pub(super) fn build_node_from_context(node_pattern: &NodePatternContextAll) -> GqlResult<Node> {
         let span = Self::extract_span(node_pattern);
 
-        let filler = node_pattern.elementPatternFiller().ok_or_else(|| {
-            Self::parse_err("CST not valid: elementPatternFiller missing in nodePattern".into())
-        })?;
+        let filler = node_pattern
+            .elementPatternFiller()
+            .ok_or_else(|| Self::parse_err("CST not valid: elementPatternFiller missing in nodePattern".into()))?;
 
         let id = filler
             .elementVariableDeclaration()
@@ -1151,9 +1030,7 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to build properties from a filler
-    pub(super) fn build_properties_from_filler(
-        filler: &ElementPatternFillerContextAll,
-    ) -> GqlResult<Option<PropertyMap>> {
+    pub(super) fn build_properties_from_filler(filler: &ElementPatternFillerContextAll) -> GqlResult<Option<PropertyMap>> {
         filler
             .elementPatternPredicate()
             .and_then(|predicate| predicate.elementPropertySpecification())
@@ -1162,16 +1039,11 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a property map from a context
-    pub(super) fn build_property_map_from_context(
-        spec: &ElementPropertySpecificationContextAll,
-    ) -> GqlResult<PropertyMap> {
+    pub(super) fn build_property_map_from_context(spec: &ElementPropertySpecificationContextAll) -> GqlResult<PropertyMap> {
         let span = Self::extract_span(spec);
 
         let list = spec.propertyKeyValuePairList().ok_or_else(|| {
-            Self::parse_err(
-                "CST not valid: propertyKeyValuePairList missing in elementPropertySpecification"
-                    .into(),
-            )
+            Self::parse_err("CST not valid: propertyKeyValuePairList missing in elementPropertySpecification".into())
         })?;
 
         let properties = list
@@ -1182,15 +1054,11 @@ impl GQLAstBuilder {
                     .propertyName()
                     .map(|name| Self::identifier_text(&name.get_text()))
                     .ok_or_else(|| {
-                        Self::parse_err(
-                            "CST non valido: propertyName mancante in propertyKeyValuePair".into(),
-                        )
+                        Self::parse_err("CST non valido: propertyName mancante in propertyKeyValuePair".into())
                     })?;
 
                 let value_ctx = pair.valueExpression().ok_or_else(|| {
-                    Self::parse_err(
-                        "CST non valido: valueExpression mancante in propertyKeyValuePair".into(),
-                    )
+                    Self::parse_err("CST non valido: valueExpression mancante in propertyKeyValuePair".into())
                 })?;
 
                 let value = Self::build_expression_from_context(&value_ctx)?;
@@ -1218,9 +1086,7 @@ impl GQLAstBuilder {
         if edge_pattern.abbreviatedEdgePattern().is_some() {
             return Ok(None);
         }
-        Self::parse_error(
-            "CST not valid: edgePattern without fullEdgePattern or abbreviatedEdgePattern",
-        )
+        Self::parse_error("CST not valid: edgePattern without fullEdgePattern or abbreviatedEdgePattern")
     }
 
     /// Function to extract an edge pattern filler from a full edge pattern context, trying all possible edge types and validating that the filler is present
@@ -1229,14 +1095,8 @@ impl GQLAstBuilder {
     ) -> GqlResult<Rc<ElementPatternFillerContextAll>> {
         full.fullEdgePointingLeft()
             .and_then(|ctx| ctx.elementPatternFiller())
-            .or_else(|| {
-                full.fullEdgeUndirected()
-                    .and_then(|ctx| ctx.elementPatternFiller())
-            })
-            .or_else(|| {
-                full.fullEdgePointingRight()
-                    .and_then(|ctx| ctx.elementPatternFiller())
-            })
+            .or_else(|| full.fullEdgeUndirected().and_then(|ctx| ctx.elementPatternFiller()))
+            .or_else(|| full.fullEdgePointingRight().and_then(|ctx| ctx.elementPatternFiller()))
             .or_else(|| {
                 full.fullEdgeLeftOrUndirected()
                     .and_then(|ctx| ctx.elementPatternFiller())
@@ -1245,19 +1105,9 @@ impl GQLAstBuilder {
                 full.fullEdgeUndirectedOrRight()
                     .and_then(|ctx| ctx.elementPatternFiller())
             })
-            .or_else(|| {
-                full.fullEdgeLeftOrRight()
-                    .and_then(|ctx| ctx.elementPatternFiller())
-            })
-            .or_else(|| {
-                full.fullEdgeAnyDirection()
-                    .and_then(|ctx| ctx.elementPatternFiller())
-            })
-            .ok_or_else(|| {
-                Self::parse_err(
-                    "CST not valid: elementPatternFiller missing in fullEdgePattern".into(),
-                )
-            })
+            .or_else(|| full.fullEdgeLeftOrRight().and_then(|ctx| ctx.elementPatternFiller()))
+            .or_else(|| full.fullEdgeAnyDirection().and_then(|ctx| ctx.elementPatternFiller()))
+            .ok_or_else(|| Self::parse_err("CST not valid: elementPatternFiller missing in fullEdgePattern".into()))
     }
 
     /// Function to build a label expression from a LabelExpressionContext, handling different types of label expressions (name, wildcard, negation, conjunction, disjunction, parentheses) and extracting the relevant components from the CST.
@@ -1278,9 +1128,9 @@ impl GQLAstBuilder {
                 Ok(Expression::Literal(Literal::String("%".to_string())))
             }
             LabelExpressionContextAll::LabelExpressionNegationContext(ctx) => {
-                let inner = ctx.labelExpression().ok_or_else(|| {
-                    Self::parse_err("CST not valid: labelExpression missing in negation".into())
-                })?;
+                let inner = ctx
+                    .labelExpression()
+                    .ok_or_else(|| Self::parse_err("CST not valid: labelExpression missing in negation".into()))?;
                 let expression = Self::build_label_expression_from_context(&inner)?;
                 Ok(Expression::Unary(UnaryExpression {
                     operator: Operator::Not,
@@ -1289,12 +1139,12 @@ impl GQLAstBuilder {
                 }))
             }
             LabelExpressionContextAll::LabelExpressionConjunctionContext(ctx) => {
-                let left_ctx = ctx.labelExpression(0).ok_or_else(|| {
-                    Self::parse_err("CST not valid: left operand missing in conjunction".into())
-                })?;
-                let right_ctx = ctx.labelExpression(1).ok_or_else(|| {
-                    Self::parse_err("CST not valid: right operand missing in conjunction".into())
-                })?;
+                let left_ctx = ctx
+                    .labelExpression(0)
+                    .ok_or_else(|| Self::parse_err("CST not valid: left operand missing in conjunction".into()))?;
+                let right_ctx = ctx
+                    .labelExpression(1)
+                    .ok_or_else(|| Self::parse_err("CST not valid: right operand missing in conjunction".into()))?;
 
                 let left = Self::build_label_expression_from_context(&left_ctx)?;
                 let right = Self::build_label_expression_from_context(&right_ctx)?;
@@ -1307,12 +1157,12 @@ impl GQLAstBuilder {
                 }))
             }
             LabelExpressionContextAll::LabelExpressionDisjunctionContext(ctx) => {
-                let left_ctx = ctx.labelExpression(0).ok_or_else(|| {
-                    Self::parse_err("CST not valid: left operand missing in disjunction".into())
-                })?;
-                let right_ctx = ctx.labelExpression(1).ok_or_else(|| {
-                    Self::parse_err("CST not valid: right operand missing in disjunction".into())
-                })?;
+                let left_ctx = ctx
+                    .labelExpression(0)
+                    .ok_or_else(|| Self::parse_err("CST not valid: left operand missing in disjunction".into()))?;
+                let right_ctx = ctx
+                    .labelExpression(1)
+                    .ok_or_else(|| Self::parse_err("CST not valid: right operand missing in disjunction".into()))?;
 
                 let left = Self::build_label_expression_from_context(&left_ctx)?;
                 let right = Self::build_label_expression_from_context(&right_ctx)?;
@@ -1325,9 +1175,9 @@ impl GQLAstBuilder {
                 }))
             }
             LabelExpressionContextAll::LabelExpressionParenthesizedContext(ctx) => {
-                let inner = ctx.labelExpression().ok_or_else(|| {
-                    Self::parse_err("CST not valid: labelExpression missing in parentheses".into())
-                })?;
+                let inner = ctx
+                    .labelExpression()
+                    .ok_or_else(|| Self::parse_err("CST not valid: labelExpression missing in parentheses".into()))?;
                 Self::build_label_expression_from_context(&inner)
             }
             _ => Self::parse_error("Type of labelExpression not supported"),
@@ -1342,19 +1192,11 @@ impl GQLAstBuilder {
 
         let condition = graph_pattern_where_clause
             .searchCondition()
-            .ok_or_else(|| {
-                Self::parse_err(
-                    "CST not valid: searchCondition missing in graphPatternWhereClause".into(),
-                )
-            })?
+            .ok_or_else(|| Self::parse_err("CST not valid: searchCondition missing in graphPatternWhereClause".into()))?
             .booleanValueExpression()
             .and_then(|expression| expression.valueExpression())
             .map(|expression| Self::build_expression_from_context(&expression))
-            .ok_or_else(|| {
-                Self::parse_err(
-                    "CST not valid: booleanValueExpression missing in searchCondition".into(),
-                )
-            })??;
+            .ok_or_else(|| Self::parse_err("CST not valid: booleanValueExpression missing in searchCondition".into()))??;
 
         Ok(WhereClause {
             condition,
@@ -1363,25 +1205,17 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a FilterClause from a FilterStatementContext
-    pub(super) fn build_filter_clause_from_context(
-        filter: &FilterStatementContextAll,
-    ) -> GqlResult<FilterClause> {
+    pub(super) fn build_filter_clause_from_context(filter: &FilterStatementContextAll) -> GqlResult<FilterClause> {
         let span = Self::extract_span(filter);
 
         if let Some(where_clause) = filter.whereClause() {
             let condition = where_clause
                 .searchCondition()
-                .ok_or_else(|| {
-                    Self::parse_err("CST not valid: searchCondition missing in whereClause".into())
-                })?
+                .ok_or_else(|| Self::parse_err("CST not valid: searchCondition missing in whereClause".into()))?
                 .booleanValueExpression()
                 .and_then(|expression| expression.valueExpression())
                 .map(|expression| Self::build_expression_from_context(&expression))
-                .ok_or_else(|| {
-                    Self::parse_err(
-                        "CST not valid: booleanValueExpression missing in whereClause".into(),
-                    )
-                })??;
+                .ok_or_else(|| Self::parse_err("CST not valid: booleanValueExpression missing in whereClause".into()))??;
             return Ok(FilterClause {
                 condition,
                 span: span.clone(),
@@ -1390,17 +1224,11 @@ impl GQLAstBuilder {
 
         let condition = filter
             .searchCondition()
-            .ok_or_else(|| {
-                Self::parse_err("CST not valid: searchCondition missing in filterStatement".into())
-            })?
+            .ok_or_else(|| Self::parse_err("CST not valid: searchCondition missing in filterStatement".into()))?
             .booleanValueExpression()
             .and_then(|expression| expression.valueExpression())
             .map(|expression| Self::build_expression_from_context(&expression))
-            .ok_or_else(|| {
-                Self::parse_err(
-                    "CST not valid: booleanValueExpression missing in searchCondition".into(),
-                )
-            })??;
+            .ok_or_else(|| Self::parse_err("CST not valid: booleanValueExpression missing in searchCondition".into()))??;
 
         Ok(FilterClause {
             condition,
@@ -1409,32 +1237,24 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a ForClause from a ForStatementContext, extracting the variable and expression components from the CST and constructing the corresponding AST node.
-    pub(super) fn build_for_clause_from_context(
-        for_stmt: &ForStatementContextAll,
-    ) -> GqlResult<ForClause> {
+    pub(super) fn build_for_clause_from_context(for_stmt: &ForStatementContextAll) -> GqlResult<ForClause> {
         let span = Self::extract_span(for_stmt);
 
-        let for_item: Rc<
-            antlr_rust::parser_rule_context::BaseParserRuleContext<'_, ForItemContextExt<'_>>,
-        > = for_stmt.forItem().ok_or_else(|| {
-            Self::parse_err("CST not valid: forItem missing in forStatement".into())
-        })?;
+        let for_item: Rc<antlr_rust::parser_rule_context::BaseParserRuleContext<'_, ForItemContextExt<'_>>> = for_stmt
+            .forItem()
+            .ok_or_else(|| Self::parse_err("CST not valid: forItem missing in forStatement".into()))?;
 
         let variable = for_item
             .forItemAlias()
             .and_then(|a| a.bindingVariable())
             .map(|v| v.get_text().to_string())
-            .ok_or_else(|| {
-                Self::parse_err("CST not valid: bindingVariable missing in forItemAlias".into())
-            })?;
+            .ok_or_else(|| Self::parse_err("CST not valid: bindingVariable missing in forItemAlias".into()))?;
 
         let expression = for_item
             .forItemSource()
             .and_then(|s| s.valueExpression())
             .map(|e| Self::build_expression_from_context(&e))
-            .ok_or_else(|| {
-                Self::parse_err("CST not valid: valueExpression missing in forItemSource".into())
-            })??;
+            .ok_or_else(|| Self::parse_err("CST not valid: valueExpression missing in forItemSource".into()))??;
 
         let ordinality_or_offset_variable = for_stmt
             .forOrdinalityOrOffset()

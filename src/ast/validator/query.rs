@@ -23,10 +23,7 @@
 use super::*;
 
 /// Function to validate a query, ensuring that all components of the query are structurally and semantically correct according to the rules of the query language. This function recursively validates each part of the query, including MATCH clauses, LET statements, FILTER conditions, HAVING conditions, FOR clauses, pagination clauses, CALL clauses, and subqueries. It also manages the scope of declared variables to ensure that all references are valid and that there are no naming conflicts.
-pub(super) fn validate_basic_query(
-    basic: &BasicQuery,
-    declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_basic_query(basic: &BasicQuery, declared_variables: &mut HashSet<String>) -> Result<HashSet<String>, GqlError> {
     for step in &basic.pipeline {
         match step {
             QueryStep::Match(match_clause) => {
@@ -37,20 +34,12 @@ pub(super) fn validate_basic_query(
             }
             QueryStep::Filter(filter_clause) => {
                 validate_expression(&filter_clause.condition, declared_variables)?;
-                validate_predicate_condition_type(
-                    &filter_clause.condition,
-                    declared_variables,
-                    "WHERE/FILTER",
-                )?;
+                validate_predicate_condition_type(&filter_clause.condition, declared_variables, "WHERE/FILTER")?;
                 check_no_aggregates_in_where(&filter_clause.condition)?;
             }
             QueryStep::Having(having_clause) => {
                 validate_expression(&having_clause.condition, declared_variables)?;
-                validate_predicate_condition_type(
-                    &having_clause.condition,
-                    declared_variables,
-                    "HAVING",
-                )?;
+                validate_predicate_condition_type(&having_clause.condition, declared_variables, "HAVING")?;
             }
             QueryStep::For(for_clause) => {
                 let var_name = for_clause.variable.trim();
@@ -90,9 +79,7 @@ pub(super) fn validate_basic_query(
             }
             QueryStep::FromSubquery(from_query) => {
                 let mut nested_scope = declared_variables.clone();
-                validate_query(from_query, &mut nested_scope)?;
-
-                for output_name in collect_projected_output_names(from_query) {
+                for output_name in validate_query_output(from_query, &mut nested_scope)? {
                     declared_variables.insert(output_name);
                 }
             }
@@ -109,15 +96,26 @@ pub(super) fn validate_basic_query(
         } => {
             let mut return_aliases = HashSet::new();
 
-            validate_return_clause_with_aliases(
-                return_clause,
-                declared_variables,
-                &mut return_aliases,
-            )?;
+            validate_return_clause_with_aliases(return_clause, declared_variables, &mut return_aliases)?;
 
             if let Some(group) = group_clause {
                 validate_group_clause(group, declared_variables, &return_aliases)?;
                 validate_non_aggregated_return_variables_in_group_by(return_clause, group)?;
+                if matches!(return_clause.projection, ReturnProjection::Wildcard) {
+                    let grouped: HashSet<&str> = group.keys.as_ref().into_iter().flatten()
+                        .map(|key| match key { GroupKey::BindingVariable { name, .. } => name.trim() })
+                        .collect();
+                    let mut variables: Vec<&String> = declared_variables.iter().collect();
+                    variables.sort();
+                    for variable in variables {
+                        if !grouped.contains(variable.as_str()) {
+                            return Err(validation_err(
+                                format!("Non-aggregated variable '{}' in RETURN * must appear in GROUP BY", variable),
+                                Some(&return_clause.span),
+                            ));
+                        }
+                    }
+                }
             }
 
             if let Some(page) = page_clause {
@@ -131,7 +129,12 @@ pub(super) fn validate_basic_query(
         }
     }
 
-    Ok(())
+    let names = match &basic.result_statement {
+        PrimitiveResultStatement::Return { return_clause, .. }
+            if matches!(return_clause.projection, ReturnProjection::Wildcard) => declared_variables.clone(),
+        _ => collect_projected_output_names_from_result(&basic.result_statement),
+    };
+    Ok(names)
 }
 
 /// Function to validate a MATCH clause, ensuring that all patterns and their components are structurally and semantically correct. This includes checking that path patterns are well-formed, that any variables used are properly declared and do not conflict with each other, and that any mode-specific constraints on patterns are respected. The function also manages the scope of declared variables to ensure that they are available for subsequent query steps.
@@ -186,9 +189,7 @@ pub(super) fn validate_match_clause(
                 }
             }
 
-            if term_elements.len() > 1
-                && !matches!(term_elements.last(), Some(PatternElement::Node(_)))
-            {
+            if term_elements.len() > 1 && !matches!(term_elements.last(), Some(PatternElement::Node(_))) {
                 return Err(validation_err(
                     "Path pattern must end with a node".to_string(),
                     Some(&pattern.span.clone()),
@@ -213,9 +214,7 @@ pub(super) fn path_pattern_term_slices(pattern: &PathPattern) -> Vec<&[PatternEl
 }
 
 /// Function to validate that the specified path search strategy is compatible with the path mode used in a pattern. For example, certain shortest path search strategies may not be valid when used with a WALK path mode, and this function checks for such incompatibilities and returns appropriate validation errors if they are detected.
-pub(super) fn validate_path_mode_search_compatibility(
-    pattern: &PathPattern,
-) -> Result<(), GqlError> {
+pub(super) fn validate_path_mode_search_compatibility(pattern: &PathPattern) -> Result<(), GqlError> {
     let Some(path_search) = &pattern.path_search else {
         return Ok(());
     };
@@ -254,11 +253,8 @@ pub(super) fn validate_path_mode_cycle_constraints(pattern: &PathPattern) -> Res
 
     for term_elements in path_pattern_term_slices(pattern) {
         for triple in term_elements.windows(3) {
-            let (
-                PatternElement::Node(left_node),
-                PatternElement::Edge(_),
-                PatternElement::Node(right_node),
-            ) = (&triple[0], &triple[1], &triple[2])
+            let (PatternElement::Node(left_node), PatternElement::Edge(_), PatternElement::Node(right_node)) =
+                (&triple[0], &triple[1], &triple[2])
             else {
                 continue;
             };
@@ -284,32 +280,19 @@ pub(super) fn validate_path_mode_cycle_constraints(pattern: &PathPattern) -> Res
     Ok(())
 }
 
-/// Function to collect output names projected by a query for outer-scope propagation.
-pub(super) fn collect_projected_output_names(query: &Query) -> HashSet<String> {
-    match query {
-        Query::Basic(basic) => collect_projected_output_names_from_result(&basic.result_statement),
-        Query::SetOperation(set_op) => {
-            let left = collect_projected_output_names(&set_op.left);
-            if left.is_empty() {
-                collect_projected_output_names(&set_op.right)
-            } else {
-                left
-            }
-        }
-    }
-}
-
 /// Helper function to extract projected names from a terminal RETURN result statement.
-pub(super) fn collect_projected_output_names_from_result(
-    result: &PrimitiveResultStatement,
-) -> HashSet<String> {
+pub(super) fn collect_projected_output_names_from_result(result: &PrimitiveResultStatement) -> HashSet<String> {
     let mut names = HashSet::new();
 
     let PrimitiveResultStatement::Return { return_clause, .. } = result else {
         return names;
     };
 
-    for item in &return_clause.items {
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return names;
+    };
+
+    for item in items {
         if let Some(alias) = &item.alias {
             let trimmed = alias.trim();
             if !trimmed.is_empty() {
@@ -357,10 +340,7 @@ pub(super) fn derive_output_names_from_expression(expression: &Expression) -> Ve
 }
 
 /// Function to validate node pattern content and register node variables into scope.
-pub(super) fn validate_node(
-    node: &Node,
-    declared_variables: &mut HashSet<String>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_node(node: &Node, declared_variables: &mut HashSet<String>) -> Result<(), GqlError> {
     if let Some(id) = &node.id {
         let trimmed = id.trim();
         if trimmed.is_empty() {
@@ -463,10 +443,7 @@ pub(super) fn validate_edge(
 }
 
 /// Function to validate edge quantifier bounds and mode-specific restrictions.
-pub(super) fn validate_edge_quantifier(
-    edge: &Edge,
-    path_mode: Option<&PathMode>,
-) -> Result<(), GqlError> {
+pub(super) fn validate_edge_quantifier(edge: &Edge, path_mode: Option<&PathMode>) -> Result<(), GqlError> {
     let Some(quantifier) = &edge.quantifier else {
         return Ok(());
     };
@@ -492,8 +469,7 @@ pub(super) fn validate_edge_quantifier(
 
         if is_open {
             return Err(validation_err(
-                "SIMPLE/ACYCLIC path modes do not allow open quantifiers (*, +, or unbounded ranges)"
-                    .to_string(),
+                "SIMPLE/ACYCLIC path modes do not allow open quantifiers (*, +, or unbounded ranges)".to_string(),
                 Some(&edge.span.clone()),
             ));
         }
@@ -525,14 +501,18 @@ pub(super) fn validate_return_clause_with_aliases(
     declared_variables: &HashSet<String>,
     return_aliases: &mut HashSet<String>,
 ) -> Result<(), GqlError> {
-    if return_clause.items.is_empty() {
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return Ok(());
+    };
+
+    if items.is_empty() {
         return Err(validation_err(
             "RETURN clause must contain at least one item".to_string(),
             Some(&return_clause.span.clone()),
         ));
     }
 
-    for item in &return_clause.items {
+    for item in items {
         validate_expression(&item.expression, declared_variables)?;
 
         if let Some(alias) = &item.alias {
@@ -591,8 +571,7 @@ pub(super) fn validate_group_clause(
                 let trimmed = name.trim();
                 if trimmed.is_empty() {
                     return Err(validation_err("GROUP BY key cannot be empty", Some(span)));
-                } else if !declared_variables.contains(trimmed) && !return_aliases.contains(trimmed)
-                {
+                } else if !declared_variables.contains(trimmed) && !return_aliases.contains(trimmed) {
                     return Err(validation_err(
                         format!("Unknown variable '{}' in GROUP BY", trimmed),
                         Some(span),
@@ -622,7 +601,11 @@ pub(super) fn validate_non_aggregated_return_variables_in_group_by(
         })
         .unwrap_or_default();
 
-    for item in &return_clause.items {
+    let ReturnProjection::Items(items) = &return_clause.projection else {
+        return Ok(());
+    };
+
+    for item in items {
         let mut non_aggregated_refs = HashSet::new();
         collect_non_aggregated_variable_refs(&item.expression, false, &mut non_aggregated_refs);
 
@@ -643,10 +626,7 @@ pub(super) fn validate_non_aggregated_return_variables_in_group_by(
         for var in non_aggregated_refs {
             if !grouped_keys.contains(var.as_str()) {
                 return Err(validation_err(
-                    format!(
-                        "Non-aggregated variable '{}' in RETURN must appear in GROUP BY",
-                        var
-                    ),
+                    format!("Non-aggregated variable '{}' in RETURN must appear in GROUP BY", var),
                     Some(&return_clause.span.clone()),
                 ));
             }
@@ -699,21 +679,13 @@ pub(super) fn collect_non_aggregated_variable_refs(
             collect_non_aggregated_variable_refs_in_case(case_expression, inside_function, refs);
         }
         Expression::Cast(cast_expression) => {
-            collect_non_aggregated_variable_refs(
-                &cast_expression.expression,
-                inside_function,
-                refs,
-            );
+            collect_non_aggregated_variable_refs(&cast_expression.expression, inside_function, refs);
         }
         Expression::InlineLet(inline_let) => {
             for def in &inline_let.variable_definitions {
                 collect_non_aggregated_variable_refs(&def.expression, inside_function, refs);
             }
-            collect_non_aggregated_variable_refs(
-                &inline_let.evaluation_expression,
-                inside_function,
-                refs,
-            );
+            collect_non_aggregated_variable_refs(&inline_let.evaluation_expression, inside_function, refs);
         }
         Expression::Subquery(_) => {}
         Expression::Literal(_) => {}
@@ -753,8 +725,8 @@ pub(super) fn validate_order_clause(
             let var_name = name.trim();
             if declared_variables.contains(var_name)
                 || return_aliases
-                .map(|aliases| aliases.contains(var_name))
-                .unwrap_or(false)
+                    .map(|aliases| aliases.contains(var_name))
+                    .unwrap_or(false)
             {
                 continue;
             }
@@ -763,9 +735,7 @@ pub(super) fn validate_order_clause(
         validate_expression(&item.expression, declared_variables)?;
 
         let inferred = HashMap::new();
-        if let Some(order_type) =
-            infer_expression_type(&item.expression, &inferred, Some(declared_variables))
-        {
+        if let Some(order_type) = infer_expression_type(&item.expression, &inferred, Some(declared_variables)) {
             let sortable = is_numeric_type(&order_type)
                 || is_string_like_type(&order_type)
                 || is_temporal_like_type(&order_type)
@@ -773,10 +743,7 @@ pub(super) fn validate_order_clause(
                 || matches!(order_type, TypeSpec::Any);
             if !sortable {
                 return Err(validation_err(
-                    format!(
-                        "ORDER BY expression has non-sortable type {}",
-                        type_name(&order_type)
-                    ),
+                    format!("ORDER BY expression has non-sortable type {}", type_name(&order_type)),
                     Some(&item.span.clone()),
                 ));
             }
@@ -836,11 +803,7 @@ pub(super) fn validate_case_expression(
     match &case_expression.case_type {
         CaseType::Simple(simple_case) => {
             validate_expression(&simple_case.test_expression, declared_variables)?;
-            let test_type = infer_expression_type(
-                &simple_case.test_expression,
-                &inferred,
-                Some(declared_variables),
-            );
+            let test_type = infer_expression_type(&simple_case.test_expression, &inferred, Some(declared_variables));
 
             for branch in &simple_case.when_branches {
                 for when_value in &branch.when_values {
@@ -870,11 +833,7 @@ pub(super) fn validate_case_expression(
         CaseType::Searched(searched_case) => {
             for branch in &searched_case.when_branches {
                 validate_expression(&branch.condition, declared_variables)?;
-                validate_predicate_condition_type(
-                    &branch.condition,
-                    declared_variables,
-                    "CASE searched WHEN",
-                )?;
+                validate_predicate_condition_type(&branch.condition, declared_variables, "CASE searched WHEN")?;
                 validate_expression(&branch.then_expression, declared_variables)?;
             }
 
@@ -894,13 +853,11 @@ pub(super) fn validate_predicate_condition_type(
     context_name: &str,
 ) -> Result<(), GqlError> {
     let inferred = HashMap::new();
-    let Some(cond_type) = infer_expression_type(expression, &inferred, Some(declared_variables))
-    else {
+    let Some(cond_type) = infer_expression_type(expression, &inferred, Some(declared_variables)) else {
         return Ok(());
     };
 
-    if !is_boolean_type(&cond_type) && !matches!(cond_type, TypeSpec::Any | TypeSpec::BindingTable)
-    {
+    if !is_boolean_type(&cond_type) && !matches!(cond_type, TypeSpec::Any | TypeSpec::BindingTable) {
         return Err(validation_err(
             format!(
                 "{} requires a BOOLEAN condition, got {}",
@@ -922,21 +879,13 @@ pub(super) fn collect_non_aggregated_variable_refs_in_case(
 ) {
     match &case_expression.case_type {
         CaseType::Simple(simple_case) => {
-            collect_non_aggregated_variable_refs(
-                &simple_case.test_expression,
-                inside_function,
-                refs,
-            );
+            collect_non_aggregated_variable_refs(&simple_case.test_expression, inside_function, refs);
 
             for branch in &simple_case.when_branches {
                 for when_value in &branch.when_values {
                     collect_non_aggregated_variable_refs(when_value, inside_function, refs);
                 }
-                collect_non_aggregated_variable_refs(
-                    &branch.then_expression,
-                    inside_function,
-                    refs,
-                );
+                collect_non_aggregated_variable_refs(&branch.then_expression, inside_function, refs);
             }
 
             if let Some(else_expr) = &simple_case.else_expression {
@@ -946,11 +895,7 @@ pub(super) fn collect_non_aggregated_variable_refs_in_case(
         CaseType::Searched(searched_case) => {
             for branch in &searched_case.when_branches {
                 collect_non_aggregated_variable_refs(&branch.condition, inside_function, refs);
-                collect_non_aggregated_variable_refs(
-                    &branch.then_expression,
-                    inside_function,
-                    refs,
-                );
+                collect_non_aggregated_variable_refs(&branch.then_expression, inside_function, refs);
             }
 
             if let Some(else_expr) = &searched_case.else_expression {
