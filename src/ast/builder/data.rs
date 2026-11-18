@@ -73,7 +73,7 @@ impl GQLAstBuilder {
                         span: span.clone(),
                     }))
                 } else if let Some(delete_stmt) = prim.deleteStatement() {
-                    let detach = delete_stmt.DETACH().is_some();
+                    let mode = Self::delete_mode_from_context(&delete_stmt);
                     let delete_item_list = delete_stmt
                         .deleteItemList()
                         .ok_or_else(|| Self::parse_err("Expected deleteItemList".to_string()))?;
@@ -81,7 +81,7 @@ impl GQLAstBuilder {
                     Ok(DataStatement::Delete(DeleteStatement {
                         delete_clause: DeleteClause {
                             expressions,
-                            detach,
+                            mode,
                             span: span.clone(),
                         },
                         span: span.clone(),
@@ -151,7 +151,7 @@ impl GQLAstBuilder {
                     span: span.clone(),
                 }))
             } else if let Some(delete_stmt) = prim.deleteStatement() {
-                let detach = delete_stmt.DETACH().is_some();
+                let mode = Self::delete_mode_from_context(&delete_stmt);
                 let delete_item_list = delete_stmt
                     .deleteItemList()
                     .ok_or_else(|| Self::parse_err("Expected deleteItemList".to_string()))?;
@@ -161,7 +161,7 @@ impl GQLAstBuilder {
                     where_clause,
                     delete_clause: DeleteClause {
                         expressions,
-                        detach,
+                        mode,
                         span: span.clone(),
                     },
                     span: span.clone(),
@@ -173,6 +173,16 @@ impl GQLAstBuilder {
             }
         } else {
             Err(Self::parse_err("Unsupported data statement type".to_string()))
+        }
+    }
+
+    fn delete_mode_from_context(delete_stmt: &DeleteStatementContextAll) -> DeleteMode {
+        if delete_stmt.DETACH().is_some() {
+            DeleteMode::Detach
+        } else if delete_stmt.NODETACH().is_some() {
+            DeleteMode::NoDetach
+        } else {
+            DeleteMode::Unspecified
         }
     }
 

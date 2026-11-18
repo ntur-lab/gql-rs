@@ -1,0 +1,85 @@
+{
+  "statement": {
+    "Data": {
+      "MatchDelete": {
+        "delete_clause": {
+          "expressions": [
+            {
+              "Variable": {
+                "name": "n",
+                "span": {
+                  "end_col": 27,
+                  "end_line": 1,
+                  "start_col": 26,
+                  "start_line": 1
+                }
+              }
+            }
+          ],
+          "mode": "NoDetach",
+          "span": {
+            "end_col": 27,
+            "end_line": 1,
+            "start_col": 0,
+            "start_line": 1
+          }
+        },
+        "match_clause": {
+          "match_clause": {
+            "patterns": [
+              {
+                "alternation": null,
+                "elements": [
+                  {
+                    "Node": {
+                      "id": "n",
+                      "labels": null,
+                      "properties": null,
+                      "span": {
+                        "end_col": 9,
+                        "end_line": 1,
+                        "start_col": 6,
+                        "start_line": 1
+                      },
+                      "where_clause": null
+                    }
+                  }
+                ],
+                "path_mode": null,
+                "path_search": null,
+                "simplified_pattern": null,
+                "span": {
+                  "end_col": 9,
+                  "end_line": 1,
+                  "start_col": 6,
+                  "start_line": 1
+                },
+                "variable": null
+              }
+            ],
+            "span": {
+              "end_col": 9,
+              "end_line": 1,
+              "start_col": 6,
+              "start_line": 1
+            }
+          },
+          "optional": false,
+          "span": {
+            "end_col": 9,
+            "end_line": 1,
+            "start_col": 6,
+            "start_line": 1
+          }
+        },
+        "span": {
+          "end_col": 27,
+          "end_line": 1,
+          "start_col": 0,
+          "start_line": 1
+        },
+        "where_clause": null
+      }
+    }
+  }
+}
