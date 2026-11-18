@@ -76,6 +76,7 @@ jobs:
       - name: Build release
         run: >
           cargo build
+          --locked
           --release
           --all-features
           --verbose
@@ -121,6 +122,7 @@ jobs:
       - name: Run ${{ matrix.name }} tests
         run: >
           cargo test
+          --locked
           --release
           --all-features
           --verbose
@@ -154,6 +156,7 @@ jobs:
       - name: Build documentation
         run: >
           cargo doc
+          --locked
           --release
           --all-features
           --no-deps
@@ -162,6 +165,7 @@ jobs:
       - name: Run documentation tests
         run: >
           cargo test
+          --locked
           --release
           --all-features
           --doc
