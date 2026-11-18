@@ -1719,15 +1719,10 @@ impl GQLAstBuilder {
             let mut arguments = Vec::new();
             if let Some(arg_list) = named_call.procedureArgumentList() {
                 for arg in arg_list.procedureArgument_all() {
-                    let expr_ctx = arg
-                        .valueExpression()
-                        .ok_or_else(|| Self::parse_err("CST not valid: missing valueExpression in argument".into()))?;
-                    let expression = match Self::build_expression_from_context(&expr_ctx) {
-                        Ok(expr) => expr,
-                        Err(_) => Self::build_expression_from_leaf_text(&expr_ctx.get_text(), span.clone())
-                            .unwrap_or_else(|_| Expression::Literal(Literal::String(expr_ctx.get_text()))),
-                    };
-                    arguments.push(expression);
+                    let expr_ctx = arg.valueExpression().ok_or_else(|| {
+                        Self::parse_err("CST not valid: missing valueExpression in argument".into())
+                    })?;
+                    arguments.push(Self::build_expression_from_context(&expr_ctx)?);
                 }
             }
 
@@ -1835,33 +1830,10 @@ impl GQLAstBuilder {
             });
         }
 
-        let raw = cst.get_text();
-        if let Some(eq_idx) = raw.find('=') {
-            let left = raw[..eq_idx].trim();
-            let right = raw[eq_idx + 1..].trim();
-
-            let variable_name = left
-                .split_whitespace()
-                .last()
-                .filter(|v| !v.is_empty())
-                .unwrap_or("__unnamed_let_var__")
-                .to_string();
-
-            let expression = Self::build_expression_from_leaf_text(right, span.clone())
-                .unwrap_or_else(|_| Expression::Literal(Literal::String(right.to_string())));
-
-            return Ok(VariableDefinition {
-                variable_name,
-                expression,
-                span: span.clone(),
-            });
-        }
-
-        Ok(VariableDefinition {
-            variable_name: "__unnamed_let_var__".to_string(),
-            expression: Expression::Literal(Literal::String(raw)),
-            span: span.clone(),
-        })
+        Self::parse_error(format!(
+            "CST not valid: unsupported LET variable definition: {}",
+            cst.get_text()
+        ))
     }
 
     /// Builds a YieldClause from a YieldClauseContext, extracting the list of yield items and their aliases from the CST, and constructing the corresponding AST nodes.

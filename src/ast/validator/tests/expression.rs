@@ -89,7 +89,7 @@ fn validate_expression_checks_left_and_right_arguments() {
                 &declared,
                 &inferred
             )
-            .is_err()
+                .is_err()
         );
 
         assert!(
@@ -98,7 +98,7 @@ fn validate_expression_checks_left_and_right_arguments() {
                 &declared,
                 &inferred
             )
-            .is_err()
+                .is_err()
         );
 
         assert!(
@@ -143,7 +143,7 @@ fn validate_expression_checks_path_constructor_shape() {
             &declared,
             &inferred
         )
-        .is_err()
+            .is_err()
     );
 
     assert!(
@@ -152,7 +152,7 @@ fn validate_expression_checks_path_constructor_shape() {
             &declared,
             &inferred
         )
-        .is_err()
+            .is_err()
     );
 
     assert!(
@@ -161,7 +161,7 @@ fn validate_expression_checks_path_constructor_shape() {
             &declared,
             &inferred
         )
-        .is_err()
+            .is_err()
     );
 
     assert!(
@@ -170,7 +170,7 @@ fn validate_expression_checks_path_constructor_shape() {
             &declared,
             &inferred
         )
-        .is_ok()
+            .is_ok()
     );
 }
 
@@ -444,12 +444,25 @@ fn scalar_subquery_requires_exactly_one_return_column() {
 }
 
 #[test]
-fn recognizes_aggregate_function_names_case_sensitively() {
-    assert!(is_aggregate_function_name("COUNT"));
-    assert!(is_aggregate_function_name("SUM"));
-    assert!(is_aggregate_function_name("AVG"));
-    assert!(!is_aggregate_function_name("LOWER"));
-    assert!(!is_aggregate_function_name("count"));
+fn recognizes_registered_aggregate_function_names() {
+    for name in [
+        "COUNT",
+        "SUM",
+        "AVG",
+        "MIN",
+        "MAX",
+        "COLLECT_LIST",
+        "STDDEV_SAMP",
+        "STDDEV_POP",
+        "PERCENTILE_CONT",
+        "PERCENTILE_DISC",
+        "count",
+    ] {
+        assert!(is_aggregate_function_name(name), "{name}");
+    }
+    for name in ["LOWER", "COLLECT_SET", "schema.COUNT", "my_count"] {
+        assert!(!is_aggregate_function_name(name), "{name}");
+    }
 }
 
 #[test]
@@ -765,10 +778,18 @@ fn infer_function_call_type_covers_builtin_families() {
         (function_call("CURRENT_DATE", vec![]), Some(TypeSpec::Date)),
         (
             function_call("CURRENT_TIME", vec![]),
+            Some(TypeSpec::ZonedTime { precision: None }),
+        ),
+        (
+            function_call("LOCAL_TIME", vec![]),
             Some(TypeSpec::LocalTime { precision: None }),
         ),
         (
             function_call("CURRENT_TIMESTAMP", vec![]),
+            Some(TypeSpec::ZonedDateTime { precision: None }),
+        ),
+        (
+            function_call("LOCAL_TIMESTAMP", vec![]),
             Some(TypeSpec::LocalDateTime { precision: None }),
         ),
         (

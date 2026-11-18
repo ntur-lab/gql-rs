@@ -647,18 +647,10 @@ impl GQLAstBuilder {
                 span: span.clone(),
             })
         } else {
-            let raw = cst.get_text();
-            let variable = raw
-                .split(|ch: char| ch == '.' || ch == ':' || ch.is_whitespace())
-                .find(|token| !token.is_empty())
-                .unwrap_or("__set_target__")
-                .to_string();
-
-            Ok(SetItem::Variable {
-                variable,
-                value: Expression::Literal(Literal::String(raw)),
-                span: span.clone(),
-            })
+            Self::parse_error(format!(
+                "CST not valid: unsupported SET item: {}",
+                cst.get_text()
+            ))
         }
     }
 
@@ -713,10 +705,10 @@ impl GQLAstBuilder {
                 span: span.clone(),
             })
         } else {
-            Ok(RemoveItem::Variable {
-                name: cst.get_text(),
-                span: span.clone(),
-            })
+            Self::parse_error(format!(
+                "CST not valid: unsupported REMOVE item: {}",
+                cst.get_text()
+            ))
         }
     }
 

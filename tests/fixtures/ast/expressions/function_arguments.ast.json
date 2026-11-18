@@ -1,0 +1,275 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "Match": {
+              "match_clause": {
+                "patterns": [
+                  {
+                    "alternation": null,
+                    "elements": [
+                      {
+                        "Node": {
+                          "id": "n",
+                          "labels": {
+                            "Literal": {
+                              "String": "Item"
+                            }
+                          },
+                          "properties": null,
+                          "span": {
+                            "end_col": 14,
+                            "end_line": 1,
+                            "start_col": 6,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      }
+                    ],
+                    "path_mode": null,
+                    "path_search": null,
+                    "simplified_pattern": null,
+                    "span": {
+                      "end_col": 14,
+                      "end_line": 1,
+                      "start_col": 6,
+                      "start_line": 1
+                    },
+                    "variable": null
+                  }
+                ],
+                "span": {
+                  "end_col": 14,
+                  "end_line": 1,
+                  "start_col": 6,
+                  "start_line": 1
+                }
+              },
+              "optional": false,
+              "span": {
+                "end_col": 14,
+                "end_line": 1,
+                "start_col": 6,
+                "start_line": 1
+              }
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "projection": {
+                "items": [
+                  {
+                    "alias": "rounded",
+                    "expression": {
+                      "FunctionCall": {
+                        "arguments": [
+                          {
+                            "Binary": {
+                              "left": {
+                                "Binary": {
+                                  "left": {
+                                    "PropertyAccess": {
+                                      "object": "n",
+                                      "property": "price",
+                                      "span": {
+                                        "end_col": 20,
+                                        "end_line": 2,
+                                        "start_col": 13,
+                                        "start_line": 2
+                                      }
+                                    }
+                                  },
+                                  "operator": "Star",
+                                  "right": {
+                                    "Literal": {
+                                      "Float": 1.2
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 26,
+                                    "end_line": 2,
+                                    "start_col": 13,
+                                    "start_line": 2
+                                  }
+                                }
+                              },
+                              "operator": "Plus",
+                              "right": {
+                                "Literal": {
+                                  "Integer": 1
+                                }
+                              },
+                              "span": {
+                                "end_col": 30,
+                                "end_line": 2,
+                                "start_col": 13,
+                                "start_line": 2
+                              }
+                            }
+                          }
+                        ],
+                        "distinct": "None",
+                        "name": "FLOOR",
+                        "span": {
+                          "end_col": 31,
+                          "end_line": 2,
+                          "start_col": 7,
+                          "start_line": 2
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 42,
+                      "end_line": 2,
+                      "start_col": 7,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "prefix",
+                    "expression": {
+                      "FunctionCall": {
+                        "arguments": [
+                          {
+                            "PropertyAccess": {
+                              "object": "n",
+                              "property": "name",
+                              "span": {
+                                "end_col": 55,
+                                "end_line": 2,
+                                "start_col": 49,
+                                "start_line": 2
+                              }
+                            }
+                          },
+                          {
+                            "Binary": {
+                              "left": {
+                                "Literal": {
+                                  "Integer": 3
+                                }
+                              },
+                              "operator": "Plus",
+                              "right": {
+                                "Literal": {
+                                  "Integer": 1
+                                }
+                              },
+                              "span": {
+                                "end_col": 62,
+                                "end_line": 2,
+                                "start_col": 57,
+                                "start_line": 2
+                              }
+                            }
+                          }
+                        ],
+                        "distinct": "None",
+                        "name": "LEFT",
+                        "span": {
+                          "end_col": 63,
+                          "end_line": 2,
+                          "start_col": 44,
+                          "start_line": 2
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 73,
+                      "end_line": 2,
+                      "start_col": 44,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "opening",
+                    "expression": {
+                      "FunctionCall": {
+                        "arguments": [
+                          {
+                            "Literal": {
+                              "String": "12:30:00.5"
+                            }
+                          }
+                        ],
+                        "distinct": "None",
+                        "name": "LOCAL_TIME",
+                        "span": {
+                          "end_col": 99,
+                          "end_line": 2,
+                          "start_col": 75,
+                          "start_line": 2
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 110,
+                      "end_line": 2,
+                      "start_col": 75,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "since",
+                    "expression": {
+                      "Literal": {
+                        "DateTime": "2024-01-31"
+                      }
+                    },
+                    "span": {
+                      "end_col": 138,
+                      "end_line": 2,
+                      "start_col": 112,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "mask",
+                    "expression": {
+                      "Literal": {
+                        "Integer": 31
+                      }
+                    },
+                    "span": {
+                      "end_col": 152,
+                      "end_line": 2,
+                      "start_col": 140,
+                      "start_line": 2
+                    }
+                  }
+                ],
+                "kind": "items"
+              },
+              "span": {
+                "end_col": 152,
+                "end_line": 2,
+                "start_col": 0,
+                "start_line": 2
+              }
+            },
+            "span": {
+              "end_col": 152,
+              "end_line": 2,
+              "start_col": 0,
+              "start_line": 2
+            }
+          }
+        },
+        "span": {
+          "end_col": 152,
+          "end_line": 2,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

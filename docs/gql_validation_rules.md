@@ -16,7 +16,7 @@ The validator is executed via `validate_query_ast` and dispatches to:
 
 All errors are emitted as `GqlError::Validation` with span information when available.
 
-These rules run automatically through `analyze()` and`DefaultGQLQueryAnalyzer::exec()`. 
+These rules run automatically through `analyze()` and`DefaultGQLQueryAnalyzer::exec()`.
 When using `parse()`, call `QueryAST::validate()` explicitly to apply them.
 
 A validation error without a known source position uses `ErrorContext.span = None`. Diagnostic codes are optional.
@@ -196,7 +196,7 @@ Additional type constraints:
 - `AND`/`OR`/`XOR`: require `BOOLEAN` when types are known; string-like label expressions are supported.
 - +: string+string concatenation is forbidden (use ||).
 -
-    `+ `and `-`: require numeric-numeric or duration-duration, except Any.
+`+ `and `-`: require numeric-numeric or duration-duration, except Any.
 - `*`, `/`, `%`, `^`: require numeric-numeric, except Any.
 - `||`: requires string-like/path, except Any.
 - `<`, `<=`, `>`, `>=`: require comparable operands, except Any.
@@ -205,20 +205,25 @@ Additional type constraints:
 
 ### Functions
 
-Specific rules:
+Built-in calls are validated through the built-in function registry; the complete list of
+functions, signatures, return types and validation limitations is in
+[builtin_functions.md](builtin_functions.md). For every registered built-in:
 
-- `ELEMENT_ID`: exactly 1 argument; argument must be a declared variable.
-- `LEFT`/`RIGHT`: exactly 2 arguments; second argument must be a non-negative integer.
-- `LOWER`/`UPPER`: exactly 1 string-like or Any argument.
-- `TRIM`: 1, 2, or 3 arguments.
-- `SUM`/`AVG`: exactly 1 numeric or Any argument.
-- `SIZE`/`CARDINALITY`: exactly 1 list/string/path/binding table/Any argument.
-- `COUNT`: exactly 1 argument.
-- `COALESCE`: at least 1 argument; arguments must be mutually compatible.
-- `DATE`: at most 1 argument.
-- `CURRENT_DATE`/`CURRENT_TIME`/`CURRENT_TIMESTAMP`: no arguments.
-- `LOCAL_TIME`/`LOCAL_DATETIME`/`ZONED_TIME`/`ZONED_DATETIME`: at most 1 argument.
-- `DURATION_BETWEEN`: exactly 2 temporally compatible arguments (or Any).
+- the argument count must match the registered arity;
+- a DISTINCT/ALL set quantifier is only accepted by aggregates;
+- aggregates cannot contain nested aggregates (all ten grammar aggregates, including
+  `STDDEV_*` and `PERCENTILE_*`), and are rejected in WHERE/FILTER;
+- function-specific restrictions apply: element-variable arguments must be variable
+  references (`ELEMENT_ID`, `PROPERTY_EXISTS`, `IS_*` predicates, `ALL_DIFFERENT`, `SAME`),
+  `PROPERTY_EXISTS` needs a non-empty property name, keyword modifiers must be one of their
+  spellings (normal forms, trim specifications, `DURATION_BETWEEN` qualifiers), lengths and
+  list trim counts must be non-negative integers, and percentile fractions must lie in
+  `[0, 1]`;
+- argument types are checked when they are known; unknown types and `NULL` are accepted.
+
+Names that are not registered, including every qualified name, are user-defined functions:
+their arguments are validated as expressions, no signature is enforced, and their return
+type is unknown.
 
 ### CASE
 
@@ -262,19 +267,19 @@ Specific rules:
 
 - Procedure name must be non-empty.
 - Inline `CALL`:
-    - cannot define `YIELD`.
-    - textual body must be non-empty.
-    - structured statement is mandatory.
-    - inline argument scope allows only binding variables.
-    - duplicate variables in inline scope are forbidden.
+  - cannot define `YIELD`.
+  - textual body must be non-empty.
+  - structured statement is mandatory.
+  - inline argument scope allows only binding variables.
+  - duplicate variables in inline scope are forbidden.
 - Named `CALL` cannot contain inline payload.
-- `CALL` arguments are semantically validated when declared scope exists.
+- Named `CALL` arguments are semantically validated against the current scope, also when it is empty.
 - `YIELD`:
-    - at least one item,
-    - item name must be non-empty,
-    - alias must be non-empty,
-    - duplicate output names are forbidden,
-    - duplicate aliases are forbidden.
+  - at least one item,
+  - item name must be non-empty,
+  - alias must be non-empty,
+  - duplicate output names are forbidden,
+  - duplicate aliases are forbidden.
 
 ## Inferred Type and Conservative Principle
 

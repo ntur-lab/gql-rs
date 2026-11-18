@@ -24,17 +24,19 @@ use super::*;
 
 impl GQLAstBuilder {
     /// Function to build an Expression from a ValueExpressionContext, handling different types of expressions (unary, binary, function calls, predicates) and extracting the relevant components from the CST to construct the corresponding AST nodes for each type of expression. This function also includes error handling to ensure that the CST structure is valid and contains the expected elements for each type of expression. --- IGNORE ---
-    pub(super) fn build_expression_from_context(value_expression: &ValueExpressionContextAll) -> GqlResult<Expression> {
+    pub(super) fn build_expression_from_context(
+        value_expression: &ValueExpressionContextAll,
+    ) -> GqlResult<Expression> {
         let span = Self::extract_span(value_expression);
 
         match value_expression {
             ValueExpressionContextAll::SignedExprAltContext(signed) => {
-                let inner = signed
-                    .valueExpression()
-                    .ok_or_else(|| Self::parse_err("CST not valid: operand missing in signed expression".into()))?;
+                let inner = signed.valueExpression().ok_or_else(|| {
+                    Self::parse_err("CST not valid: operand missing in signed expression".into())
+                })?;
 
                 // The magnitude of i64::MIN is not a valid positive i64 literal.
-                if signed.MINUS_SIGN().is_some() && inner.get_text().trim_start_matches('0') == "9223372036854775808" {
+                if signed.MINUS_SIGN().is_some() && Self::is_i64_min_magnitude(&inner.get_text()) {
                     return Ok(Expression::Literal(Literal::Integer(i64::MIN)));
                 }
                 let expression = Self::build_expression_from_context(&inner)?;
@@ -58,7 +60,9 @@ impl GQLAstBuilder {
                     .collect::<GqlResult<Vec<_>>>()?;
 
                 if expressions.len() < 2 {
-                    return Self::parse_error("CST not valid: AND expression with less than 2 operands");
+                    return Self::parse_error(
+                        "CST not valid: AND expression with less than 2 operands",
+                    );
                 }
 
                 let mut result = expressions[0].clone();
@@ -80,7 +84,9 @@ impl GQLAstBuilder {
                     .collect::<GqlResult<Vec<_>>>()?;
 
                 if expressions.len() < 2 {
-                    return Self::parse_error("CST non valido: espressione OR con meno di 2 operandi");
+                    return Self::parse_error(
+                        "CST non valido: espressione OR con meno di 2 operandi",
+                    );
                 }
 
                 let operator = if disjunctive.XOR().is_some() {
@@ -101,9 +107,9 @@ impl GQLAstBuilder {
                 Ok(result)
             }
             ValueExpressionContextAll::NotExprAltContext(not_expr) => {
-                let inner = not_expr
-                    .valueExpression()
-                    .ok_or_else(|| Self::parse_err("CST not valid: operand missing in NOT expression".into()))?;
+                let inner = not_expr.valueExpression().ok_or_else(|| {
+                    Self::parse_err("CST not valid: operand missing in NOT expression".into())
+                })?;
 
                 let expression = Self::build_expression_from_context(&inner)?;
                 Ok(Expression::Unary(UnaryExpression {
@@ -116,14 +122,20 @@ impl GQLAstBuilder {
                 let left = mult_div
                     .valueExpression(0)
                     .ok_or_else(|| {
-                        Self::parse_err("CST not valid: left operand missing in multiplicative expression".into())
+                        Self::parse_err(
+                            "CST not valid: left operand missing in multiplicative expression"
+                                .into(),
+                        )
                     })
                     .and_then(|expression| Self::build_expression_from_context(&expression))?;
 
                 let right = mult_div
                     .valueExpression(1)
                     .ok_or_else(|| {
-                        Self::parse_err("CST not valid: right operand missing in multiplicative expression".into())
+                        Self::parse_err(
+                            "CST not valid: right operand missing in multiplicative expression"
+                                .into(),
+                        )
                     })
                     .and_then(|expression| Self::build_expression_from_context(&expression))?;
 
@@ -144,12 +156,20 @@ impl GQLAstBuilder {
             ValueExpressionContextAll::AddSubtractExprAltContext(add_sub) => {
                 let left = add_sub
                     .valueExpression(0)
-                    .ok_or_else(|| Self::parse_err("CST not valid: left operand missing in additive expression".into()))
+                    .ok_or_else(|| {
+                        Self::parse_err(
+                            "CST not valid: left operand missing in additive expression".into(),
+                        )
+                    })
                     .and_then(|expression| Self::build_expression_from_context(&expression))?;
 
                 let right = add_sub
                     .valueExpression(1)
-                    .ok_or_else(|| Self::parse_err("CST not valid: right operand missing in additive expression".into()))
+                    .ok_or_else(|| {
+                        Self::parse_err(
+                            "CST not valid: right operand missing in additive expression".into(),
+                        )
+                    })
                     .and_then(|expression| Self::build_expression_from_context(&expression))?;
 
                 let operator = if add_sub.PLUS_SIGN().is_some() {
@@ -192,15 +212,27 @@ impl GQLAstBuilder {
             ValueExpressionContextAll::ComparisonExprAltContext(comparison) => {
                 let left = comparison
                     .valueExpression(0)
-                    .ok_or_else(|| Self::parse_err("CST not valid: left operand missing in comparison expression".into()))
+                    .ok_or_else(|| {
+                        Self::parse_err(
+                            "CST not valid: left operand missing in comparison expression".into(),
+                        )
+                    })
                     .and_then(|expression| Self::build_expression_from_context(&expression))?;
                 let right = comparison
                     .valueExpression(1)
-                    .ok_or_else(|| Self::parse_err("CST not valid: right operand missing in comparison expression".into()))
+                    .ok_or_else(|| {
+                        Self::parse_err(
+                            "CST not valid: right operand missing in comparison expression".into(),
+                        )
+                    })
                     .and_then(|expression| Self::build_expression_from_context(&expression))?;
                 let operator = comparison
                     .compOp()
-                    .ok_or_else(|| Self::parse_err("CST not valid: compOp missing in comparison expression".into()))
+                    .ok_or_else(|| {
+                        Self::parse_err(
+                            "CST not valid: compOp missing in comparison expression".into(),
+                        )
+                    })
                     .and_then(|comp_op| Self::operator_from_context(&comp_op))?;
 
                 Ok(Expression::Binary(BinaryExpression {
@@ -213,32 +245,36 @@ impl GQLAstBuilder {
             ValueExpressionContextAll::PrimaryExprAltContext(primary) => primary
                 .valueExpressionPrimary()
                 .ok_or_else(|| {
-                    Self::parse_err("CST not valid: valueExpressionPrimary missing in primary expression".into())
+                    Self::parse_err(
+                        "CST not valid: valueExpressionPrimary missing in primary expression"
+                            .into(),
+                    )
                 })
                 .and_then(|value_expression_primary| {
                     Self::build_primary_expression_from_context(&value_expression_primary)
                 }),
             ValueExpressionContextAll::IsNotExprAltContext(is_not) => {
-                let inner = is_not
-                    .valueExpression()
-                    .ok_or_else(|| Self::parse_err("CST not valid: operand missing in IS predicate".into()))?;
+                let inner = is_not.valueExpression().ok_or_else(|| {
+                    Self::parse_err("CST not valid: operand missing in IS predicate".into())
+                })?;
                 let expression = Self::build_expression_from_context(&inner)?;
 
                 let negated = is_not.NOT().is_some();
 
-                let predicate = is_not
+                let truth_value = is_not
                     .truthValue()
                     .and_then(|tv| tv.BOOLEAN_LITERAL())
-                    .map(|lit| {
-                        if lit.get_text().eq_ignore_ascii_case("unknown") {
-                            IsPredicateKind::Unknown
-                        } else if lit.get_text().eq_ignore_ascii_case("true") {
-                            IsPredicateKind::True
-                        } else {
-                            IsPredicateKind::False
-                        }
-                    })
-                    .unwrap_or(IsPredicateKind::Unknown);
+                    .ok_or_else(|| {
+                        Self::parse_err("CST not valid: truth value missing in IS predicate".into())
+                    })?
+                    .get_text();
+                let predicate = if truth_value.eq_ignore_ascii_case("true") {
+                    IsPredicateKind::True
+                } else if truth_value.eq_ignore_ascii_case("false") {
+                    IsPredicateKind::False
+                } else {
+                    IsPredicateKind::Unknown
+                };
 
                 Ok(Expression::IsPredicate(IsPredicateExpression {
                     expression: Box::new(expression),
@@ -248,18 +284,25 @@ impl GQLAstBuilder {
                 }))
             }
             ValueExpressionContextAll::NormalizedPredicateExprAltContext(normalized_expr) => {
-                let inner = normalized_expr
-                    .valueExpression()
-                    .ok_or_else(|| Self::parse_err("CST not valid: operand missing in normalized predicate".into()))?;
+                let inner = normalized_expr.valueExpression().ok_or_else(|| {
+                    Self::parse_err("CST not valid: operand missing in normalized predicate".into())
+                })?;
 
                 let expression = Self::build_expression_from_context(&inner)?;
-                let predicate_part = normalized_expr.normalizedPredicatePart2().ok_or_else(|| {
-                    Self::parse_err("CST not valid: normalizedPredicatePart2 missing in normalized predicate".into())
-                })?;
+                let predicate_part =
+                    normalized_expr.normalizedPredicatePart2().ok_or_else(|| {
+                        Self::parse_err(
+                            "CST not valid: normalizedPredicatePart2 missing in normalized predicate"
+                                .into(),
+                        )
+                    })?;
 
                 let mut arguments = vec![expression];
                 if let Some(form) = predicate_part.normalForm() {
-                    arguments.push(Expression::Literal(Literal::String(form.get_text())));
+                    // The normal form is a keyword modifier; its token text is the decoded value.
+                    arguments.push(Expression::Literal(Literal::String(
+                        form.get_text().to_ascii_uppercase(),
+                    )));
                 }
 
                 let base_expr = Expression::FunctionCall(FunctionCall {
@@ -280,24 +323,33 @@ impl GQLAstBuilder {
                 }
             }
             ValueExpressionContextAll::PredicateExprAltContext(predicate_expr) => {
-                let predicate_ctx = predicate_expr
-                    .predicate()
-                    .ok_or_else(|| Self::parse_err("CST not valid: predicate missing in PredicateExprAlt".into()))?;
+                let predicate_ctx = predicate_expr.predicate().ok_or_else(|| {
+                    Self::parse_err("CST not valid: predicate missing in PredicateExprAlt".into())
+                })?;
 
                 if let Some(exists_predicate) = predicate_ctx.existsPredicate() {
                     Self::build_exists_subquery_expression_from_context(&exists_predicate)
-                } else if let Some(property_exists_predicate) = predicate_ctx.property_existsPredicate() {
+                } else if let Some(property_exists_predicate) =
+                    predicate_ctx.property_existsPredicate()
+                {
                     let variable = property_exists_predicate
                         .elementVariableReference()
                         .map(|ctx| Self::identifier_text(&ctx.get_text()))
                         .ok_or_else(|| {
-                            Self::parse_err("CST not valid: elementVariableReference missing in PROPERTY_EXISTS".into())
+                            Self::parse_err(
+                                "CST not valid: elementVariableReference missing in PROPERTY_EXISTS"
+                                    .into(),
+                            )
                         })?;
 
                     let property = property_exists_predicate
                         .propertyName()
                         .map(|ctx| Self::identifier_text(&ctx.get_text()))
-                        .ok_or_else(|| Self::parse_err("CST not valid: propertyName missing in PROPERTY_EXISTS".into()))?;
+                        .ok_or_else(|| {
+                            Self::parse_err(
+                                "CST not valid: propertyName missing in PROPERTY_EXISTS".into(),
+                            )
+                        })?;
 
                     Ok(Expression::FunctionCall(FunctionCall {
                         name: fn_names::PROPERTY_EXISTS.to_string(),
@@ -313,12 +365,16 @@ impl GQLAstBuilder {
                     }))
                 } else if let Some(null_predicate) = predicate_ctx.nullPredicate() {
                     let primary = null_predicate.valueExpressionPrimary().ok_or_else(|| {
-                        Self::parse_err("CST not valid: valueExpressionPrimary missing in nullPredicate".into())
+                        Self::parse_err(
+                            "CST not valid: valueExpressionPrimary missing in nullPredicate".into(),
+                        )
                     })?;
                     let expression = Self::build_primary_expression_from_context(&primary)?;
 
                     let part2 = null_predicate.nullPredicatePart2().ok_or_else(|| {
-                        Self::parse_err("CST not valid: nullPredicatePart2 missing in nullPredicate".into())
+                        Self::parse_err(
+                            "CST not valid: nullPredicatePart2 missing in nullPredicate".into(),
+                        )
                     })?;
                     let negated = part2.NOT().is_some();
 
@@ -329,17 +385,31 @@ impl GQLAstBuilder {
                         span: span.clone(),
                     }))
                 } else if let Some(value_type_predicate) = predicate_ctx.valueTypePredicate() {
-                    let primary = value_type_predicate.valueExpressionPrimary().ok_or_else(|| {
-                        Self::parse_err("CST not valid: valueExpressionPrimary missing in valueTypePredicate".into())
-                    })?;
+                    let primary =
+                        value_type_predicate
+                            .valueExpressionPrimary()
+                            .ok_or_else(|| {
+                                Self::parse_err(
+                                    "CST not valid: valueExpressionPrimary missing in valueTypePredicate"
+                                        .into(),
+                                )
+                            })?;
                     let expression = Self::build_primary_expression_from_context(&primary)?;
 
-                    let part2 = value_type_predicate.valueTypePredicatePart2().ok_or_else(|| {
-                        Self::parse_err("CST not valid: valueTypePredicatePart2 missing in valueTypePredicate".into())
-                    })?;
+                    let part2 =
+                        value_type_predicate
+                            .valueTypePredicatePart2()
+                            .ok_or_else(|| {
+                                Self::parse_err(
+                                    "CST not valid: valueTypePredicatePart2 missing in valueTypePredicate"
+                                        .into(),
+                                )
+                            })?;
 
                     let value_type = part2.valueType().ok_or_else(|| {
-                        Self::parse_err("CST not valid: valueType missing in valueTypePredicatePart2".into())
+                        Self::parse_err(
+                            "CST not valid: valueType missing in valueTypePredicatePart2".into(),
+                        )
                     })?;
 
                     let type_spec = Self::build_type_spec_from_value_type(&value_type)?;
@@ -360,11 +430,17 @@ impl GQLAstBuilder {
                         })?;
 
                     let part2 = labeled_predicate.labeledPredicatePart2().ok_or_else(|| {
-                        Self::parse_err("CST not valid: labeledPredicatePart2 missing in labeledPredicate".into())
+                        Self::parse_err(
+                            "CST not valid: labeledPredicatePart2 missing in labeledPredicate"
+                                .into(),
+                        )
                     })?;
 
                     let label_ctx = part2.labelExpression().ok_or_else(|| {
-                        Self::parse_err("CST not valid: labelExpression missing in labeledPredicatePart2".into())
+                        Self::parse_err(
+                            "CST not valid: labelExpression missing in labeledPredicatePart2"
+                                .into(),
+                        )
                     })?;
                     let label_expression = Self::build_label_expression_from_context(&label_ctx)?;
 
@@ -397,7 +473,10 @@ impl GQLAstBuilder {
                         .elementVariableReference()
                         .map(|ctx| ctx.get_text())
                         .ok_or_else(|| {
-                            Self::parse_err("CST not valid: elementVariableReference missing in directedPredicate".into())
+                            Self::parse_err(
+                                "CST not valid: elementVariableReference missing in directedPredicate"
+                                    .into(),
+                            )
                         })?;
 
                     let negated = directed_predicate
@@ -424,13 +503,18 @@ impl GQLAstBuilder {
                     } else {
                         Ok(base_expr)
                     }
-                } else if let Some(source_dest_predicate) = predicate_ctx.sourceDestinationPredicate() {
+                } else if let Some(source_dest_predicate) =
+                    predicate_ctx.sourceDestinationPredicate()
+                {
                     let node_variable = source_dest_predicate
                         .nodeReference()
                         .and_then(|ctx| ctx.elementVariableReference())
                         .map(|ctx| ctx.get_text())
                         .ok_or_else(|| {
-                            Self::parse_err("CST not valid: node reference missing in source/destination predicate".into())
+                            Self::parse_err(
+                                "CST not valid: node reference missing in source/destination predicate"
+                                    .into(),
+                            )
                         })?;
 
                     if let Some(source_part) = source_dest_predicate.sourcePredicatePart2() {
@@ -439,7 +523,10 @@ impl GQLAstBuilder {
                             .and_then(|ctx| ctx.elementVariableReference())
                             .map(|ctx| ctx.get_text())
                             .ok_or_else(|| {
-                                Self::parse_err("CST not valid: edge reference missing in sourcePredicatePart2".into())
+                                Self::parse_err(
+                                    "CST not valid: edge reference missing in sourcePredicatePart2"
+                                        .into(),
+                                )
                             })?;
 
                         let base_expr = Expression::FunctionCall(FunctionCall {
@@ -467,13 +554,18 @@ impl GQLAstBuilder {
                         } else {
                             Ok(base_expr)
                         }
-                    } else if let Some(destination_part) = source_dest_predicate.destinationPredicatePart2() {
+                    } else if let Some(destination_part) =
+                        source_dest_predicate.destinationPredicatePart2()
+                    {
                         let edge_variable = destination_part
                             .edgeReference()
                             .and_then(|ctx| ctx.elementVariableReference())
                             .map(|ctx| ctx.get_text())
                             .ok_or_else(|| {
-                                Self::parse_err("CST not valid: edge reference missing in destinationPredicatePart2".into())
+                                Self::parse_err(
+                                    "CST not valid: edge reference missing in destinationPredicatePart2"
+                                        .into(),
+                                )
                             })?;
 
                         let base_expr = Expression::FunctionCall(FunctionCall {
@@ -504,7 +596,8 @@ impl GQLAstBuilder {
                     } else {
                         Self::parse_error("CST not valid: unsupported source/destination predicate")
                     }
-                } else if let Some(all_different_predicate) = predicate_ctx.all_differentPredicate() {
+                } else if let Some(all_different_predicate) = predicate_ctx.all_differentPredicate()
+                {
                     let args = all_different_predicate
                         .elementVariableReference_all()
                         .into_iter()
@@ -544,681 +637,804 @@ impl GQLAstBuilder {
                 }
             }
             ValueExpressionContextAll::BindingTableExprAltContext(binding_table_expr) => {
-                let binding_table = binding_table_expr.bindingTableExpression().ok_or_else(|| {
-                    Self::parse_err("CST not valid: bindingTableExpression missing in BindingTableExprAlt".into())
-                })?;
+                let binding_table =
+                    binding_table_expr.bindingTableExpression().ok_or_else(|| {
+                        Self::parse_err(
+                            "CST not valid: bindingTableExpression missing in BindingTableExprAlt"
+                                .into(),
+                        )
+                    })?;
 
                 Self::build_binding_table_expression_from_context(&binding_table)
             }
             ValueExpressionContextAll::PropertyGraphExprAltContext(property_graph_expr) => {
                 let graph_expression = property_graph_expr.graphExpression().ok_or_else(|| {
-                    Self::parse_err("CST not valid: graphExpression missing in PropertyGraphExprAlt".into())
+                    Self::parse_err(
+                        "CST not valid: graphExpression missing in PropertyGraphExprAlt".into(),
+                    )
                 })?;
 
-                Self::build_expression_from_leaf_text(&graph_expression.get_text(), span.clone())
+                Self::build_graph_expression_from_context(&graph_expression)
             }
             ValueExpressionContextAll::ValueFunctionExprAltContext(value_fn_expr) => {
                 let value_fn = value_fn_expr.valueFunction().ok_or_else(|| {
-                    Self::parse_err("CST not valid: valueFunction missing in ValueFunctionExprAlt".into())
+                    Self::parse_err(
+                        "CST not valid: valueFunction missing in ValueFunctionExprAlt".into(),
+                    )
                 })?;
 
-                if let Some(char_fn) = value_fn.characterOrByteStringFunction() {
-                    if let Some(fold) = char_fn.foldCharacterString() {
-                        let name = if fold.UPPER().is_some() { "UPPER" } else { "LOWER" };
-                        let inner = fold.valueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: valueExpression missing in foldCharacterString".into())
-                        })?;
-                        let arg = Self::build_expression_from_context(&inner)?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: name.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(sub_fn) = char_fn.subCharacterOrByteString() {
-                        return Self::build_sub_character_function_from_context(&sub_fn);
-                    }
-                    if let Some(trim_fn) = char_fn.trimSingleCharacterOrByteString() {
-                        return Self::build_trim_function_from_context(&trim_fn);
-                    }
-
-                    if let Some(trim_multi_fn) = char_fn.trimMultiCharacterCharacterString() {
-                        let name = if trim_multi_fn.LTRIM().is_some() {
-                            "LTRIM"
-                        } else if trim_multi_fn.RTRIM().is_some() {
-                            "RTRIM"
-                        } else {
-                            "BTRIM"
-                        };
-
-                        let source_ctx = trim_multi_fn.valueExpression(0).ok_or_else(|| {
-                            Self::parse_err(
-                                "CST not valid: source expression missing in trimMultiCharacterCharacterString".into(),
-                            )
-                        })?;
-
-                        let mut arguments = vec![Self::build_expression_from_context(&source_ctx)?];
-                        if let Some(trim_chars_ctx) = trim_multi_fn.valueExpression(1) {
-                            arguments.push(Self::build_expression_from_context(&trim_chars_ctx)?);
-                        }
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: name.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments,
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(normalize_fn) = char_fn.normalizeCharacterString() {
-                        let source_ctx = normalize_fn
-                            .valueExpression()
-                            .ok_or_else(|| Self::parse_err("CST not valid: valueExpression missing in NORMALIZE".into()))?;
-
-                        let mut arguments = vec![Self::build_expression_from_context(&source_ctx)?];
-                        if let Some(form) = normalize_fn.normalForm() {
-                            arguments.push(Expression::Literal(Literal::String(form.get_text())));
-                        }
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::NORMALIZE.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments,
-                            span: span.clone(),
-                        }));
-                    }
-                }
-
-                if let Some(list_fn) = value_fn.listValueFunction() {
-                    if let Some(trim_list_fn) = list_fn.trimListFunction() {
-                        let list_expr_ctx = trim_list_fn.listValueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: listValueExpression missing in TRIM(list)".into())
-                        })?;
-                        let trim_count_ctx = trim_list_fn.numericValueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: numericValueExpression missing in TRIM(list)".into())
-                        })?;
-
-                        let list_expr = Self::build_expression_from_context(
-                            list_expr_ctx
-                                .valueExpression()
-                                .ok_or_else(|| {
-                                    Self::parse_err("CST not valid: valueExpression missing in listValueExpression".into())
-                                })?
-                                .as_ref(),
-                        )?;
-                        let trim_count = Self::build_expression_from_leaf_text(&trim_count_ctx.get_text(), span.clone())?;
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: "TRIM".to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![list_expr, trim_count],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(elements_fn) = list_fn.elementsFunction() {
-                        let path_expr = elements_fn.pathValueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: pathValueExpression missing in ELEMENTS".into())
-                        })?;
-
-                        let arg = Self::build_expression_from_leaf_text(&path_expr.get_text(), span.clone())?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::ELEMENTS.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-                }
-
-                if let Some(numeric_fn) = value_fn.numericValueFunction() {
-                    if let Some(cardinality_expr) = numeric_fn.cardinalityExpression() {
-                        let name = if cardinality_expr.SIZE().is_some() {
-                            "SIZE"
-                        } else {
-                            "CARDINALITY"
-                        };
-
-                        let inner = if cardinality_expr.SIZE().is_some() {
-                            cardinality_expr
-                                .listValueExpression()
-                                .and_then(|e| e.valueExpression())
-                                .ok_or_else(|| { Self::parse_err("CST not valid: valueExpression missing in listValueExpression of cardinalityExpression".to_string()) })?
-                        } else {
-                            cardinality_expr
-                                .cardinalityExpressionArgument()
-                                .and_then(|a| a.valueExpression())
-                                .ok_or_else(|| {
-                                    Self::parse_err(
-                                        "CST not valid: valueExpression missing in cardinalityExpressionArgument"
-                                            .to_string(),
-                                    )
-                                })?
-                        };
-
-                        let arg = Self::build_expression_from_context(&inner)?;
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: name.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    } else if let Some(length_expr) = numeric_fn.lengthExpression() {
-                        if let Some(char_len) = length_expr.charLengthExpression() {
-                            let name = if char_len.CHAR_LENGTH().is_some() {
-                                "CHAR_LENGTH"
-                            } else {
-                                "CHARACTER_LENGTH"
-                            };
-                            let inner = char_len
-                                .characterStringValueExpression()
-                                .and_then(|e| e.valueExpression())
-                                .ok_or_else(|| {
-                                    Self::parse_err("CST not valid: valueExpression missing in charLengthExpression".into())
-                                })?;
-                            let arg = Self::build_expression_from_context(&inner)?;
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: name.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: vec![arg],
-                                span: span.clone(),
-                            }));
-                        } else if let Some(byte_len) = length_expr.byteLengthExpression() {
-                            let name = if byte_len.BYTE_LENGTH().is_some() {
-                                "BYTE_LENGTH"
-                            } else {
-                                "OCTET_LENGTH"
-                            };
-
-                            let inner = byte_len
-                                .byteStringValueExpression()
-                                .and_then(|e| e.valueExpression())
-                                .ok_or_else(|| {
-                                    Self::parse_err("CST not valid: valueExpression missing in byteLengthExpression".into())
-                                })?;
-
-                            let arg = Self::build_expression_from_context(&inner)?;
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: name.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: vec![arg],
-                                span: span.clone(),
-                            }));
-                        } else if let Some(path_len) = length_expr.pathLengthExpression() {
-                            let inner = path_len
-                                .pathValueExpression()
-                                .and_then(|e| e.valueExpression())
-                                .ok_or_else(|| {
-                                    Self::parse_err("CST not valid: valueExpression missing in pathLengthExpression".into())
-                                })?;
-
-                            let arg = Self::build_expression_from_context(&inner)?;
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: fn_names::PATH_LENGTH.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: vec![arg],
-                                span: span.clone(),
-                            }));
-                        } else {
-                            return Self::parse_error(format!(
-                                "Numeric function variant not supported: {}",
-                                numeric_fn.get_text()
-                            ));
-                        }
-                    }
-
-                    if let Some(abs_fn) = numeric_fn.absoluteValueExpression() {
-                        let value_expr = abs_fn
-                            .valueExpression()
-                            .ok_or_else(|| Self::parse_err("CST not valid: valueExpression missing in ABS".into()))?;
-                        let arg = Self::build_expression_from_context(&value_expr)?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::ABS.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(floor_fn) = numeric_fn.floorFunction() {
-                        let nve = floor_fn.numericValueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: numericValueExpression missing in FLOOR".into())
-                        })?;
-                        let arg = Self::build_expression_from_leaf_text(&nve.get_text(), span.clone())?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::FLOOR.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(ceil_fn) = numeric_fn.ceilingFunction() {
-                        let nve = ceil_fn.numericValueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: numericValueExpression missing in CEIL".into())
-                        })?;
-                        let arg = Self::build_expression_from_leaf_text(&nve.get_text(), span.clone())?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::CEIL.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(sqrt_fn) = numeric_fn.squareRoot() {
-                        let nve = sqrt_fn.numericValueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: numericValueExpression missing in SQRT".into())
-                        })?;
-                        let arg = Self::build_expression_from_leaf_text(&nve.get_text(), span.clone())?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::SQRT.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(power_fn) = numeric_fn.powerFunction() {
-                        let base_nve = power_fn
-                            .numericValueExpressionBase()
-                            .ok_or_else(|| Self::parse_err("CST not valid: base missing in POWER".into()))?;
-                        let base_expr = Self::build_expression_from_leaf_text(
-                            &base_nve
-                                .numericValueExpression()
-                                .ok_or_else(|| {
-                                    Self::parse_err("CST not valid: numericValueExpression missing in POWER base".into())
-                                })?
-                                .get_text(),
-                            span.clone(),
-                        )?;
-
-                        let exp_nve = power_fn
-                            .numericValueExpressionExponent()
-                            .ok_or_else(|| Self::parse_err("CST not valid: exponent missing in POWER".into()))?;
-                        let exp_expr = Self::build_expression_from_leaf_text(
-                            &exp_nve
-                                .numericValueExpression()
-                                .ok_or_else(|| {
-                                    Self::parse_err(
-                                        "CST not valid: numericValueExpression missing in POWER exponent".into(),
-                                    )
-                                })?
-                                .get_text(),
-                            span.clone(),
-                        )?;
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::POWER.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![base_expr, exp_expr],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(mod_fn) = numeric_fn.modulusExpression() {
-                        let div_nve = mod_fn
-                            .numericValueExpressionDividend()
-                            .ok_or_else(|| Self::parse_err("CST not valid: dividend missing in MOD".into()))?;
-                        let dividend_expr = Self::build_expression_from_leaf_text(
-                            &div_nve
-                                .numericValueExpression()
-                                .ok_or_else(|| {
-                                    Self::parse_err("CST not valid: numericValueExpression missing in MOD dividend".into())
-                                })?
-                                .get_text(),
-                            span.clone(),
-                        )?;
-
-                        let divisor_nve = mod_fn
-                            .numericValueExpressionDivisor()
-                            .ok_or_else(|| Self::parse_err("CST not valid: divisor missing in MOD".into()))?;
-                        let divisor_expr = Self::build_expression_from_leaf_text(
-                            &divisor_nve
-                                .numericValueExpression()
-                                .ok_or_else(|| {
-                                    Self::parse_err("CST not valid: numericValueExpression missing in MOD divisor".into())
-                                })?
-                                .get_text(),
-                            span.clone(),
-                        )?;
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::MOD.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![dividend_expr, divisor_expr],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(trig_fn) = numeric_fn.trigonometricFunction() {
-                        let name = trig_fn
-                            .trigonometricFunctionName()
-                            .map(|n| n.get_text().to_uppercase())
-                            .unwrap_or_else(|| "TRIG".to_string());
-
-                        let nve = trig_fn.numericValueExpression().ok_or_else(|| {
-                            Self::parse_err(
-                                "CST not valid: numericValueExpression missing in trigonometric function".into(),
-                            )
-                        })?;
-
-                        let arg = Self::build_expression_from_leaf_text(&nve.get_text(), span.clone())?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name,
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(log_fn) = numeric_fn.generalLogarithmFunction() {
-                        let base_ctx = log_fn
-                            .generalLogarithmBase()
-                            .and_then(|b| b.numericValueExpression())
-                            .ok_or_else(|| Self::parse_err("CST not valid: generalLogarithmBase missing in LOG".into()))?;
-                        let arg_ctx = log_fn
-                            .generalLogarithmArgument()
-                            .and_then(|a| a.numericValueExpression())
-                            .ok_or_else(|| {
-                                Self::parse_err("CST not valid: generalLogarithmArgument missing in LOG".into())
-                            })?;
-
-                        let base = Self::build_expression_from_leaf_text(&base_ctx.get_text(), span.clone())?;
-                        let arg = Self::build_expression_from_leaf_text(&arg_ctx.get_text(), span.clone())?;
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::LOG.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![base, arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(log10_fn) = numeric_fn.commonLogarithm() {
-                        let nve = log10_fn.numericValueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: numericValueExpression missing in LOG10".into())
-                        })?;
-                        let arg = Self::build_expression_from_leaf_text(&nve.get_text(), span.clone())?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::LOG10.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(ln_fn) = numeric_fn.naturalLogarithm() {
-                        let nve = ln_fn
-                            .numericValueExpression()
-                            .ok_or_else(|| Self::parse_err("CST not valid: numericValueExpression missing in LN".into()))?;
-                        let arg = Self::build_expression_from_leaf_text(&nve.get_text(), span.clone())?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::LN.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(exp_fn) = numeric_fn.exponentialFunction() {
-                        let nve = exp_fn.numericValueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: numericValueExpression missing in EXP".into())
-                        })?;
-                        let arg = Self::build_expression_from_leaf_text(&nve.get_text(), span.clone())?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::EXP.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-                }
-
-                if let Some(dt_sub) = value_fn.datetimeSubtraction() {
-                    let params = dt_sub
-                        .datetimeSubtractionParameters()
-                        .ok_or_else(|| Self::parse_err("CST not valid: datetimeSubtractionParameters missing".into()))?;
-
-                    let left_ctx = params
-                        .datetimeValueExpression1()
-                        .and_then(|x| x.datetimeValueExpression())
-                        .and_then(|x| x.valueExpression())
-                        .ok_or_else(|| {
-                            Self::parse_err("CST not valid: datetimeValueExpression1 missing in DURATION_BETWEEN".into())
-                        })?;
-
-                    let right_ctx = params
-                        .datetimeValueExpression2()
-                        .and_then(|x| x.datetimeValueExpression())
-                        .and_then(|x| x.valueExpression())
-                        .ok_or_else(|| {
-                            Self::parse_err("CST not valid: datetimeValueExpression2 missing in DURATION_BETWEEN".into())
-                        })?;
-
-                    let mut arguments = vec![
-                        Self::build_expression_from_context(&left_ctx)?,
-                        Self::build_expression_from_context(&right_ctx)?,
-                    ];
-
-                    if let Some(qualifier) = dt_sub.temporalDurationQualifier() {
-                        arguments.push(Expression::Literal(Literal::String(qualifier.get_text())));
-                    }
-
-                    return Ok(Expression::FunctionCall(FunctionCall {
-                        name: fn_names::DURATION_BETWEEN.to_string(),
-                        distinct: DistinctQualifier::None,
-                        arguments,
-                        span: span.clone(),
-                    }));
-                }
-
-                if let Some(duration_fn) = value_fn.durationValueFunction() {
-                    if let Some(duration_ctor) = duration_fn.durationFunction() {
-                        let mut arguments = Vec::new();
-                        if let Some(params) = duration_ctor.durationFunctionParameters() {
-                            if let Some(duration_string) = params.durationString() {
-                                arguments.push(Self::build_expression_from_leaf_text(
-                                    &duration_string.get_text(),
-                                    span.clone(),
-                                )?);
-                            } else if let Some(record) = params.recordConstructor() {
-                                arguments.push(Self::build_expression_from_leaf_text(&record.get_text(), span.clone())?);
-                            }
-                        }
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::DURATION.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments,
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(abs_duration) = duration_fn.absoluteValueExpression() {
-                        let value_expr = abs_duration.valueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: valueExpression missing in duration ABS".into())
-                        })?;
-                        let arg = Self::build_expression_from_context(&value_expr)?;
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::ABS.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: vec![arg],
-                            span: span.clone(),
-                        }));
-                    }
-                }
-
-                if let Some(dt_fn) = value_fn.datetimeValueFunction() {
-                    if let Some(date_fn) = dt_fn.dateFunction() {
-                        if date_fn.CURRENT_DATE().is_some() {
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: fn_names::CURRENT_DATE.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: vec![],
-                                span: span.clone(),
-                            }));
-                        } else {
-                            let mut args = Vec::new();
-                            if let Some(params) = date_fn.dateFunctionParameters() {
-                                if let Some(date_str) = params.dateString() {
-                                    args.push(Self::build_expression_from_leaf_text(
-                                        &date_str.get_text(),
-                                        span.clone(),
-                                    )?);
-                                } else if let Some(_record) = params.recordConstructor() {
-                                    args.push(Self::build_expression_from_leaf_text(&params.get_text(), span.clone())?);
-                                }
-                            }
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: fn_names::DATE.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: args,
-                                span: span.clone(),
-                            }));
-                        }
-                    }
-
-                    if let Some(time_fn) = dt_fn.timeFunction() {
-                        if time_fn.CURRENT_TIME().is_some() {
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: fn_names::CURRENT_TIME.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: vec![],
-                                span: span.clone(),
-                            }));
-                        } else {
-                            let mut args = Vec::new();
-                            if let Some(params) = time_fn.timeFunctionParameters() {
-                                if let Some(time_str) = params.timeString() {
-                                    args.push(Self::build_expression_from_leaf_text(
-                                        &time_str.get_text(),
-                                        span.clone(),
-                                    )?);
-                                } else if let Some(_record) = params.recordConstructor() {
-                                    args.push(Self::build_expression_from_leaf_text(&params.get_text(), span.clone())?);
-                                }
-                            }
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: fn_names::ZONED_TIME.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: args,
-                                span: span.clone(),
-                            }));
-                        }
-                    }
-
-                    if let Some(local_time_fn) = dt_fn.localtimeFunction() {
-                        let mut args = Vec::new();
-                        if let Some(params) = local_time_fn.timeFunctionParameters() {
-                            if let Some(time_str) = params.timeString() {
-                                args.push(Self::build_expression_from_leaf_text(
-                                    &time_str.get_text(),
-                                    span.clone(),
-                                )?);
-                            } else if let Some(_record) = params.recordConstructor() {
-                                args.push(Self::build_expression_from_leaf_text(&params.get_text(), span.clone())?);
-                            }
-                        }
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: fn_names::LOCAL_TIME.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: args,
-                            span: span.clone(),
-                        }));
-                    }
-
-                    if let Some(datetime_fn) = dt_fn.datetimeFunction() {
-                        if datetime_fn.CURRENT_TIMESTAMP().is_some() {
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: fn_names::CURRENT_TIMESTAMP.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: vec![],
-                                span: span.clone(),
-                            }));
-                        } else {
-                            let mut args = Vec::new();
-                            if let Some(params) = datetime_fn.datetimeFunctionParameters() {
-                                if let Some(dt_str) = params.datetimeString() {
-                                    args.push(Self::build_expression_from_leaf_text(&dt_str.get_text(), span.clone())?);
-                                } else if let Some(_record) = params.recordConstructor() {
-                                    args.push(Self::build_expression_from_leaf_text(&params.get_text(), span.clone())?);
-                                }
-                            }
-                            return Ok(Expression::FunctionCall(FunctionCall {
-                                name: fn_names::ZONED_DATETIME.to_string(),
-                                distinct: DistinctQualifier::None,
-                                arguments: args,
-                                span: span.clone(),
-                            }));
-                        }
-                    }
-
-                    if let Some(local_dt_fn) = dt_fn.localdatetimeFunction() {
-                        let name = if local_dt_fn.LOCAL_TIMESTAMP().is_some() {
-                            "LOCAL_TIMESTAMP"
-                        } else if local_dt_fn.LOCAL_DATETIME().is_some() {
-                            "LOCAL_DATETIME"
-                        } else {
-                            return Self::parse_error("LOCAL_TIMESTAMP/LOCAL_DATETIME parsing failed");
-                        };
-
-                        let mut args = Vec::new();
-                        if let Some(params) = local_dt_fn.datetimeFunctionParameters() {
-                            if let Some(dt_str) = params.datetimeString() {
-                                args.push(Self::build_expression_from_leaf_text(&dt_str.get_text(), span.clone())?);
-                            } else if let Some(_record) = params.recordConstructor() {
-                                args.push(Self::build_expression_from_leaf_text(&params.get_text(), span.clone())?);
-                            }
-                        }
-
-                        return Ok(Expression::FunctionCall(FunctionCall {
-                            name: name.to_string(),
-                            distinct: DistinctQualifier::None,
-                            arguments: args,
-                            span: span.clone(),
-                        }));
-                    }
-                }
-
-                if let Some(udf) = value_fn.userDefinedFunction() {
-                    let mut name_parts: Vec<String> = udf
-                        .objectName_all()
-                        .into_iter()
-                        .map(|obj| Self::identifier_text(&obj.get_text()))
-                        .collect();
-
-                    let fn_identifier = udf.identifier().ok_or_else(|| {
-                        Self::parse_err("CST not valid: identifier missing in userDefinedFunction".into())
-                    })?;
-                    name_parts.push(Self::identifier_text(&fn_identifier.get_text()));
-
-                    let arguments = udf
-                        .valueExpression_all()
-                        .into_iter()
-                        .map(|expr| Self::build_expression_from_context(&expr))
-                        .collect::<GqlResult<Vec<_>>>()?;
-
-                    return Ok(Expression::FunctionCall(FunctionCall {
-                        name: name_parts.join("."),
-                        distinct: DistinctQualifier::None,
-                        arguments,
-                        span: span.clone(),
-                    }));
-                }
-
-                Self::parse_error(format!(
-                    "Type of valueFunction not supported or not yet mapped: {}",
-                    value_fn.get_text()
-                ))
+                Self::build_value_function_from_context(&value_fn)
             }
             ValueExpressionContextAll::Error(_) => {
                 Self::parse_error("CST Error node: the parser found a syntax error here")
             }
         }
+    }
+
+    /// Builds a function call node with no DISTINCT/ALL qualifier.
+    fn builtin_call(name: &str, arguments: Vec<Expression>, span: Span) -> Expression {
+        Expression::FunctionCall(FunctionCall {
+            name: name.to_string(),
+            distinct: DistinctQualifier::None,
+            arguments,
+            span,
+        })
+    }
+
+    /// Builds an Expression from a NumericValueExpressionContext. The grammar keeps numeric
+    /// arguments of built-in functions in a dedicated rule hierarchy, so signs, operators,
+    /// primaries and nested numeric functions are built recursively here instead of being
+    /// reconstructed from source text.
+    pub(super) fn build_expression_from_numeric_value_expression(
+        ctx: &NumericValueExpressionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(ctx);
+
+        if let Some(primary) = ctx.valueExpressionPrimary() {
+            return Self::build_primary_expression_from_context(&primary);
+        }
+
+        if let Some(function) = ctx.numericValueFunction() {
+            return Self::build_numeric_value_function_from_context(&function);
+        }
+
+        let operands = ctx.numericValueExpression_all();
+        match operands.as_slice() {
+            [operand] => {
+                let operator = if ctx.MINUS_SIGN().is_some() {
+                    Operator::Minus
+                } else if ctx.PLUS_SIGN().is_some() {
+                    Operator::Plus
+                } else {
+                    return Self::parse_error(
+                        "CST not valid: sign missing in signed numeric expression",
+                    );
+                };
+
+                // The magnitude of i64::MIN is not a valid positive i64 literal.
+                if operator == Operator::Minus && Self::is_i64_min_magnitude(&operand.get_text())
+                {
+                    return Ok(Expression::Literal(Literal::Integer(i64::MIN)));
+                }
+
+                let expression = Self::build_expression_from_numeric_value_expression(operand)?;
+                Ok(Expression::Unary(UnaryExpression {
+                    operator,
+                    expression: Box::new(expression),
+                    span,
+                }))
+            }
+            [left, right] => {
+                let operator = if ctx.ASTERISK().is_some() {
+                    Operator::Star
+                } else if ctx.SOLIDUS().is_some() {
+                    Operator::Slash
+                } else if ctx.PLUS_SIGN().is_some() {
+                    Operator::Plus
+                } else if ctx.MINUS_SIGN().is_some() {
+                    Operator::Minus
+                } else {
+                    return Self::parse_error(
+                        "CST not valid: operator missing in binary numeric expression",
+                    );
+                };
+
+                Ok(Expression::Binary(BinaryExpression {
+                    left: Box::new(Self::build_expression_from_numeric_value_expression(left)?),
+                    operator,
+                    right: Box::new(Self::build_expression_from_numeric_value_expression(right)?),
+                    span,
+                }))
+            }
+            _ => Self::parse_error("CST not valid: unsupported numericValueExpression shape"),
+        }
+    }
+
+    /// Builds the argument held by an optional NumericValueExpressionContext, reporting `what`
+    /// when the CST does not contain it.
+    fn required_numeric_argument(
+        ctx: Option<Rc<NumericValueExpressionContextAll>>,
+        what: &str,
+    ) -> GqlResult<Expression> {
+        let ctx = ctx.ok_or_else(|| {
+            Self::parse_err(format!("CST not valid: numericValueExpression missing in {what}"))
+        })?;
+        Self::build_expression_from_numeric_value_expression(&ctx)
+    }
+
+    /// Builds an Expression from a ValueFunctionContext, dispatching to the dedicated builder of
+    /// every built-in function family admitted by the grammar and to the user-defined function
+    /// path.
+    pub(super) fn build_value_function_from_context(
+        value_fn: &ValueFunctionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(value_fn);
+
+        if let Some(numeric_fn) = value_fn.numericValueFunction() {
+            return Self::build_numeric_value_function_from_context(&numeric_fn);
+        }
+
+        if let Some(dt_sub) = value_fn.datetimeSubtraction() {
+            return Self::build_datetime_subtraction_from_context(&dt_sub);
+        }
+
+        if let Some(dt_fn) = value_fn.datetimeValueFunction() {
+            return Self::build_datetime_value_function_from_context(&dt_fn);
+        }
+
+        if let Some(duration_fn) = value_fn.durationValueFunction() {
+            return Self::build_duration_value_function_from_context(&duration_fn);
+        }
+
+        if let Some(char_fn) = value_fn.characterOrByteStringFunction() {
+            return Self::build_character_or_byte_string_function_from_context(&char_fn);
+        }
+
+        if let Some(list_fn) = value_fn.listValueFunction() {
+            return Self::build_list_value_function_from_context(&list_fn);
+        }
+
+        if let Some(udf) = value_fn.userDefinedFunction() {
+            let mut name_parts: Vec<String> = udf
+                .objectName_all()
+                .into_iter()
+                .map(|obj| Self::identifier_text(&obj.get_text()))
+                .collect();
+
+            let fn_identifier = udf.identifier().ok_or_else(|| {
+                Self::parse_err("CST not valid: identifier missing in userDefinedFunction".into())
+            })?;
+            name_parts.push(Self::identifier_text(&fn_identifier.get_text()));
+
+            let arguments = udf
+                .valueExpression_all()
+                .into_iter()
+                .map(|expr| Self::build_expression_from_context(&expr))
+                .collect::<GqlResult<Vec<_>>>()?;
+
+            return Ok(Self::builtin_call(&name_parts.join("."), arguments, span));
+        }
+
+        Self::parse_error(format!(
+            "Type of valueFunction not supported or not yet mapped: {}",
+            value_fn.get_text()
+        ))
+    }
+
+    /// Builds the character and byte string functions (UPPER/LOWER, LEFT/RIGHT, TRIM,
+    /// LTRIM/RTRIM/BTRIM, NORMALIZE).
+    fn build_character_or_byte_string_function_from_context(
+        char_fn: &CharacterOrByteStringFunctionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(char_fn);
+
+        if let Some(fold) = char_fn.foldCharacterString() {
+            let name = if fold.UPPER().is_some() {
+                fn_names::UPPER
+            } else {
+                fn_names::LOWER
+            };
+            let inner = fold.valueExpression().ok_or_else(|| {
+                Self::parse_err("CST not valid: valueExpression missing in foldCharacterString".into())
+            })?;
+            let arg = Self::build_expression_from_context(&inner)?;
+            return Ok(Self::builtin_call(name, vec![arg], span));
+        }
+
+        if let Some(sub_fn) = char_fn.subCharacterOrByteString() {
+            return Self::build_sub_character_function_from_context(&sub_fn);
+        }
+
+        if let Some(trim_fn) = char_fn.trimSingleCharacterOrByteString() {
+            return Self::build_trim_function_from_context(&trim_fn);
+        }
+
+        if let Some(trim_multi_fn) = char_fn.trimMultiCharacterCharacterString() {
+            let name = if trim_multi_fn.LTRIM().is_some() {
+                fn_names::LTRIM
+            } else if trim_multi_fn.RTRIM().is_some() {
+                fn_names::RTRIM
+            } else {
+                fn_names::BTRIM
+            };
+
+            let source_ctx = trim_multi_fn.valueExpression(0).ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: source expression missing in trimMultiCharacterCharacterString"
+                        .into(),
+                )
+            })?;
+
+            let mut arguments = vec![Self::build_expression_from_context(&source_ctx)?];
+            if let Some(trim_chars_ctx) = trim_multi_fn.valueExpression(1) {
+                arguments.push(Self::build_expression_from_context(&trim_chars_ctx)?);
+            }
+
+            return Ok(Self::builtin_call(name, arguments, span));
+        }
+
+        if let Some(normalize_fn) = char_fn.normalizeCharacterString() {
+            let source_ctx = normalize_fn.valueExpression().ok_or_else(|| {
+                Self::parse_err("CST not valid: valueExpression missing in NORMALIZE".into())
+            })?;
+
+            let mut arguments = vec![Self::build_expression_from_context(&source_ctx)?];
+            if let Some(form) = normalize_fn.normalForm() {
+                // The normal form is a keyword modifier; its token text is the decoded value.
+                arguments.push(Expression::Literal(Literal::String(
+                    form.get_text().to_ascii_uppercase(),
+                )));
+            }
+
+            return Ok(Self::builtin_call(fn_names::NORMALIZE, arguments, span));
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: unsupported character or byte string function: {}",
+            char_fn.get_text()
+        ))
+    }
+
+    /// Builds the list functions TRIM(list, count) and ELEMENTS(path).
+    fn build_list_value_function_from_context(
+        list_fn: &ListValueFunctionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(list_fn);
+
+        if let Some(trim_list_fn) = list_fn.trimListFunction() {
+            let list_expr = trim_list_fn
+                .listValueExpression()
+                .and_then(|list| list.valueExpression())
+                .ok_or_else(|| {
+                    Self::parse_err("CST not valid: listValueExpression missing in TRIM(list)".into())
+                })
+                .and_then(|expr| Self::build_expression_from_context(&expr))?;
+            let trim_count = Self::required_numeric_argument(
+                trim_list_fn.numericValueExpression(),
+                "TRIM(list)",
+            )?;
+
+            return Ok(Self::builtin_call(
+                fn_names::TRIM,
+                vec![list_expr, trim_count],
+                span,
+            ));
+        }
+
+        if let Some(elements_fn) = list_fn.elementsFunction() {
+            let arg = elements_fn
+                .pathValueExpression()
+                .and_then(|path| path.valueExpression())
+                .ok_or_else(|| {
+                    Self::parse_err("CST not valid: pathValueExpression missing in ELEMENTS".into())
+                })
+                .and_then(|expr| Self::build_expression_from_context(&expr))?;
+
+            return Ok(Self::builtin_call(fn_names::ELEMENTS, vec![arg], span));
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: unsupported list value function: {}",
+            list_fn.get_text()
+        ))
+    }
+
+    /// Builds the numeric value functions (length, cardinality, ABS, MOD, trigonometric and
+    /// logarithmic functions, POWER, SQRT, FLOOR, CEIL). Numeric arguments are built
+    /// structurally from their numericValueExpression subtrees.
+    pub(super) fn build_numeric_value_function_from_context(
+        numeric_fn: &NumericValueFunctionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(numeric_fn);
+
+        if let Some(cardinality_expr) = numeric_fn.cardinalityExpression() {
+            let (name, inner) = if cardinality_expr.SIZE().is_some() {
+                (
+                    fn_names::SIZE,
+                    cardinality_expr
+                        .listValueExpression()
+                        .and_then(|e| e.valueExpression()),
+                )
+            } else {
+                (
+                    fn_names::CARDINALITY,
+                    cardinality_expr
+                        .cardinalityExpressionArgument()
+                        .and_then(|a| a.valueExpression()),
+                )
+            };
+            let inner = inner.ok_or_else(|| {
+                Self::parse_err(format!("CST not valid: argument missing in {name}"))
+            })?;
+            let arg = Self::build_expression_from_context(&inner)?;
+            return Ok(Self::builtin_call(name, vec![arg], span));
+        }
+
+        if let Some(length_expr) = numeric_fn.lengthExpression() {
+            let (name, inner) = if let Some(char_len) = length_expr.charLengthExpression() {
+                let name = if char_len.CHAR_LENGTH().is_some() {
+                    fn_names::CHAR_LENGTH
+                } else {
+                    fn_names::CHARACTER_LENGTH
+                };
+                (
+                    name,
+                    char_len
+                        .characterStringValueExpression()
+                        .and_then(|e| e.valueExpression()),
+                )
+            } else if let Some(byte_len) = length_expr.byteLengthExpression() {
+                let name = if byte_len.BYTE_LENGTH().is_some() {
+                    fn_names::BYTE_LENGTH
+                } else {
+                    fn_names::OCTET_LENGTH
+                };
+                (
+                    name,
+                    byte_len
+                        .byteStringValueExpression()
+                        .and_then(|e| e.valueExpression()),
+                )
+            } else if let Some(path_len) = length_expr.pathLengthExpression() {
+                (
+                    fn_names::PATH_LENGTH,
+                    path_len.pathValueExpression().and_then(|e| e.valueExpression()),
+                )
+            } else {
+                return Self::parse_error(format!(
+                    "Numeric function variant not supported: {}",
+                    numeric_fn.get_text()
+                ));
+            };
+
+            let inner = inner.ok_or_else(|| {
+                Self::parse_err(format!("CST not valid: valueExpression missing in {name}"))
+            })?;
+            let arg = Self::build_expression_from_context(&inner)?;
+            return Ok(Self::builtin_call(name, vec![arg], span));
+        }
+
+        if let Some(abs_fn) = numeric_fn.absoluteValueExpression() {
+            let value_expr = abs_fn.valueExpression().ok_or_else(|| {
+                Self::parse_err("CST not valid: valueExpression missing in ABS".into())
+            })?;
+            let arg = Self::build_expression_from_context(&value_expr)?;
+            return Ok(Self::builtin_call(fn_names::ABS, vec![arg], span));
+        }
+
+        if let Some(floor_fn) = numeric_fn.floorFunction() {
+            let arg = Self::required_numeric_argument(floor_fn.numericValueExpression(), "FLOOR")?;
+            return Ok(Self::builtin_call(fn_names::FLOOR, vec![arg], span));
+        }
+
+        if let Some(ceil_fn) = numeric_fn.ceilingFunction() {
+            let arg = Self::required_numeric_argument(ceil_fn.numericValueExpression(), "CEIL")?;
+            return Ok(Self::builtin_call(fn_names::CEIL, vec![arg], span));
+        }
+
+        if let Some(sqrt_fn) = numeric_fn.squareRoot() {
+            let arg = Self::required_numeric_argument(sqrt_fn.numericValueExpression(), "SQRT")?;
+            return Ok(Self::builtin_call(fn_names::SQRT, vec![arg], span));
+        }
+
+        if let Some(power_fn) = numeric_fn.powerFunction() {
+            let base = Self::required_numeric_argument(
+                power_fn
+                    .numericValueExpressionBase()
+                    .and_then(|b| b.numericValueExpression()),
+                "POWER base",
+            )?;
+            let exponent = Self::required_numeric_argument(
+                power_fn
+                    .numericValueExpressionExponent()
+                    .and_then(|e| e.numericValueExpression()),
+                "POWER exponent",
+            )?;
+            return Ok(Self::builtin_call(fn_names::POWER, vec![base, exponent], span));
+        }
+
+        if let Some(mod_fn) = numeric_fn.modulusExpression() {
+            let dividend = Self::required_numeric_argument(
+                mod_fn
+                    .numericValueExpressionDividend()
+                    .and_then(|d| d.numericValueExpression()),
+                "MOD dividend",
+            )?;
+            let divisor = Self::required_numeric_argument(
+                mod_fn
+                    .numericValueExpressionDivisor()
+                    .and_then(|d| d.numericValueExpression()),
+                "MOD divisor",
+            )?;
+            return Ok(Self::builtin_call(fn_names::MOD, vec![dividend, divisor], span));
+        }
+
+        if let Some(trig_fn) = numeric_fn.trigonometricFunction() {
+            let name = trig_fn
+                .trigonometricFunctionName()
+                .map(|n| n.get_text().to_ascii_uppercase())
+                .ok_or_else(|| {
+                    Self::parse_err(
+                        "CST not valid: trigonometricFunctionName missing in trigonometric function"
+                            .into(),
+                    )
+                })?;
+            let arg = Self::required_numeric_argument(
+                trig_fn.numericValueExpression(),
+                "trigonometric function",
+            )?;
+            return Ok(Self::builtin_call(&name, vec![arg], span));
+        }
+
+        if let Some(log_fn) = numeric_fn.generalLogarithmFunction() {
+            let base = Self::required_numeric_argument(
+                log_fn
+                    .generalLogarithmBase()
+                    .and_then(|b| b.numericValueExpression()),
+                "LOG base",
+            )?;
+            let arg = Self::required_numeric_argument(
+                log_fn
+                    .generalLogarithmArgument()
+                    .and_then(|a| a.numericValueExpression()),
+                "LOG argument",
+            )?;
+            return Ok(Self::builtin_call(fn_names::LOG, vec![base, arg], span));
+        }
+
+        if let Some(log10_fn) = numeric_fn.commonLogarithm() {
+            let arg = Self::required_numeric_argument(log10_fn.numericValueExpression(), "LOG10")?;
+            return Ok(Self::builtin_call(fn_names::LOG10, vec![arg], span));
+        }
+
+        if let Some(ln_fn) = numeric_fn.naturalLogarithm() {
+            let arg = Self::required_numeric_argument(ln_fn.numericValueExpression(), "LN")?;
+            return Ok(Self::builtin_call(fn_names::LN, vec![arg], span));
+        }
+
+        if let Some(exp_fn) = numeric_fn.exponentialFunction() {
+            let arg = Self::required_numeric_argument(exp_fn.numericValueExpression(), "EXP")?;
+            return Ok(Self::builtin_call(fn_names::EXP, vec![arg], span));
+        }
+
+        Self::parse_error(format!(
+            "Numeric function variant not supported: {}",
+            numeric_fn.get_text()
+        ))
+    }
+
+    /// Builds DURATION_BETWEEN(left, right) with its optional temporal duration qualifier.
+    fn build_datetime_subtraction_from_context(
+        dt_sub: &DatetimeSubtractionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(dt_sub);
+
+        let params = dt_sub.datetimeSubtractionParameters().ok_or_else(|| {
+            Self::parse_err("CST not valid: datetimeSubtractionParameters missing".into())
+        })?;
+
+        let left_ctx = params
+            .datetimeValueExpression1()
+            .and_then(|x| x.datetimeValueExpression())
+            .and_then(|x| x.valueExpression())
+            .ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: datetimeValueExpression1 missing in DURATION_BETWEEN".into(),
+                )
+            })?;
+
+        let right_ctx = params
+            .datetimeValueExpression2()
+            .and_then(|x| x.datetimeValueExpression())
+            .and_then(|x| x.valueExpression())
+            .ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: datetimeValueExpression2 missing in DURATION_BETWEEN".into(),
+                )
+            })?;
+
+        let mut arguments = vec![
+            Self::build_expression_from_context(&left_ctx)?,
+            Self::build_expression_from_context(&right_ctx)?,
+        ];
+
+        if let Some(qualifier) = dt_sub.temporalDurationQualifier() {
+            // The qualifier is a keyword modifier; it is preserved in its canonical spelling,
+            // matching `TypeSpec::Duration::qualifier`.
+            let qualifier = if qualifier.YEAR().is_some() {
+                "YEAR TO MONTH"
+            } else {
+                "DAY TO SECOND"
+            };
+            arguments.push(Expression::Literal(Literal::String(qualifier.to_string())));
+        }
+
+        Ok(Self::builtin_call(fn_names::DURATION_BETWEEN, arguments, span))
+    }
+
+    /// Builds DURATION(...) and ABS(duration).
+    fn build_duration_value_function_from_context(
+        duration_fn: &DurationValueFunctionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(duration_fn);
+
+        if let Some(duration_ctor) = duration_fn.durationFunction() {
+            let params = duration_ctor.durationFunctionParameters().ok_or_else(|| {
+                Self::parse_err("CST not valid: durationFunctionParameters missing in DURATION".into())
+            })?;
+            let argument = Self::build_temporal_function_argument(
+                params.durationString().and_then(|s| s.characterStringLiteral()),
+                params.recordConstructor(),
+                "DURATION",
+            )?;
+
+            return Ok(Self::builtin_call(fn_names::DURATION, vec![argument], span));
+        }
+
+        if let Some(abs_duration) = duration_fn.absoluteValueExpression() {
+            let value_expr = abs_duration.valueExpression().ok_or_else(|| {
+                Self::parse_err("CST not valid: valueExpression missing in duration ABS".into())
+            })?;
+            let arg = Self::build_expression_from_context(&value_expr)?;
+            return Ok(Self::builtin_call(fn_names::ABS, vec![arg], span));
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: unsupported duration value function: {}",
+            duration_fn.get_text()
+        ))
+    }
+
+    /// Builds the argument of a temporal constructor function: either a character string
+    /// literal (decoded as a string literal) or a record constructor (built as a map).
+    fn build_temporal_function_argument(
+        string_literal: Option<Rc<CharacterStringLiteralContextAll>>,
+        record: Option<Rc<RecordConstructorContextAll>>,
+        function: &str,
+    ) -> GqlResult<Expression> {
+        if let Some(string_literal) = string_literal {
+            return Ok(Expression::Literal(Literal::String(
+                Self::decode_character_string_literal(&string_literal)?,
+            )));
+        }
+
+        if let Some(record) = record {
+            return Self::build_map_expression_from_record_constructor(&record);
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: {function} parameters must be a string or a record constructor"
+        ))
+    }
+
+    /// Builds the date, time and datetime constructor functions.
+    fn build_datetime_value_function_from_context(
+        dt_fn: &DatetimeValueFunctionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(dt_fn);
+
+        if let Some(date_fn) = dt_fn.dateFunction() {
+            if date_fn.CURRENT_DATE().is_some() {
+                return Ok(Self::builtin_call(fn_names::CURRENT_DATE, vec![], span));
+            }
+            let arguments = date_fn
+                .dateFunctionParameters()
+                .map(|params| {
+                    Self::build_temporal_function_argument(
+                        params.dateString().and_then(|s| s.characterStringLiteral()),
+                        params.recordConstructor(),
+                        fn_names::DATE,
+                    )
+                })
+                .transpose()?
+                .into_iter()
+                .collect();
+            return Ok(Self::builtin_call(fn_names::DATE, arguments, span));
+        }
+
+        if let Some(time_fn) = dt_fn.timeFunction() {
+            if time_fn.CURRENT_TIME().is_some() {
+                return Ok(Self::builtin_call(fn_names::CURRENT_TIME, vec![], span));
+            }
+            let arguments = time_fn
+                .timeFunctionParameters()
+                .map(|params| {
+                    Self::build_temporal_function_argument(
+                        params.timeString().and_then(|s| s.characterStringLiteral()),
+                        params.recordConstructor(),
+                        fn_names::ZONED_TIME,
+                    )
+                })
+                .transpose()?
+                .into_iter()
+                .collect();
+            return Ok(Self::builtin_call(fn_names::ZONED_TIME, arguments, span));
+        }
+
+        if let Some(local_time_fn) = dt_fn.localtimeFunction() {
+            let arguments = local_time_fn
+                .timeFunctionParameters()
+                .map(|params| {
+                    Self::build_temporal_function_argument(
+                        params.timeString().and_then(|s| s.characterStringLiteral()),
+                        params.recordConstructor(),
+                        fn_names::LOCAL_TIME,
+                    )
+                })
+                .transpose()?
+                .into_iter()
+                .collect();
+            return Ok(Self::builtin_call(fn_names::LOCAL_TIME, arguments, span));
+        }
+
+        if let Some(datetime_fn) = dt_fn.datetimeFunction() {
+            if datetime_fn.CURRENT_TIMESTAMP().is_some() {
+                return Ok(Self::builtin_call(fn_names::CURRENT_TIMESTAMP, vec![], span));
+            }
+            let arguments = datetime_fn
+                .datetimeFunctionParameters()
+                .map(|params| {
+                    Self::build_temporal_function_argument(
+                        params
+                            .datetimeString()
+                            .and_then(|s| s.characterStringLiteral()),
+                        params.recordConstructor(),
+                        fn_names::ZONED_DATETIME,
+                    )
+                })
+                .transpose()?
+                .into_iter()
+                .collect();
+            return Ok(Self::builtin_call(fn_names::ZONED_DATETIME, arguments, span));
+        }
+
+        if let Some(local_dt_fn) = dt_fn.localdatetimeFunction() {
+            let name = if local_dt_fn.LOCAL_TIMESTAMP().is_some() {
+                fn_names::LOCAL_TIMESTAMP
+            } else if local_dt_fn.LOCAL_DATETIME().is_some() {
+                fn_names::LOCAL_DATETIME
+            } else {
+                return Self::parse_error("LOCAL_TIMESTAMP/LOCAL_DATETIME parsing failed");
+            };
+
+            let arguments = local_dt_fn
+                .datetimeFunctionParameters()
+                .map(|params| {
+                    Self::build_temporal_function_argument(
+                        params
+                            .datetimeString()
+                            .and_then(|s| s.characterStringLiteral()),
+                        params.recordConstructor(),
+                        name,
+                    )
+                })
+                .transpose()?
+                .into_iter()
+                .collect();
+            return Ok(Self::builtin_call(name, arguments, span));
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: unsupported datetime value function: {}",
+            dt_fn.get_text()
+        ))
+    }
+
+    /// Builds the expression of a `[PROPERTY] GRAPH <graph expression>` value. Object
+    /// expressions and binding variables map to existing expression nodes and substituted
+    /// parameters map to parameter references. Catalog graph references and the current/home
+    /// graph have no structural representation yet and fail explicitly.
+    fn build_graph_expression_from_context(
+        graph_expression: &GraphExpressionContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(graph_expression);
+
+        if let Some(object) = graph_expression.objectExpressionPrimary() {
+            return Self::build_object_expression_primary_from_context(&object);
+        }
+
+        if let Some(name) = graph_expression.objectNameOrBindingVariable() {
+            return Ok(Expression::Variable {
+                name: name.get_text(),
+                span,
+            });
+        }
+
+        if let Some(reference) = graph_expression.graphReference() {
+            if let Some(parameter) = reference.referenceParameterSpecification() {
+                return Ok(Expression::Literal(Literal::Parameter(parameter.get_text())));
+            }
+            return Self::unsupported_construct(
+                &format!("graph reference 'GRAPH {}'", reference.get_text()),
+                "issue #15",
+                span,
+            );
+        }
+
+        if graph_expression.currentGraph().is_some() {
+            return Self::unsupported_construct(
+                &format!("current graph expression 'GRAPH {}'", graph_expression.get_text()),
+                "issue #15",
+                span,
+            );
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: unsupported graph expression: {}",
+            graph_expression.get_text()
+        ))
+    }
+
+    /// Builds an Expression from an ObjectExpressionPrimaryContext (`VARIABLE <primary>`, a
+    /// parenthesized expression, or a non-parenthesized primary special case).
+    fn build_object_expression_primary_from_context(
+        object: &ObjectExpressionPrimaryContextAll,
+    ) -> GqlResult<Expression> {
+        if let Some(primary) = object.valueExpressionPrimary() {
+            return Self::build_primary_expression_from_context(&primary);
+        }
+
+        if let Some(inner) = object
+            .parenthesizedValueExpression()
+            .and_then(|paren| paren.valueExpression())
+        {
+            return Self::build_expression_from_context(&inner);
+        }
+
+        if let Some(special) = object.nonParenthesizedValueExpressionPrimarySpecialCase() {
+            return Self::build_expression_from_non_parenthesized_special_case(&special);
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: unsupported object expression: {}",
+            object.get_text()
+        ))
+    }
+
+    /// Returns true when `text` is an unsigned integer literal whose magnitude is that of
+    /// i64::MIN, which is only representable once negated.
+    fn is_i64_min_magnitude(text: &str) -> bool {
+        Self::decode_unsigned_integer_magnitude(text) == Some(1u128 << 63)
+    }
+
+    /// Decodes an unsigned integer literal (decimal, 0x, 0o or 0b, with optional underscores)
+    /// into its magnitude. Returns `None` for any other text.
+    fn decode_unsigned_integer_magnitude(text: &str) -> Option<u128> {
+        let cleaned = text.trim().replace('_', "").to_ascii_lowercase();
+        let (digits, radix) = if let Some(digits) = cleaned.strip_prefix("0x") {
+            (digits, 16)
+        } else if let Some(digits) = cleaned.strip_prefix("0o") {
+            (digits, 8)
+        } else if let Some(digits) = cleaned.strip_prefix("0b") {
+            (digits, 2)
+        } else {
+            (cleaned.as_str(), 10)
+        };
+
+        if digits.is_empty() || !digits.chars().all(|c| c.is_digit(radix)) {
+            return None;
+        }
+        u128::from_str_radix(digits, radix).ok()
     }
 
     /// Function to build a LEFT or RIGHT function call from a SubCharacterOrByteStringContext, extracting the source string and length arguments and building the corresponding FunctionCall expression.
@@ -1227,13 +1443,17 @@ impl GQLAstBuilder {
     ) -> GqlResult<Expression> {
         let span = Self::extract_span(ctx);
 
-        let name = if ctx.LEFT().is_some() { "LEFT" } else { "RIGHT" };
-        let source_ctx = ctx
-            .valueExpression()
-            .ok_or_else(|| Self::parse_err("CST not valid: valueExpression missing in LEFT/RIGHT".into()))?;
-        let len_ctx = ctx
-            .stringLength()
-            .ok_or_else(|| Self::parse_err("CST not valid: stringLength missing in LEFT/RIGHT".into()))?;
+        let name = if ctx.LEFT().is_some() {
+            fn_names::LEFT
+        } else {
+            fn_names::RIGHT
+        };
+        let source_ctx = ctx.valueExpression().ok_or_else(|| {
+            Self::parse_err("CST not valid: valueExpression missing in LEFT/RIGHT".into())
+        })?;
+        let len_ctx = ctx.stringLength().ok_or_else(|| {
+            Self::parse_err("CST not valid: stringLength missing in LEFT/RIGHT".into())
+        })?;
 
         let source = Self::build_expression_from_context(&source_ctx)?;
         let len = Self::build_expression_from_string_length(&len_ctx)?;
@@ -1275,7 +1495,10 @@ impl GQLAstBuilder {
             arguments.push(Expression::Literal(Literal::String(spec_name.to_string())));
         }
 
-        if let Some(trim_char_ctx) = operands.trimCharacterOrByteString().and_then(|c| c.valueExpression()) {
+        if let Some(trim_char_ctx) = operands
+            .trimCharacterOrByteString()
+            .and_then(|c| c.valueExpression())
+        {
             arguments.push(Self::build_expression_from_context(&trim_char_ctx)?);
         }
 
@@ -1290,13 +1513,10 @@ impl GQLAstBuilder {
     }
 
     /// Function to build an expression for string length from a StringLengthContext, extracting the numeric value expression and building the corresponding Expression.
-    pub(super) fn build_expression_from_string_length(ctx: &StringLengthContextAll) -> GqlResult<Expression> {
-        let span = Self::extract_span(ctx);
-        let numeric_ctx = ctx
-            .numericValueExpression()
-            .ok_or_else(|| Self::parse_err("CST not valid: numericValueExpression missing in stringLength".into()))?;
-
-        Self::build_expression_from_leaf_text(&numeric_ctx.get_text(), span.clone())
+    pub(super) fn build_expression_from_string_length(
+        ctx: &StringLengthContextAll,
+    ) -> GqlResult<Expression> {
+        Self::required_numeric_argument(ctx.numericValueExpression(), "stringLength")
     }
 
     /// Function to build a primary expression from a ValueExpressionPrimaryContext, handling various cases such as property access, literals, variable references, function calls, and more complex expressions like CASE and CAST.
@@ -1306,28 +1526,22 @@ impl GQLAstBuilder {
         let span = Self::extract_span(value_expression_primary);
 
         if value_expression_primary.propertyName().is_some() {
-            return Ok(Expression::PropertyAccess(Self::build_property_access_from_context(
-                value_expression_primary,
-            )?));
+            return Ok(Expression::PropertyAccess(
+                Self::build_property_access_from_context(value_expression_primary)?,
+            ));
         }
 
-        if let Some(unsigned_value_specification) = value_expression_primary.unsignedValueSpecification() {
-            if let Some(unsigned_literal) = unsigned_value_specification.unsignedLiteral()
-                && let Some(general_literal) = unsigned_literal.generalLiteral()
-            {
-                if let Some(list_literal) = general_literal.listLiteral() {
-                    return Self::build_array_expression_from_list_literal(&list_literal);
-                }
-                if let Some(record_literal) = general_literal.recordLiteral() {
-                    return Self::build_map_expression_from_record_literal(&record_literal);
-                }
-            }
-            return Ok(Expression::Literal(Self::build_literal_from_context(
+        if let Some(unsigned_value_specification) =
+            value_expression_primary.unsignedValueSpecification()
+        {
+            return Self::build_expression_from_unsigned_value_specification(
                 &unsigned_value_specification,
-            )?));
+            );
         }
 
-        if let Some(binding_variable_reference) = value_expression_primary.bindingVariableReference() {
+        if let Some(binding_variable_reference) =
+            value_expression_primary.bindingVariableReference()
+        {
             let name = binding_variable_reference.get_text();
 
             if name.eq_ignore_ascii_case("true") {
@@ -1360,31 +1574,13 @@ impl GQLAstBuilder {
         {
             return Self::build_expression_from_context(&inner);
         }
-        if let Some(case_expr) = value_expression_primary.caseExpression()
-            && let Some(abbreviation) = case_expr.caseAbbreviation()
-        {
-            let name = if abbreviation.COALESCE().is_some() {
-                "COALESCE"
-            } else {
-                "NULLIF"
-            };
-            let arguments = abbreviation
-                .valueExpression_all()
-                .into_iter()
-                .map(|e| Self::build_expression_from_context(&e))
-                .collect::<GqlResult<Vec<_>>>()?;
-            return Ok(Expression::FunctionCall(FunctionCall {
-                name: name.to_string(),
-                distinct: DistinctQualifier::None,
-                arguments,
-                span: span.clone(),
-            }));
-        }
 
         if let Some(element_id_fn) = value_expression_primary.element_idFunction() {
-            let element_ref = element_id_fn
-                .elementVariableReference()
-                .ok_or_else(|| Self::parse_err("CST not valid: elementVariableReference missing in ELEMENT_ID".into()))?;
+            let element_ref = element_id_fn.elementVariableReference().ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: elementVariableReference missing in ELEMENT_ID".into(),
+                )
+            })?;
 
             return Ok(Expression::FunctionCall(FunctionCall {
                 name: fn_names::ELEMENT_ID.to_string(),
@@ -1397,9 +1593,11 @@ impl GQLAstBuilder {
             }));
         }
         if let Some(let_expr) = value_expression_primary.letValueExpression() {
-            let list = let_expr
-                .letVariableDefinitionList()
-                .ok_or_else(|| Self::parse_err("CST not valid: missing letVariableDefinitionList in LET ... IN".into()))?;
+            let list = let_expr.letVariableDefinitionList().ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: missing letVariableDefinitionList in LET ... IN".into(),
+                )
+            })?;
 
             let variable_definitions = list
                 .letVariableDefinition_all()
@@ -1407,9 +1605,9 @@ impl GQLAstBuilder {
                 .map(|def| Self::build_let_variable_definition_from_context(&def))
                 .collect::<GqlResult<Vec<_>>>()?;
 
-            let in_expr = let_expr
-                .valueExpression()
-                .ok_or_else(|| Self::parse_err("CST not valid: missing valueExpression in LET ... IN".into()))?;
+            let in_expr = let_expr.valueExpression().ok_or_else(|| {
+                Self::parse_err("CST not valid: missing valueExpression in LET ... IN".into())
+            })?;
 
             let evaluation_expression = Box::new(Self::build_expression_from_context(&in_expr)?);
 
@@ -1422,7 +1620,10 @@ impl GQLAstBuilder {
 
         if let Some(value_query_expr) = value_expression_primary.valueQueryExpression() {
             let nested = value_query_expr.nestedQuerySpecification().ok_or_else(|| {
-                Self::parse_err("CST not valid: nestedQuerySpecification missing in VALUE query expression".into())
+                Self::parse_err(
+                    "CST not valid: nestedQuerySpecification missing in VALUE query expression"
+                        .into(),
+                )
             })?;
 
             let query = Self::build_query_from_nested_query_spec(&nested)?;
@@ -1439,11 +1640,6 @@ impl GQLAstBuilder {
             return Self::build_path_constructor_expression_from_context(&path_constructor);
         }
 
-        let text_upper = value_expression_primary.get_text().to_uppercase();
-        if text_upper.starts_with(kw::VALUE) || text_upper.starts_with(kw::TABLE) {
-            return Self::build_expression_from_leaf_text(&value_expression_primary.get_text(), span.clone());
-        }
-
         Self::parse_error(format!(
             "Expression primary variant not handled by builder: {}",
             value_expression_primary.get_text()
@@ -1451,7 +1647,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a CastExpression from a CastSpecificationContext, extracting the operand expression and target type specification and building the corresponding CastExpression.
-    pub(super) fn build_cast_expression_from_context(cast_spec: &CastSpecificationContextAll) -> GqlResult<Expression> {
+    pub(super) fn build_cast_expression_from_context(
+        cast_spec: &CastSpecificationContextAll,
+    ) -> GqlResult<Expression> {
         let span = Self::extract_span(cast_spec);
 
         let operand_ctx = cast_spec
@@ -1468,9 +1666,9 @@ impl GQLAstBuilder {
         let cast_target = cast_spec
             .castTarget()
             .ok_or_else(|| Self::parse_err("CST not valid: castTarget missing in CAST".into()))?;
-        let value_type = cast_target
-            .valueType()
-            .ok_or_else(|| Self::parse_err("CST not valid: valueType missing in castTarget".into()))?;
+        let value_type = cast_target.valueType().ok_or_else(|| {
+            Self::parse_err("CST not valid: valueType missing in castTarget".into())
+        })?;
 
         let target_type = Self::build_type_spec_from_value_type(&value_type)?;
 
@@ -1482,7 +1680,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a TypeSpec from a ValueTypeContext, handling all the different possible value type contexts and returning the corresponding TypeSpec variant.
-    pub(super) fn build_type_spec_from_value_type(value_type: &ValueTypeContextAll) -> GqlResult<TypeSpec> {
+    pub(super) fn build_type_spec_from_value_type(
+        value_type: &ValueTypeContextAll,
+    ) -> GqlResult<TypeSpec> {
         match value_type {
             ValueTypeContextAll::OpenDynamicUnionTypeLabelContext(_) => Ok(TypeSpec::Any),
             ValueTypeContextAll::DynamicPropertyValueTypeLabelContext(_) => Ok(TypeSpec::Any),
@@ -1575,7 +1775,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a TypeSpec from a PredefinedTypeContext, handling all the different possible predefined type contexts and returning the corresponding TypeSpec variant.
-    pub(super) fn build_type_spec_from_predefined(pre: &PredefinedTypeContextAll) -> GqlResult<TypeSpec> {
+    pub(super) fn build_type_spec_from_predefined(
+        pre: &PredefinedTypeContextAll,
+    ) -> GqlResult<TypeSpec> {
         if pre.booleanType().is_some() {
             return Ok(TypeSpec::Boolean);
         }
@@ -1602,10 +1804,14 @@ impl GQLAstBuilder {
             }
 
             if let Some(graph_ref_type) = r.graphReferenceValueType() {
-                let graph_type_spec = if let Some(closed_graph_ref_type) = graph_ref_type.closedGraphReferenceValueType() {
-                    Some(Box::new(Self::build_graph_type_spec_from_closed_graph_reference(
-                        &closed_graph_ref_type,
-                    )?))
+                let graph_type_spec = if let Some(closed_graph_ref_type) =
+                    graph_ref_type.closedGraphReferenceValueType()
+                {
+                    Some(Box::new(
+                        Self::build_graph_type_spec_from_closed_graph_reference(
+                            &closed_graph_ref_type,
+                        )?,
+                    ))
                 } else {
                     None
                 };
@@ -1628,7 +1834,10 @@ impl GQLAstBuilder {
         cst: &ClosedGraphReferenceValueTypeContextAll,
     ) -> GqlResult<GraphTypeSpec> {
         let nested = cst.nestedGraphTypeSpecification().ok_or_else(|| {
-            Self::parse_err("CST not valid: missing nestedGraphTypeSpecification in closed graph reference".into())
+            Self::parse_err(
+                "CST not valid: missing nestedGraphTypeSpecification in closed graph reference"
+                    .into(),
+            )
         })?;
 
         Self::build_graph_type_spec_from_nested_graph_type_specification(&nested)
@@ -1638,11 +1847,16 @@ impl GQLAstBuilder {
         cst: &NestedGraphTypeSpecificationContextAll,
     ) -> GqlResult<GraphTypeSpec> {
         let body = cst.graphTypeSpecificationBody().ok_or_else(|| {
-            Self::parse_err("CST not valid: missing graphTypeSpecificationBody in nested graph type specification".into())
+            Self::parse_err(
+                "CST not valid: missing graphTypeSpecificationBody in nested graph type specification"
+                    .into(),
+            )
         })?;
 
         let element_list = body.elementTypeList().ok_or_else(|| {
-            Self::parse_err("CST not valid: missing elementTypeList in graphTypeSpecificationBody".into())
+            Self::parse_err(
+                "CST not valid: missing elementTypeList in graphTypeSpecificationBody".into(),
+            )
         })?;
 
         let mut vertex_types = Vec::new();
@@ -1661,7 +1875,9 @@ impl GQLAstBuilder {
         }
 
         if vertex_types.is_empty() && edge_types.is_empty() {
-            return Self::parse_error("Closed graph reference value type must declare at least one node or edge type");
+            return Self::parse_error(
+                "Closed graph reference value type must declare at least one node or edge type",
+            );
         }
 
         Ok(GraphTypeSpec {
@@ -1671,7 +1887,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a VertexTypeSpec from a NodeTypeSpecificationContext, extracting the identifier and properties of the vertex type and building the corresponding VertexTypeSpec.
-    fn build_vertex_type_spec_from_context(cst: &NodeTypeSpecificationContextAll) -> GqlResult<VertexTypeSpec> {
+    fn build_vertex_type_spec_from_context(
+        cst: &NodeTypeSpecificationContextAll,
+    ) -> GqlResult<VertexTypeSpec> {
         let span = Self::extract_span(cst);
 
         let identifier = Self::extract_node_type_identifier(cst);
@@ -1686,7 +1904,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build an EdgeTypeSpec from an EdgeTypeSpecificationContext, extracting the identifier, properties, and endpoints of the edge type and building the corresponding EdgeTypeSpec.
-    fn build_edge_type_spec_from_context(cst: &EdgeTypeSpecificationContextAll) -> GqlResult<EdgeTypeSpec> {
+    fn build_edge_type_spec_from_context(
+        cst: &EdgeTypeSpecificationContextAll,
+    ) -> GqlResult<EdgeTypeSpec> {
         let span = Self::extract_span(cst);
 
         let identifier = Self::extract_edge_type_identifier(cst);
@@ -1758,7 +1978,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to extract the properties of a node type from a NodeTypeSpecificationContext, checking both the pattern and phrase forms of node type specification for property type declarations and returning a PropertyTypeList if found.
-    fn extract_node_type_properties(cst: &NodeTypeSpecificationContextAll) -> GqlResult<Option<PropertyTypeList>> {
+    fn extract_node_type_properties(
+        cst: &NodeTypeSpecificationContextAll,
+    ) -> GqlResult<Option<PropertyTypeList>> {
         let from_pattern = cst
             .nodeTypePattern()
             .and_then(|pattern| pattern.nodeTypeFiller())
@@ -1783,7 +2005,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to extract the properties of an edge type from an EdgeTypeSpecificationContext, checking both the pattern and phrase forms of edge type specification for property type declarations and returning a PropertyTypeList if found.
-    fn extract_edge_type_properties(cst: &EdgeTypeSpecificationContextAll) -> GqlResult<Option<PropertyTypeList>> {
+    fn extract_edge_type_properties(
+        cst: &EdgeTypeSpecificationContextAll,
+    ) -> GqlResult<Option<PropertyTypeList>> {
         cst.edgeTypePhrase()
             .and_then(|phrase| phrase.edgeTypePhraseFiller())
             .and_then(|filler| filler.edgeTypeFiller())
@@ -1795,7 +2019,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to extract the source and destination vertex type identifiers for an edge type from an EdgeTypeSpecificationContext, checking the edge type phrase for an endpoint pair specification and returning the source and destination identifiers if found.
-    fn extract_edge_endpoints(cst: &EdgeTypeSpecificationContextAll) -> (Option<String>, Option<String>) {
+    fn extract_edge_endpoints(
+        cst: &EdgeTypeSpecificationContextAll,
+    ) -> (Option<String>, Option<String>) {
         let Some(phrase) = cst.edgeTypePhrase() else {
             return (None, None);
         };
@@ -1850,11 +2076,15 @@ impl GQLAstBuilder {
     }
 
     /// Helper function to build a PropertyTypeList from a PropertyTypesSpecificationContext, extracting the property type declarations and building a list of PropertyTypeDecl for the properties declared in the context.
-    fn build_property_type_list_from_context(cst: &PropertyTypesSpecificationContextAll) -> GqlResult<PropertyTypeList> {
+    fn build_property_type_list_from_context(
+        cst: &PropertyTypesSpecificationContextAll,
+    ) -> GqlResult<PropertyTypeList> {
         let span = Self::extract_span(cst);
 
         let property_list = cst.propertyTypeList().ok_or_else(|| {
-            Self::parse_err("CST not valid: missing propertyTypeList in propertyTypesSpecification".into())
+            Self::parse_err(
+                "CST not valid: missing propertyTypeList in propertyTypesSpecification".into(),
+            )
         })?;
 
         let mut properties = Vec::new();
@@ -1864,12 +2094,18 @@ impl GQLAstBuilder {
                 .propertyName()
                 .and_then(|name| name.identifier())
                 .map(|identifier| Self::identifier_text(&identifier.get_text()))
-                .ok_or_else(|| Self::parse_err("CST not valid: missing property name in propertyType".into()))?;
+                .ok_or_else(|| {
+                    Self::parse_err("CST not valid: missing property name in propertyType".into())
+                })?;
 
             let value_type = property
                 .propertyValueType()
                 .and_then(|value| value.valueType())
-                .ok_or_else(|| Self::parse_err("CST not valid: missing property value type in propertyType".into()))?;
+                .ok_or_else(|| {
+                    Self::parse_err(
+                        "CST not valid: missing property value type in propertyType".into(),
+                    )
+                })?;
 
             let type_spec = Self::build_type_spec_from_value_type(&value_type)?;
 
@@ -1884,7 +2120,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a TypeSpec for character string types, extracting the max length if specified and returning a TypeSpec::String variant with the appropriate max_length.
-    pub(super) fn build_type_spec_from_character_string(ctx: &CharacterStringTypeContextAll) -> GqlResult<TypeSpec> {
+    pub(super) fn build_type_spec_from_character_string(
+        ctx: &CharacterStringTypeContextAll,
+    ) -> GqlResult<TypeSpec> {
         let max_length = if let Some(fixed) = ctx.fixedLength() {
             Some(Self::parse_usize_from_ctx_text(&fixed.get_text())?)
         } else if let Some(max_len) = ctx.maxLength() {
@@ -1896,7 +2134,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a TypeSpec for byte string types, extracting the max length if specified and returning a TypeSpec::Bytes variant with the appropriate max_length.
-    pub(super) fn build_type_spec_from_byte_string(ctx: &ByteStringTypeContextAll) -> GqlResult<TypeSpec> {
+    pub(super) fn build_type_spec_from_byte_string(
+        ctx: &ByteStringTypeContextAll,
+    ) -> GqlResult<TypeSpec> {
         let max_length = if let Some(fixed) = ctx.fixedLength() {
             Some(Self::parse_usize_from_ctx_text(&fixed.get_text())?)
         } else if let Some(max_len) = ctx.maxLength() {
@@ -1915,7 +2155,9 @@ impl GQLAstBuilder {
 
     /// Helper function to normalize a raw type token string by converting it to uppercase, removing whitespace and underscores, and stripping known prefixes and suffixes related to type specifications, returning the normalized type token string.
     pub(super) fn normalize_type_token(raw: &str) -> String {
-        let mut t = raw.to_ascii_uppercase().replace([' ', '\t', '\n', '\r', '_'], "");
+        let mut t = raw
+            .to_ascii_uppercase()
+            .replace([' ', '\t', '\n', '\r', '_'], "");
 
         while let Some(stripped) = t.strip_prefix("::") {
             t = stripped.to_string();
@@ -1968,7 +2210,8 @@ impl GQLAstBuilder {
         if t == "BIGINT" || t == "INT64" || t == "INTEGER64" || t == "UBIGINT" || t == "UINT64" {
             return Ok(TypeSpec::BigInt);
         }
-        if t == "SMALLINT" || t == "INT16" || t == "INTEGER16" || t == "USMALLINT" || t == "UINT16" {
+        if t == "SMALLINT" || t == "INT16" || t == "INTEGER16" || t == "USMALLINT" || t == "UINT16"
+        {
             return Ok(TypeSpec::SmallInt);
         }
         if t == "INT8" || t == "INTEGER8" || t == "UINT8" || t == "TINYINT" {
@@ -1998,7 +2241,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a TypeSpec for temporal types, handling various temporal type specifications such as DATE, TIMESTAMP, TIME, DURATION, etc., and returning the corresponding TypeSpec variant with any specified parameters.
-    pub(super) fn build_type_spec_from_temporal(ctx: &TemporalTypeContextAll) -> GqlResult<TypeSpec> {
+    pub(super) fn build_type_spec_from_temporal(
+        ctx: &TemporalTypeContextAll,
+    ) -> GqlResult<TypeSpec> {
         let raw = ctx.get_text();
         let t = Self::normalize_type_token(&raw);
         let precision = Self::extract_parenthesized_u8_list(&raw)
@@ -2052,9 +2297,9 @@ impl GQLAstBuilder {
         inner
             .split(',')
             .map(|p| {
-                p.trim()
-                    .parse::<u8>()
-                    .map_err(|_| Self::parse_err(format!("Invalid numeric type parameter '{}'", p.trim())))
+                p.trim().parse::<u8>().map_err(|_| {
+                    Self::parse_err(format!("Invalid numeric type parameter '{}'", p.trim()))
+                })
             })
             .collect()
     }
@@ -2062,7 +2307,9 @@ impl GQLAstBuilder {
     /// Helper function to extract a duration qualifier from a normalized temporal type token string, looking for specific qualifiers like "YEARTOMONTH" or "DAYTOSECOND" and returning the corresponding formatted qualifier string if found.
     pub(super) fn extract_duration_qualifier(normalized_temporal: &str) -> Option<String> {
         let start = normalized_temporal.find('(')?;
-        let end = normalized_temporal[start + 1..].find(')').map(|i| start + 1 + i)?;
+        let end = normalized_temporal[start + 1..]
+            .find(')')
+            .map(|i| start + 1 + i)?;
 
         let qualifier = &normalized_temporal[start + 1..end];
         match qualifier {
@@ -2073,14 +2320,16 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a CASE expression from a CaseExpressionContext, handling both simple and searched CASE specifications, extracting the test expression, WHEN branches, and ELSE expression as needed, and returning the corresponding CaseExpression wrapped in an Expression::Case variant.
-    pub(super) fn build_case_expression_from_context(case_expr: &CaseExpressionContextAll) -> GqlResult<Expression> {
+    pub(super) fn build_case_expression_from_context(
+        case_expr: &CaseExpressionContextAll,
+    ) -> GqlResult<Expression> {
         let span = Self::extract_span(case_expr);
 
         if let Some(abbreviation) = case_expr.caseAbbreviation() {
             let name = if abbreviation.COALESCE().is_some() {
-                "COALESCE"
+                fn_names::COALESCE
             } else {
-                "NULLIF"
+                fn_names::NULLIF
             };
             let arguments = abbreviation
                 .valueExpression_all()
@@ -2096,14 +2345,16 @@ impl GQLAstBuilder {
             }));
         }
 
-        let specification = case_expr
-            .caseSpecification()
-            .ok_or_else(|| Self::parse_err("CST not valid: caseSpecification missing in caseExpression".into()))?;
+        let specification = case_expr.caseSpecification().ok_or_else(|| {
+            Self::parse_err("CST not valid: caseSpecification missing in caseExpression".into())
+        })?;
 
         if let Some(simple_case) = specification.simpleCase() {
             let test_expression = simple_case
                 .caseOperand()
-                .ok_or_else(|| Self::parse_err("CST not valid: caseOperand missing in simpleCase".into()))
+                .ok_or_else(|| {
+                    Self::parse_err("CST not valid: caseOperand missing in simpleCase".into())
+                })
                 .and_then(|op| Self::build_case_operand_from_context(&op))?;
 
             let when_branches = simple_case
@@ -2113,10 +2364,12 @@ impl GQLAstBuilder {
                 .collect::<GqlResult<Vec<_>>>()?;
 
             let else_expression = if let Some(else_clause) = simple_case.elseClause() {
-                let result = else_clause
-                    .result()
-                    .ok_or_else(|| Self::parse_err("CST not valid: result missing in elseClause".into()))?;
-                Some(Box::new(Self::build_result_expression_from_context(&result)?))
+                let result = else_clause.result().ok_or_else(|| {
+                    Self::parse_err("CST not valid: result missing in elseClause".into())
+                })?;
+                Some(Box::new(Self::build_result_expression_from_context(
+                    &result,
+                )?))
             } else {
                 None
             };
@@ -2139,10 +2392,12 @@ impl GQLAstBuilder {
                 .collect::<GqlResult<Vec<_>>>()?;
 
             let else_expression = if let Some(else_clause) = searched_case.elseClause() {
-                let result = else_clause
-                    .result()
-                    .ok_or_else(|| Self::parse_err("CST not valid: result missing in elseClause".into()))?;
-                Some(Box::new(Self::build_result_expression_from_context(&result)?))
+                let result = else_clause.result().ok_or_else(|| {
+                    Self::parse_err("CST not valid: result missing in elseClause".into())
+                })?;
+                Some(Box::new(Self::build_result_expression_from_context(
+                    &result,
+                )?))
             } else {
                 None
             };
@@ -2213,9 +2468,9 @@ impl GQLAstBuilder {
         let span = Self::extract_span(binding_table);
 
         if let Some(nested) = binding_table.nestedBindingTableQuerySpecification() {
-            let nested_query = nested
-                .nestedQuerySpecification()
-                .ok_or_else(|| Self::parse_err("CST not valid: nestedQuerySpecification missing".into()))?;
+            let nested_query = nested.nestedQuerySpecification().ok_or_else(|| {
+                Self::parse_err("CST not valid: nestedQuerySpecification missing".into())
+            })?;
 
             let statement = Self::build_query_from_nested_query_spec(&nested_query)?;
 
@@ -2228,7 +2483,32 @@ impl GQLAstBuilder {
             }));
         }
 
-        Self::build_expression_from_leaf_text(&binding_table.get_text(), span.clone())
+        if let Some(object) = binding_table.objectExpressionPrimary() {
+            return Self::build_object_expression_primary_from_context(&object);
+        }
+
+        if let Some(name) = binding_table.objectNameOrBindingVariable() {
+            return Ok(Expression::Variable {
+                name: name.get_text(),
+                span,
+            });
+        }
+
+        if let Some(reference) = binding_table.bindingTableReference() {
+            if let Some(parameter) = reference.referenceParameterSpecification() {
+                return Ok(Expression::Literal(Literal::Parameter(parameter.get_text())));
+            }
+            return Self::unsupported_construct(
+                &format!("binding table reference 'TABLE {}'", reference.get_text()),
+                "issue #15",
+                span,
+            );
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: unsupported binding table expression: {}",
+            binding_table.get_text()
+        ))
     }
 
     /// Function to build a SimpleWhenBranch from a SimpleWhenClauseContext, extracting the list of WHEN operand expressions and the THEN result expression, building the corresponding Expressions for each, and returning the resulting SimpleWhenBranch.
@@ -2247,7 +2527,9 @@ impl GQLAstBuilder {
 
         let then_expression = when_clause
             .result()
-            .ok_or_else(|| Self::parse_err("CST not valid: result missing in simpleWhenClause".into()))
+            .ok_or_else(|| {
+                Self::parse_err("CST not valid: result missing in simpleWhenClause".into())
+            })
             .and_then(|result| Self::build_result_expression_from_context(&result))
             .map(Box::new)?;
 
@@ -2266,16 +2548,26 @@ impl GQLAstBuilder {
 
         let condition = when_clause
             .searchCondition()
-            .ok_or_else(|| Self::parse_err("CST not valid: searchCondition missing in searchedWhenClause".into()))?
+            .ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: searchCondition missing in searchedWhenClause".into(),
+                )
+            })?
             .booleanValueExpression()
             .and_then(|expr| expr.valueExpression())
-            .ok_or_else(|| Self::parse_err("CST not valid: booleanValueExpression missing in searchedWhenClause".into()))
+            .ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: booleanValueExpression missing in searchedWhenClause".into(),
+                )
+            })
             .and_then(|expr| Self::build_expression_from_context(&expr))
             .map(Box::new)?;
 
         let then_expression = when_clause
             .result()
-            .ok_or_else(|| Self::parse_err("CST not valid: result missing in searchedWhenClause".into()))
+            .ok_or_else(|| {
+                Self::parse_err("CST not valid: result missing in searchedWhenClause".into())
+            })
             .and_then(|result| Self::build_result_expression_from_context(&result))
             .map(Box::new)?;
 
@@ -2287,8 +2579,13 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a result expression from a ResultContext, handling both value expressions and NULL literals, and returning the corresponding Expression.
-    pub(super) fn build_result_expression_from_context(result: &ResultContextAll) -> GqlResult<Expression> {
-        if let Some(value_expr) = result.resultExpression().and_then(|re| re.valueExpression()) {
+    pub(super) fn build_result_expression_from_context(
+        result: &ResultContextAll,
+    ) -> GqlResult<Expression> {
+        if let Some(value_expr) = result
+            .resultExpression()
+            .and_then(|re| re.valueExpression())
+        {
             return Self::build_expression_from_context(&value_expr);
         }
 
@@ -2300,7 +2597,9 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a case operand expression from a CaseOperandContext, handling both variable references and non-parenthesized value expression primaries, and returning the corresponding Expression.
-    pub(super) fn build_case_operand_from_context(operand: &CaseOperandContextAll) -> GqlResult<Expression> {
+    pub(super) fn build_case_operand_from_context(
+        operand: &CaseOperandContextAll,
+    ) -> GqlResult<Expression> {
         let span = Self::extract_span(operand);
         if let Some(var_ref) = operand.elementVariableReference() {
             return Ok(Expression::Variable {
@@ -2317,14 +2616,18 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a WHEN operand expression from a WhenOperandContext, handling the various possible forms of WHEN operands such as comparisons, predicates, value expressions, etc., and returning the corresponding Expression.
-    pub(super) fn build_when_operand_from_context(operand: &WhenOperandContextAll) -> GqlResult<Expression> {
+    pub(super) fn build_when_operand_from_context(
+        operand: &WhenOperandContextAll,
+    ) -> GqlResult<Expression> {
         let span = Self::extract_span(operand);
 
         if let Some(comp_op) = operand.compOp() {
             let op = Self::operator_from_context(&comp_op)?;
-            let right = operand
-                .valueExpression()
-                .ok_or_else(|| Self::parse_err("CST not valid: missing valueExpression for compOp whenOperand".into()))?;
+            let right = operand.valueExpression().ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: missing valueExpression for compOp whenOperand".into(),
+                )
+            })?;
             let right_expr = Self::build_expression_from_context(&right)?;
             return Ok(Expression::WhenOperand(WhenOperandExpression {
                 kind: WhenOperandKind::Comparison {
@@ -2431,10 +2734,13 @@ impl GQLAstBuilder {
             return Self::build_expression_from_non_parenthesized_primary(&primary);
         }
 
-        Self::build_expression_from_leaf_text(&operand.get_text(), span.clone())
+        Self::parse_error(format!(
+            "CST not valid: unsupported WHEN operand: {}",
+            operand.get_text()
+        ))
     }
 
-    /// Function to build an Expression from a NonParenthesizedValueExpressionPrimaryContext, handling various special cases such as aggregate functions, unsigned value specifications, path constructors, property accesses, value queries, CASE expressions, CAST specifications, ELEMENT_ID function calls, and inline LET expressions, and returning the corresponding Expression for each case. If none of the special cases match, it falls back to building an expression from the leaf text.
+    /// Function to build an Expression from a NonParenthesizedValueExpressionPrimaryContext, which is either a binding variable reference or a non-parenthesized special case.
     pub(super) fn build_expression_from_non_parenthesized_primary(
         primary: &NonParenthesizedValueExpressionPrimaryContextAll,
     ) -> GqlResult<Expression> {
@@ -2443,98 +2749,121 @@ impl GQLAstBuilder {
         if let Some(binding) = primary.bindingVariableReference() {
             return Ok(Expression::Variable {
                 name: binding.get_text(),
-                span: span.clone(),
+                span,
             });
         }
 
         if let Some(special) = primary.nonParenthesizedValueExpressionPrimarySpecialCase() {
-            if let Some(aggregate_fn) = special.aggregateFunction() {
-                return Self::build_function_call_from_aggregate_context(&aggregate_fn);
-            }
-
-            if let Some(unsigned) = special.unsignedValueSpecification() {
-                return Self::build_expression_from_leaf_text(&unsigned.get_text(), span.clone());
-            }
-
-            if let Some(path_constructor) = special.pathValueConstructor() {
-                return Self::build_path_constructor_expression_from_context(&path_constructor);
-            }
-
-            if let Some(base_primary) = special.valueExpressionPrimary() {
-                if let Some(property_name) = special.propertyName() {
-                    return Ok(Expression::PropertyAccess(PropertyAccess {
-                        object: base_primary.get_text(),
-                        property: Self::identifier_text(&property_name.get_text()),
-                        span: span.clone(),
-                    }));
-                }
-                return Self::build_primary_expression_from_context(&base_primary);
-            }
-
-            if let Some(value_query) = special.valueQueryExpression() {
-                let nested = value_query.nestedQuerySpecification().ok_or_else(|| {
-                    Self::parse_err("CST not valid: nestedQuerySpecification missing in valueQueryExpression".into())
-                })?;
-                let query = Self::build_query_from_nested_query_spec(&nested)?;
-                return Ok(Expression::Subquery(SubqueryExpression {
-                    query: Box::new(query),
-                    expression: None,
-                    is_exists: false,
-                    negated: false,
-                    span: span.clone(),
-                }));
-            }
-
-            if let Some(case_expr) = special.caseExpression() {
-                return Self::build_case_expression_from_context(&case_expr);
-            }
-
-            if let Some(cast_spec) = special.castSpecification() {
-                return Self::build_cast_expression_from_context(&cast_spec);
-            }
-
-            if let Some(element_id_fn) = special.element_idFunction() {
-                let element_ref = element_id_fn.elementVariableReference().ok_or_else(|| {
-                    Self::parse_err("CST not valid: elementVariableReference missing in ELEMENT_ID".into())
-                })?;
-
-                return Ok(Expression::FunctionCall(FunctionCall {
-                    name: fn_names::ELEMENT_ID.to_string(),
-                    distinct: DistinctQualifier::None,
-                    arguments: vec![Expression::Variable {
-                        name: element_ref.get_text(),
-                        span: span.clone(),
-                    }],
-                    span: span.clone(),
-                }));
-            }
-
-            if let Some(let_expr) = special.letValueExpression() {
-                let list = let_expr.letVariableDefinitionList().ok_or_else(|| {
-                    Self::parse_err("CST not valid: missing letVariableDefinitionList in LET ... IN".into())
-                })?;
-
-                let variable_definitions = list
-                    .letVariableDefinition_all()
-                    .into_iter()
-                    .map(|def| Self::build_let_variable_definition_from_context(&def))
-                    .collect::<GqlResult<Vec<_>>>()?;
-
-                let in_expr = let_expr
-                    .valueExpression()
-                    .ok_or_else(|| Self::parse_err("CST not valid: missing valueExpression in LET ... IN".into()))?;
-
-                let evaluation_expression = Box::new(Self::build_expression_from_context(&in_expr)?);
-
-                return Ok(Expression::InlineLet(InlineLetExpression {
-                    variable_definitions,
-                    evaluation_expression,
-                    span: span.clone(),
-                }));
-            }
+            return Self::build_expression_from_non_parenthesized_special_case(&special);
         }
 
-        Self::build_expression_from_leaf_text(&primary.get_text(), span.clone())
+        Self::parse_error(format!(
+            "CST not valid: unsupported non-parenthesized value expression primary: {}",
+            primary.get_text()
+        ))
+    }
+
+    /// Function to build an Expression from a NonParenthesizedValueExpressionPrimarySpecialCaseContext, handling aggregate functions, unsigned value specifications, path constructors, property references, value queries, CASE expressions, CAST specifications, ELEMENT_ID function calls, and inline LET expressions.
+    pub(super) fn build_expression_from_non_parenthesized_special_case(
+        special: &NonParenthesizedValueExpressionPrimarySpecialCaseContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(special);
+
+        if let Some(aggregate_fn) = special.aggregateFunction() {
+            return Self::build_function_call_from_aggregate_context(&aggregate_fn);
+        }
+
+        if let Some(unsigned) = special.unsignedValueSpecification() {
+            return Self::build_expression_from_unsigned_value_specification(&unsigned);
+        }
+
+        if let Some(path_constructor) = special.pathValueConstructor() {
+            return Self::build_path_constructor_expression_from_context(&path_constructor);
+        }
+
+        if let Some(base_primary) = special.valueExpressionPrimary() {
+            let property_name = special.propertyName().ok_or_else(|| {
+                Self::parse_err("CST not valid: propertyName missing in property reference".into())
+            })?;
+            return Ok(Expression::PropertyAccess(PropertyAccess {
+                object: Self::property_reference_object(&base_primary)?,
+                property: Self::identifier_text(&property_name.get_text()),
+                span,
+            }));
+        }
+
+        if let Some(value_query) = special.valueQueryExpression() {
+            let nested = value_query.nestedQuerySpecification().ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: nestedQuerySpecification missing in valueQueryExpression"
+                        .into(),
+                )
+            })?;
+            let query = Self::build_query_from_nested_query_spec(&nested)?;
+            return Ok(Expression::Subquery(SubqueryExpression {
+                query: Box::new(query),
+                expression: None,
+                is_exists: false,
+                negated: false,
+                span,
+            }));
+        }
+
+        if let Some(case_expr) = special.caseExpression() {
+            return Self::build_case_expression_from_context(&case_expr);
+        }
+
+        if let Some(cast_spec) = special.castSpecification() {
+            return Self::build_cast_expression_from_context(&cast_spec);
+        }
+
+        if let Some(element_id_fn) = special.element_idFunction() {
+            let element_ref = element_id_fn.elementVariableReference().ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: elementVariableReference missing in ELEMENT_ID".into(),
+                )
+            })?;
+
+            return Ok(Self::builtin_call(
+                fn_names::ELEMENT_ID,
+                vec![Expression::Variable {
+                    name: element_ref.get_text(),
+                    span: span.clone(),
+                }],
+                span,
+            ));
+        }
+
+        if let Some(let_expr) = special.letValueExpression() {
+            let list = let_expr.letVariableDefinitionList().ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: missing letVariableDefinitionList in LET ... IN".into(),
+                )
+            })?;
+
+            let variable_definitions = list
+                .letVariableDefinition_all()
+                .into_iter()
+                .map(|def| Self::build_let_variable_definition_from_context(&def))
+                .collect::<GqlResult<Vec<_>>>()?;
+
+            let in_expr = let_expr.valueExpression().ok_or_else(|| {
+                Self::parse_err("CST not valid: missing valueExpression in LET ... IN".into())
+            })?;
+
+            let evaluation_expression = Box::new(Self::build_expression_from_context(&in_expr)?);
+
+            return Ok(Expression::InlineLet(InlineLetExpression {
+                variable_definitions,
+                evaluation_expression,
+                span,
+            }));
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: unsupported value expression primary: {}",
+            special.get_text()
+        ))
     }
 
     /// Function to build a path constructor expression from a PathValueConstructorContext, extracting the sequence of path elements from the context, building the corresponding Expressions for each element, and returning the resulting Expression::PathConstructor with the list of element expressions.
@@ -2570,129 +2899,129 @@ impl GQLAstBuilder {
         Ok(Expression::PathConstructor(elements))
     }
 
-    /// Function to build an Expression from a leaf text string, handling special cases for boolean literals, null literals, property access patterns, numeric literals, and variable references, and returning the corresponding Expression for each case. If none of the special cases match, it defaults to treating the text as a string literal.
-    pub(super) fn build_expression_from_leaf_text(text: &str, span: Span) -> GqlResult<Expression> {
-        let trimmed = text.trim();
-
-        Self::validate_integer_literal_range(trimmed)?;
-
-        if trimmed.eq_ignore_ascii_case("true") {
-            return Ok(Expression::Literal(Literal::Boolean(true)));
-        }
-        if trimmed.eq_ignore_ascii_case("false") {
-            return Ok(Expression::Literal(Literal::Boolean(false)));
-        }
-        if trimmed.eq_ignore_ascii_case("null") {
-            return Ok(Expression::Literal(Literal::Null));
-        }
-
-        if let Ok(i) = trimmed.parse::<i64>() {
-            return Ok(Expression::Literal(Literal::Integer(i)));
-        }
-        if let Ok(f) = trimmed.parse::<f64>() {
-            return Ok(Expression::Literal(Literal::Float(f)));
-        }
-
-        if trimmed.contains('.') {
-            let mut parts = trimmed.splitn(2, '.');
-            let object = parts.next().unwrap_or_default().trim();
-            let property = parts.next().unwrap_or_default().trim();
-
-            if !object.is_empty() && !property.is_empty() {
-                return Ok(Expression::PropertyAccess(PropertyAccess {
-                    object: object.to_string(),
-                    property: Self::identifier_text(property),
-                    span: span.clone(),
-                }));
+    /// Returns the DISTINCT/ALL qualifier carried by an optional set quantifier.
+    fn distinct_qualifier_from_set_quantifier(
+        set_quantifier: Option<Rc<SetQuantifierContextAll>>,
+    ) -> DistinctQualifier {
+        match set_quantifier {
+            Some(set_quantifier) if set_quantifier.DISTINCT().is_some() => {
+                DistinctQualifier::Distinct
             }
+            Some(set_quantifier) if set_quantifier.ALL().is_some() => DistinctQualifier::All,
+            _ => DistinctQualifier::None,
         }
-
-        if trimmed.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') && !trimmed.is_empty() {
-            return Ok(Expression::Variable {
-                name: trimmed.to_string(),
-                span: span.clone(),
-            });
-        }
-
-        Ok(Expression::Literal(Self::build_literal_from_leaf_text(trimmed)?))
     }
 
-    /// Function to build a FunctionCall expression from an AggregateFunctionContext, handling various forms of aggregate functions such as COUNT(*), general set functions, and binary set functions, extracting the function name, distinct qualifier, and arguments as needed, and returning the corresponding Expression::FunctionCall. If the aggregate function context does not match any recognized form, it returns a parse error.
+    /// Function to build a FunctionCall expression from an AggregateFunctionContext, handling COUNT(*), general set functions, and binary set functions. Function names are canonicalized to upper case, set quantifiers are preserved, and every argument is built structurally.
     pub(super) fn build_function_call_from_aggregate_context(
         aggregate_function: &AggregateFunctionContextAll,
     ) -> GqlResult<Expression> {
         let span = Self::extract_span(aggregate_function);
 
         if aggregate_function.COUNT().is_some() && aggregate_function.ASTERISK().is_some() {
-            return Ok(Expression::FunctionCall(FunctionCall {
-                name: fn_names::COUNT.to_string(),
-                distinct: DistinctQualifier::None,
-                arguments: vec![Expression::Literal(Literal::String("*".to_string()))],
-                span: span.clone(),
-            }));
+            // COUNT(*) keeps its established representation: a single "*" marker argument.
+            return Ok(Self::builtin_call(
+                fn_names::COUNT,
+                vec![Expression::Literal(Literal::String("*".to_string()))],
+                span,
+            ));
         }
 
         if let Some(general_set_function) = aggregate_function.generalSetFunction() {
             let name = general_set_function
                 .generalSetFunctionType()
-                .map(|function_type| function_type.get_text())
-                .unwrap_or_else(|| "UNKNOWN".to_string());
+                .map(|function_type| function_type.get_text().to_ascii_uppercase())
+                .ok_or_else(|| {
+                    Self::parse_err(
+                        "CST not valid: generalSetFunctionType missing in aggregate function"
+                            .into(),
+                    )
+                })?;
 
-            let distinct = match general_set_function.setQuantifier() {
-                Some(set_quantifier) if set_quantifier.DISTINCT().is_some() => DistinctQualifier::Distinct,
-                Some(set_quantifier) if set_quantifier.ALL().is_some() => DistinctQualifier::All,
-                _ => DistinctQualifier::None,
-            };
-
-            let arguments = general_set_function
+            let argument = general_set_function
                 .valueExpression()
-                .map(|expression| Self::build_expression_from_context(&expression))
-                .transpose()?
-                .map(|expression| vec![expression])
-                .unwrap_or_default();
+                .ok_or_else(|| {
+                    Self::parse_err(format!("CST not valid: argument missing in {name}"))
+                })
+                .and_then(|expression| Self::build_expression_from_context(&expression))?;
 
             return Ok(Expression::FunctionCall(FunctionCall {
                 name,
-                distinct,
-                arguments,
-                span: span.clone(),
+                distinct: Self::distinct_qualifier_from_set_quantifier(
+                    general_set_function.setQuantifier(),
+                ),
+                arguments: vec![argument],
+                span,
             }));
         }
 
         if let Some(binary_set_function) = aggregate_function.binarySetFunction() {
             let name = binary_set_function
                 .binarySetFunctionType()
-                .map(|function_type| function_type.get_text())
-                .unwrap_or_else(|| "UNKNOWN".to_string());
+                .map(|function_type| function_type.get_text().to_ascii_uppercase())
+                .ok_or_else(|| {
+                    Self::parse_err(
+                        "CST not valid: binarySetFunctionType missing in aggregate function".into(),
+                    )
+                })?;
 
-            let mut arguments = Vec::new();
-            if let Some(left) = binary_set_function.dependentValueExpression()
-                && let Some(expr) = left.numericValueExpression()
-            {
-                arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
-                    &expr.get_text(),
-                )?));
-            }
-            if let Some(right) = binary_set_function.independentValueExpression()
-                && let Some(expr) = right.numericValueExpression()
-            {
-                arguments.push(Expression::Literal(Self::build_literal_from_leaf_text(
-                    &expr.get_text(),
-                )?));
-            }
+            let dependent = binary_set_function.dependentValueExpression().ok_or_else(|| {
+                Self::parse_err(format!(
+                    "CST not valid: dependent value expression missing in {name}"
+                ))
+            })?;
+            let independent = binary_set_function
+                .independentValueExpression()
+                .ok_or_else(|| {
+                    Self::parse_err(format!(
+                        "CST not valid: independent value expression missing in {name}"
+                    ))
+                })?;
+
+            let arguments = vec![
+                Self::required_numeric_argument(dependent.numericValueExpression(), &name)?,
+                Self::required_numeric_argument(independent.numericValueExpression(), &name)?,
+            ];
 
             return Ok(Expression::FunctionCall(FunctionCall {
+                distinct: Self::distinct_qualifier_from_set_quantifier(dependent.setQuantifier()),
                 name,
-                distinct: DistinctQualifier::None,
                 arguments,
-                span: span.clone(),
+                span,
             }));
         }
 
-        Self::parse_error("CST non valido: aggregateFunction non riconosciuta")
+        Self::parse_error("CST not valid: unrecognized aggregateFunction")
     }
 
-    /// Function to build a PropertyAccess expression from a ValueExpressionPrimaryContext, extracting the property name and object reference from the context, and returning the corresponding PropertyAccess. If either the property name or object reference is missing, it returns a parse error indicating that the CST is not valid for a property access.
+    /// Returns the binding variable that a property reference is applied to. The public
+    /// `PropertyAccess` node can only reference a binding variable by name, so property
+    /// references on any other expression (nested properties, parameters, function results,
+    /// literals) fail explicitly instead of storing the source text of the object.
+    fn property_reference_object(base_primary: &ValueExpressionPrimaryContextAll) -> GqlResult<String> {
+        if let Some(binding) = base_primary.bindingVariableReference() {
+            return Ok(binding.get_text());
+        }
+
+        if let Some(inner) = base_primary
+            .parenthesizedValueExpression()
+            .and_then(|paren| paren.valueExpression())
+            && let Expression::Variable { name, .. } = Self::build_expression_from_context(&inner)?
+        {
+            return Ok(name);
+        }
+
+        Self::unsupported_construct(
+            &format!(
+                "property reference on non-variable expression '{}'",
+                base_primary.get_text()
+            ),
+            "the 0.1.0 expression redesign",
+            Self::extract_span(base_primary),
+        )
+    }
+
+    /// Function to build a PropertyAccess expression from a ValueExpressionPrimaryContext (`<primary>.<property>`).
     pub(super) fn build_property_access_from_context(
         value_expression_primary: &ValueExpressionPrimaryContextAll,
     ) -> GqlResult<PropertyAccess> {
@@ -2701,32 +3030,37 @@ impl GQLAstBuilder {
         let property = value_expression_primary
             .propertyName()
             .map(|property_name| Self::identifier_text(&property_name.get_text()))
-            .ok_or_else(|| Self::parse_err("CST not valid: propertyName missing in property access".into()))?;
+            .ok_or_else(|| {
+                Self::parse_err("CST not valid: propertyName missing in property access".into())
+            })?;
 
-        let object = value_expression_primary
-            .bindingVariableReference()
-            .map(|binding_variable_reference| binding_variable_reference.get_text())
-            .or_else(|| {
-                value_expression_primary
-                    .valueExpressionPrimary()
-                    .map(|parent_primary| parent_primary.get_text())
-            })
-            .ok_or_else(|| Self::parse_err("CST not valid: object missing in property access".into()))?;
+        let base_primary = value_expression_primary
+            .valueExpressionPrimary()
+            .ok_or_else(|| {
+                Self::parse_err("CST not valid: object missing in property access".into())
+            })?;
 
         Ok(PropertyAccess {
-            object,
+            object: Self::property_reference_object(&base_primary)?,
             property,
-            span: span.clone(),
+            span,
         })
     }
 
     /// Function to build an ArrayExpression from a ListLiteralContext, extracting the list of elements from the context, building the corresponding Expressions for each element, and returning the resulting Expression::Array with the list of element expressions. If the CST structure does not match the expected format for a list literal, it returns a parse error indicating that the CST is not valid.
-    pub(super) fn build_array_expression_from_list_literal(list_literal: &ListLiteralContextAll) -> GqlResult<Expression> {
+    pub(super) fn build_array_expression_from_list_literal(
+        list_literal: &ListLiteralContextAll,
+    ) -> GqlResult<Expression> {
         let span = Self::extract_span(list_literal);
 
-        let constructor = list_literal.listValueConstructorByEnumeration().ok_or_else(|| {
-            Self::parse_err("CST not valid: listValueConstructorByEnumeration missing in listLiteral".into())
-        })?;
+        let constructor = list_literal
+            .listValueConstructorByEnumeration()
+            .ok_or_else(|| {
+                Self::parse_err(
+                    "CST not valid: listValueConstructorByEnumeration missing in listLiteral"
+                        .into(),
+                )
+            })?;
 
         let elements = constructor
             .listElementList()
@@ -2735,7 +3069,9 @@ impl GQLAstBuilder {
                     .into_iter()
                     .map(|elem| {
                         let value = elem.valueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: valueExpression missing in listElement".into())
+                            Self::parse_err(
+                                "CST not valid: valueExpression missing in listElement".into(),
+                            )
                         })?;
                         Self::build_expression_from_context(&value)
                     })
@@ -2750,15 +3086,22 @@ impl GQLAstBuilder {
         }))
     }
 
-    /// Function to build a MapExpression from a RecordLiteralContext, extracting the list of field specifications from the context, building the corresponding Expressions for each field value, and returning the resulting Expression::Map with the list of PropertyItems. If the CST structure does not match the expected format for a record literal, it returns a parse error indicating that the CST is not valid.
+    /// Function to build a MapExpression from a RecordLiteralContext.
     pub(super) fn build_map_expression_from_record_literal(
         record_literal: &RecordLiteralContextAll,
     ) -> GqlResult<Expression> {
-        let span = Self::extract_span(record_literal);
-
         let constructor = record_literal
             .recordConstructor()
             .ok_or_else(|| Self::parse_err("CST not valid: recordConstructor missing".into()))?;
+
+        Self::build_map_expression_from_record_constructor(&constructor)
+    }
+
+    /// Function to build a MapExpression from a RecordConstructorContext, building every field value structurally.
+    pub(super) fn build_map_expression_from_record_constructor(
+        constructor: &RecordConstructorContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(constructor);
 
         let properties = constructor
             .fieldsSpecification()
@@ -2770,10 +3113,16 @@ impl GQLAstBuilder {
                         let key = field
                             .fieldName()
                             .map(|name| Self::identifier_text(&name.get_text()))
-                            .ok_or_else(|| Self::parse_err("CST not valid: fieldName missing in record field".into()))?;
+                            .ok_or_else(|| {
+                                Self::parse_err(
+                                    "CST not valid: fieldName missing in record field".into(),
+                                )
+                            })?;
 
                         let value_ctx = field.valueExpression().ok_or_else(|| {
-                            Self::parse_err("CST not valid: valueExpression missing in record field".into())
+                            Self::parse_err(
+                                "CST not valid: valueExpression missing in record field".into(),
+                            )
                         })?;
 
                         let value = Self::build_expression_from_context(&value_ctx)?;
@@ -2791,7 +3140,37 @@ impl GQLAstBuilder {
         Ok(Expression::Map(properties))
     }
 
-    /// Function to build a Literal from an UnsignedValueSpecificationContext, handling both unsigned literals and general value specifications, extracting the relevant text from the context, and returning the corresponding Literal. If the CST structure does not match the expected format for an unsigned value specification, it returns a parse error indicating that the CST is not valid.
+    /// Function to build an Expression from an UnsignedValueSpecificationContext: list and record literals become array and map expressions, `SESSION_USER` becomes a niladic built-in call, and every other form becomes a literal.
+    pub(super) fn build_expression_from_unsigned_value_specification(
+        unsigned_value_specification: &UnsignedValueSpecificationContextAll,
+    ) -> GqlResult<Expression> {
+        let span = Self::extract_span(unsigned_value_specification);
+
+        if let Some(general_literal) = unsigned_value_specification
+            .unsignedLiteral()
+            .and_then(|literal| literal.generalLiteral())
+        {
+            if let Some(list_literal) = general_literal.listLiteral() {
+                return Self::build_array_expression_from_list_literal(&list_literal);
+            }
+            if let Some(record_literal) = general_literal.recordLiteral() {
+                return Self::build_map_expression_from_record_literal(&record_literal);
+            }
+        }
+
+        if let Some(general_value_specification) =
+            unsigned_value_specification.generalValueSpecification()
+            && general_value_specification.SESSION_USER().is_some()
+        {
+            return Ok(Self::builtin_call(fn_names::SESSION_USER, vec![], span));
+        }
+
+        Ok(Expression::Literal(Self::build_literal_from_context(
+            unsigned_value_specification,
+        )?))
+    }
+
+    /// Function to build a Literal from an UnsignedValueSpecificationContext. Forms that are not literals (list and record constructors, `SESSION_USER`) are rejected; use `build_expression_from_unsigned_value_specification` for those.
     pub(super) fn build_literal_from_context(
         unsigned_value_specification: &UnsignedValueSpecificationContextAll,
     ) -> GqlResult<Literal> {
@@ -2799,18 +3178,28 @@ impl GQLAstBuilder {
             return Self::build_literal_from_unsigned_literal(&unsigned_literal);
         }
 
-        if let Some(general_value_specification) = unsigned_value_specification.generalValueSpecification() {
-            return Ok(Self::build_literal_from_general_value_specification(
-                &general_value_specification,
+        if let Some(general_value_specification) =
+            unsigned_value_specification.generalValueSpecification()
+        {
+            if let Some(parameter) = general_value_specification.dynamicParameterSpecification() {
+                return Ok(Literal::Parameter(parameter.get_text()));
+            }
+            return Self::parse_error(format!(
+                "CST not valid: general value specification is not a literal: {}",
+                general_value_specification.get_text()
             ));
         }
 
-        Self::parse_error("CST not valid: unsignedValueSpecification without literal or general value")
+        Self::parse_error(
+            "CST not valid: unsignedValueSpecification without literal or general value",
+        )
     }
 
-    fn build_literal_from_unsigned_literal(unsigned_literal: &UnsignedLiteralContextAll) -> GqlResult<Literal> {
+    fn build_literal_from_unsigned_literal(
+        unsigned_literal: &UnsignedLiteralContextAll,
+    ) -> GqlResult<Literal> {
         if let Some(unsigned_numeric_literal) = unsigned_literal.unsignedNumericLiteral() {
-            return Self::build_literal_from_leaf_text(&unsigned_numeric_literal.get_text());
+            return Self::decode_unsigned_numeric_literal(&unsigned_numeric_literal.get_text());
         }
 
         if let Some(general_literal) = unsigned_literal.generalLiteral() {
@@ -2820,32 +3209,87 @@ impl GQLAstBuilder {
         Self::parse_error("CST not valid: unsignedLiteral without supported literal")
     }
 
-    fn build_literal_from_general_literal(general_literal: &GeneralLiteralContextAll) -> GqlResult<Literal> {
+    fn build_literal_from_general_literal(
+        general_literal: &GeneralLiteralContextAll,
+    ) -> GqlResult<Literal> {
         if let Some(boolean_literal) = general_literal.BOOLEAN_LITERAL() {
-            return Ok(Literal::Boolean(
-                boolean_literal.get_text().eq_ignore_ascii_case("true"),
-            ));
+            let text = boolean_literal.get_text();
+            // UNKNOWN is the null value of the boolean type.
+            return Ok(if text.eq_ignore_ascii_case("true") {
+                Literal::Boolean(true)
+            } else if text.eq_ignore_ascii_case("false") {
+                Literal::Boolean(false)
+            } else {
+                Literal::Null
+            });
         }
 
         if let Some(character_string_literal) = general_literal.characterStringLiteral() {
-            return Self::build_literal_from_leaf_text(&character_string_literal.get_text());
+            return Ok(Literal::String(Self::decode_character_string_literal(
+                &character_string_literal,
+            )?));
         }
 
         if general_literal.nullLiteral().is_some() {
             return Ok(Literal::Null);
         }
 
-        Ok(Literal::String(general_literal.get_text()))
-    }
+        if let Some(temporal_literal) = general_literal.temporalLiteral() {
+            let string_literal = if let Some(date) = temporal_literal.dateLiteral() {
+                date.dateString().and_then(|s| s.characterStringLiteral())
+            } else if let Some(time) = temporal_literal.timeLiteral() {
+                time.timeString().and_then(|s| s.characterStringLiteral())
+            } else if let Some(datetime) = temporal_literal.datetimeLiteral() {
+                datetime
+                    .datetimeString()
+                    .and_then(|s| s.characterStringLiteral())
+            } else {
+                None
+            }
+                .ok_or_else(|| {
+                    Self::parse_err("CST not valid: string missing in temporal literal".into())
+                })?;
 
-    fn build_literal_from_general_value_specification(
-        general_value_specification: &GeneralValueSpecificationContextAll,
-    ) -> Literal {
-        if general_value_specification.dynamicParameterSpecification().is_some() {
-            return Literal::Parameter(general_value_specification.get_text());
+            return Ok(Literal::DateTime(Self::decode_character_string_literal(
+                &string_literal,
+            )?));
         }
 
-        Literal::String(general_value_specification.get_text())
+        if let Some(duration_literal) = general_literal.durationLiteral() {
+            let string_literal = duration_literal
+                .durationString()
+                .and_then(|s| s.characterStringLiteral())
+                .ok_or_else(|| {
+                    Self::parse_err("CST not valid: string missing in duration literal".into())
+                })?;
+
+            return Ok(Literal::Duration(Self::decode_character_string_literal(
+                &string_literal,
+            )?));
+        }
+
+        if general_literal.BYTE_STRING_LITERAL().is_some() {
+            return Self::unsupported_construct(
+                &format!("byte string literal {}", general_literal.get_text()),
+                "issue #10",
+                Self::extract_span(general_literal),
+            );
+        }
+
+        Self::parse_error(format!(
+            "CST not valid: general literal must be built as an expression: {}",
+            general_literal.get_text()
+        ))
+    }
+
+    /// Decodes the value of a character string literal token.
+    pub(super) fn decode_character_string_literal(
+        ctx: &CharacterStringLiteralContextAll,
+    ) -> GqlResult<String> {
+        let text = ctx.get_text();
+        Self::string_literal_text(&text).ok_or_else(|| {
+            Self::parse_err(format!("CST not valid: malformed character string literal: {text}"))
+        })
     }
 
     /// Rejects integer syntax outside i64 without reinterpreting it as floating point.
@@ -2854,32 +3298,56 @@ impl GQLAstBuilder {
             .strip_prefix('-')
             .or_else(|| text.strip_prefix('+'))
             .unwrap_or(text);
-        if !digits.is_empty() && digits.bytes().all(|byte| byte.is_ascii_digit()) && text.parse::<i64>().is_err() {
-            return Self::parse_error(format!("Integer literal '{}' is outside the signed 64-bit range", text));
+        if !digits.is_empty()
+            && digits.bytes().all(|byte| byte.is_ascii_digit())
+            && text.parse::<i64>().is_err()
+        {
+            return Self::parse_error(format!(
+                "Integer literal '{}' is outside the signed 64-bit range",
+                text
+            ));
         }
         Ok(())
     }
 
-    /// Function to build a Literal from a leaf text string, handling various cases such as quoted strings, numeric literals, boolean literals, null literals, and defaulting to treating the text as a string literal if none of the other cases match.
-    pub(super) fn build_literal_from_leaf_text(text: &str) -> GqlResult<Literal> {
+    /// Decodes an unsigned numeric literal token: decimal, hexadecimal (`0x`), octal (`0o`) and
+    /// binary (`0b`) integers with optional underscores become integer literals; decimals,
+    /// scientific notation and the approximate suffixes `F`/`D` become float literals. The
+    /// exact suffix `M` keeps integers integral and maps other exact decimals to float
+    /// literals, the representation used for unsuffixed decimals.
+    pub(super) fn decode_unsigned_numeric_literal(text: &str) -> GqlResult<Literal> {
         let trimmed = text.trim();
-        Self::validate_integer_literal_range(trimmed)?;
+        let cleaned = trimmed.replace('_', "");
+        let lower = cleaned.to_ascii_lowercase();
 
-        Ok(if let Some(value) = Self::string_literal_text(trimmed) {
-            Literal::String(value)
-        } else if let Ok(i) = trimmed.parse::<i64>() {
-            Literal::Integer(i)
-        } else if let Ok(f) = trimmed.parse::<f64>() {
-            Literal::Float(f)
-        } else if trimmed.eq_ignore_ascii_case("true") {
-            Literal::Boolean(true)
-        } else if trimmed.eq_ignore_ascii_case("false") {
-            Literal::Boolean(false)
-        } else if trimmed.eq_ignore_ascii_case("null") {
-            Literal::Null
-        } else {
-            Literal::String(trimmed.to_string())
-        })
+        if lower.starts_with("0x") || lower.starts_with("0o") || lower.starts_with("0b") {
+            let magnitude = Self::decode_unsigned_integer_magnitude(&lower).ok_or_else(|| {
+                Self::parse_err(format!("Invalid integer literal '{trimmed}'"))
+            })?;
+            return i64::try_from(magnitude).map(Literal::Integer).map_err(|_| {
+                Self::parse_err(format!(
+                    "Integer literal '{trimmed}' is outside the signed 64-bit range"
+                ))
+            });
+        }
+
+        let (body, approximate) = match lower.as_bytes().last() {
+            Some(b'm') => (&lower[..lower.len() - 1], false),
+            Some(b'f') | Some(b'd') => (&lower[..lower.len() - 1], true),
+            _ => (lower.as_str(), false),
+        };
+
+        if !approximate && !body.is_empty() && body.bytes().all(|byte| byte.is_ascii_digit()) {
+            Self::validate_integer_literal_range(body)?;
+            return body
+                .parse::<i64>()
+                .map(Literal::Integer)
+                .map_err(|_| Self::parse_err(format!("Invalid integer literal '{trimmed}'")));
+        }
+
+        body.parse::<f64>()
+            .map(Literal::Float)
+            .map_err(|_| Self::parse_err(format!("Invalid numeric literal '{trimmed}'")))
     }
 
     /// Helper function to map a CompOpContext to the corresponding Operator enum variant, checking for each possible operator type in the context and returning the appropriate Operator. If the context does not match any recognized comparison operator, it returns a parse error indicating that the CST is not valid for a comparison operator.

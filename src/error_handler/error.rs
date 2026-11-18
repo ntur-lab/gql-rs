@@ -144,6 +144,23 @@ impl GqlError {
         }
     }
 
+    /// Creates a parse error for a syntactically valid construct that the current AST cannot
+    /// represent faithfully. The error carries [`GqlError::UNSUPPORTED_CONSTRUCT`] as its code.
+    pub fn unsupported_construct(message: impl Into<String>, span: Span) -> Self {
+        Self::Parse {
+            message: message.into(),
+            context: ErrorContext {
+                span: Some(span),
+                code: Some(Self::UNSUPPORTED_CONSTRUCT.to_string()),
+            },
+        }
+    }
+
+    /// Diagnostic code of builder errors raised for syntactically valid constructs that the
+    /// current AST cannot represent faithfully. Such constructs fail explicitly instead of being
+    /// replaced by raw text or string literals.
+    pub const UNSUPPORTED_CONSTRUCT: &'static str = "UNSUPPORTED_CONSTRUCT";
+
     /// Creates a new generic error with the given message.
     pub fn generic(message: impl Into<String>) -> Self {
         Self::Generic {

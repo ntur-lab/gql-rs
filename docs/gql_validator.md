@@ -23,7 +23,7 @@ Examples of checks:
 - structural validity of patterns and data operations.
 
 ## Entry Point
-Application code can call `QueryAST::validate()` on an existing AST. 
+Application code can call `QueryAST::validate()` on an existing AST.
 Both `gql_rs::analyze(query)` and `DefaultGQLQueryAnalyzer::exec(query)`invoke validation automatically; `gql_rs::parse(query)` does not.
 
 The internal validation entry point is:
@@ -141,7 +141,8 @@ Key functions:
 Covers:
 
 - binary/unary expressions;
-- function calls (including aggregates);
+- function calls (including aggregates), dispatched through the built-in function registry
+  (`builtins.rs`, see [builtin_functions.md](builtin_functions.md));
 - case/cast/predicates;
 - subqueries and call;
 - numeric or parameterized pagination values.
@@ -160,7 +161,7 @@ This prevents references to variables not introduced by the query plan.
 
 Semantic errors are returned as `GqlError::Validation`.
 
-`ErrorContext` contains an optional source span and an optional diagnostic code. 
+`ErrorContext` contains an optional source span and an optional diagnostic code.
 Constructors without position information use `span: None`; `validation_at()` stores the supplied span.
 
 Applications should inspect the variant and structured context instead of extracting positions from the human-readable message.

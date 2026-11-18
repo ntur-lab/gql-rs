@@ -20,6 +20,7 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
+mod builtins;
 mod common_tests;
 mod data;
 mod expression;

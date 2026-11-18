@@ -24,6 +24,8 @@
 #[path = "support.rs"]
 mod support;
 
+#[path = "builtin_functions_it.rs"]
+mod builtin_functions_it;
 #[path = "catalog_and_session_it.rs"]
 mod catalog_and_session_it;
 #[path = "data_modification_it.rs"]
@@ -40,6 +42,8 @@ mod set_operations_it;
 mod stateless_api;
 #[path = "string_literal_it.rs"]
 mod string_literal_it;
+#[path = "structural_expressions_it.rs"]
+mod structural_expressions_it;
 #[path = "syntax_errors_it.rs"]
 mod syntax_errors_it;
 #[path = "transactions_it.rs"]

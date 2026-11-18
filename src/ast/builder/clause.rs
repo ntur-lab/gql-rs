@@ -31,14 +31,8 @@ impl GQLAstBuilder {
             .aggregatingValueExpression()
             .ok_or_else(|| Self::parse_err("CST not valid: aggregatingValueExpression missing".into()))?;
 
-        let expression = aggregating_expression
-            .valueExpression()
-            .map(|expression| Self::build_expression_from_context(&expression))
-            .unwrap_or_else(|| {
-                Ok(Expression::Literal(Self::build_literal_from_leaf_text(
-                    &aggregating_expression.get_text(),
-                )?))
-            })?;
+        let expression =
+            Self::build_expression_from_aggregating_value_expression(&aggregating_expression)?;
 
         let alias = item_ctx.returnItemAlias().and_then(|alias_ctx| {
             alias_ctx
@@ -184,18 +178,16 @@ impl GQLAstBuilder {
         })
     }
 
-    /// Function to build an expression from an AggregatingValueExpressionContext, handling the case where it contains a ValueExpression and the case where it is just a literal (e.g. for ORDER BY 1)
+    /// Function to build an expression from an AggregatingValueExpressionContext, whose only grammar alternative is a ValueExpression (literals such as `ORDER BY 1` are value expressions too).
     pub(super) fn build_expression_from_aggregating_value_expression(
         aggregating_expression: &AggregatingValueExpressionContextAll,
     ) -> GqlResult<Expression> {
-        aggregating_expression
-            .valueExpression()
-            .map(|expression| Self::build_expression_from_context(&expression))
-            .unwrap_or_else(|| {
-                Ok(Expression::Literal(Self::build_literal_from_leaf_text(
-                    &aggregating_expression.get_text(),
-                )?))
-            })
+        let expression = aggregating_expression.valueExpression().ok_or_else(|| {
+            Self::parse_err(
+                "CST not valid: valueExpression missing in aggregatingValueExpression".into(),
+            )
+        })?;
+        Self::build_expression_from_context(&expression)
     }
 
     /// Function to build a LimitClause from an OrderByAndPageStatementContext, extracting the limit and offset specifications and building the corresponding PageValues.
