@@ -20,26 +20,31 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-// Reserved GQL keywords used by parser and semantic layers.
-pub mod keywords {
-    //pub const GRAPH: &str = "GRAPH";
-    pub const VALUE: &str = "VALUE";
-    pub const TABLE: &str = "TABLE";
-}
-
 // Built-in GQL function names used by builder and validator.
 pub mod function_names {
     pub const ABS: &str = "ABS";
+    pub const ACOS: &str = "ACOS";
     pub const ALL_DIFFERENT: &str = "ALL_DIFFERENT";
+    pub const ASIN: &str = "ASIN";
+    pub const ATAN: &str = "ATAN";
     pub const AVG: &str = "AVG";
+    pub const BTRIM: &str = "BTRIM";
+    pub const BYTE_LENGTH: &str = "BYTE_LENGTH";
+    pub const CARDINALITY: &str = "CARDINALITY";
     pub const CEIL: &str = "CEIL";
+    pub const CHAR_LENGTH: &str = "CHAR_LENGTH";
+    pub const CHARACTER_LENGTH: &str = "CHARACTER_LENGTH";
+    pub const COALESCE: &str = "COALESCE";
     pub const COLLECT_LIST: &str = "COLLECT_LIST";
-    pub const COLLECT_SET: &str = "COLLECT_SET";
+    pub const COS: &str = "COS";
+    pub const COSH: &str = "COSH";
+    pub const COT: &str = "COT";
     pub const COUNT: &str = "COUNT";
     pub const CURRENT_DATE: &str = "CURRENT_DATE";
     pub const CURRENT_TIME: &str = "CURRENT_TIME";
     pub const CURRENT_TIMESTAMP: &str = "CURRENT_TIMESTAMP";
     pub const DATE: &str = "DATE";
+    pub const DEGREES: &str = "DEGREES";
     pub const DURATION: &str = "DURATION";
     pub const DURATION_BETWEEN: &str = "DURATION_BETWEEN";
     pub const ELEMENT_ID: &str = "ELEMENT_ID";
@@ -51,32 +56,42 @@ pub mod function_names {
     pub const IS_LABELED: &str = "IS_LABELED";
     pub const IS_NORMALIZED: &str = "IS_NORMALIZED";
     pub const IS_SOURCE_OF: &str = "IS_SOURCE_OF";
+    pub const LEFT: &str = "LEFT";
     pub const LN: &str = "LN";
+    pub const LOCAL_DATETIME: &str = "LOCAL_DATETIME";
     pub const LOCAL_TIME: &str = "LOCAL_TIME";
+    pub const LOCAL_TIMESTAMP: &str = "LOCAL_TIMESTAMP";
     pub const LOG: &str = "LOG";
     pub const LOG10: &str = "LOG10";
+    pub const LOWER: &str = "LOWER";
+    pub const LTRIM: &str = "LTRIM";
     pub const MAX: &str = "MAX";
     pub const MIN: &str = "MIN";
     pub const MOD: &str = "MOD";
     pub const NORMALIZE: &str = "NORMALIZE";
+    pub const NULLIF: &str = "NULLIF";
+    pub const OCTET_LENGTH: &str = "OCTET_LENGTH";
     pub const PATH_LENGTH: &str = "PATH_LENGTH";
+    pub const PERCENTILE_CONT: &str = "PERCENTILE_CONT";
+    pub const PERCENTILE_DISC: &str = "PERCENTILE_DISC";
     pub const POWER: &str = "POWER";
     pub const PROPERTY_EXISTS: &str = "PROPERTY_EXISTS";
+    pub const RADIANS: &str = "RADIANS";
+    pub const RIGHT: &str = "RIGHT";
+    pub const RTRIM: &str = "RTRIM";
     pub const SAME: &str = "SAME";
+    pub const SESSION_USER: &str = "SESSION_USER";
+    pub const SIN: &str = "SIN";
+    pub const SINH: &str = "SINH";
+    pub const SIZE: &str = "SIZE";
     pub const SQRT: &str = "SQRT";
+    pub const STDDEV_POP: &str = "STDDEV_POP";
+    pub const STDDEV_SAMP: &str = "STDDEV_SAMP";
     pub const SUM: &str = "SUM";
+    pub const TAN: &str = "TAN";
+    pub const TANH: &str = "TANH";
     pub const TRIM: &str = "TRIM";
+    pub const UPPER: &str = "UPPER";
     pub const ZONED_DATETIME: &str = "ZONED_DATETIME";
     pub const ZONED_TIME: &str = "ZONED_TIME";
 }
-
-// Aggregate function names for quick semantic checks.
-pub const AGGREGATE_FUNCTIONS: [&str; 7] = [
-    function_names::COUNT,
-    function_names::SUM,
-    function_names::AVG,
-    function_names::MIN,
-    function_names::MAX,
-    function_names::COLLECT_LIST,
-    function_names::COLLECT_SET,
-];

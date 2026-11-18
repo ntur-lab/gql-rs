@@ -1,0 +1,2 @@
+MATCH (n:Item)
+RETURN FLOOR(n.price * 1.2 + 1) AS rounded, LEFT(n.name, 3 + 1) AS prefix, LOCAL_TIME('12:30:00.5') AS opening, DATE '2024-01-31' AS since, 0x1F AS mask

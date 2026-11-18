@@ -86,52 +86,11 @@ pub(super) fn validate_expression_with_types(
             }
         }
         Expression::FunctionCall(function_call) => {
-            let name = function_call.name.to_uppercase();
-
             if function_call.name.trim().is_empty() {
                 return Err(validation_err(
                     "Function name cannot be empty".to_string(),
                     Some(&function_call.span.clone()),
                 ));
-            }
-
-            if name == "ELEMENT_ID" {
-                if function_call.arguments.len() != 1 {
-                    return Err(validation_err(
-                        "ELEMENT_ID requires exactly one argument".to_string(),
-                        Some(&function_call.span.clone()),
-                    ));
-                } else if let Some(Expression::Variable { name: var, span }) = function_call.arguments.first()
-                    && !declared_variables.contains(var.as_str())
-                {
-                    return Err(validation_err(
-                        format!("ELEMENT_ID argument '{}' is not a declared variable", var),
-                        Some(&span.clone()),
-                    ));
-                }
-            }
-
-            if name == "LEFT" || name == "RIGHT" {
-                if function_call.arguments.len() != 2 {
-                    return Err(validation_err(
-                        format!("{} requires exactly two arguments", name),
-                        Some(&function_call.span.clone()),
-                    ));
-                }
-
-                let len_arg = &function_call.arguments[1];
-                let ok_len = match len_arg {
-                    Expression::Literal(Literal::Integer(v)) => *v >= 0,
-                    Expression::Variable { name: v, span: _ } => v.parse::<i64>().map(|n| n >= 0).unwrap_or(false),
-                    _ => false,
-                };
-
-                if !ok_len {
-                    return Err(validation_err(
-                        format!("{} second argument must be a non-negative integer", name),
-                        Some(&function_call.span.clone()),
-                    ));
-                }
             }
 
             validate_function_call_signature(function_call, declared_variables, inferred_types)?;
@@ -375,177 +334,18 @@ pub(super) fn validate_is_predicate_types(
     Ok(())
 }
 
-/// Function to validate a function call signature, ensuring that the arguments provided are of the correct types for the function being called. This function checks the inferred types of the arguments and validates them against the expected types for the specific function, such as ensuring that string functions are applied to string-like types and numeric functions are applied to numeric types.
+/// Function to validate a function call signature. Calls to registered built-in functions are dispatched to the built-in registry, which checks argument counts, set quantifiers, function-specific restrictions, argument types where they are known, and nested aggregates. Names that are not registered are user-defined functions: their arguments are validated by the caller and no signature is enforced.
 pub(super) fn validate_function_call_signature(
     function_call: &FunctionCall,
     declared_variables: &HashSet<String>,
     inferred_types: &HashMap<String, TypeSpec>,
 ) -> Result<(), GqlError> {
-    let name = function_call.name.to_ascii_uppercase();
-
-    if is_aggregate_function_name(name.as_str()) && function_call.arguments.iter().any(contains_aggregate_function) {
-        return Err(validation_err(
-            format!(
-                "Aggregate function '{}' cannot contain nested aggregate expressions",
-                function_call.name
-            ),
-            Some(&function_call.span.clone()),
-        ));
+    match lookup_builtin(&function_call.name) {
+        Some(entry) => {
+            validate_builtin_call(entry, function_call, declared_variables, inferred_types)
+        }
+        None => Ok(()),
     }
-
-    let arg_type = |idx: usize| {
-        function_call
-            .arguments
-            .get(idx)
-            .and_then(|arg| infer_expression_type(arg, inferred_types, Some(declared_variables)))
-    };
-
-    match name.as_str() {
-        "LOWER" | "UPPER" => {
-            if function_call.arguments.len() != 1 {
-                return Err(validation_err(
-                    format!("{} requires exactly one argument", name),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-            if let Some(t) = arg_type(0)
-                && !is_string_like_type(&t)
-                && !matches!(t, TypeSpec::Any)
-            {
-                return Err(validation_err(
-                    format!("{} requires a string-like argument", name),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-        }
-        "TRIM" => {
-            if !(1..=3).contains(&function_call.arguments.len()) {
-                return Err(validation_err(
-                    "TRIM requires one, two, or three arguments".to_string(),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-        }
-        "SUM" | "AVG" => {
-            if function_call.arguments.len() != 1 {
-                return Err(validation_err(
-                    format!("{} requires exactly one argument", name),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-            if let Some(t) = arg_type(0)
-                && !is_numeric_type(&t)
-                && !matches!(t, TypeSpec::Any)
-            {
-                return Err(validation_err(
-                    format!("{} requires a numeric argument", name),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-        }
-        "SIZE" | "CARDINALITY" => {
-            if function_call.arguments.len() != 1 {
-                return Err(validation_err(
-                    format!("{} requires exactly one argument", name),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-            if let Some(t) = arg_type(0) {
-                let ok = is_string_like_type(&t)
-                    || matches!(
-                        t,
-                        TypeSpec::List { .. } | TypeSpec::Path | TypeSpec::BindingTable | TypeSpec::Any
-                    );
-                if !ok {
-                    return Err(validation_err(
-                        format!("{} requires list/string/path argument", name),
-                        Some(&function_call.span.clone()),
-                    ));
-                }
-            }
-        }
-        "COUNT" => {
-            if function_call.arguments.len() != 1 {
-                return Err(validation_err(
-                    "COUNT requires exactly one argument".to_string(),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-        }
-        "COALESCE" => {
-            if function_call.arguments.is_empty() {
-                return Err(validation_err(
-                    "COALESCE requires at least one argument".to_string(),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-
-            let mut acc: Option<TypeSpec> = None;
-            for arg in &function_call.arguments {
-                let Some(t) = infer_expression_type(arg, inferred_types, Some(declared_variables)) else {
-                    continue;
-                };
-
-                if let Some(prev) = &acc
-                    && !are_comparison_types_compatible(prev, &t)
-                    && !matches!(prev, TypeSpec::Any)
-                    && !matches!(t, TypeSpec::Any)
-                {
-                    return Err(validation_err(
-                        "COALESCE arguments must be mutually compatible".to_string(),
-                        Some(&function_call.span.clone()),
-                    ));
-                }
-
-                acc = Some(t);
-            }
-        }
-        "DATE" => {
-            if function_call.arguments.len() > 1 {
-                return Err(validation_err(
-                    "DATE accepts at most one argument".to_string(),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-        }
-        "CURRENT_DATE" | "CURRENT_TIME" | "CURRENT_TIMESTAMP" => {
-            if !function_call.arguments.is_empty() {
-                return Err(validation_err(
-                    format!("{} does not accept arguments", name),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-        }
-        "LOCAL_TIME" | "LOCAL_DATETIME" | "ZONED_TIME" | "ZONED_DATETIME" => {
-            if function_call.arguments.len() > 1 {
-                return Err(validation_err(
-                    format!("{} accepts at most one argument", name),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-        }
-        "DURATION_BETWEEN" => {
-            if function_call.arguments.len() != 2 {
-                return Err(validation_err(
-                    "DURATION_BETWEEN requires exactly two arguments".to_string(),
-                    Some(&function_call.span.clone()),
-                ));
-            }
-
-            if let (Some(left), Some(right)) = (arg_type(0), arg_type(1)) {
-                let temporal_ok = is_temporal_like_type(&left) && is_temporal_like_type(&right);
-                if !temporal_ok && !matches!(left, TypeSpec::Any) && !matches!(right, TypeSpec::Any) {
-                    return Err(validation_err(
-                        "DURATION_BETWEEN requires temporal-compatible arguments".to_string(),
-                        Some(&function_call.span.clone()),
-                    ));
-                }
-            }
-        }
-        _ => {}
-    }
-
-    Ok(())
 }
 
 /// Function to validate a scalar subquery projection, ensuring that the subquery returns exactly one column and is not an EXISTS subquery. This function checks the structure of the subquery's result statement to determine its arity and validates it against the requirements for scalar subqueries, which must return a single value.
@@ -573,7 +373,7 @@ pub(super) fn validate_scalar_subquery_projection(subquery: &SubqueryExpression)
 
 /// Helper functions to check for aggregate functions within expressions, validate operator types, and determine type compatibility. These functions are used to enforce semantic rules related to aggregates, operator usage, and type constraints within expressions in various contexts throughout the query validation process.
 pub(super) fn is_aggregate_function_name(name: &str) -> bool {
-    AGGREGATE_FUNCTIONS.contains(&name)
+    is_builtin_aggregate(name)
 }
 
 /// Helper function to recursively check if an expression contains any aggregate function calls, which is used to enforce the rule that aggregate functions cannot be nested within other aggregate functions. This function traverses the expression tree and checks for any occurrences of aggregate function calls, returning true if any are found.
@@ -595,14 +395,14 @@ pub(super) fn contains_aggregate_function(expression: &Expression) -> bool {
                 CaseType::Simple(simple) => {
                     contains_aggregate_function(&simple.test_expression)
                         || simple.when_branches.iter().any(|b| {
-                            b.when_values.iter().any(contains_aggregate_function)
-                                || contains_aggregate_function(&b.then_expression)
-                        })
+                        b.when_values.iter().any(contains_aggregate_function)
+                            || contains_aggregate_function(&b.then_expression)
+                    })
                         || simple
-                            .else_expression
-                            .as_ref()
-                            .map(|e| contains_aggregate_function(e))
-                            .unwrap_or(false)
+                        .else_expression
+                        .as_ref()
+                        .map(|e| contains_aggregate_function(e))
+                        .unwrap_or(false)
                 }
                 CaseType::Searched(searched) => {
                     searched.when_branches.iter().any(|b| {
@@ -1061,71 +861,14 @@ pub(super) fn infer_case_type(
     }
 }
 
-/// Helper function to infer the return type of a function call based on its name and the types of its arguments. This function contains specific logic for built-in functions, determining their return types according to their semantics (e.g., COUNT returns INTEGER, AVG returns FLOAT, etc.), and falls back to None for functions that cannot be inferred statically.
+/// Helper function to infer the return type of a function call. Built-in functions use the return rule recorded in the built-in registry; user-defined functions have an unknown return type.
 pub(super) fn infer_function_call_type(
     function_call: &FunctionCall,
     inferred_types: &HashMap<String, TypeSpec>,
     declared_variables: Option<&HashSet<String>>,
 ) -> Option<TypeSpec> {
-    let name = function_call.name.to_ascii_uppercase();
-
-    if name == fn_names::COUNT || name == fn_names::PATH_LENGTH || name == "CARDINALITY" || name == "SIZE" {
-        return Some(TypeSpec::Integer);
-    }
-
-    if name == fn_names::AVG {
-        return Some(TypeSpec::Float { precision: None });
-    }
-
-    if name == fn_names::SUM || name == fn_names::MIN || name == fn_names::MAX {
-        return function_call
-            .arguments
-            .first()
-            .and_then(|arg| infer_expression_type(arg, inferred_types, declared_variables));
-    }
-
-    if name == fn_names::ELEMENT_ID
-        || name == "LOWER"
-        || name == "UPPER"
-        || name == fn_names::TRIM
-        || name == "LEFT"
-        || name == "RIGHT"
-        || name == fn_names::NORMALIZE
-    {
-        return Some(TypeSpec::String { max_length: None });
-    }
-
-    if name == fn_names::CURRENT_DATE || name == fn_names::DATE {
-        return Some(TypeSpec::Date);
-    }
-
-    if name == fn_names::CURRENT_TIME || name == fn_names::LOCAL_TIME || name == "ZONED_TIME" {
-        return Some(TypeSpec::LocalTime { precision: None });
-    }
-
-    if name == fn_names::CURRENT_TIMESTAMP
-        || name == "LOCAL_TIMESTAMP"
-        || name == "LOCAL_DATETIME"
-        || name == fn_names::ZONED_DATETIME
-    {
-        return Some(TypeSpec::LocalDateTime { precision: None });
-    }
-
-    if name == fn_names::DURATION || name == fn_names::DURATION_BETWEEN {
-        return Some(TypeSpec::Duration {
-            precision: None,
-            qualifier: None,
-        });
-    }
-
-    if name == fn_names::ELEMENTS || name == fn_names::COLLECT_LIST || name == fn_names::COLLECT_SET {
-        return Some(TypeSpec::List {
-            element_type: Box::new(TypeSpec::Any),
-            max_length: None,
-        });
-    }
-
-    None
+    let entry = lookup_builtin(&function_call.name)?;
+    infer_builtin_return_type(entry, function_call, inferred_types, declared_variables)
 }
 
 /// Helper function to determine the type of a literal value, which is used to infer the types of expressions that are literals. This function maps each variant of the Literal enum to a corresponding TypeSpec, allowing the validator to understand the types of literal expressions and use that information for type checking and inference in larger expressions.
@@ -1307,14 +1050,14 @@ pub(super) fn contains_dynamic_parameter_reference(expression: &Expression) -> b
             CaseType::Simple(simple_case) => {
                 contains_dynamic_parameter_reference(&simple_case.test_expression)
                     || simple_case.when_branches.iter().any(|branch| {
-                        branch.when_values.iter().any(contains_dynamic_parameter_reference)
-                            || contains_dynamic_parameter_reference(&branch.then_expression)
-                    })
+                    branch.when_values.iter().any(contains_dynamic_parameter_reference)
+                        || contains_dynamic_parameter_reference(&branch.then_expression)
+                })
                     || simple_case
-                        .else_expression
-                        .as_ref()
-                        .map(|expr| contains_dynamic_parameter_reference(expr))
-                        .unwrap_or(false)
+                    .else_expression
+                    .as_ref()
+                    .map(|expr| contains_dynamic_parameter_reference(expr))
+                    .unwrap_or(false)
             }
             CaseType::Searched(searched_case) => {
                 searched_case.when_branches.iter().any(|branch| {
@@ -1558,7 +1301,10 @@ pub(super) fn validate_call_clause(
         ));
     }
 
-    if !declared_variables.is_empty() {
+    // Inline CALL arguments are the variable scope clause, validated above. Named CALL
+    // arguments are ordinary expressions and are validated against the current scope even
+    // when it is empty, so unbound variable references are reported.
+    if call_clause.procedure_name != "__INLINE_CALL__" {
         for arg in &call_clause.arguments {
             validate_expression(arg, declared_variables)?;
         }

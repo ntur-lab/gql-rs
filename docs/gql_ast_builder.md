@@ -131,12 +131,23 @@ Key functions:
 - `build_primary_expression_from_context`
 - `build_case_expression_from_context`
 - `build_cast_expression_from_context`
+- `build_expression_from_numeric_value_expression`
+- `build_value_function_from_context` and the per-family function builders
 - `build_function_call_from_aggregate_context`
 - `build_property_access_from_context`
-- `build_literal_from_context` / `build_literal_from_leaf_text`
+- `build_expression_from_unsigned_value_specification` / `build_literal_from_context`
+- `decode_unsigned_numeric_literal` / `decode_character_string_literal`
 - `operator_from_context`
 
 This is typically the largest section because it covers many grammar productions.
+
+Expressions are always built recursively from their CST. Built-in function arguments that
+the grammar keeps in dedicated rules (`numericValueExpression`, `pathValueExpression`,
+temporal string and record parameters, ...) are built structurally as well, so operators,
+nested function calls, variable references and spans are preserved. Token text is only
+used to decode a literal or an identifier; it is never a substitute for a missing structural
+representation. Built-in function names are canonical upper-case names registered in
+[builtin_functions.md](builtin_functions.md).
 
 ## TypeSpec and Cast
 
@@ -157,10 +168,16 @@ Final utilities:
 
 - `parse_err`
 - `parse_error`
+- `unsupported_construct`
 
 Pattern used:
 
 - structural CST errors -> `GqlError::Parse`
+- syntactically valid constructs without a faithful AST representation -> `GqlError::Parse`
+  with code `GqlError::UNSUPPORTED_CONSTRUCT`, naming the construct and the follow-up work
+  that tracks it (see [builtin_functions.md](builtin_functions.md#expressions-that-fail-explicitly));
+- construction errors of nested expressions (function and CALL arguments, LET definitions)
+  are propagated, never replaced by text or string literals;
 - explicit contextual messages to simplify grammar-to-AST mapping debugging.
 
 The public parsing pipeline checks collected lexer and parser diagnostics before invoking the builder.

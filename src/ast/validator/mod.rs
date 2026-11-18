@@ -21,11 +21,12 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 use crate::ast::model::*;
-use crate::constants::{AGGREGATE_FUNCTIONS, function_names as fn_names};
+use crate::constants::function_names as fn_names;
 use crate::error_handler::error::GqlError;
 use std::collections::{HashMap, HashSet};
 
 // Internal crate modules.
+pub(crate) mod builtins;
 mod data;
 mod expression;
 mod query;
@@ -33,6 +34,7 @@ mod statements;
 #[cfg(test)]
 mod tests;
 
+use builtins::*;
 use data::*;
 use expression::*;
 use query::*;

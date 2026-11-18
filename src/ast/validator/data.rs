@@ -519,8 +519,7 @@ pub(super) fn validate_set_item(item: &SetItem, declared_variables: &mut HashSet
 pub(super) fn check_no_aggregates_in_where(expression: &Expression) -> Result<(), GqlError> {
     match expression {
         Expression::FunctionCall(func) => {
-            let name = func.name.to_uppercase();
-            if AGGREGATE_FUNCTIONS.contains(&name.as_str()) {
+            if is_builtin_aggregate(&func.name) {
                 return Err(validation_err(
                     format!("Aggregate function '{}' is not allowed in a WHERE clause.", func.name),
                     Some(&func.span.clone()),

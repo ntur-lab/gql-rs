@@ -24,7 +24,6 @@ use super::model::*;
 use crate::antlr::gqlparser::*;
 use crate::ast::model::Span;
 use crate::constants::function_names as fn_names;
-use crate::constants::keywords as kw;
 use crate::error_handler::error::GqlError;
 use crate::types::GqlResult;
 use antlr_rust::parser_rule_context::ParserRuleContext;
@@ -312,5 +311,22 @@ impl GQLAstBuilder {
     /// Helper function returning parse errors in Result<T, GqlError> form.
     pub(super) fn parse_error<T>(message: impl Into<String>) -> GqlResult<T> {
         Err(Self::parse_err(message.into()))
+    }
+
+    /// Rejects a syntactically valid construct that the current public AST cannot represent
+    /// faithfully. `construct` names the construct, `tracking` names the follow-up work that will
+    /// introduce its structural representation. Builders must use this instead of substituting
+    /// raw source text or string literals for the missing representation.
+    pub(super) fn unsupported_construct<T>(
+        construct: &str,
+        tracking: &str,
+        span: Span,
+    ) -> GqlResult<T> {
+        Err(GqlError::unsupported_construct(
+            format!(
+                "Unsupported construct: {construct} cannot be represented faithfully by the current AST (tracked by {tracking})"
+            ),
+            span,
+        ))
     }
 }

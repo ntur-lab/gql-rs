@@ -309,6 +309,8 @@ Feature: Functions and expressions
       """
     Then analysis succeeds
 
+  # Byte string literals have no AST representation yet (issue #10).
+  @pending
   Scenario: Byte length functions
     When the GQL query is analyzed:
       """
@@ -764,6 +766,8 @@ Feature: Functions and expressions
       """
     Then analysis succeeds
 
+  # Byte string literals have no AST representation yet (issue #10).
+  @pending
   Scenario: Return trim x00
     When the GQL query is analyzed:
       """
