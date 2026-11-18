@@ -14,6 +14,9 @@
 
 ---
 
+## Overview
+
+`gql-rs` is a standalone, memory-safe Rust library implementing the **ISO/IEC 39075** Graph Query Language (GQL) front-end pipeline. Being the very first brick of **[AUREA Data Stack](https://ntur-lab.com/aurea)**, it provides a zero-execution-overhead foundation for any Rust project needing compliant GQL lexing, typed AST construction, and static semantic analysis.
 
 ## Features
 
