@@ -171,13 +171,24 @@ pub struct MatchDeleteStatement {
     pub span: Span,
 }
 
-/// Represents the DELETE payload (target expressions and DETACH flag).
+/// Represents the modifier applied to a DELETE statement.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum DeleteMode {
+    /// No explicit modifier was present in the source.
+    Unspecified,
+    /// DETACH DELETE was requested.
+    Detach,
+    /// NODETACH DELETE was requested.
+    NoDetach,
+}
+
+/// Represents the DELETE payload (target expressions and delete mode).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeleteClause {
     /// Expressions identifying values to delete.
     pub expressions: Vec<Expression>,
-    /// True when DETACH is requested.
-    pub detach: bool,
+    /// Modifier explicitly provided for the DELETE operation.
+    pub mode: DeleteMode,
     /// Source range covered by this AST node.
     pub span: Span,
 }

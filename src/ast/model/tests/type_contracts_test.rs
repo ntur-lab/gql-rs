@@ -99,6 +99,7 @@ fn data_statement_types_implement_the_model_contract() {
         RemoveItem,
         MatchDeleteStatement,
         DeleteClause,
+        DeleteMode,
         DeleteStatement,
         NextStatement,
         YieldClause,

@@ -20,7 +20,7 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-use gql_rs::ast::{DataStatement, PatternElement, Statement, TransactionIntent};
+use gql_rs::ast::{DataStatement, DeleteMode, PatternElement, Statement, TransactionIntent};
 use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer};
 
 #[test]
@@ -129,4 +129,48 @@ fn matched_insert_preserves_input_pagination_and_explicit_next() {
         panic!("expected matched INSERT");
     };
     assert!(matches!(input.target_statement.as_ref(), Statement::Next(_)));
+}
+
+#[test]
+fn delete_modes_are_preserved_for_standalone_and_pipeline_statements() {
+    for (modifier, expected_mode) in [
+        ("", DeleteMode::Unspecified),
+        ("DETACH ", DeleteMode::Detach),
+        ("NODETACH ", DeleteMode::NoDetach),
+    ] {
+        let standalone = gql_rs::parse(&format!("{modifier}DELETE n")).unwrap();
+        let Statement::Data(DataStatement::Delete(delete)) = &standalone.statement else {
+            panic!("expected standalone DELETE for modifier {modifier:?}");
+        };
+        assert_eq!(delete.delete_clause.mode, expected_mode);
+        assert_eq!(standalone.transaction_intent(), TransactionIntent::DataWrite);
+
+        let pipeline = gql_rs::analyze(&format!("MATCH (n) {modifier}DELETE n")).unwrap();
+        let Statement::Data(DataStatement::MatchDelete(delete)) = &pipeline.statement else {
+            panic!("expected MATCH ... DELETE for modifier {modifier:?}");
+        };
+        assert_eq!(delete.delete_clause.mode, expected_mode);
+        assert_eq!(pipeline.transaction_intent(), TransactionIntent::DataWrite);
+    }
+}
+
+#[test]
+fn delete_mode_serializes_as_an_explicit_enum() {
+    for (query, expected_mode) in [
+        ("DELETE n", "Unspecified"),
+        ("DETACH DELETE n", "Detach"),
+        ("NODETACH DELETE n", "NoDetach"),
+    ] {
+        let ast = gql_rs::parse(query).unwrap();
+        let serialized = serde_json::to_value(ast).unwrap();
+        assert_eq!(
+            serialized["statement"]["Data"]["Delete"]["delete_clause"]["mode"],
+            expected_mode
+        );
+        assert!(
+            serialized["statement"]["Data"]["Delete"]["delete_clause"]
+                .get("detach")
+                .is_none()
+        );
+    }
 }
