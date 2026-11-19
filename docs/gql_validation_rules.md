@@ -94,6 +94,12 @@ Node/Edge/PropertyMap:
 - `LET` must contain at least one variable definition.
 - Variable name must be non-empty.
 - Duplicate names in the same `LET` clause are forbidden.
+- `LET VALUE x :: T = expr` (also in inline `LET ... IN ... END`): the initializer must be
+  assignable to `T`. Numeric types are interchangeable (range checks happen at runtime),
+  datetime types are interchangeable with each other, lists are checked on their element type
+  and other types must belong to the same family. A `NOT NULL` type cannot be initialized with
+  `NULL`. Inside an inline `LET`, the declared type is the variable's type for the rest of the
+  expression.
 
 ### FILTER/HAVING
 
@@ -236,7 +242,16 @@ type is unknown.
 
 - `CAST` validates source expression.
 - Typed LIST cast with dynamic parameters cannot be statically validated: error.
-- Source-to-target conversion must be compatible according to is_cast_compatible matrix.
+- Source-to-target conversion must be compatible according to is_cast_compatible matrix,
+  evaluated on the base type of the target `ValueType`.
+- `CAST(NULL AS T NOT NULL)` is rejected.
+- Only unknown values can be cast to `NULL` or `NOTHING`; `PROPERTY VALUE` accepts any source.
+- A `NULL`-typed source (for example `CAST(NULL AS NULL)`) can be cast to any nullable type and
+  is rejected, like the `NULL` literal, when the target is `NOT NULL`.
+- Types of the same family with different parameters (lengths, fields, closed reference
+  descriptions) are compatible; the parameters are checked at runtime.
+- Invalid type parameters are rejected earlier, by the builder (`INVALID_TYPE_PARAMETER`,
+  see [gql_ast_builder.md](gql_ast_builder.md)).
 
 ### Array
 

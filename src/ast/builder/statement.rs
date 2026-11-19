@@ -699,7 +699,7 @@ impl GQLAstBuilder {
                 typed: cst.typed().is_some(),
                 property_graph_keyword: cst.PROPERTY().is_some(),
                 graph_keyword: cst.GRAPH().is_some(),
-                nested_graph_type_specification: Self::build_nested_graph_type_specification(&nested_ctx),
+                nested_graph_type_specification: Self::build_nested_graph_type_specification(&nested_ctx)?,
             }));
         }
 
@@ -732,7 +732,7 @@ impl GQLAstBuilder {
         if let Some(nested_ctx) = cst.nestedGraphTypeSpecification() {
             return Ok(GraphTypeSourceClause::NestedSpecification {
                 with_as_keyword: cst.AS().is_some(),
-                nested_graph_type_specification: Self::build_nested_graph_type_specification(&nested_ctx),
+                nested_graph_type_specification: Self::build_nested_graph_type_specification(&nested_ctx)?,
             });
         }
 
@@ -742,7 +742,7 @@ impl GQLAstBuilder {
     /// Builds a NestedGraphTypeSpecification from a NestedGraphTypeSpecificationContext, extracting the list of element type specifications (nodes and edges) from the CST and constructing the corresponding AST nodes for each element type. It performs validation to ensure that the expected structure of the CST is present and returns an empty specification if no element type specifications are found.
     pub(super) fn build_nested_graph_type_specification(
         cst: &NestedGraphTypeSpecificationContextAll,
-    ) -> NestedGraphTypeSpecification {
+    ) -> GqlResult<NestedGraphTypeSpecification> {
         let element_type_specifications = cst
             .graphTypeSpecificationBody()
             .and_then(|body| body.elementTypeList())
@@ -751,48 +751,54 @@ impl GQLAstBuilder {
                     .iter()
                     .filter_map(|element| {
                         if let Some(node_spec) = element.nodeTypeSpecification() {
-                            return Some(ElementTypeSpecification::Node(NodeTypeSpecification {
-                                text: node_spec.get_text(),
-                                local_alias: Self::extract_local_node_type_alias(&node_spec),
-                                type_name: Self::extract_node_type_name(&node_spec),
-                                property_types: Self::extract_property_types_from_node_spec(&node_spec),
+                            return Some(Self::extract_property_types_from_node_spec(&node_spec).map(|property_types| {
+                                ElementTypeSpecification::Node(NodeTypeSpecification {
+                                    text: node_spec.get_text(),
+                                    local_alias: Self::extract_local_node_type_alias(&node_spec),
+                                    type_name: Self::extract_node_type_name(&node_spec),
+                                    property_types,
+                                })
                             }));
                         }
 
                         element.edgeTypeSpecification().map(|edge_spec| {
-                            ElementTypeSpecification::Edge(EdgeTypeSpecification {
-                                text: edge_spec.get_text(),
-                                type_name: Self::extract_edge_type_name(&edge_spec),
-                                source_alias: Self::extract_source_node_alias(&edge_spec),
-                                destination_alias: Self::extract_destination_node_alias(&edge_spec),
-                                directed: Self::extract_edge_directed_flag(&edge_spec),
-                                property_types: Self::extract_property_types_from_edge_spec(&edge_spec),
+                            Self::extract_property_types_from_edge_spec(&edge_spec).map(|property_types| {
+                                ElementTypeSpecification::Edge(EdgeTypeSpecification {
+                                    text: edge_spec.get_text(),
+                                    type_name: Self::extract_edge_type_name(&edge_spec),
+                                    source_alias: Self::extract_source_node_alias(&edge_spec),
+                                    destination_alias: Self::extract_destination_node_alias(&edge_spec),
+                                    directed: Self::extract_edge_directed_flag(&edge_spec),
+                                    property_types,
+                                })
                             })
                         })
                     })
-                    .collect::<Vec<_>>()
+                    .collect::<GqlResult<Vec<_>>>()
             })
+            .transpose()?
             .unwrap_or_default();
 
-        NestedGraphTypeSpecification {
+        Ok(NestedGraphTypeSpecification {
             element_type_specifications,
-        }
+        })
     }
 
     /// Helper function to extract property type specifications from a NodeTypeSpecificationContext, checking for the presence of specific CST patterns that correspond to property type specifications in both node type patterns and phrases, and constructing the corresponding PropertyTypesSpecification AST node if a match is found. It returns None if no property type specification is identified in the CST.
     pub(super) fn extract_property_types_from_node_spec(
         cst: &NodeTypeSpecificationContextAll,
-    ) -> Option<PropertyTypesSpecification> {
+    ) -> GqlResult<Option<PropertyTypesSpecification>> {
         let from_pattern = cst
             .nodeTypePattern()
             .and_then(|pattern| pattern.nodeTypeFiller())
             .and_then(|filler| filler.nodeTypeImpliedContent())
             .and_then(|content| content.nodeTypePropertyTypes())
             .and_then(|prop| prop.propertyTypesSpecification())
-            .map(|spec| Self::build_property_types_specification(&spec));
+            .map(|spec| Self::build_property_types_specification(&spec))
+            .transpose()?;
 
         if from_pattern.is_some() {
-            return from_pattern;
+            return Ok(from_pattern);
         }
 
         cst.nodeTypePhrase()
@@ -802,12 +808,13 @@ impl GQLAstBuilder {
             .and_then(|content| content.nodeTypePropertyTypes())
             .and_then(|prop| prop.propertyTypesSpecification())
             .map(|spec| Self::build_property_types_specification(&spec))
+            .transpose()
     }
 
     /// Helper function to extract property type specifications from an EdgeTypeSpecificationContext, checking for the presence of specific CST patterns that correspond to property type specifications in both edge type patterns and phrases, and constructing the corresponding PropertyTypesSpecification AST node if a match is found. It returns None if no property type specification is identified in the CST.
     pub(super) fn extract_property_types_from_edge_spec(
         cst: &EdgeTypeSpecificationContextAll,
-    ) -> Option<PropertyTypesSpecification> {
+    ) -> GqlResult<Option<PropertyTypesSpecification>> {
         let from_phrase = cst
             .edgeTypePhrase()
             .and_then(|phrase| phrase.edgeTypePhraseFiller())
@@ -815,13 +822,14 @@ impl GQLAstBuilder {
             .and_then(|filler| filler.edgeTypeImpliedContent())
             .and_then(|content| content.edgeTypePropertyTypes())
             .and_then(|prop| prop.propertyTypesSpecification())
-            .map(|spec| Self::build_property_types_specification(&spec));
+            .map(|spec| Self::build_property_types_specification(&spec))
+            .transpose()?;
 
         if from_phrase.is_some() {
-            return from_phrase;
+            return Ok(from_phrase);
         }
 
-        Self::extract_property_types_specification_from_text(&cst.get_text())
+        Ok(Self::extract_property_types_specification_from_text(&cst.get_text()))
     }
 
     /// Helper function to extract a local node type alias from a NodeTypeSpecificationContext, checking for the presence of specific CST patterns that correspond to local node type aliases in both node type patterns and phrases, and returning the alias text if a match is found. It returns None if no local node type alias is identified in the CST.
@@ -1017,7 +1025,7 @@ impl GQLAstBuilder {
     /// Builds a PropertyTypesSpecification from a PropertyTypesSpecificationContext, extracting the list of property type specifications from the CST and constructing the corresponding AST nodes for each property. It performs validation to ensure that the expected structure of the CST is present and returns an empty specification if no property type specifications are found.
     pub(super) fn build_property_types_specification(
         cst: &PropertyTypesSpecificationContextAll,
-    ) -> PropertyTypesSpecification {
+    ) -> GqlResult<PropertyTypesSpecification> {
         let span = Self::extract_span(cst);
 
         let properties = cst
@@ -1029,9 +1037,10 @@ impl GQLAstBuilder {
                         let parsed_value_type = property
                             .propertyValueType()
                             .and_then(|value| value.valueType())
-                            .and_then(|value_type| Self::build_type_spec_from_value_type(&value_type).ok());
+                            .map(|value_type| Self::build_value_type(&value_type))
+                            .transpose()?;
 
-                        PropertyTypeSpecification {
+                        Ok(PropertyTypeSpecification {
                             name: property
                                 .propertyName()
                                 .map(|name| Self::identifier_text(&name.get_text()))
@@ -1043,13 +1052,14 @@ impl GQLAstBuilder {
                                 .unwrap_or_default(),
                             parsed_value_type,
                             span: span.clone(),
-                        }
+                        })
                     })
-                    .collect::<Vec<_>>()
+                    .collect::<GqlResult<Vec<_>>>()
             })
+            .transpose()?
             .unwrap_or_default();
 
-        PropertyTypesSpecification { properties }
+        Ok(PropertyTypesSpecification { properties })
     }
 
     /// Builds a GraphExpressionClause from a GraphExpressionContext, determining the specific kind of graph expression based on the presence of certain components in the CST (e.g., graph reference, object expression primary, object name or binding variable) and extracting the relevant text to construct the corresponding AST node. It performs validation to ensure that the expected structure of the CST is present for each kind of graph expression and returns an error if the structure is not as expected.
@@ -1805,6 +1815,7 @@ impl GQLAstBuilder {
             return Ok(VariableDefinition {
                 variable_name,
                 expression,
+                declared_type: None,
                 span: span.clone(),
             });
         }
@@ -1815,17 +1826,24 @@ impl GQLAstBuilder {
                 .ok_or_else(|| Self::parse_err("Expected bindingVariable in VALUE definition".to_string()))?
                 .get_text();
 
-            let value_expr = value_def
+            let initializer = value_def
                 .optTypedValueInitializer()
-                .and_then(|init| init.valueInitializer())
+                .ok_or_else(|| Self::parse_err("Expected value initializer in VALUE definition".to_string()))?;
+            let value_expr = initializer
+                .valueInitializer()
                 .and_then(|init| init.valueExpression())
                 .ok_or_else(|| Self::parse_err("Expected value initializer in VALUE definition".to_string()))?;
 
             let expression = Self::build_expression_from_context(&value_expr)?;
+            let declared_type = initializer
+                .valueType()
+                .map(|value_type| Self::build_value_type(&value_type))
+                .transpose()?;
 
             return Ok(VariableDefinition {
                 variable_name,
                 expression,
+                declared_type,
                 span: span.clone(),
             });
         }

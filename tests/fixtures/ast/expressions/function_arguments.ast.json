@@ -221,7 +221,7 @@
                     "alias": "since",
                     "expression": {
                       "Literal": {
-                        "DateTime": "2024-01-31"
+                        "Date": "2024-01-31"
                       }
                     },
                     "span": {

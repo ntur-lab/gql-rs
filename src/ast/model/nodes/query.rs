@@ -267,6 +267,8 @@ pub struct VariableDefinition {
     pub variable_name: String,
     /// Value expression assigned to the variable.
     pub expression: Expression,
+    /// Type declared with `LET VALUE x :: T = ...`; `None` when no type is written.
+    pub declared_type: Option<ValueType>,
     /// Source range covered by this AST node.
     pub span: Span,
 }

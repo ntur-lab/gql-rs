@@ -140,9 +140,10 @@ pub(super) fn validate_expression_with_types(
 
             for def in &expr.variable_definitions {
                 validate_expression_with_types(&def.expression, &local_scope, &local_types)?;
+                validate_declared_variable_type(def, &local_scope, &local_types)?;
 
                 let trimmed_name = def.variable_name.trim().to_string();
-                if let Some(inferred) = infer_expression_type(&def.expression, &local_types, Some(&local_scope)) {
+                if let Some(inferred) = variable_definition_type(def, &local_types, Some(&local_scope)) {
                     local_types.insert(trimmed_name.clone(), inferred);
                 }
 
@@ -267,7 +268,7 @@ pub(super) fn validate_unary_operator_type(
         Operator::Not => {
             if !is_boolean_type(&operand_type)
                 && !is_string_like_type(&operand_type)
-                && !matches!(operand_type, TypeSpec::Any | TypeSpec::BindingTable)
+                && !matches!(operand_type, TypeSpec::Any | TypeSpec::BindingTable { .. })
             {
                 return Err(validation_err(
                     format!(
@@ -318,6 +319,7 @@ pub(super) fn validate_is_predicate_types(
         }
         IsPredicateKind::Unknown | IsPredicateKind::Null => {}
         IsPredicateKind::Typed(target_type) => {
+            let target_type = &target_type.base;
             if !is_cast_compatible(&expr_type, target_type) {
                 return Err(validation_err(
                     format!(
@@ -455,7 +457,7 @@ pub(super) fn are_comparison_types_compatible(left: &TypeSpec, right: &TypeSpec)
 
     matches!(
         (left, right),
-        (TypeSpec::Boolean, TypeSpec::Boolean) | (TypeSpec::Path, TypeSpec::Path) | (TypeSpec::Record, TypeSpec::Record)
+        (TypeSpec::Boolean, TypeSpec::Boolean) | (TypeSpec::Path, TypeSpec::Path) | (TypeSpec::Record { .. }, TypeSpec::Record { .. })
     )
 }
 
@@ -591,14 +593,110 @@ pub(super) fn validate_binary_operator_types(
     Ok(())
 }
 
+/// Returns the type of a LET variable: the declared type when one is written, otherwise the
+/// inferred type of its initializer.
+pub(super) fn variable_definition_type(
+    definition: &VariableDefinition,
+    inferred_types: &HashMap<String, TypeSpec>,
+    declared_variables: Option<&HashSet<String>>,
+) -> Option<TypeSpec> {
+    match &definition.declared_type {
+        Some(declared) => Some(declared.base.clone()),
+        None => infer_expression_type(&definition.expression, inferred_types, declared_variables),
+    }
+}
+
+/// Checks `LET VALUE x :: T = expr`: the initializer must be assignable to `T`, and a `NOT NULL`
+/// type cannot be initialized with the NULL literal.
+pub(super) fn validate_declared_variable_type(
+    definition: &VariableDefinition,
+    declared_variables: &HashSet<String>,
+    inferred_types: &HashMap<String, TypeSpec>,
+) -> Result<(), GqlError> {
+    let Some(declared) = &definition.declared_type else {
+        return Ok(());
+    };
+    let name = definition.variable_name.trim();
+    let source_type = infer_expression_type(&definition.expression, inferred_types, Some(declared_variables));
+    let source_is_null = matches!(definition.expression, Expression::Literal(Literal::Null))
+        || matches!(source_type, Some(TypeSpec::Null));
+
+    if declared.not_null && source_is_null {
+        return Err(validation_err(
+            format!(
+                "LET variable '{}' declared as {} NOT NULL cannot be initialized with NULL",
+                name,
+                type_name(&declared.base)
+            ),
+            Some(&definition.span.clone()),
+        ));
+    }
+
+    let Some(source_type) = source_type else {
+        return Ok(());
+    };
+    if is_assignable_type(&source_type, &declared.base) {
+        return Ok(());
+    }
+
+    Err(validation_err(
+        format!(
+            "LET variable '{}' declared as {} cannot be initialized with a value of type {}",
+            name,
+            type_name(&declared.base),
+            type_name(&source_type)
+        ),
+        Some(&definition.span.clone()),
+    ))
+}
+
+/// Returns true when a value of type `source` can be stored in a variable declared as `target`
+/// without an explicit CAST. Numeric types are interchangeable (range checks happen at runtime),
+/// datetime types are interchangeable with each other, and other types must belong to the same
+/// family; parameters such as lengths are checked at runtime.
+pub(super) fn is_assignable_type(source: &TypeSpec, target: &TypeSpec) -> bool {
+    match (source, target) {
+        (TypeSpec::Any, _) | (_, TypeSpec::Any | TypeSpec::PropertyValue) => true,
+        // The null value fits every nullable type (NOT NULL is checked by the caller), and
+        // NOTHING has no values at all.
+        (TypeSpec::Null | TypeSpec::Nothing, _) => true,
+        (TypeSpec::Union { members }, _) => members.iter().all(|member| is_assignable_type(member, target)),
+        (_, TypeSpec::Union { members }) => members.iter().any(|member| is_assignable_type(source, member)),
+        (s, t) if is_numeric_type(s) && is_numeric_type(t) => true,
+        (s, t) if is_datetime_like_type(s) && is_datetime_like_type(t) => true,
+        (TypeSpec::List { element_type: s, .. }, TypeSpec::List { element_type: t, .. }) => {
+            is_assignable_type(&s.base, &t.base)
+        }
+        (s, t) => std::mem::discriminant(s) == std::mem::discriminant(t),
+    }
+}
+
+fn is_datetime_like_type(t: &TypeSpec) -> bool {
+    is_temporal_like_type(t) && !is_duration_type(t)
+}
+
 /// Function to validate a CAST expression, ensuring that the target type is compatible with the source expression's inferred type. This function checks the inferred type of the source expression and validates it against the target type specified in the CAST, enforcing rules about which types can be cast to which other types, and providing error messages when invalid casts are attempted.
 pub(super) fn validate_cast_target(
     cast_expression: &CastExpression,
     declared_variables: &HashSet<String>,
     inferred_types: &HashMap<String, TypeSpec>,
 ) -> Result<(), GqlError> {
-    if let TypeSpec::List { element_type, .. } = &cast_expression.target_type
-        && !matches!(element_type.as_ref(), TypeSpec::Any)
+    let target_type = &cast_expression.target_type.base;
+    let source_is_null = matches!(cast_expression.expression.as_ref(), Expression::Literal(Literal::Null))
+        || matches!(
+            infer_expression_type(&cast_expression.expression, inferred_types, Some(declared_variables)),
+            Some(TypeSpec::Null)
+        );
+
+    if cast_expression.target_type.not_null && source_is_null {
+        return Err(validation_err(
+            format!("Invalid CAST target: cannot cast NULL to {} NOT NULL", type_name(target_type)),
+            Some(&cast_expression.span.clone()),
+        ));
+    }
+
+    if let TypeSpec::List { element_type, .. } = target_type
+        && !matches!(element_type.base, TypeSpec::Any)
         && contains_dynamic_parameter_reference(&cast_expression.expression)
     {
         return Err(validation_err(
@@ -612,7 +710,7 @@ pub(super) fn validate_cast_target(
         return Ok(());
     };
 
-    if is_cast_compatible(&source_type, &cast_expression.target_type) {
+    if is_cast_compatible(&source_type, target_type) {
         return Ok(());
     }
 
@@ -620,7 +718,7 @@ pub(super) fn validate_cast_target(
         format!(
             "Invalid CAST target: cannot cast {} to {}",
             type_name(&source_type),
-            type_name(&cast_expression.target_type)
+            type_name(target_type)
         ),
         Some(&cast_expression.span.clone()),
     ))
@@ -641,10 +739,10 @@ pub(super) fn infer_expression_type(
             }
 
             if trimmed.parse::<i64>().is_ok() {
-                return Some(TypeSpec::Integer);
+                return Some(TypeSpec::integer());
             }
             if trimmed.parse::<f64>().is_ok() {
-                return Some(TypeSpec::Float { precision: None });
+                return Some(TypeSpec::float());
             }
             if declared_variables.map(|vars| vars.contains(trimmed)).unwrap_or(false) {
                 return Some(TypeSpec::Any);
@@ -652,7 +750,8 @@ pub(super) fn infer_expression_type(
             None
         }
         Expression::PropertyAccess(property_access) => {
-            let object_type = inferred_types.get(property_access.object.trim()).cloned().or_else(|| {
+            // Property types are not modeled: the object only has to be a known variable.
+            let _object_type = inferred_types.get(property_access.object.trim()).cloned().or_else(|| {
                 if declared_variables
                     .map(|vars| vars.contains(property_access.object.trim()))
                     .unwrap_or(false)
@@ -663,14 +762,7 @@ pub(super) fn infer_expression_type(
                 }
             })?;
 
-            match object_type {
-                TypeSpec::Record
-                | TypeSpec::Reference { .. }
-                | TypeSpec::Graph { .. }
-                | TypeSpec::BindingTable
-                | TypeSpec::Any => Some(TypeSpec::Any),
-                _ => Some(TypeSpec::Any),
-            }
+            Some(TypeSpec::Any)
         }
         Expression::FunctionCall(function_call) => {
             infer_function_call_type(function_call, inferred_types, declared_variables)
@@ -690,12 +782,9 @@ pub(super) fn infer_expression_type(
                 };
             }
 
-            Some(TypeSpec::List {
-                element_type: Box::new(inferred_element.unwrap_or(TypeSpec::Any)),
-                max_length: None,
-            })
+            Some(TypeSpec::list_of(inferred_element.unwrap_or(TypeSpec::Any)))
         }
-        Expression::Map(_) => Some(TypeSpec::Record),
+        Expression::Map(_) => Some(TypeSpec::record()),
         Expression::Case(case_expression) => infer_case_type(case_expression, inferred_types, declared_variables),
         Expression::Subquery(subquery) => {
             if subquery.is_exists {
@@ -708,14 +797,14 @@ pub(super) fn infer_expression_type(
             {
                 Some(scalar_type)
             } else {
-                Some(TypeSpec::BindingTable)
+                Some(TypeSpec::binding_table())
             }
         }
-        Expression::Cast(cast_expression) => Some(cast_expression.target_type.clone()),
+        Expression::Cast(cast_expression) => Some(cast_expression.target_type.base.clone()),
         Expression::InlineLet(inline_let) => {
             let mut local = inferred_types.clone();
             for def in &inline_let.variable_definitions {
-                if let Some(def_type) = infer_expression_type(&def.expression, &local, declared_variables) {
+                if let Some(def_type) = variable_definition_type(def, &local, declared_variables) {
                     local.insert(def.variable_name.trim().to_string(), def_type);
                 }
             }
@@ -751,13 +840,10 @@ pub(super) fn infer_expression_type(
                 | Operator::GreaterThan
                 | Operator::GreaterEqual
                 | Operator::Regex => Some(TypeSpec::Boolean),
-                Operator::Concat => Some(TypeSpec::String { max_length: None }),
+                Operator::Concat => Some(TypeSpec::string()),
                 Operator::Plus | Operator::Minus => {
                     if is_duration_type(&left_type) && is_duration_type(&right_type) {
-                        Some(TypeSpec::Duration {
-                            precision: None,
-                            qualifier: None,
-                        })
+                        Some(TypeSpec::duration())
                     } else if is_numeric_type(&left_type) && is_numeric_type(&right_type) {
                         Some(promote_numeric_type(&left_type, &right_type))
                     } else {
@@ -874,20 +960,34 @@ pub(super) fn infer_function_call_type(
 /// Helper function to determine the type of a literal value, which is used to infer the types of expressions that are literals. This function maps each variant of the Literal enum to a corresponding TypeSpec, allowing the validator to understand the types of literal expressions and use that information for type checking and inference in larger expressions.
 pub(super) fn type_from_literal(literal: &Literal) -> TypeSpec {
     match literal {
-        Literal::String(_) => TypeSpec::String { max_length: None },
-        Literal::Integer(_) => TypeSpec::Integer,
-        Literal::Float(_) => TypeSpec::Float { precision: None },
+        Literal::String(_) => TypeSpec::string(),
+        Literal::Integer(_) => TypeSpec::integer(),
+        Literal::Float(_) => TypeSpec::float(),
+        Literal::Decimal(_) => TypeSpec::decimal(),
+        Literal::Bytes(_) => TypeSpec::bytes(),
         Literal::Boolean(_) => TypeSpec::Boolean,
         Literal::Null => TypeSpec::Any,
-        Literal::DateTime(_) => TypeSpec::Timestamp {
-            precision: None,
-            with_timezone: false,
-        },
-        Literal::Duration(_) => TypeSpec::Duration {
-            precision: None,
-            qualifier: None,
-        },
-        Literal::TimeWindow(_) => TypeSpec::String { max_length: None },
+        Literal::Date(_) => TypeSpec::Date,
+        Literal::Time(text) => {
+            if has_utc_offset(text) {
+                TypeSpec::ZonedTime
+            } else {
+                TypeSpec::LocalTime
+            }
+        }
+        Literal::DateTime(text) => {
+            // The offset, when present, follows the time part. Surrounding spaces are ignored so
+            // that a leading space is not mistaken for the date/time separator.
+            let text = text.trim();
+            let time_part = text.find(['T', 't', ' ']).map_or("", |index| &text[index + 1..]);
+            if has_utc_offset(time_part) {
+                TypeSpec::ZonedDateTime
+            } else {
+                TypeSpec::LocalDateTime
+            }
+        }
+        Literal::Duration(_) => TypeSpec::duration(),
+        Literal::TimeWindow(_) => TypeSpec::string(),
         Literal::Vector(values) => TypeSpec::Vector {
             dimension: Some(values.len()),
         },
@@ -902,13 +1002,17 @@ pub(super) fn type_from_literal(literal: &Literal) -> TypeSpec {
                 };
             }
 
-            TypeSpec::List {
-                element_type: Box::new(inferred.unwrap_or(TypeSpec::Any)),
-                max_length: None,
-            }
+            TypeSpec::list_of(inferred.unwrap_or(TypeSpec::Any))
         }
         Literal::Parameter(_) => TypeSpec::Any,
     }
+}
+
+/// Returns true when a time string carries a UTC offset (`Z`, `+hh:mm` or `-hh:mm`), which makes
+/// the literal a zoned time or datetime.
+fn has_utc_offset(time: &str) -> bool {
+    let time = time.trim();
+    time.ends_with(['Z', 'z']) || time.contains(['+', '-'])
 }
 
 /// Function to validate the consistency of element types within an array literal, ensuring that all elements are of compatible types. This function iterates through the elements of the array, infers their types, and checks that they are compatible with each other according to the rules for array literals (e.g., all elements must be of the same type or compatible types). If incompatible types are found, it returns a validation error indicating the issue.
@@ -962,7 +1066,7 @@ pub(super) fn are_array_element_types_compatible(left: &TypeSpec, right: &TypeSp
 
     match (left, right) {
         (TypeSpec::List { element_type: l, .. }, TypeSpec::List { element_type: r, .. }) => {
-            are_array_element_types_compatible(l, r)
+            are_array_element_types_compatible(&l.base, &r.base)
         }
         // A nested list is a value, not a flattened sequence of outer elements.
         // Its own contents are validated recursively before this check.
@@ -999,8 +1103,8 @@ pub(super) fn merge_array_element_types(left: &TypeSpec, right: &TypeSpec) -> Op
                 element_type: right_elem,
                 ..
             },
-        ) => merge_array_element_types(left_elem, right_elem).map(|element_type| TypeSpec::List {
-            element_type: Box::new(element_type),
+        ) => merge_array_element_types(&left_elem.base, &right_elem.base).map(|element_type| TypeSpec::List {
+            element_type: Box::new(ValueType::nullable(element_type)),
             max_length: *max_length,
         }),
         _ => Some(TypeSpec::Any),
@@ -1090,9 +1194,9 @@ pub(super) fn contains_dynamic_parameter_reference(expression: &Expression) -> b
 /// Helper function to determine if two types are compatible for use in a comparison operation, which is used to validate the types of operands in comparison expressions. This function checks if the types are the same, if either is ANY, if they are both numeric, if they are both temporal-like, or if they are both string-like, allowing for flexible comparisons while enforcing type compatibility where necessary.
 pub(super) fn promote_numeric_type(left: &TypeSpec, right: &TypeSpec) -> TypeSpec {
     if is_float_like_type(left) || is_float_like_type(right) {
-        TypeSpec::Float { precision: None }
+        TypeSpec::float()
     } else {
-        TypeSpec::Integer
+        TypeSpec::integer()
     }
 }
 
@@ -1100,7 +1204,7 @@ pub(super) fn promote_numeric_type(left: &TypeSpec, right: &TypeSpec) -> TypeSpe
 pub(super) fn is_float_like_type(t: &TypeSpec) -> bool {
     matches!(
         t,
-        TypeSpec::Float { .. } | TypeSpec::Float32 | TypeSpec::Real | TypeSpec::Double | TypeSpec::Decimal { .. }
+        TypeSpec::Float { .. } | TypeSpec::Decimal { .. }
     )
 }
 
@@ -1108,16 +1212,7 @@ pub(super) fn is_float_like_type(t: &TypeSpec) -> bool {
 pub(super) fn is_numeric_type(t: &TypeSpec) -> bool {
     matches!(
         t,
-        TypeSpec::Integer
-            | TypeSpec::BigInt
-            | TypeSpec::SmallInt
-            | TypeSpec::Int128
-            | TypeSpec::Int256
-            | TypeSpec::Float { .. }
-            | TypeSpec::Float32
-            | TypeSpec::Real
-            | TypeSpec::Double
-            | TypeSpec::Decimal { .. }
+        TypeSpec::Integer { .. } | TypeSpec::Float { .. } | TypeSpec::Decimal { .. }
     )
 }
 
@@ -1136,12 +1231,10 @@ pub(super) fn is_temporal_like_type(t: &TypeSpec) -> bool {
     matches!(
         t,
         TypeSpec::Date
-            | TypeSpec::Time { .. }
-            | TypeSpec::Timestamp { .. }
-            | TypeSpec::ZonedTime { .. }
-            | TypeSpec::ZonedDateTime { .. }
-            | TypeSpec::LocalTime { .. }
-            | TypeSpec::LocalDateTime { .. }
+            | TypeSpec::ZonedTime
+            | TypeSpec::ZonedDateTime
+            | TypeSpec::LocalTime
+            | TypeSpec::LocalDateTime
             | TypeSpec::Duration { .. }
     )
 }
@@ -1162,7 +1255,7 @@ pub(super) fn is_cast_compatible(source: &TypeSpec, target: &TypeSpec) -> bool {
         return true;
     }
 
-    if matches!(target, TypeSpec::Any) {
+    if matches!(target, TypeSpec::Any | TypeSpec::PropertyValue) {
         return true;
     }
 
@@ -1172,6 +1265,11 @@ pub(super) fn is_cast_compatible(source: &TypeSpec, target: &TypeSpec) -> bool {
 
     match (source, target) {
         (TypeSpec::Any, _) => true,
+        // A NULL-typed value is the null value, which every nullable type contains (NOT NULL
+        // targets are checked separately); NOTHING has no values at all.
+        (TypeSpec::Null | TypeSpec::Nothing, _) => true,
+        // Only the null value belongs to the NULL type, and no value belongs to NOTHING.
+        (_, TypeSpec::Null | TypeSpec::Nothing) => false,
         (TypeSpec::Union { members }, _) => members.iter().all(|m| is_cast_compatible(m, target)),
         (_, TypeSpec::Union { members }) => members.iter().any(|m| is_cast_compatible(source, m)),
         (TypeSpec::String { .. }, t) => is_numeric_type(t) || is_temporal_like_type(t) || is_boolean_type(t),
@@ -1188,14 +1286,26 @@ pub(super) fn is_cast_compatible(source: &TypeSpec, target: &TypeSpec) -> bool {
                 ..
             },
         ) => {
-            if matches!(source_elem.as_ref(), TypeSpec::Any) && !matches!(target_elem.as_ref(), TypeSpec::Any) {
+            if matches!(source_elem.base, TypeSpec::Any) && !matches!(target_elem.base, TypeSpec::Any) {
                 return false;
             }
 
-            is_cast_compatible(source_elem, target_elem)
+            is_cast_compatible(&source_elem.base, &target_elem.base)
         }
-        (TypeSpec::Record, TypeSpec::Record) => true,
         (TypeSpec::Path, TypeSpec::Path) => true,
+        // Same type family with different parameters (lengths, fields, closed descriptions):
+        // the parameters are checked at runtime.
+        (
+            TypeSpec::Bytes { .. }
+            | TypeSpec::Duration { .. }
+            | TypeSpec::Record { .. }
+            | TypeSpec::BindingTable { .. }
+            | TypeSpec::Node { .. }
+            | TypeSpec::Edge { .. }
+            | TypeSpec::Graph { .. }
+            | TypeSpec::Vector { .. },
+            _,
+        ) => std::mem::discriminant(source) == std::mem::discriminant(target),
         _ => false,
     }
 }
@@ -1207,32 +1317,59 @@ pub(super) fn type_name(t: &TypeSpec) -> &'static str {
         TypeSpec::String { .. } => "STRING",
         TypeSpec::Bytes { .. } => "BYTES",
         TypeSpec::Decimal { .. } => "DECIMAL",
-        TypeSpec::Integer => "INTEGER",
-        TypeSpec::BigInt => "BIGINT",
-        TypeSpec::SmallInt => "SMALLINT",
-        TypeSpec::Int128 => "INT128",
-        TypeSpec::Int256 => "INT256",
-        TypeSpec::Float { .. } => "FLOAT",
-        TypeSpec::Float32 => "FLOAT32",
-        TypeSpec::Real => "REAL",
-        TypeSpec::Double => "DOUBLE",
+        TypeSpec::Integer { signed, size } => integer_type_name(*signed, *size),
+        TypeSpec::Float { size } => match size {
+            FloatSize::Bits16 => "FLOAT16",
+            FloatSize::Bits32 => "FLOAT32",
+            FloatSize::Bits64 => "FLOAT64",
+            FloatSize::Bits128 => "FLOAT128",
+            FloatSize::Bits256 => "FLOAT256",
+            FloatSize::Regular { .. } => "FLOAT",
+            FloatSize::Real => "REAL",
+            FloatSize::Double => "DOUBLE",
+        },
         TypeSpec::Vector { .. } => "VECTOR",
         TypeSpec::Date => "DATE",
-        TypeSpec::Time { .. } => "TIME",
-        TypeSpec::Timestamp { .. } => "TIMESTAMP",
-        TypeSpec::ZonedTime { .. } => "ZONED TIME",
-        TypeSpec::ZonedDateTime { .. } => "ZONED DATETIME",
-        TypeSpec::LocalTime { .. } => "LOCAL TIME",
-        TypeSpec::LocalDateTime { .. } => "LOCAL DATETIME",
+        TypeSpec::ZonedTime => "ZONED TIME",
+        TypeSpec::ZonedDateTime => "ZONED DATETIME",
+        TypeSpec::LocalTime => "LOCAL TIME",
+        TypeSpec::LocalDateTime => "LOCAL DATETIME",
         TypeSpec::Duration { .. } => "DURATION",
-        TypeSpec::Reference { .. } => "REFERENCE",
+        TypeSpec::Node { .. } => "NODE",
+        TypeSpec::Edge { .. } => "EDGE",
         TypeSpec::Path => "PATH",
         TypeSpec::List { .. } => "LIST",
-        TypeSpec::Record => "RECORD",
+        TypeSpec::Record { .. } => "RECORD",
         TypeSpec::Graph { .. } => "GRAPH",
-        TypeSpec::BindingTable => "BINDING TABLE",
+        TypeSpec::BindingTable { .. } => "BINDING TABLE",
         TypeSpec::Union { .. } => "UNION",
+        TypeSpec::Null => "NULL",
+        TypeSpec::Nothing => "NOTHING",
+        TypeSpec::PropertyValue => "PROPERTY VALUE",
         TypeSpec::Any => "ANY",
+    }
+}
+
+fn integer_type_name(signed: bool, size: IntegerSize) -> &'static str {
+    match (signed, size) {
+        (true, IntegerSize::Bits8) => "INT8",
+        (true, IntegerSize::Bits16) => "INT16",
+        (true, IntegerSize::Bits32) => "INT32",
+        (true, IntegerSize::Bits64) => "INT64",
+        (true, IntegerSize::Bits128) => "INT128",
+        (true, IntegerSize::Bits256) => "INT256",
+        (true, IntegerSize::Small) => "SMALLINT",
+        (true, IntegerSize::Regular { .. }) => "INTEGER",
+        (true, IntegerSize::Big) => "BIGINT",
+        (false, IntegerSize::Bits8) => "UINT8",
+        (false, IntegerSize::Bits16) => "UINT16",
+        (false, IntegerSize::Bits32) => "UINT32",
+        (false, IntegerSize::Bits64) => "UINT64",
+        (false, IntegerSize::Bits128) => "UINT128",
+        (false, IntegerSize::Bits256) => "UINT256",
+        (false, IntegerSize::Small) => "USMALLINT",
+        (false, IntegerSize::Regular { .. }) => "UINT",
+        (false, IntegerSize::Big) => "UBIGINT",
     }
 }
 

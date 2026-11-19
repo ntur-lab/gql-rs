@@ -1,0 +1,156 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "projection": {
+                "items": [
+                  {
+                    "alias": "d",
+                    "expression": {
+                      "Literal": {
+                        "Date": "2024-01-31"
+                      }
+                    },
+                    "span": {
+                      "end_col": 29,
+                      "end_line": 1,
+                      "start_col": 7,
+                      "start_line": 1
+                    }
+                  },
+                  {
+                    "alias": "t",
+                    "expression": {
+                      "Literal": {
+                        "Time": "12:30:00+01:00"
+                      }
+                    },
+                    "span": {
+                      "end_col": 57,
+                      "end_line": 1,
+                      "start_col": 31,
+                      "start_line": 1
+                    }
+                  },
+                  {
+                    "alias": "ts",
+                    "expression": {
+                      "Literal": {
+                        "DateTime": "2024-01-31T12:30:00"
+                      }
+                    },
+                    "span": {
+                      "end_col": 96,
+                      "end_line": 1,
+                      "start_col": 59,
+                      "start_line": 1
+                    }
+                  },
+                  {
+                    "alias": "du",
+                    "expression": {
+                      "Literal": {
+                        "Duration": "P1D"
+                      }
+                    },
+                    "span": {
+                      "end_col": 118,
+                      "end_line": 1,
+                      "start_col": 98,
+                      "start_line": 1
+                    }
+                  },
+                  {
+                    "alias": "b",
+                    "expression": {
+                      "Literal": {
+                        "Bytes": [
+                          0,
+                          255
+                        ]
+                      }
+                    },
+                    "span": {
+                      "end_col": 133,
+                      "end_line": 1,
+                      "start_col": 120,
+                      "start_line": 1
+                    }
+                  },
+                  {
+                    "alias": "m",
+                    "expression": {
+                      "Literal": {
+                        "Decimal": "12.50"
+                      }
+                    },
+                    "span": {
+                      "end_col": 146,
+                      "end_line": 1,
+                      "start_col": 135,
+                      "start_line": 1
+                    }
+                  },
+                  {
+                    "alias": "seven",
+                    "expression": {
+                      "Literal": {
+                        "Decimal": "7"
+                      }
+                    },
+                    "span": {
+                      "end_col": 159,
+                      "end_line": 1,
+                      "start_col": 148,
+                      "start_line": 1
+                    }
+                  },
+                  {
+                    "alias": "f",
+                    "expression": {
+                      "Literal": {
+                        "Float": 2.5
+                      }
+                    },
+                    "span": {
+                      "end_col": 170,
+                      "end_line": 1,
+                      "start_col": 161,
+                      "start_line": 1
+                    }
+                  }
+                ],
+                "kind": "items"
+              },
+              "span": {
+                "end_col": 170,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
+              }
+            },
+            "span": {
+              "end_col": 170,
+              "end_line": 1,
+              "start_col": 0,
+              "start_line": 1
+            }
+          }
+        },
+        "span": {
+          "end_col": 170,
+          "end_line": 1,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

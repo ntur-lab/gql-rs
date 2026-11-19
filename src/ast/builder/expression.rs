@@ -412,7 +412,7 @@ impl GQLAstBuilder {
                         )
                     })?;
 
-                    let type_spec = Self::build_type_spec_from_value_type(&value_type)?;
+                    let type_spec = Self::build_value_type(&value_type)?;
                     let negated = part2.NOT().is_some();
 
                     Ok(Expression::IsPredicate(IsPredicateExpression {
@@ -1419,7 +1419,7 @@ impl GQLAstBuilder {
 
     /// Decodes an unsigned integer literal (decimal, 0x, 0o or 0b, with optional underscores)
     /// into its magnitude. Returns `None` for any other text.
-    fn decode_unsigned_integer_magnitude(text: &str) -> Option<u128> {
+    pub(super) fn decode_unsigned_integer_magnitude(text: &str) -> Option<u128> {
         let cleaned = text.trim().replace('_', "").to_ascii_lowercase();
         let (digits, radix) = if let Some(digits) = cleaned.strip_prefix("0x") {
             (digits, 16)
@@ -1670,7 +1670,7 @@ impl GQLAstBuilder {
             Self::parse_err("CST not valid: valueType missing in castTarget".into())
         })?;
 
-        let target_type = Self::build_type_spec_from_value_type(&value_type)?;
+        let target_type = Self::build_value_type(&value_type)?;
 
         Ok(Expression::Cast(CastExpression {
             expression: Box::new(expression),
@@ -1679,158 +1679,8 @@ impl GQLAstBuilder {
         }))
     }
 
-    /// Function to build a TypeSpec from a ValueTypeContext, handling all the different possible value type contexts and returning the corresponding TypeSpec variant.
-    pub(super) fn build_type_spec_from_value_type(
-        value_type: &ValueTypeContextAll,
-    ) -> GqlResult<TypeSpec> {
-        match value_type {
-            ValueTypeContextAll::OpenDynamicUnionTypeLabelContext(_) => Ok(TypeSpec::Any),
-            ValueTypeContextAll::DynamicPropertyValueTypeLabelContext(_) => Ok(TypeSpec::Any),
-            ValueTypeContextAll::ClosedDynamicUnionTypeAtl1Context(ctx) => {
-                let raw_members = ctx
-                    .valueType_all()
-                    .into_iter()
-                    .map(|inner| Self::build_type_spec_from_value_type(&inner))
-                    .collect::<GqlResult<Vec<_>>>()?;
-
-                let members = Self::flatten_union_members(raw_members);
-
-                Ok(TypeSpec::Union { members })
-            }
-            ValueTypeContextAll::ClosedDynamicUnionTypeAtl2Context(ctx) => {
-                let raw_members = ctx
-                    .valueType_all()
-                    .into_iter()
-                    .map(|inner| Self::build_type_spec_from_value_type(&inner))
-                    .collect::<GqlResult<Vec<_>>>()?;
-
-                let members = Self::flatten_union_members(raw_members);
-
-                Ok(TypeSpec::Union { members })
-            }
-
-            ValueTypeContextAll::PathValueTypeLabelContext(_) => Ok(TypeSpec::Path),
-            ValueTypeContextAll::RecordTypeLabelContext(_) => Ok(TypeSpec::Record),
-
-            ValueTypeContextAll::ListValueTypeAlt1Context(ctx) => {
-                let element_ctx = ctx
-                    .valueType()
-                    .ok_or_else(|| Self::parse_err("LIST<T>: missing element type".into()))?;
-                let element_type = Self::build_type_spec_from_value_type(&element_ctx)?;
-                let max_length = ctx
-                    .maxLength()
-                    .map(|m| Self::parse_usize_from_ctx_text(&m.get_text()))
-                    .transpose()?;
-                Ok(TypeSpec::List {
-                    element_type: Box::new(element_type),
-                    max_length,
-                })
-            }
-            ValueTypeContextAll::ListValueTypeAlt2Context(ctx) => {
-                let element_ctx = ctx
-                    .valueType()
-                    .ok_or_else(|| Self::parse_err("T LIST: missing element type".into()))?;
-                let element_type = Self::build_type_spec_from_value_type(&element_ctx)?;
-                let max_length = ctx
-                    .maxLength()
-                    .map(|m| Self::parse_usize_from_ctx_text(&m.get_text()))
-                    .transpose()?;
-                Ok(TypeSpec::List {
-                    element_type: Box::new(element_type),
-                    max_length,
-                })
-            }
-            ValueTypeContextAll::ListValueTypeAlt3Context(ctx) => {
-                let max_length = ctx
-                    .maxLength()
-                    .map(|m| Self::parse_usize_from_ctx_text(&m.get_text()))
-                    .transpose()?;
-                Ok(TypeSpec::List {
-                    element_type: Box::new(TypeSpec::Any),
-                    max_length,
-                })
-            }
-
-            ValueTypeContextAll::PredefinedTypeLabelContext(ctx) => {
-                let predefined = ctx
-                    .predefinedType()
-                    .ok_or_else(|| Self::parse_err("predefinedType missing".into()))?;
-                Self::build_type_spec_from_predefined(&predefined)
-            }
-
-            ValueTypeContextAll::Error(_) => Self::parse_error("Invalid valueType context"),
-        }
-    }
-
-    /// Helper function to recursively flatten nested union members in a list of TypeSpec, ensuring that any nested unions are flattened into a single level of union members.
-    pub(super) fn flatten_union_members(members: Vec<TypeSpec>) -> Vec<TypeSpec> {
-        let mut flat = Vec::new();
-        for member in members {
-            match member {
-                TypeSpec::Union { members } => flat.extend(Self::flatten_union_members(members)),
-                other => flat.push(other),
-            }
-        }
-        flat
-    }
-
-    /// Function to build a TypeSpec from a PredefinedTypeContext, handling all the different possible predefined type contexts and returning the corresponding TypeSpec variant.
-    pub(super) fn build_type_spec_from_predefined(
-        pre: &PredefinedTypeContextAll,
-    ) -> GqlResult<TypeSpec> {
-        if pre.booleanType().is_some() {
-            return Ok(TypeSpec::Boolean);
-        }
-
-        if let Some(s) = pre.characterStringType() {
-            return Self::build_type_spec_from_character_string(&s);
-        }
-
-        if let Some(b) = pre.byteStringType() {
-            return Self::build_type_spec_from_byte_string(&b);
-        }
-
-        if let Some(n) = pre.numericType() {
-            return Self::build_type_spec_from_numeric(&n);
-        }
-
-        if let Some(t) = pre.temporalType() {
-            return Self::build_type_spec_from_temporal(&t);
-        }
-
-        if let Some(r) = pre.referenceValueType() {
-            if r.bindingTableReferenceValueType().is_some() {
-                return Ok(TypeSpec::BindingTable);
-            }
-
-            if let Some(graph_ref_type) = r.graphReferenceValueType() {
-                let graph_type_spec = if let Some(closed_graph_ref_type) =
-                    graph_ref_type.closedGraphReferenceValueType()
-                {
-                    Some(Box::new(
-                        Self::build_graph_type_spec_from_closed_graph_reference(
-                            &closed_graph_ref_type,
-                        )?,
-                    ))
-                } else {
-                    None
-                };
-
-                return Ok(TypeSpec::Graph { graph_type_spec });
-            }
-
-            return Ok(TypeSpec::Reference { target_type: None });
-        }
-
-        if pre.immaterialValueType().is_some() {
-            return Ok(TypeSpec::Any);
-        }
-
-        Ok(TypeSpec::Any)
-    }
-
     /// Function to build a GraphTypeSpec from a ClosedGraphReferenceValueTypeContext, extracting the nested graph type specification and building the corresponding GraphTypeSpec.
-    fn build_graph_type_spec_from_closed_graph_reference(
+    pub(super) fn build_graph_type_spec_from_closed_graph_reference(
         cst: &ClosedGraphReferenceValueTypeContextAll,
     ) -> GqlResult<GraphTypeSpec> {
         let nested = cst.nestedGraphTypeSpecification().ok_or_else(|| {
@@ -1887,7 +1737,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build a VertexTypeSpec from a NodeTypeSpecificationContext, extracting the identifier and properties of the vertex type and building the corresponding VertexTypeSpec.
-    fn build_vertex_type_spec_from_context(
+    pub(super) fn build_vertex_type_spec_from_context(
         cst: &NodeTypeSpecificationContextAll,
     ) -> GqlResult<VertexTypeSpec> {
         let span = Self::extract_span(cst);
@@ -1904,7 +1754,7 @@ impl GQLAstBuilder {
     }
 
     /// Function to build an EdgeTypeSpec from an EdgeTypeSpecificationContext, extracting the identifier, properties, and endpoints of the edge type and building the corresponding EdgeTypeSpec.
-    fn build_edge_type_spec_from_context(
+    pub(super) fn build_edge_type_spec_from_context(
         cst: &EdgeTypeSpecificationContextAll,
     ) -> GqlResult<EdgeTypeSpec> {
         let span = Self::extract_span(cst);
@@ -2107,7 +1957,7 @@ impl GQLAstBuilder {
                     )
                 })?;
 
-            let type_spec = Self::build_type_spec_from_value_type(&value_type)?;
+            let type_spec = Self::build_value_type(&value_type)?;
 
             properties.push(PropertyTypeDecl {
                 name,
@@ -2117,206 +1967,6 @@ impl GQLAstBuilder {
         }
 
         Ok(PropertyTypeList { properties })
-    }
-
-    /// Function to build a TypeSpec for character string types, extracting the max length if specified and returning a TypeSpec::String variant with the appropriate max_length.
-    pub(super) fn build_type_spec_from_character_string(
-        ctx: &CharacterStringTypeContextAll,
-    ) -> GqlResult<TypeSpec> {
-        let max_length = if let Some(fixed) = ctx.fixedLength() {
-            Some(Self::parse_usize_from_ctx_text(&fixed.get_text())?)
-        } else if let Some(max_len) = ctx.maxLength() {
-            Some(Self::parse_usize_from_ctx_text(&max_len.get_text())?)
-        } else {
-            None
-        };
-        Ok(TypeSpec::String { max_length })
-    }
-
-    /// Function to build a TypeSpec for byte string types, extracting the max length if specified and returning a TypeSpec::Bytes variant with the appropriate max_length.
-    pub(super) fn build_type_spec_from_byte_string(
-        ctx: &ByteStringTypeContextAll,
-    ) -> GqlResult<TypeSpec> {
-        let max_length = if let Some(fixed) = ctx.fixedLength() {
-            Some(Self::parse_usize_from_ctx_text(&fixed.get_text())?)
-        } else if let Some(max_len) = ctx.maxLength() {
-            Some(Self::parse_usize_from_ctx_text(&max_len.get_text())?)
-        } else {
-            None
-        };
-        Ok(TypeSpec::Bytes { max_length })
-    }
-
-    /// Helper function to parse a usize value from a context text, returning a GqlResult with the parsed usize or an error if parsing fails.
-    pub(super) fn parse_usize_from_ctx_text(text: &str) -> GqlResult<usize> {
-        text.parse::<usize>()
-            .map_err(|_| Self::parse_err(format!("Invalid usize parameter: {}", text)))
-    }
-
-    /// Helper function to normalize a raw type token string by converting it to uppercase, removing whitespace and underscores, and stripping known prefixes and suffixes related to type specifications, returning the normalized type token string.
-    pub(super) fn normalize_type_token(raw: &str) -> String {
-        let mut t = raw
-            .to_ascii_uppercase()
-            .replace([' ', '\t', '\n', '\r', '_'], "");
-
-        while let Some(stripped) = t.strip_prefix("::") {
-            t = stripped.to_string();
-        }
-        while let Some(stripped) = t.strip_prefix("TYPED") {
-            t = stripped.to_string();
-        }
-
-        if let Some(stripped) = t.strip_suffix("NOTNULL") {
-            t = stripped.to_string();
-        }
-        if let Some(stripped) = t.strip_suffix("NULL") {
-            t = stripped.to_string();
-        }
-
-        t
-    }
-
-    /// Function to build a TypeSpec for numeric types, handling various numeric type specifications such as FLOAT, DECIMAL, INTEGER, etc., and returning the corresponding TypeSpec variant with any specified parameters.
-    pub(super) fn build_type_spec_from_numeric(ctx: &NumericTypeContextAll) -> GqlResult<TypeSpec> {
-        let raw = ctx.get_text();
-        let t = Self::normalize_type_token(&raw);
-
-        if t == "FLOAT32" {
-            return Ok(TypeSpec::Float32);
-        }
-        if t == "FLOAT16" || t == "FLOAT128" || t == "FLOAT256" {
-            return Ok(TypeSpec::Float { precision: None });
-        }
-        if t == "REAL" {
-            return Ok(TypeSpec::Real);
-        }
-        if t == "DOUBLE" || t == "DOUBLEPRECISION" || t == "FLOAT64" {
-            return Ok(TypeSpec::Double);
-        }
-
-        if t.starts_with("DECIMAL") || t.starts_with("DEC") || t.starts_with("NUMERIC") {
-            let nums = Self::extract_parenthesized_u8_list(&t)?;
-            let precision = nums.first().copied();
-            let scale = nums.get(1).copied();
-            return Ok(TypeSpec::Decimal { precision, scale });
-        }
-
-        if t.starts_with("FLOAT") {
-            let nums = Self::extract_parenthesized_u8_list(&t)?;
-            let precision = nums.first().copied();
-            return Ok(TypeSpec::Float { precision });
-        }
-
-        if t == "BIGINT" || t == "INT64" || t == "INTEGER64" || t == "UBIGINT" || t == "UINT64" {
-            return Ok(TypeSpec::BigInt);
-        }
-        if t == "SMALLINT" || t == "INT16" || t == "INTEGER16" || t == "USMALLINT" || t == "UINT16"
-        {
-            return Ok(TypeSpec::SmallInt);
-        }
-        if t == "INT8" || t == "INTEGER8" || t == "UINT8" || t == "TINYINT" {
-            return Ok(TypeSpec::Integer);
-        }
-        if t == "INT128" || t == "INTEGER128" || t == "UINT128" {
-            return Ok(TypeSpec::Int128);
-        }
-        if t == "INT256" || t == "INTEGER256" || t == "UINT256" {
-            return Ok(TypeSpec::Int256);
-        }
-
-        if t == "INT"
-            || t == "INTEGER"
-            || t == "INT32"
-            || t == "INTEGER32"
-            || t.starts_with("INT(")
-            || t.starts_with("INTEGER(")
-            || t == "UINT"
-            || t == "UINT32"
-            || t.starts_with("UINT(")
-        {
-            return Ok(TypeSpec::Integer);
-        }
-
-        Self::parse_error(format!("Unsupported numeric type in CAST: {}", raw))
-    }
-
-    /// Function to build a TypeSpec for temporal types, handling various temporal type specifications such as DATE, TIMESTAMP, TIME, DURATION, etc., and returning the corresponding TypeSpec variant with any specified parameters.
-    pub(super) fn build_type_spec_from_temporal(
-        ctx: &TemporalTypeContextAll,
-    ) -> GqlResult<TypeSpec> {
-        let raw = ctx.get_text();
-        let t = Self::normalize_type_token(&raw);
-        let precision = Self::extract_parenthesized_u8_list(&raw)
-            .ok()
-            .and_then(|values| values.first().copied());
-
-        if t == "DATE" {
-            return Ok(TypeSpec::Date);
-        }
-
-        if t == "ZONEDDATETIME" || t == "TIMESTAMPWITHTIMEZONE" {
-            return Ok(TypeSpec::ZonedDateTime { precision });
-        }
-        if t == "LOCALDATETIME" || t == "TIMESTAMP" || t == "TIMESTAMPWITHOUTTIMEZONE" {
-            return Ok(TypeSpec::LocalDateTime { precision });
-        }
-
-        if t == "ZONEDTIME" || t == "TIMEWITHTIMEZONE" {
-            return Ok(TypeSpec::ZonedTime { precision });
-        }
-        if t == "LOCALTIME" || t == "TIME" || t == "TIMEWITHOUTTIMEZONE" {
-            return Ok(TypeSpec::LocalTime { precision });
-        }
-
-        if t.starts_with("DURATION") {
-            return Ok(TypeSpec::Duration {
-                precision,
-                qualifier: Self::extract_duration_qualifier(&t),
-            });
-        }
-
-        Self::parse_error(format!("Unsupported temporal type in CAST: {}", raw))
-    }
-
-    /// Helper function to extract a list of u8 values from a parenthesized list in a type token string, returning an error if the format is invalid or if any of the values cannot be parsed as u8.
-    pub(super) fn extract_parenthesized_u8_list(text: &str) -> GqlResult<Vec<u8>> {
-        let start = match text.find('(') {
-            Some(i) => i,
-            None => return Ok(Vec::new()),
-        };
-        let end = text[start + 1..]
-            .find(')')
-            .map(|i| start + 1 + i)
-            .ok_or_else(|| Self::parse_err(format!("Invalid type parameter list: {}", text)))?;
-
-        let inner = &text[start + 1..end].trim();
-        if inner.is_empty() {
-            return Ok(Vec::new());
-        }
-
-        inner
-            .split(',')
-            .map(|p| {
-                p.trim().parse::<u8>().map_err(|_| {
-                    Self::parse_err(format!("Invalid numeric type parameter '{}'", p.trim()))
-                })
-            })
-            .collect()
-    }
-
-    /// Helper function to extract a duration qualifier from a normalized temporal type token string, looking for specific qualifiers like "YEARTOMONTH" or "DAYTOSECOND" and returning the corresponding formatted qualifier string if found.
-    pub(super) fn extract_duration_qualifier(normalized_temporal: &str) -> Option<String> {
-        let start = normalized_temporal.find('(')?;
-        let end = normalized_temporal[start + 1..]
-            .find(')')
-            .map(|i| start + 1 + i)?;
-
-        let qualifier = &normalized_temporal[start + 1..end];
-        match qualifier {
-            "YEARTOMONTH" => Some("YEAR TO MONTH".to_string()),
-            "DAYTOSECOND" => Some("DAY TO SECOND".to_string()),
-            _ => None,
-        }
     }
 
     /// Function to build a CASE expression from a CaseExpressionContext, handling both simple and searched CASE specifications, extracting the test expression, WHEN branches, and ELSE expression as needed, and returning the corresponding CaseExpression wrapped in an Expression::Case variant.
@@ -2650,7 +2300,7 @@ impl GQLAstBuilder {
         if let Some(type_part) = operand.valueTypePredicatePart2() {
             let target_type = type_part
                 .valueType()
-                .map(|vt| Self::build_type_spec_from_value_type(&vt))
+                .map(|vt| Self::build_value_type(&vt))
                 .transpose()?;
 
             return Ok(Expression::WhenOperand(WhenOperandExpression {
@@ -3235,24 +2885,21 @@ impl GQLAstBuilder {
         }
 
         if let Some(temporal_literal) = general_literal.temporalLiteral() {
-            let string_literal = if let Some(date) = temporal_literal.dateLiteral() {
-                date.dateString().and_then(|s| s.characterStringLiteral())
-            } else if let Some(time) = temporal_literal.timeLiteral() {
-                time.timeString().and_then(|s| s.characterStringLiteral())
-            } else if let Some(datetime) = temporal_literal.datetimeLiteral() {
-                datetime
-                    .datetimeString()
-                    .and_then(|s| s.characterStringLiteral())
-            } else {
-                None
+            let missing = || Self::parse_err("CST not valid: string missing in temporal literal".into());
+            if let Some(date) = temporal_literal.dateLiteral() {
+                let text = date.dateString().and_then(|s| s.characterStringLiteral()).ok_or_else(missing)?;
+                return Ok(Literal::Date(Self::decode_character_string_literal(&text)?));
             }
-                .ok_or_else(|| {
-                    Self::parse_err("CST not valid: string missing in temporal literal".into())
-                })?;
-
-            return Ok(Literal::DateTime(Self::decode_character_string_literal(
-                &string_literal,
-            )?));
+            if let Some(time) = temporal_literal.timeLiteral() {
+                let text = time.timeString().and_then(|s| s.characterStringLiteral()).ok_or_else(missing)?;
+                return Ok(Literal::Time(Self::decode_character_string_literal(&text)?));
+            }
+            let text = temporal_literal
+                .datetimeLiteral()
+                .and_then(|d| d.datetimeString())
+                .and_then(|s| s.characterStringLiteral())
+                .ok_or_else(missing)?;
+            return Ok(Literal::DateTime(Self::decode_character_string_literal(&text)?));
         }
 
         if let Some(duration_literal) = general_literal.durationLiteral() {
@@ -3268,12 +2915,8 @@ impl GQLAstBuilder {
             )?));
         }
 
-        if general_literal.BYTE_STRING_LITERAL().is_some() {
-            return Self::unsupported_construct(
-                &format!("byte string literal {}", general_literal.get_text()),
-                "issue #10",
-                Self::extract_span(general_literal),
-            );
+        if let Some(token) = general_literal.BYTE_STRING_LITERAL() {
+            return Self::decode_byte_string_literal(&token.get_text()).map(Literal::Bytes);
         }
 
         Self::parse_error(format!(
@@ -3290,6 +2933,26 @@ impl GQLAstBuilder {
         Self::string_literal_text(&text).ok_or_else(|| {
             Self::parse_err(format!("CST not valid: malformed character string literal: {text}"))
         })
+    }
+
+    /// Decodes a byte string literal token `X'...'`: pairs of hexadecimal digits, spaces allowed
+    /// between and inside pairs (the lexer guarantees an even number of digits).
+    pub(super) fn decode_byte_string_literal(text: &str) -> GqlResult<Vec<u8>> {
+        let inner = text
+            .get(1..)
+            .and_then(|rest| rest.strip_prefix('\''))
+            .and_then(|rest| rest.strip_suffix('\''))
+            .ok_or_else(|| Self::parse_err(format!("CST not valid: malformed byte string literal: {text}")))?;
+        let digits: Vec<u8> = inner
+            .chars()
+            .filter(|c| *c != ' ')
+            .map(|c| c.to_digit(16).map(|d| d as u8))
+            .collect::<Option<_>>()
+            .ok_or_else(|| Self::parse_err(format!("CST not valid: malformed byte string literal: {text}")))?;
+        if !digits.len().is_multiple_of(2) {
+            return Self::parse_error(format!("CST not valid: odd number of digits in byte string literal: {text}"));
+        }
+        Ok(digits.chunks(2).map(|pair| (pair[0] << 4) | pair[1]).collect())
     }
 
     /// Rejects integer syntax outside i64 without reinterpreting it as floating point.
@@ -3311,10 +2974,9 @@ impl GQLAstBuilder {
     }
 
     /// Decodes an unsigned numeric literal token: decimal, hexadecimal (`0x`), octal (`0o`) and
-    /// binary (`0b`) integers with optional underscores become integer literals; decimals,
-    /// scientific notation and the approximate suffixes `F`/`D` become float literals. The
-    /// exact suffix `M` keeps integers integral and maps other exact decimals to float
-    /// literals, the representation used for unsuffixed decimals.
+    /// binary (`0b`) integers with optional underscores become integer literals; unsuffixed
+    /// decimals, scientific notation and the approximate suffixes `F`/`D` become float literals;
+    /// the exact suffix `M` produces a decimal literal holding the normalized text.
     pub(super) fn decode_unsigned_numeric_literal(text: &str) -> GqlResult<Literal> {
         let trimmed = text.trim();
         let cleaned = trimmed.replace('_', "");
@@ -3331,11 +2993,18 @@ impl GQLAstBuilder {
             });
         }
 
-        let (body, approximate) = match lower.as_bytes().last() {
-            Some(b'm') => (&lower[..lower.len() - 1], false),
-            Some(b'f') | Some(b'd') => (&lower[..lower.len() - 1], true),
-            _ => (lower.as_str(), false),
+        let (body, approximate, exact_suffix) = match lower.as_bytes().last() {
+            Some(b'm') => (&lower[..lower.len() - 1], false, true),
+            Some(b'f') | Some(b'd') => (&lower[..lower.len() - 1], true, false),
+            _ => (lower.as_str(), false, false),
         };
+
+        if exact_suffix {
+            // Validates the syntax; the text is kept to preserve every digit.
+            body.parse::<f64>()
+                .map_err(|_| Self::parse_err(format!("Invalid numeric literal '{trimmed}'")))?;
+            return Ok(Literal::Decimal(body.to_string()));
+        }
 
         if !approximate && !body.is_empty() && body.bytes().all(|byte| byte.is_ascii_digit()) {
             Self::validate_integer_literal_range(body)?;

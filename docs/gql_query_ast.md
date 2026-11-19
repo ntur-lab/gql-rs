@@ -15,17 +15,17 @@ Logical flow:
 2. GQLAstBuilder converts CST -> `QueryAST`.
 3. AST validator modules apply semantic rules to the AST.
 
-The public `parse()` function performs steps 1 and 2. 
+The public `parse()` function performs steps 1 and 2.
 `analyze()` also performs step 3. An AST returned by `parse()` has not passed semantic validation.
 
-Applications can invoke `QueryAST::validate()` separately. 
+Applications can invoke `QueryAST::validate()` separately.
 Deserializing an AST through Serde does not automatically run this validation either.
 
 ## Root Node
 
 - QueryAST
-    - Contains a single field: statement of type Statement.
-    - Represents a complete GQL program.
+  - Contains a single field: statement of type Statement.
+  - Represents a complete GQL program.
 
 ## Top-Level Layer: Statement
 
@@ -47,11 +47,11 @@ Main blocks:
 
 - `CatalogStatementBlock`: list of `CatalogStatement`.
 - `CatalogStatement`:
-    - `CreateSchema` / `DropSchema`
-    - `CreateGraph` / `DropGraph`
-    - `CreateGraphType` / `DropGraphType`
-    - `Call`
-    - `Raw` (text fallback)
+  - `CreateSchema` / `DropSchema`
+  - `CreateGraph` / `DropGraph`
+  - `CreateGraphType` / `DropGraphType`
+  - `Call`
+  - `Raw` (text fallback)
 
 Supporting types:
 
@@ -73,16 +73,16 @@ This area models the schema/catalog sub-language.
 Main types:
 
 - `Query`
-    - Basic(BasicQuery)
-    - SetOperation(SetOperation)
+  - Basic(BasicQuery)
+  - SetOperation(SetOperation)
 - `BasicQuery`
-    - pipeline
-    - result_statement
+  - pipeline
+  - result_statement
 - `QueryStep`
-    - Match / Let / Filter / Having / For / Page
-    - Call / UseGraph / FromSubquery
+  - Match / Let / Filter / Having / For / Page
+  - Call / UseGraph / FromSubquery
 - `PrimitiveResultStatement`
-    - Finish / Return
+  - Finish / Return
 
 Query completion types:
 
@@ -94,10 +94,10 @@ Query completion types:
 ## DML Area (DataStatement)
 
 - `DataStatement` includes:
-    - Insert, Set, MatchSet
-    - Remove, MatchRemove
-    - Delete, MatchDelete
-    - Call
+  - Insert, Set, MatchSet
+  - Remove, MatchRemove
+  - Delete, MatchDelete
+  - Call
 
 Dedicated types:
 
@@ -123,12 +123,13 @@ Expression core:
 
 - Expression (variable, literal, binary/unary, function call, case, cast, subquery, property access, predicates, etc.)
 - Operator
-- Literal
+- Literal (string, integer, float, exact decimal, bytes, boolean, null, date, time, datetime, duration, ...)
 - ArrayExpression, map literals, inline LET, path constructors, and WHEN operands
 
 Type system:
 
-- TypeSpec
+- ValueType (declared type: base `TypeSpec` plus `not_null`), FieldType
+- TypeSpec, IntegerSize, FloatSize, DurationQualifier
 - GraphTypeSpec, VertexTypeSpec, EdgeTypeSpec
 - LabelExpression, LabelTerm, LabelFactor
 - PropertyTypeList, PropertyTypeDecl

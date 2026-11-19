@@ -1,0 +1,2 @@
+LET VALUE tiny :: INT8 NOT NULL = 5, VALUE price TYPED DECIMAL(10, 2) = 9.99, plain = 'x'
+RETURN tiny, price, plain

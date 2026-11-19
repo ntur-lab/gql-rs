@@ -285,24 +285,21 @@ mod structural_expression_tests {
 
     #[test]
     fn construction_failures_in_call_arguments_are_propagated() {
-        assert_unsupported("CALL myProc(X'00')");
+        assert_unsupported("CALL myProc($p.name)");
         assert_unsupported("CALL myProc(FLOOR(n.a.b))");
         assert_unsupported("MATCH (n) CALL myProc(n.a.b) RETURN n");
     }
 
     #[test]
     fn construction_failures_in_let_definitions_are_propagated() {
-        assert_unsupported("LET a = X'00' RETURN a");
+        assert_unsupported("LET a = $p.name RETURN a");
         assert_unsupported("MATCH (n) LET a = n.a.b RETURN a");
-        assert_unsupported("RETURN LET a = X'00' IN a END");
+        assert_unsupported("RETURN LET a = $p.name IN a END");
     }
 
     #[test]
     fn unsupported_expressions_never_become_successful_string_literals() {
         for query in [
-            "RETURN X'001122'",
-            "RETURN BYTE_LENGTH(X'001122')",
-            "RETURN TRIM(X'00' FROM X'001122')",
             "MATCH (n) RETURN n.address.city",
             "RETURN $param.name",
             "RETURN (1 + 2).x",
@@ -364,14 +361,11 @@ mod structural_expression_tests {
         let expressions = return_expressions(
             "RETURN DATE '2024-01-31', TIME '12:30:45', DATETIME '2024-01-31T12:30:45', TIMESTAMP '2024-01-31T12:30:45', DURATION 'P1Y2M'",
         );
-        for (expression, expected) in expressions.iter().take(4).zip([
-            "2024-01-31",
-            "12:30:45",
-            "2024-01-31T12:30:45",
-            "2024-01-31T12:30:45",
-        ]) {
+        assert!(matches!(&expressions[0], Expression::Literal(Literal::Date(value)) if value == "2024-01-31"));
+        assert!(matches!(&expressions[1], Expression::Literal(Literal::Time(value)) if value == "12:30:45"));
+        for expression in &expressions[2..4] {
             assert!(
-                matches!(expression, Expression::Literal(Literal::DateTime(value)) if value == expected),
+                matches!(expression, Expression::Literal(Literal::DateTime(value)) if value == "2024-01-31T12:30:45"),
                 "{expression:?}"
             );
         }
@@ -386,15 +380,22 @@ mod structural_expression_tests {
         let expressions = return_expressions(
             "RETURN 0x1F, 0o17, 0b101, 1_000, 0x_FF, 10M, 1.5M, 2.5F, 3D, 1e3, 1.5e-1F",
         );
-        let integers = [31, 15, 5, 1000, 255, 10];
+        let integers = [31, 15, 5, 1000, 255];
         for (expression, expected) in expressions.iter().zip(integers) {
             assert!(
                 matches!(expression, Expression::Literal(Literal::Integer(value)) if *value == expected),
                 "expected {expected}, got {expression:?}"
             );
         }
-        let floats = [1.5, 2.5, 3.0, 1000.0, 0.15];
-        for (expression, expected) in expressions.iter().skip(integers.len()).zip(floats) {
+        let decimals = ["10", "1.5"];
+        for (expression, expected) in expressions.iter().skip(integers.len()).zip(decimals) {
+            assert!(
+                matches!(expression, Expression::Literal(Literal::Decimal(value)) if value == expected),
+                "expected {expected}M, got {expression:?}"
+            );
+        }
+        let floats = [2.5, 3.0, 1000.0, 0.15];
+        for (expression, expected) in expressions.iter().skip(integers.len() + decimals.len()).zip(floats) {
             assert!(
                 matches!(expression, Expression::Literal(Literal::Float(value)) if *value == expected),
                 "expected {expected}, got {expression:?}"

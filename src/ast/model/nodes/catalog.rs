@@ -354,7 +354,7 @@ pub struct PropertyTypeSpecification {
     /// Property value type text.
     pub value_type: String,
     /// Parsed typed representation when build-time mapping succeeds.
-    pub parsed_value_type: Option<TypeSpec>,
+    pub parsed_value_type: Option<ValueType>,
     /// Source span for the property declaration.
     pub span: Span,
 }

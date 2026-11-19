@@ -314,19 +314,19 @@ fn test_cast_duration_preserves_qualifier() {
         panic!("expected CAST expression");
     };
 
-    let TypeSpec::Duration { qualifier, .. } = &cast_expr.target_type else {
+    let TypeSpec::Duration { qualifier } = &cast_expr.target_type.base else {
         panic!("expected DURATION target type");
     };
 
-    assert_eq!(qualifier.as_deref(), Some("YEAR TO MONTH"));
+    assert_eq!(*qualifier, Some(DurationQualifier::YearToMonth));
 }
 
 #[test]
 fn test_cast_graph_reference_type_populates_nested_specification() {
     let mut analyzer = DefaultGQLQueryAnalyzer::new();
     analyzer
-            .exec("MATCH (n) RETURN CAST(n.graph AS PROPERTY GRAPH { NODE TYPE Person, DIRECTED EDGE TYPE Knows CONNECTING (person TO person) }) AS g")
-            .expect("query should parse");
+        .exec("MATCH (n) RETURN CAST(n.graph AS PROPERTY GRAPH { NODE TYPE Person, DIRECTED EDGE TYPE Knows CONNECTING (person TO person) }) AS g")
+        .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
     let Statement::Query(Query::Basic(query)) = &ast.statement else {
@@ -347,7 +347,7 @@ fn test_cast_graph_reference_type_populates_nested_specification() {
         panic!("expected CAST expression");
     };
 
-    let TypeSpec::Graph { graph_type_spec } = &cast_expr.target_type else {
+    let TypeSpec::Graph { graph_type_spec } = &cast_expr.target_type.base else {
         panic!("expected GRAPH target type");
     };
 

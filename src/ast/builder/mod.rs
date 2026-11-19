@@ -41,6 +41,7 @@ mod pattern;
 mod clause;
 // Expression CST -> AST mapping helpers.
 mod expression;
+mod types;
 
 // Internal AST builder entrypoint.
 pub(crate) struct GQLAstBuilder;

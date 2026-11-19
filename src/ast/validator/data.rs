@@ -378,7 +378,7 @@ pub(super) fn are_set_operation_column_types_compatible(left: &TypeSpec, right: 
 
     match (left, right) {
         (TypeSpec::List { element_type: l, .. }, TypeSpec::List { element_type: r, .. }) => {
-            are_set_operation_column_types_compatible(l, r)
+            are_set_operation_column_types_compatible(&l.base, &r.base)
         }
         (TypeSpec::Union { members }, other) | (other, TypeSpec::Union { members }) => members
             .iter()
@@ -457,7 +457,7 @@ pub(super) fn validate_set_item(item: &SetItem, declared_variables: &mut HashSet
 
             let inferred = HashMap::new();
             if let Some(value_type) = infer_expression_type(value, &inferred, Some(declared_variables))
-                && matches!(value_type, TypeSpec::BindingTable | TypeSpec::Graph { .. })
+                && matches!(value_type, TypeSpec::BindingTable { .. } | TypeSpec::Graph { .. })
             {
                 return Err(validation_err(
                     "SET property cannot assign binding-table/graph values".to_string(),
@@ -502,7 +502,7 @@ pub(super) fn validate_set_item(item: &SetItem, declared_variables: &mut HashSet
 
             let inferred = HashMap::new();
             if let Some(value_type) = infer_expression_type(value, &inferred, Some(declared_variables))
-                && matches!(value_type, TypeSpec::BindingTable)
+                && matches!(value_type, TypeSpec::BindingTable { .. })
             {
                 return Err(validation_err(
                     "SET variable cannot assign binding-table values".to_string(),
