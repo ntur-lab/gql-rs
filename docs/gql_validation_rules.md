@@ -246,6 +246,8 @@ type is unknown.
   evaluated on the base type of the target `ValueType`.
 - `CAST(NULL AS T NOT NULL)` is rejected.
 - Only unknown values can be cast to `NULL` or `NOTHING`; `PROPERTY VALUE` accepts any source.
+- A `NULL`-typed source (for example `CAST(NULL AS NULL)`) can be cast to any nullable type and
+  is rejected, like the `NULL` literal, when the target is `NOT NULL`.
 - Types of the same family with different parameters (lengths, fields, closed reference
   descriptions) are compatible; the parameters are checked at runtime.
 - Invalid type parameters are rejected earlier, by the builder (`INVALID_TYPE_PARAMETER`,

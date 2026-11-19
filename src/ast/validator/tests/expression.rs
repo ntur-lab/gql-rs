@@ -1248,6 +1248,20 @@ fn cast_compatibility_handles_new_type_families() {
         &TypeSpec::Edge { edge_type: None }
     ));
     assert!(!is_cast_compatible(&TypeSpec::bytes(), &TypeSpec::integer()));
+
+    // A NULL-typed expression (for example `CAST(NULL AS NULL)`) can be cast to any type.
+    assert!(is_cast_compatible(&TypeSpec::Null, &TypeSpec::integer()));
+    assert!(is_cast_compatible(&TypeSpec::Null, &TypeSpec::Null));
+    assert!(is_assignable_type(&TypeSpec::Null, &TypeSpec::Date));
+    assert!(is_assignable_type(&TypeSpec::Nothing, &TypeSpec::integer()));
+
+    // Qualified durations, whichever validation path accepts them.
+    let day_to_second = TypeSpec::Duration {
+        qualifier: Some(DurationQualifier::DayToSecond),
+    };
+    assert!(is_cast_compatible(&TypeSpec::duration(), &day_to_second));
+    assert!(is_cast_compatible(&day_to_second, &TypeSpec::duration()));
+    assert!(!is_cast_compatible(&TypeSpec::duration(), &TypeSpec::integer()));
 }
 
 #[test]

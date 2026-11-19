@@ -617,8 +617,11 @@ pub(super) fn validate_declared_variable_type(
         return Ok(());
     };
     let name = definition.variable_name.trim();
+    let source_type = infer_expression_type(&definition.expression, inferred_types, Some(declared_variables));
+    let source_is_null = matches!(definition.expression, Expression::Literal(Literal::Null))
+        || matches!(source_type, Some(TypeSpec::Null));
 
-    if declared.not_null && matches!(definition.expression, Expression::Literal(Literal::Null)) {
+    if declared.not_null && source_is_null {
         return Err(validation_err(
             format!(
                 "LET variable '{}' declared as {} NOT NULL cannot be initialized with NULL",
@@ -629,8 +632,7 @@ pub(super) fn validate_declared_variable_type(
         ));
     }
 
-    let Some(source_type) = infer_expression_type(&definition.expression, inferred_types, Some(declared_variables))
-    else {
+    let Some(source_type) = source_type else {
         return Ok(());
     };
     if is_assignable_type(&source_type, &declared.base) {
@@ -655,6 +657,9 @@ pub(super) fn validate_declared_variable_type(
 pub(super) fn is_assignable_type(source: &TypeSpec, target: &TypeSpec) -> bool {
     match (source, target) {
         (TypeSpec::Any, _) | (_, TypeSpec::Any | TypeSpec::PropertyValue) => true,
+        // The null value fits every nullable type (NOT NULL is checked by the caller), and
+        // NOTHING has no values at all.
+        (TypeSpec::Null | TypeSpec::Nothing, _) => true,
         (TypeSpec::Union { members }, _) => members.iter().all(|member| is_assignable_type(member, target)),
         (_, TypeSpec::Union { members }) => members.iter().any(|member| is_assignable_type(source, member)),
         (s, t) if is_numeric_type(s) && is_numeric_type(t) => true,
@@ -677,8 +682,13 @@ pub(super) fn validate_cast_target(
     inferred_types: &HashMap<String, TypeSpec>,
 ) -> Result<(), GqlError> {
     let target_type = &cast_expression.target_type.base;
+    let source_is_null = matches!(cast_expression.expression.as_ref(), Expression::Literal(Literal::Null))
+        || matches!(
+            infer_expression_type(&cast_expression.expression, inferred_types, Some(declared_variables)),
+            Some(TypeSpec::Null)
+        );
 
-    if cast_expression.target_type.not_null && matches!(cast_expression.expression.as_ref(), Expression::Literal(Literal::Null)) {
+    if cast_expression.target_type.not_null && source_is_null {
         return Err(validation_err(
             format!("Invalid CAST target: cannot cast NULL to {} NOT NULL", type_name(target_type)),
             Some(&cast_expression.span.clone()),
@@ -1255,6 +1265,9 @@ pub(super) fn is_cast_compatible(source: &TypeSpec, target: &TypeSpec) -> bool {
 
     match (source, target) {
         (TypeSpec::Any, _) => true,
+        // A NULL-typed value is the null value, which every nullable type contains (NOT NULL
+        // targets are checked separately); NOTHING has no values at all.
+        (TypeSpec::Null | TypeSpec::Nothing, _) => true,
         // Only the null value belongs to the NULL type, and no value belongs to NOTHING.
         (_, TypeSpec::Null | TypeSpec::Nothing) => false,
         (TypeSpec::Union { members }, _) => members.iter().all(|m| is_cast_compatible(m, target)),
@@ -1284,6 +1297,7 @@ pub(super) fn is_cast_compatible(source: &TypeSpec, target: &TypeSpec) -> bool {
         // the parameters are checked at runtime.
         (
             TypeSpec::Bytes { .. }
+            | TypeSpec::Duration { .. }
             | TypeSpec::Record { .. }
             | TypeSpec::BindingTable { .. }
             | TypeSpec::Node { .. }

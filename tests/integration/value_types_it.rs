@@ -588,4 +588,30 @@ mod value_type_tests {
         }
         assert!(analyze("LET VALUE x :: STRING(5, 2) = 'a' RETURN x").is_err());
     }
+
+    #[test]
+    fn null_typed_expressions_follow_nullability() {
+        for query in [
+            "LET VALUE x :: INT = CAST(NULL AS NULL) RETURN x",
+            "RETURN CAST(CAST(NULL AS NULL) AS INT)",
+            "RETURN CAST(NULL AS NULL) IS TYPED INT",
+            "RETURN CAST(DURATION 'P1D' AS DURATION(DAY TO SECOND))",
+            "RETURN CAST(DURATION 'P1M' AS DURATION(YEAR TO MONTH))",
+        ] {
+            analyze(query).unwrap_or_else(|error| panic!("query: {query}, error: {error}"));
+        }
+        for (query, message) in [
+            (
+                "LET VALUE x :: INT NOT NULL = CAST(NULL AS NULL) RETURN x",
+                "declared as INTEGER NOT NULL cannot be initialized with NULL",
+            ),
+            (
+                "RETURN CAST(CAST(NULL AS NULL) AS INT NOT NULL)",
+                "cannot cast NULL to INTEGER NOT NULL",
+            ),
+        ] {
+            let error = analyze(query).expect_err(&format!("query must fail: {query}"));
+            assert!(error.message().contains(message), "query: {query}, error: {error}");
+        }
+    }
 }
