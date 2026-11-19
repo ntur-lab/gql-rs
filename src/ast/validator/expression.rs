@@ -966,7 +966,9 @@ pub(super) fn type_from_literal(literal: &Literal) -> TypeSpec {
             }
         }
         Literal::DateTime(text) => {
-            // The offset, when present, follows the time part.
+            // The offset, when present, follows the time part. Surrounding spaces are ignored so
+            // that a leading space is not mistaken for the date/time separator.
+            let text = text.trim();
             let time_part = text.find(['T', 't', ' ']).map_or("", |index| &text[index + 1..]);
             if has_utc_offset(time_part) {
                 TypeSpec::ZonedDateTime

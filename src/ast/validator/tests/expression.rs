@@ -1203,6 +1203,16 @@ fn type_from_literal_covers_typed_literals() {
     );
     // The dashes of the date part are not an offset.
     assert_eq!(type_from_literal(&Literal::DateTime("2024-01-31".into())), TypeSpec::LocalDateTime);
+    // Surrounding spaces are not the date/time separator.
+    assert_eq!(
+        type_from_literal(&Literal::DateTime(" 2024-01-31T12:30:00 ".into())),
+        TypeSpec::LocalDateTime
+    );
+    assert_eq!(
+        type_from_literal(&Literal::DateTime(" 2024-01-31 12:30:00+01:00".into())),
+        TypeSpec::ZonedDateTime
+    );
+    assert_eq!(type_from_literal(&Literal::Time(" 12:30:00 ".into())), TypeSpec::LocalTime);
 }
 
 #[test]
