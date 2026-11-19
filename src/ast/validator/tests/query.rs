@@ -273,7 +273,7 @@ fn collect_non_aggregated_refs_traverses_composite_expressions() {
                 variable("a"),
                 Expression::Cast(CastExpression {
                     expression: Box::new(property("b", "name")),
-                    target_type: TypeSpec::String { max_length: None },
+                    target_type: ValueType::nullable(TypeSpec::string()),
                     span: span(),
                 }),
                 Expression::WhenOperand(WhenOperandExpression {
@@ -330,7 +330,7 @@ fn order_limit_and_page_values_validate_shape() {
                 span: span()
             },
         )
-        .is_err()
+            .is_err()
     );
     assert!(
         validate_page_value(
@@ -340,7 +340,7 @@ fn order_limit_and_page_values_validate_shape() {
                 span: span()
             },
         )
-        .is_err()
+            .is_err()
     );
     assert!(
         validate_page_value(
@@ -350,7 +350,7 @@ fn order_limit_and_page_values_validate_shape() {
                 span: span()
             },
         )
-        .is_ok()
+            .is_ok()
     );
 }
 

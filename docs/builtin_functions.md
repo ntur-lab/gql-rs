@@ -73,8 +73,8 @@ as string-literal arguments are listed among the arguments (`NORMALIZE`'s normal
 | `RTRIM` | Character string | RTRIM | 1–2 | each: string | — | STRING | Complete |
 | `BTRIM` | Character string | BTRIM | 1–2 | each: string | — | STRING | Complete |
 | `NORMALIZE` | Character string | NORMALIZE | 1–2 | string, NFC/NFD/NFKC/NFKD | — | STRING | Complete |
-| `BYTE_LENGTH` | Byte string | BYTE_LENGTH | 1 | byte string | — | INTEGER | Partial — byte string values have no literal representation until issue #10 |
-| `OCTET_LENGTH` | Byte string | OCTET_LENGTH | 1 | byte string | — | INTEGER | Partial — byte string values have no literal representation until issue #10 |
+| `BYTE_LENGTH` | Byte string | BYTE_LENGTH | 1 | byte string | — | INTEGER | Complete |
+| `OCTET_LENGTH` | Byte string | OCTET_LENGTH | 1 | byte string | — | INTEGER | Complete |
 | `LEFT` | Character or byte string | LEFT | 2 | string or byte string, non-negative integer | — | STRING or BYTES (as argument 1) | Complete |
 | `RIGHT` | Character or byte string | RIGHT | 2 | string or byte string, non-negative integer | — | STRING or BYTES (as argument 1) | Complete |
 | `TRIM` | Character or byte string | TRIM | 1–3 | string form: [spec] [char] source; list form: list, non-negative integer | — | STRING/BYTES, or the list type | Partial — TRIM(spec FROM source) and TRIM('x' FROM source) share one argument shape until the expression redesign of 0.1.0 |
@@ -83,15 +83,15 @@ as string-literal arguments are listed among the arguments (`NORMALIZE`'s normal
 | `ELEMENTS` | Path | ELEMENTS | 1 | path | — | LIST<ANY> | Partial — path variables are not typed until the semantic context of issue #12 |
 | `PATH_LENGTH` | Path | PATH_LENGTH | 1 | path | — | INTEGER | Partial — path variables are not typed until the semantic context of issue #12 |
 | `CURRENT_DATE` | Temporal | CURRENT_DATE | 0 | — | — | DATE | Complete |
-| `DATE` | Temporal | DATE | 0–1 | string or record | — | DATE | Partial — temporal string contents and record fields need the literal representations of issue #10 |
+| `DATE` | Temporal | DATE | 0–1 | string or record | — | DATE | Partial — the contents of temporal strings and the fields of temporal records are not checked |
 | `CURRENT_TIME` | Temporal | CURRENT_TIME | 0 | — | — | ZONED TIME | Complete |
-| `ZONED_TIME` | Temporal | ZONED_TIME | 0–1 | string or record | — | ZONED TIME | Partial — temporal string contents and record fields need the literal representations of issue #10 |
-| `LOCAL_TIME` | Temporal | LOCAL_TIME | 0–1 | string or record | — | LOCAL TIME | Partial — temporal string contents and record fields need the literal representations of issue #10 |
+| `ZONED_TIME` | Temporal | ZONED_TIME | 0–1 | string or record | — | ZONED TIME | Partial — the contents of temporal strings and the fields of temporal records are not checked |
+| `LOCAL_TIME` | Temporal | LOCAL_TIME | 0–1 | string or record | — | LOCAL TIME | Partial — the contents of temporal strings and the fields of temporal records are not checked |
 | `CURRENT_TIMESTAMP` | Temporal | CURRENT_TIMESTAMP | 0 | — | — | ZONED DATETIME | Complete |
-| `ZONED_DATETIME` | Temporal | ZONED_DATETIME | 0–1 | string or record | — | ZONED DATETIME | Partial — temporal string contents and record fields need the literal representations of issue #10 |
+| `ZONED_DATETIME` | Temporal | ZONED_DATETIME | 0–1 | string or record | — | ZONED DATETIME | Partial — the contents of temporal strings and the fields of temporal records are not checked |
 | `LOCAL_TIMESTAMP` | Temporal | LOCAL_TIMESTAMP | 0 | — | — | LOCAL DATETIME | Complete |
-| `LOCAL_DATETIME` | Temporal | LOCAL_DATETIME | 0–1 | string or record | — | LOCAL DATETIME | Partial — temporal string contents and record fields need the literal representations of issue #10 |
-| `DURATION` | Duration | DURATION | 1 | string or record | — | DURATION | Partial — temporal string contents and record fields need the literal representations of issue #10 |
+| `LOCAL_DATETIME` | Temporal | LOCAL_DATETIME | 0–1 | string or record | — | LOCAL DATETIME | Partial — the contents of temporal strings and the fields of temporal records are not checked |
+| `DURATION` | Duration | DURATION | 1 | string or record | — | DURATION | Partial — the contents of temporal strings and the fields of temporal records are not checked |
 | `DURATION_BETWEEN` | Duration | DURATION_BETWEEN | 2–3 | date/time/datetime, date/time/datetime, YEAR TO MONTH / DAY TO SECOND | — | DURATION (with qualifier) | Complete |
 | `ELEMENT_ID` | Graph element / predicate | ELEMENT_ID | 1 | element variable | — | STRING | Complete |
 | `PROPERTY_EXISTS` | Graph element / predicate | PROPERTY_EXISTS | 2 | element variable, property name | — | BOOLEAN | Complete |
@@ -113,19 +113,18 @@ not possible with the 0.0.4 models and are deferred to 0.1.0:
 
 - **Aggregates `MIN`, `MAX` and CASE abbreviations `COALESCE`, `NULLIF`**: comparable-type constraints need the typed semantic context of issue #12. Arguments of known, incompatible
   types are rejected for `COALESCE`; otherwise any value is accepted.
-- **Byte string functions `BYTE_LENGTH`, `OCTET_LENGTH`**: byte string values have no literal representation until issue #10. The byte string constraint is only
-  checked against values typed as `BYTES`, so in practice arguments are usually unknown.
 - **`TRIM`**: TRIM(spec FROM source) and TRIM('x' FROM source) share one argument shape until the expression redesign of 0.1.0. The list form `TRIM(list, count)` is
   recognized only when the first argument is known to be a list.
 - **Path functions `ELEMENTS`, `PATH_LENGTH`**: path variables are not typed until the semantic context of issue #12. Arguments of a known, non-path type are rejected.
 - **Temporal constructors `DATE`, `ZONED_TIME`, `LOCAL_TIME`, `ZONED_DATETIME`,
-  `LOCAL_DATETIME` and `DURATION`**: temporal string contents and record fields need the literal representations of issue #10. Only the argument shape (string or record) is
+  `LOCAL_DATETIME` and `DURATION`**: the contents of temporal strings and the fields of temporal records are not checked. Only the argument shape (string or record) is
   checked.
 
 Further limitations that apply to every family:
 
-- Precise nullability, reference, record and collection-element typing is not modeled
-  (issues #10 and #12).
+- Declared types carry nullability, reference, record and list-element structure
+  (`ValueType`, issue #10), but inferred types are not refined with them: expression
+  inference stays at the level of the base `TypeSpec` (issue #12).
 - Declared or inferred variable types are not propagated across query steps (issue #12),
   so most variable and property arguments have an unknown type.
 - `FunctionCall` does not record whether a call was written as a built-in form or as a
@@ -146,7 +145,6 @@ being turned into strings or reconstructed from source text:
 
 | Expression | Example | Tracked by |
 |---|---|---|
-| Byte string literals | `X'00FF'` | issue #10 |
 | Property reference on a non-variable expression | `n.address.city`, `$p.name`, `(1 + 2).x` | 0.1.0 expression redesign |
 | Catalog, delimited or home graph references | `GRAPH cat.g`, ``GRAPH `g` ``, `GRAPH HOME_GRAPH` | issue #15 |
 | Current graph | `GRAPH CURRENT_GRAPH` | issue #15 |
@@ -154,9 +152,11 @@ being turned into strings or reconstructed from source text:
 
 Related representations chosen with the existing AST:
 
-- `DATE '...'`, `TIME '...'`, `DATETIME '...'` and `TIMESTAMP '...'` literals become
-  `Literal::DateTime` with the decoded string; `DURATION '...'` becomes
-  `Literal::Duration`. The specific temporal kind is not preserved (issue #10).
+- `DATE '...'`, `TIME '...'` and `DATETIME '...'` / `TIMESTAMP '...'` literals become
+  `Literal::Date`, `Literal::Time` and `Literal::DateTime` with the decoded string;
+  `DURATION '...'` becomes `Literal::Duration`. Byte string literals `X'...'` become
+  `Literal::Bytes` and exact numeric literals with the `M` suffix become `Literal::Decimal`
+  (issue #10).
 - `UNKNOWN` becomes `Literal::Null`, the null value of the boolean type.
 - `SESSION_USER` becomes a niladic `SESSION_USER` built-in call.
 - `GRAPH $$g` and `TABLE $$t` become `Literal::Parameter`.

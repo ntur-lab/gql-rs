@@ -37,9 +37,9 @@ fn scope() -> (HashSet<String>, HashMap<String, TypeSpec>) {
         ["n", "m", "e", "untyped", "bytes", "path", "list", "when"].map(str::to_string),
     );
     let inferred = HashMap::from([
-        ("bytes".to_string(), TypeSpec::Bytes { max_length: None }),
+        ("bytes".to_string(), TypeSpec::bytes()),
         ("path".to_string(), TypeSpec::Path),
-        ("list".to_string(), list_type(TypeSpec::Integer)),
+        ("list".to_string(), list_type(TypeSpec::integer())),
         ("when".to_string(), TypeSpec::Date),
     ]);
     (declared, inferred)
@@ -422,62 +422,59 @@ fn return_types_follow_registry_rules() {
     let cases = vec![
         (
             call_with("FLOOR", vec![float(1.5)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
         (
             call_with("FLOOR", vec![integer(1)]),
-            Some(TypeSpec::Integer),
+            Some(TypeSpec::integer()),
         ),
         (
             call_with("ABS", vec![duration.clone()]),
-            Some(TypeSpec::Duration {
-                precision: None,
-                qualifier: None,
-            }),
+            Some(TypeSpec::duration()),
         ),
         (
             call_with("MOD", vec![integer(7), integer(2)]),
-            Some(TypeSpec::Integer),
+            Some(TypeSpec::integer()),
         ),
         (
             call_with("MOD", vec![integer(7), float(2.0)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
         (
             call_with("SQRT", vec![integer(4)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
         (
             call_with("SIN", vec![integer(0)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
         (
             call_with("CHAR_LENGTH", vec![string("a")]),
-            Some(TypeSpec::Integer),
+            Some(TypeSpec::integer()),
         ),
         (
             call_with("BYTE_LENGTH", vec![variable("bytes")]),
-            Some(TypeSpec::Integer),
+            Some(TypeSpec::integer()),
         ),
         (
             call_with("LEFT", vec![variable("bytes"), integer(1)]),
-            Some(TypeSpec::Bytes { max_length: None }),
+            Some(TypeSpec::bytes()),
         ),
         (
             call_with("LEFT", vec![string("abc"), integer(1)]),
-            Some(TypeSpec::String { max_length: None }),
+            Some(TypeSpec::string()),
         ),
         (
             call_with("TRIM", vec![variable("list"), integer(1)]),
-            Some(list_type(TypeSpec::Integer)),
+            Some(list_type(TypeSpec::integer())),
         ),
         (
             call_with("TRIM", vec![string("x"), string("xa")]),
-            Some(TypeSpec::String { max_length: None }),
+            Some(TypeSpec::string()),
         ),
         (
             call_with("SIZE", vec![variable("list")]),
-            Some(TypeSpec::Integer),
+            Some(TypeSpec::integer()),
         ),
         (
             call_with("ELEMENTS", vec![variable("path")]),
@@ -485,62 +482,56 @@ fn return_types_follow_registry_rules() {
         ),
         (
             call_with("PATH_LENGTH", vec![variable("path")]),
-            Some(TypeSpec::Integer),
+            Some(TypeSpec::integer()),
         ),
         (
             call_with("COLLECT_LIST", vec![string("a")]),
-            Some(list_type(TypeSpec::String { max_length: None })),
+            Some(list_type(TypeSpec::string())),
         ),
         (
             call_with("AVG", vec![integer(1)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
         (
             call_with("AVG", vec![duration.clone()]),
-            Some(TypeSpec::Duration {
-                precision: None,
-                qualifier: None,
-            }),
+            Some(TypeSpec::duration()),
         ),
-        (call_with("SUM", vec![integer(1)]), Some(TypeSpec::Integer)),
+        (call_with("SUM", vec![integer(1)]), Some(TypeSpec::integer())),
         (
             call_with("SUM", vec![variable("untyped")]),
             Some(TypeSpec::Any),
         ),
         (
             call_with("PERCENTILE_CONT", vec![integer(1), float(0.5)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
         (
             call_with("STDDEV_POP", vec![integer(1)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
         (call_with("DATE", vec![]), Some(TypeSpec::Date)),
         (
             call_with("ZONED_TIME", vec![]),
-            Some(TypeSpec::ZonedTime { precision: None }),
+            Some(TypeSpec::ZonedTime),
         ),
         (
             call_with("LOCAL_DATETIME", vec![]),
-            Some(TypeSpec::LocalDateTime { precision: None }),
+            Some(TypeSpec::LocalDateTime),
         ),
         (
             call_with("ZONED_DATETIME", vec![]),
-            Some(TypeSpec::ZonedDateTime { precision: None }),
+            Some(TypeSpec::ZonedDateTime),
         ),
         (
             call_with(
                 "DURATION_BETWEEN",
                 vec![variable("when"), variable("when"), string("YEAR TO MONTH")],
             ),
-            Some(TypeSpec::Duration {
-                precision: None,
-                qualifier: Some("YEAR TO MONTH".to_string()),
-            }),
+            Some(TypeSpec::Duration { qualifier: Some(DurationQualifier::YearToMonth) }),
         ),
         (
             call_with("ELEMENT_ID", vec![variable("n")]),
-            Some(TypeSpec::String { max_length: None }),
+            Some(TypeSpec::string()),
         ),
         (
             call_with("IS_DIRECTED", vec![variable("e")]),
@@ -548,26 +539,26 @@ fn return_types_follow_registry_rules() {
         ),
         (
             call_with("COALESCE", vec![integer(1), integer(2)]),
-            Some(TypeSpec::Integer),
+            Some(TypeSpec::integer()),
         ),
         (
             call_with("COALESCE", vec![integer(1), float(2.0)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
         (
             call_with(
                 "COALESCE",
                 vec![Expression::Literal(Literal::Null), string("a")],
             ),
-            Some(TypeSpec::String { max_length: None }),
+            Some(TypeSpec::string()),
         ),
         (
             call_with("NULLIF", vec![string("a"), string("b")]),
-            Some(TypeSpec::String { max_length: None }),
+            Some(TypeSpec::string()),
         ),
         (
             call_with("SESSION_USER", vec![]),
-            Some(TypeSpec::String { max_length: None }),
+            Some(TypeSpec::string()),
         ),
     ];
 
@@ -599,12 +590,12 @@ fn grammar_rules(grammar: &str) -> HashMap<String, String> {
         let trimmed = line.trim();
         if !trimmed.is_empty()
             && trimmed
-                .chars()
-                .next()
-                .is_some_and(|c| c.is_ascii_lowercase())
+            .chars()
+            .next()
+            .is_some_and(|c| c.is_ascii_lowercase())
             && trimmed
-                .chars()
-                .all(|c| c.is_ascii_alphanumeric() || c == '_')
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '_')
         {
             current = Some((trimmed.to_string(), String::new()));
         }
@@ -701,8 +692,8 @@ fn registry_covers_every_grammar_builtin() {
         "dynamicParameterSpecification",
         "userDefinedFunction",
     ]
-    .into_iter()
-    .collect();
+        .into_iter()
+        .collect();
     // Punctuation and keywords that only shape a function form.
     let structural_tokens: HashSet<&str> = [
         "LEFT_PAREN",
@@ -713,8 +704,8 @@ fn registry_covers_every_grammar_builtin() {
         "NOT",
         "OF",
     ]
-    .into_iter()
-    .collect();
+        .into_iter()
+        .collect();
 
     let mut grammar_tokens = BTreeSet::new();
     let mut visited = HashSet::new();

@@ -227,7 +227,7 @@ fn validate_when_operand_accepts_complete_variants() {
         WhenOperandKind::DirectedPredicate { negated: true },
         WhenOperandKind::ValueTypePredicate {
             negated: false,
-            target_type: Some(TypeSpec::Integer),
+            target_type: Some(ValueType::nullable(TypeSpec::integer())),
         },
         WhenOperandKind::NormalizedPredicate {
             negated: false,
@@ -302,7 +302,7 @@ fn validate_is_predicate_types_checks_boolean_and_typed_predicates() {
     let valid_typed = IsPredicateExpression {
         expression: Box::new(integer(1)),
         negated: false,
-        predicate: IsPredicateKind::Typed(TypeSpec::Float { precision: None }),
+        predicate: IsPredicateKind::Typed(ValueType::nullable(TypeSpec::float())),
         span: span(),
     };
     assert!(validate_is_predicate_types(&valid_typed, &declared, &inferred).is_ok());
@@ -310,7 +310,7 @@ fn validate_is_predicate_types_checks_boolean_and_typed_predicates() {
     let invalid_typed = IsPredicateExpression {
         expression: Box::new(boolean(true)),
         negated: false,
-        predicate: IsPredicateKind::Typed(TypeSpec::Graph { graph_type_spec: None }),
+        predicate: IsPredicateKind::Typed(ValueType::nullable(TypeSpec::Graph { graph_type_spec: None })),
         span: span(),
     };
     assert!(validate_is_predicate_types(&invalid_typed, &declared, &inferred).is_err());
@@ -492,7 +492,7 @@ fn contains_aggregate_function_traverses_expression_variants() {
         Expression::Case(searched_case(boolean(true), integer(1), Some(aggregate.clone()))),
         Expression::Cast(CastExpression {
             expression: Box::new(aggregate.clone()),
-            target_type: TypeSpec::Integer,
+            target_type: ValueType::nullable(TypeSpec::integer()),
             span: span(),
         }),
         Expression::InlineLet(InlineLetExpression {
@@ -526,26 +526,23 @@ fn contains_aggregate_function_traverses_expression_variants() {
 
 #[test]
 fn comparison_type_compatibility_covers_type_families() {
-    let string_type = TypeSpec::String { max_length: None };
-    let bytes_type = TypeSpec::Bytes { max_length: None };
-    let float_type = TypeSpec::Float { precision: None };
-    let timestamp = TypeSpec::Timestamp {
-        precision: None,
-        with_timezone: false,
-    };
+    let string_type = TypeSpec::string();
+    let bytes_type = TypeSpec::bytes();
+    let float_type = TypeSpec::float();
+    let timestamp = TypeSpec::LocalDateTime;
 
-    assert!(are_comparison_types_compatible(&TypeSpec::Integer, &TypeSpec::Integer));
+    assert!(are_comparison_types_compatible(&TypeSpec::integer(), &TypeSpec::integer()));
     assert!(are_comparison_types_compatible(
         &TypeSpec::Any,
         &TypeSpec::Graph { graph_type_spec: None }
     ));
-    assert!(are_comparison_types_compatible(&TypeSpec::Integer, &float_type));
+    assert!(are_comparison_types_compatible(&TypeSpec::integer(), &float_type));
     assert!(are_comparison_types_compatible(&string_type, &bytes_type));
     assert!(are_comparison_types_compatible(&TypeSpec::Date, &timestamp));
     assert!(are_comparison_types_compatible(&TypeSpec::Boolean, &TypeSpec::Boolean));
     assert!(are_comparison_types_compatible(&TypeSpec::Path, &TypeSpec::Path));
-    assert!(are_comparison_types_compatible(&TypeSpec::Record, &TypeSpec::Record));
-    assert!(!are_comparison_types_compatible(&TypeSpec::Boolean, &TypeSpec::Integer));
+    assert!(are_comparison_types_compatible(&TypeSpec::record(), &TypeSpec::record()));
+    assert!(!are_comparison_types_compatible(&TypeSpec::Boolean, &TypeSpec::integer()));
 }
 
 #[test]
@@ -610,21 +607,21 @@ fn validate_cast_target_checks_dynamic_lists_and_incompatible_types() {
             elements: vec![variable("$value")],
             span: span(),
         })),
-        target_type: list_type(TypeSpec::Integer),
+        target_type: ValueType::nullable(list_type(TypeSpec::integer())),
         span: span(),
     };
     assert!(validate_cast_target(&dynamic_list, &declared, &inferred).is_err());
 
     let invalid_temporal_cast = CastExpression {
         expression: Box::new(Expression::Literal(Literal::DateTime("2026-01-01".to_string()))),
-        target_type: TypeSpec::Integer,
+        target_type: ValueType::nullable(TypeSpec::integer()),
         span: span(),
     };
     assert!(validate_cast_target(&invalid_temporal_cast, &declared, &inferred).is_err());
 
     let valid_numeric_cast = CastExpression {
         expression: Box::new(integer(1)),
-        target_type: TypeSpec::Double,
+        target_type: ValueType::nullable(TypeSpec::Float { size: FloatSize::Double }),
         span: span(),
     };
     assert!(validate_cast_target(&valid_numeric_cast, &declared, &inferred).is_ok());
@@ -634,33 +631,33 @@ fn validate_cast_target_checks_dynamic_lists_and_incompatible_types() {
 fn infer_expression_type_covers_primary_expression_variants() {
     let declared = HashSet::from(["n".to_string()]);
     let inferred = HashMap::from([
-        ("typed".to_string(), TypeSpec::Integer),
-        ("n".to_string(), TypeSpec::Record),
+        ("typed".to_string(), TypeSpec::integer()),
+        ("n".to_string(), TypeSpec::record()),
     ]);
 
     assert_eq!(
         infer_expression_type(&integer(1), &inferred, Some(&declared)),
-        Some(TypeSpec::Integer)
+        Some(TypeSpec::integer())
     );
 
     assert_eq!(
         infer_expression_type(&variable("typed"), &inferred, Some(&declared)),
-        Some(TypeSpec::Integer)
+        Some(TypeSpec::integer())
     );
 
     assert_eq!(
         infer_expression_type(&variable("100"), &inferred, Some(&declared)),
-        Some(TypeSpec::Integer)
+        Some(TypeSpec::integer())
     );
 
     assert_eq!(
         infer_expression_type(&variable("3.14"), &inferred, Some(&declared)),
-        Some(TypeSpec::Float { precision: None })
+        Some(TypeSpec::float())
     );
 
     assert_eq!(
         infer_expression_type(&variable("n"), &inferred, Some(&declared)),
-        Some(TypeSpec::Record)
+        Some(TypeSpec::record())
     );
 
     assert_eq!(
@@ -675,7 +672,7 @@ fn infer_expression_type_covers_primary_expression_variants() {
 
     assert_eq!(
         infer_expression_type(&Expression::Map(vec![]), &inferred, Some(&declared)),
-        Some(TypeSpec::Record)
+        Some(TypeSpec::record())
     );
 
     assert_eq!(
@@ -695,7 +692,7 @@ fn infer_expression_type_covers_unary_and_binary_results() {
 
     assert_eq!(
         infer_expression_type(&Expression::Unary(unary(Operator::Minus, integer(1))), &inferred, None),
-        Some(TypeSpec::Integer)
+        Some(TypeSpec::integer())
     );
 
     assert_eq!(
@@ -709,12 +706,12 @@ fn infer_expression_type_covers_unary_and_binary_results() {
 
     assert_eq!(
         infer_expression_type(&binary(integer(1), Operator::Plus, float(2.0)), &inferred, None),
-        Some(TypeSpec::Float { precision: None })
+        Some(TypeSpec::float())
     );
 
     assert_eq!(
         infer_expression_type(&binary(string("a"), Operator::Concat, string("b")), &inferred, None),
-        Some(TypeSpec::String { max_length: None })
+        Some(TypeSpec::string())
     );
 
     assert_eq!(
@@ -736,7 +733,7 @@ fn infer_case_type_returns_single_or_union_type() {
 
     assert_eq!(
         infer_case_type(&same_type, &inferred, None),
-        Some(TypeSpec::String { max_length: None })
+        Some(TypeSpec::string())
     );
 
     let mixed_type = searched_case(boolean(true), integer(1), Some(string("other")));
@@ -744,7 +741,7 @@ fn infer_case_type_returns_single_or_union_type() {
     assert_eq!(
         infer_case_type(&mixed_type, &inferred, None),
         Some(TypeSpec::Union {
-            members: vec![TypeSpec::Integer, TypeSpec::String { max_length: None },],
+            members: vec![TypeSpec::integer(), TypeSpec::string(),],
         })
     );
 
@@ -764,40 +761,37 @@ fn infer_function_call_type_covers_builtin_families() {
     let inferred = HashMap::new();
 
     let cases = vec![
-        (function_call("COUNT", vec![integer(1)]), Some(TypeSpec::Integer)),
-        (function_call("PATH_LENGTH", vec![integer(1)]), Some(TypeSpec::Integer)),
+        (function_call("COUNT", vec![integer(1)]), Some(TypeSpec::integer())),
+        (function_call("PATH_LENGTH", vec![integer(1)]), Some(TypeSpec::integer())),
         (
             function_call("AVG", vec![integer(1)]),
-            Some(TypeSpec::Float { precision: None }),
+            Some(TypeSpec::float()),
         ),
-        (function_call("SUM", vec![integer(1)]), Some(TypeSpec::Integer)),
+        (function_call("SUM", vec![integer(1)]), Some(TypeSpec::integer())),
         (
             function_call("LOWER", vec![string("ABC")]),
-            Some(TypeSpec::String { max_length: None }),
+            Some(TypeSpec::string()),
         ),
         (function_call("CURRENT_DATE", vec![]), Some(TypeSpec::Date)),
         (
             function_call("CURRENT_TIME", vec![]),
-            Some(TypeSpec::ZonedTime { precision: None }),
+            Some(TypeSpec::ZonedTime),
         ),
         (
             function_call("LOCAL_TIME", vec![]),
-            Some(TypeSpec::LocalTime { precision: None }),
+            Some(TypeSpec::LocalTime),
         ),
         (
             function_call("CURRENT_TIMESTAMP", vec![]),
-            Some(TypeSpec::ZonedDateTime { precision: None }),
+            Some(TypeSpec::ZonedDateTime),
         ),
         (
             function_call("LOCAL_TIMESTAMP", vec![]),
-            Some(TypeSpec::LocalDateTime { precision: None }),
+            Some(TypeSpec::LocalDateTime),
         ),
         (
             function_call("DURATION", vec![]),
-            Some(TypeSpec::Duration {
-                precision: None,
-                qualifier: None,
-            }),
+            Some(TypeSpec::duration()),
         ),
         (function_call("ELEMENTS", vec![]), Some(list_type(TypeSpec::Any))),
         (function_call("unknown_function", vec![]), None),
@@ -818,29 +812,23 @@ fn type_from_literal_maps_every_literal_family() {
     let cases = vec![
         (
             Literal::String("value".to_string()),
-            TypeSpec::String { max_length: None },
+            TypeSpec::string(),
         ),
-        (Literal::Integer(1), TypeSpec::Integer),
-        (Literal::Float(1.5), TypeSpec::Float { precision: None }),
+        (Literal::Integer(1), TypeSpec::integer()),
+        (Literal::Float(1.5), TypeSpec::float()),
         (Literal::Boolean(true), TypeSpec::Boolean),
         (Literal::Null, TypeSpec::Any),
         (
             Literal::DateTime("2026-01-01".to_string()),
-            TypeSpec::Timestamp {
-                precision: None,
-                with_timezone: false,
-            },
+            TypeSpec::LocalDateTime,
         ),
         (
             Literal::Duration("P1D".to_string()),
-            TypeSpec::Duration {
-                precision: None,
-                qualifier: None,
-            },
+            TypeSpec::duration(),
         ),
         (
             Literal::TimeWindow("window".to_string()),
-            TypeSpec::String { max_length: None },
+            TypeSpec::string(),
         ),
         (Literal::Vector(vec![1.0, 2.0]), TypeSpec::Vector { dimension: Some(2) }),
         (Literal::Parameter("$value".to_string()), TypeSpec::Any),
@@ -852,7 +840,7 @@ fn type_from_literal_maps_every_literal_family() {
 
     assert_eq!(
         type_from_literal(&Literal::List(vec![Literal::Integer(1), Literal::Float(2.0),])),
-        list_type(TypeSpec::Float { precision: None })
+        list_type(TypeSpec::float())
     );
 
     assert_eq!(type_from_literal(&Literal::List(vec![])), list_type(TypeSpec::Any));
@@ -881,30 +869,30 @@ fn validate_array_element_consistency_rejects_incompatible_types() {
 #[test]
 fn array_type_compatibility_covers_nested_and_dynamic_types() {
     assert!(are_array_element_types_compatible(
-        &TypeSpec::Integer,
-        &TypeSpec::Integer
+        &TypeSpec::integer(),
+        &TypeSpec::integer()
     ));
 
     assert!(are_array_element_types_compatible(&TypeSpec::Any, &TypeSpec::Boolean));
 
     assert!(are_array_element_types_compatible(
-        &TypeSpec::Integer,
-        &TypeSpec::Double
+        &TypeSpec::integer(),
+        &TypeSpec::Float { size: FloatSize::Double }
     ));
 
     assert!(are_array_element_types_compatible(
-        &list_type(TypeSpec::Integer),
-        &list_type(TypeSpec::Double)
+        &list_type(TypeSpec::integer()),
+        &list_type(TypeSpec::Float { size: FloatSize::Double })
     ));
 
     assert!(are_array_element_types_compatible(
-        &list_type(TypeSpec::Integer),
-        &TypeSpec::String { max_length: None }
+        &list_type(TypeSpec::integer()),
+        &TypeSpec::string()
     ));
 
     assert!(!are_array_element_types_compatible(
         &TypeSpec::Boolean,
-        &TypeSpec::Integer
+        &TypeSpec::integer()
     ));
 }
 
@@ -916,27 +904,27 @@ fn merge_array_element_types_covers_all_merge_paths() {
     );
 
     assert_eq!(
-        merge_array_element_types(&TypeSpec::Any, &TypeSpec::Integer),
-        Some(TypeSpec::Integer)
+        merge_array_element_types(&TypeSpec::Any, &TypeSpec::integer()),
+        Some(TypeSpec::integer())
     );
 
     assert_eq!(
-        merge_array_element_types(&TypeSpec::Integer, &TypeSpec::Any),
-        Some(TypeSpec::Integer)
+        merge_array_element_types(&TypeSpec::integer(), &TypeSpec::Any),
+        Some(TypeSpec::integer())
     );
 
     assert_eq!(
-        merge_array_element_types(&TypeSpec::Integer, &TypeSpec::Double),
-        Some(TypeSpec::Float { precision: None })
+        merge_array_element_types(&TypeSpec::integer(), &TypeSpec::Float { size: FloatSize::Double }),
+        Some(TypeSpec::float())
     );
 
     assert_eq!(
-        merge_array_element_types(&list_type(TypeSpec::Integer), &list_type(TypeSpec::Double)),
-        Some(list_type(TypeSpec::Float { precision: None }))
+        merge_array_element_types(&list_type(TypeSpec::integer()), &list_type(TypeSpec::Float { size: FloatSize::Double })),
+        Some(list_type(TypeSpec::float()))
     );
 
     assert_eq!(
-        merge_array_element_types(&TypeSpec::Boolean, &TypeSpec::Integer),
+        merge_array_element_types(&TypeSpec::Boolean, &TypeSpec::integer()),
         Some(TypeSpec::Any)
     );
 }
@@ -944,20 +932,20 @@ fn merge_array_element_types_covers_all_merge_paths() {
 #[test]
 fn normalize_union_members_flattens_and_deduplicates() {
     let result = normalize_union_members(vec![
-        TypeSpec::Integer,
+        TypeSpec::integer(),
         TypeSpec::Union {
-            members: vec![TypeSpec::Integer, TypeSpec::Boolean],
+            members: vec![TypeSpec::integer(), TypeSpec::Boolean],
         },
         TypeSpec::Boolean,
-        TypeSpec::String { max_length: None },
+        TypeSpec::string(),
     ]);
 
     assert_eq!(
         result,
         vec![
-            TypeSpec::Integer,
+            TypeSpec::integer(),
             TypeSpec::Boolean,
-            TypeSpec::String { max_length: None },
+            TypeSpec::string(),
         ]
     );
 }
@@ -990,7 +978,7 @@ fn dynamic_parameter_detection_traverses_expression_variants() {
         Expression::Case(searched_case(boolean(true), integer(1), Some(parameter.clone()))),
         Expression::Cast(CastExpression {
             expression: Box::new(parameter.clone()),
-            target_type: TypeSpec::String { max_length: None },
+            target_type: ValueType::nullable(TypeSpec::string()),
             span: span(),
         }),
         Expression::InlineLet(InlineLetExpression {
@@ -1028,26 +1016,26 @@ fn dynamic_parameter_detection_traverses_expression_variants() {
 
 #[test]
 fn type_classification_helpers_cover_every_family() {
-    assert!(is_float_like_type(&TypeSpec::Float { precision: None }));
-    assert!(is_float_like_type(&TypeSpec::Float32));
-    assert!(is_float_like_type(&TypeSpec::Real));
-    assert!(is_float_like_type(&TypeSpec::Double));
+    assert!(is_float_like_type(&TypeSpec::float()));
+    assert!(is_float_like_type(&TypeSpec::Float { size: FloatSize::Bits32 }));
+    assert!(is_float_like_type(&TypeSpec::Float { size: FloatSize::Real }));
+    assert!(is_float_like_type(&TypeSpec::Float { size: FloatSize::Double }));
     assert!(is_float_like_type(&TypeSpec::Decimal {
         precision: Some(10),
         scale: Some(2),
     }));
-    assert!(!is_float_like_type(&TypeSpec::Integer));
+    assert!(!is_float_like_type(&TypeSpec::integer()));
 
     for numeric in [
-        TypeSpec::Integer,
-        TypeSpec::BigInt,
-        TypeSpec::SmallInt,
-        TypeSpec::Int128,
-        TypeSpec::Int256,
-        TypeSpec::Float { precision: None },
-        TypeSpec::Float32,
-        TypeSpec::Real,
-        TypeSpec::Double,
+        TypeSpec::integer(),
+        TypeSpec::Integer { signed: true, size: IntegerSize::Big },
+        TypeSpec::Integer { signed: true, size: IntegerSize::Small },
+        TypeSpec::Integer { signed: true, size: IntegerSize::Bits128 },
+        TypeSpec::Integer { signed: true, size: IntegerSize::Bits256 },
+        TypeSpec::float(),
+        TypeSpec::Float { size: FloatSize::Bits32 },
+        TypeSpec::Float { size: FloatSize::Real },
+        TypeSpec::Float { size: FloatSize::Double },
         TypeSpec::Decimal {
             precision: None,
             scale: None,
@@ -1056,95 +1044,79 @@ fn type_classification_helpers_cover_every_family() {
         assert!(is_numeric_type(&numeric));
     }
 
-    assert!(is_duration_type(&TypeSpec::Duration {
-        precision: None,
-        qualifier: None,
-    }));
+    assert!(is_duration_type(&TypeSpec::duration()));
     assert!(is_boolean_type(&TypeSpec::Boolean));
 
     for temporal in [
         TypeSpec::Date,
-        TypeSpec::Time {
-            precision: None,
-            with_timezone: false,
-        },
-        TypeSpec::Timestamp {
-            precision: None,
-            with_timezone: false,
-        },
-        TypeSpec::ZonedTime { precision: None },
-        TypeSpec::ZonedDateTime { precision: None },
-        TypeSpec::LocalTime { precision: None },
-        TypeSpec::LocalDateTime { precision: None },
-        TypeSpec::Duration {
-            precision: None,
-            qualifier: None,
-        },
+        TypeSpec::LocalDateTime,
+        TypeSpec::ZonedTime,
+        TypeSpec::ZonedDateTime,
+        TypeSpec::LocalTime,
+        TypeSpec::LocalDateTime,
+        TypeSpec::duration(),
     ] {
         assert!(is_temporal_like_type(&temporal));
     }
 
-    assert!(is_string_like_type(&TypeSpec::String { max_length: None }));
-    assert!(is_string_like_type(&TypeSpec::Bytes { max_length: None }));
-    assert!(is_concat_compatible_type(&TypeSpec::String { max_length: None }));
+    assert!(is_string_like_type(&TypeSpec::string()));
+    assert!(is_string_like_type(&TypeSpec::bytes()));
+    assert!(is_concat_compatible_type(&TypeSpec::string()));
     assert!(is_concat_compatible_type(&TypeSpec::Path));
 }
 
 #[test]
 fn numeric_promotion_prefers_float_like_types() {
     assert_eq!(
-        promote_numeric_type(&TypeSpec::Integer, &TypeSpec::BigInt),
-        TypeSpec::Integer
+        promote_numeric_type(&TypeSpec::integer(), &TypeSpec::Integer { signed: true, size: IntegerSize::Big }),
+        TypeSpec::integer()
     );
 
     assert_eq!(
-        promote_numeric_type(&TypeSpec::Integer, &TypeSpec::Double),
-        TypeSpec::Float { precision: None }
+        promote_numeric_type(&TypeSpec::integer(), &TypeSpec::Float { size: FloatSize::Double }),
+        TypeSpec::float()
     );
 }
 
 #[test]
 fn cast_compatibility_covers_scalar_union_and_list_rules() {
-    let string_type = TypeSpec::String { max_length: None };
+    let string_type = TypeSpec::string();
 
-    assert!(is_cast_compatible(&TypeSpec::Integer, &TypeSpec::Integer));
-    assert!(is_cast_compatible(&TypeSpec::Integer, &TypeSpec::Any));
+    assert!(is_cast_compatible(&TypeSpec::integer(), &TypeSpec::integer()));
+    assert!(is_cast_compatible(&TypeSpec::integer(), &TypeSpec::Any));
     assert!(is_cast_compatible(&TypeSpec::Boolean, &string_type));
-    assert!(is_cast_compatible(&string_type, &TypeSpec::Integer));
-    assert!(is_cast_compatible(&TypeSpec::Integer, &TypeSpec::Boolean));
+    assert!(is_cast_compatible(&string_type, &TypeSpec::integer()));
+    assert!(is_cast_compatible(&TypeSpec::integer(), &TypeSpec::Boolean));
     assert!(is_cast_compatible(
         &TypeSpec::Date,
-        &TypeSpec::Timestamp {
-            precision: None,
-            with_timezone: false,
-        }
+        &TypeSpec::LocalDateTime
     ));
 
     assert!(is_cast_compatible(
         &TypeSpec::Union {
-            members: vec![TypeSpec::Integer, TypeSpec::Double],
+            members: vec![TypeSpec::integer(), TypeSpec::Float { size: FloatSize::Double }],
         },
-        &TypeSpec::Float { precision: None }
+        &TypeSpec::float()
     ));
 
     assert!(is_cast_compatible(
-        &TypeSpec::Integer,
+        &TypeSpec::integer(),
         &TypeSpec::Union {
-            members: vec![TypeSpec::Boolean, TypeSpec::Double,],
+            members: vec![TypeSpec::Boolean, TypeSpec::Float { size: FloatSize::Double },],
         }
     ));
 
     assert!(is_cast_compatible(
-        &list_type(TypeSpec::Integer),
-        &list_type(TypeSpec::Double)
+        &list_type(TypeSpec::integer()),
+        &list_type(TypeSpec::Float { size: FloatSize::Double })
     ));
 
     assert!(!is_cast_compatible(
         &list_type(TypeSpec::Any),
-        &list_type(TypeSpec::Integer)
+        &list_type(TypeSpec::integer())
     ));
 
-    assert!(is_cast_compatible(&TypeSpec::Record, &TypeSpec::Record));
+    assert!(is_cast_compatible(&TypeSpec::record(), &TypeSpec::record()));
     assert!(is_cast_compatible(&TypeSpec::Path, &TypeSpec::Path));
 
     assert!(!is_cast_compatible(
@@ -1157,8 +1129,8 @@ fn cast_compatibility_covers_scalar_union_and_list_rules() {
 fn type_name_covers_all_type_spec_variants() {
     let cases = vec![
         (TypeSpec::Boolean, "BOOLEAN"),
-        (TypeSpec::String { max_length: None }, "STRING"),
-        (TypeSpec::Bytes { max_length: None }, "BYTES"),
+        (TypeSpec::string(), "STRING"),
+        (TypeSpec::bytes(), "BYTES"),
         (
             TypeSpec::Decimal {
                 precision: None,
@@ -1166,51 +1138,40 @@ fn type_name_covers_all_type_spec_variants() {
             },
             "DECIMAL",
         ),
-        (TypeSpec::Integer, "INTEGER"),
-        (TypeSpec::BigInt, "BIGINT"),
-        (TypeSpec::SmallInt, "SMALLINT"),
-        (TypeSpec::Int128, "INT128"),
-        (TypeSpec::Int256, "INT256"),
-        (TypeSpec::Float { precision: None }, "FLOAT"),
-        (TypeSpec::Float32, "FLOAT32"),
-        (TypeSpec::Real, "REAL"),
-        (TypeSpec::Double, "DOUBLE"),
+        (TypeSpec::integer(), "INTEGER"),
+        (TypeSpec::Integer { signed: true, size: IntegerSize::Big }, "BIGINT"),
+        (TypeSpec::Integer { signed: true, size: IntegerSize::Small }, "SMALLINT"),
+        (TypeSpec::Integer { signed: true, size: IntegerSize::Bits128 }, "INT128"),
+        (TypeSpec::Integer { signed: true, size: IntegerSize::Bits256 }, "INT256"),
+        (TypeSpec::float(), "FLOAT"),
+        (TypeSpec::Float { size: FloatSize::Bits32 }, "FLOAT32"),
+        (TypeSpec::Float { size: FloatSize::Real }, "REAL"),
+        (TypeSpec::Float { size: FloatSize::Double }, "DOUBLE"),
         (TypeSpec::Vector { dimension: None }, "VECTOR"),
         (TypeSpec::Date, "DATE"),
+        (TypeSpec::ZonedTime, "ZONED TIME"),
+        (TypeSpec::ZonedDateTime, "ZONED DATETIME"),
+        (TypeSpec::LocalTime, "LOCAL TIME"),
+        (TypeSpec::LocalDateTime, "LOCAL DATETIME"),
         (
-            TypeSpec::Time {
-                precision: None,
-                with_timezone: false,
-            },
-            "TIME",
-        ),
-        (
-            TypeSpec::Timestamp {
-                precision: None,
-                with_timezone: false,
-            },
-            "TIMESTAMP",
-        ),
-        (TypeSpec::ZonedTime { precision: None }, "ZONED TIME"),
-        (TypeSpec::ZonedDateTime { precision: None }, "ZONED DATETIME"),
-        (TypeSpec::LocalTime { precision: None }, "LOCAL TIME"),
-        (TypeSpec::LocalDateTime { precision: None }, "LOCAL DATETIME"),
-        (
-            TypeSpec::Duration {
-                precision: None,
-                qualifier: None,
-            },
+            TypeSpec::duration(),
             "DURATION",
         ),
-        (TypeSpec::Reference { target_type: None }, "REFERENCE"),
+        (TypeSpec::Node { node_type: None }, "NODE"),
+        (TypeSpec::Edge { edge_type: None }, "EDGE"),
+        (TypeSpec::Integer { signed: false, size: IntegerSize::Bits8 }, "UINT8"),
+        (TypeSpec::Float { size: FloatSize::Bits16 }, "FLOAT16"),
+        (TypeSpec::Null, "NULL"),
+        (TypeSpec::Nothing, "NOTHING"),
+        (TypeSpec::PropertyValue, "PROPERTY VALUE"),
         (TypeSpec::Path, "PATH"),
         (list_type(TypeSpec::Any), "LIST"),
-        (TypeSpec::Record, "RECORD"),
+        (TypeSpec::record(), "RECORD"),
         (TypeSpec::Graph { graph_type_spec: None }, "GRAPH"),
-        (TypeSpec::BindingTable, "BINDING TABLE"),
+        (TypeSpec::binding_table(), "BINDING TABLE"),
         (
             TypeSpec::Union {
-                members: vec![TypeSpec::Integer],
+                members: vec![TypeSpec::integer()],
             },
             "UNION",
         ),
@@ -1220,4 +1181,76 @@ fn type_name_covers_all_type_spec_variants() {
     for (type_spec, expected) in cases {
         assert_eq!(type_name(&type_spec), expected);
     }
+}
+
+#[test]
+fn type_from_literal_covers_typed_literals() {
+    assert_eq!(type_from_literal(&Literal::Decimal("1.5".into())), TypeSpec::decimal());
+    assert_eq!(type_from_literal(&Literal::Bytes(vec![0, 1])), TypeSpec::bytes());
+    assert_eq!(type_from_literal(&Literal::Date("2024-01-31".into())), TypeSpec::Date);
+    assert_eq!(type_from_literal(&Literal::Time("12:30:00".into())), TypeSpec::LocalTime);
+    assert_eq!(type_from_literal(&Literal::Time("12:30:00Z".into())), TypeSpec::ZonedTime);
+    assert_eq!(type_from_literal(&Literal::Time("12:30:00-05:00".into())), TypeSpec::ZonedTime);
+    assert_eq!(
+        type_from_literal(&Literal::DateTime("2024-01-31T12:30:00".into())),
+        TypeSpec::LocalDateTime
+    );
+    assert_eq!(
+        type_from_literal(&Literal::DateTime("2024-01-31 12:30:00+01:00".into())),
+        TypeSpec::ZonedDateTime
+    );
+    // The dashes of the date part are not an offset.
+    assert_eq!(type_from_literal(&Literal::DateTime("2024-01-31".into())), TypeSpec::LocalDateTime);
+}
+
+#[test]
+fn cast_compatibility_handles_new_type_families() {
+    let int8 = TypeSpec::Integer {
+        signed: true,
+        size: IntegerSize::Bits8,
+    };
+    let uint = TypeSpec::Integer {
+        signed: false,
+        size: IntegerSize::Regular { precision: None },
+    };
+    assert!(is_numeric_type(&int8) && is_numeric_type(&uint));
+    assert!(is_cast_compatible(&int8, &uint));
+    assert!(is_cast_compatible(&TypeSpec::decimal(), &TypeSpec::float()));
+    assert!(is_cast_compatible(&TypeSpec::integer(), &TypeSpec::PropertyValue));
+    assert!(is_cast_compatible(&TypeSpec::Any, &TypeSpec::Null));
+    assert!(!is_cast_compatible(&TypeSpec::integer(), &TypeSpec::Null));
+    assert!(!is_cast_compatible(&TypeSpec::string(), &TypeSpec::Nothing));
+    assert!(is_cast_compatible(
+        &TypeSpec::bytes(),
+        &TypeSpec::Bytes {
+            min_length: Some(1),
+            max_length: Some(4)
+        }
+    ));
+    assert!(is_cast_compatible(
+        &TypeSpec::Node { node_type: None },
+        &TypeSpec::Node { node_type: None }
+    ));
+    assert!(!is_cast_compatible(
+        &TypeSpec::Node { node_type: None },
+        &TypeSpec::Edge { edge_type: None }
+    ));
+    assert!(!is_cast_compatible(&TypeSpec::bytes(), &TypeSpec::integer()));
+}
+
+#[test]
+fn validate_cast_target_rejects_null_to_not_null() {
+    let cast = CastExpression {
+        expression: Box::new(Expression::Literal(Literal::Null)),
+        target_type: ValueType::new(TypeSpec::integer(), true),
+        span: span(),
+    };
+    let error = validate_cast_target(&cast, &HashSet::new(), &HashMap::new()).unwrap_err();
+    assert!(error.message().contains("cannot cast NULL to INTEGER NOT NULL"));
+
+    let nullable = CastExpression {
+        target_type: ValueType::nullable(TypeSpec::integer()),
+        ..cast
+    };
+    assert!(validate_cast_target(&nullable, &HashSet::new(), &HashMap::new()).is_ok());
 }

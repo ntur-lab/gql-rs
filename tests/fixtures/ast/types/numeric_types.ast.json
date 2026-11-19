@@ -1,0 +1,458 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "Match": {
+              "match_clause": {
+                "patterns": [
+                  {
+                    "alternation": null,
+                    "elements": [
+                      {
+                        "Node": {
+                          "id": "n",
+                          "labels": null,
+                          "properties": null,
+                          "span": {
+                            "end_col": 9,
+                            "end_line": 1,
+                            "start_col": 6,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      }
+                    ],
+                    "path_mode": null,
+                    "path_search": null,
+                    "simplified_pattern": null,
+                    "span": {
+                      "end_col": 9,
+                      "end_line": 1,
+                      "start_col": 6,
+                      "start_line": 1
+                    },
+                    "variable": null
+                  }
+                ],
+                "span": {
+                  "end_col": 9,
+                  "end_line": 1,
+                  "start_col": 6,
+                  "start_line": 1
+                }
+              },
+              "optional": false,
+              "span": {
+                "end_col": 9,
+                "end_line": 1,
+                "start_col": 6,
+                "start_line": 1
+              }
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "projection": {
+                "items": [
+                  {
+                    "alias": "a",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "a",
+                            "span": {
+                              "end_col": 15,
+                              "end_line": 2,
+                              "start_col": 12,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 33,
+                          "end_line": 2,
+                          "start_col": 7,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Integer": {
+                              "signed": true,
+                              "size": "Bits8"
+                            }
+                          },
+                          "not_null": true
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 38,
+                      "end_line": 2,
+                      "start_col": 7,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "b",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "b",
+                            "span": {
+                              "end_col": 48,
+                              "end_line": 2,
+                              "start_col": 45,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 60,
+                          "end_line": 2,
+                          "start_col": 40,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Integer": {
+                              "signed": false,
+                              "size": "Bits256"
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 65,
+                      "end_line": 2,
+                      "start_col": 40,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "c",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "c",
+                            "span": {
+                              "end_col": 75,
+                              "end_line": 2,
+                              "start_col": 72,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 87,
+                          "end_line": 2,
+                          "start_col": 67,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Integer": {
+                              "signed": true,
+                              "size": {
+                                "Regular": {
+                                  "precision": 16
+                                }
+                              }
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 92,
+                      "end_line": 2,
+                      "start_col": 67,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "d",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "d",
+                            "span": {
+                              "end_col": 102,
+                              "end_line": 2,
+                              "start_col": 99,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 127,
+                          "end_line": 2,
+                          "start_col": 94,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Integer": {
+                              "signed": false,
+                              "size": "Big"
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 132,
+                      "end_line": 2,
+                      "start_col": 94,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "e",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "e",
+                            "span": {
+                              "end_col": 142,
+                              "end_line": 2,
+                              "start_col": 139,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 167,
+                          "end_line": 2,
+                          "start_col": 134,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Integer": {
+                              "signed": true,
+                              "size": "Small"
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 172,
+                      "end_line": 2,
+                      "start_col": 134,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "f",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "f",
+                            "span": {
+                              "end_col": 182,
+                              "end_line": 2,
+                              "start_col": 179,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 201,
+                          "end_line": 2,
+                          "start_col": 174,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Decimal": {
+                              "precision": 10,
+                              "scale": 2
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 206,
+                      "end_line": 2,
+                      "start_col": 174,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "g",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "g",
+                            "span": {
+                              "end_col": 216,
+                              "end_line": 2,
+                              "start_col": 213,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 233,
+                          "end_line": 2,
+                          "start_col": 208,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Float": {
+                              "size": {
+                                "Regular": {
+                                  "precision": 24,
+                                  "scale": 2
+                                }
+                              }
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 238,
+                      "end_line": 2,
+                      "start_col": 208,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "h",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "h",
+                            "span": {
+                              "end_col": 248,
+                              "end_line": 2,
+                              "start_col": 245,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 269,
+                          "end_line": 2,
+                          "start_col": 240,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Float": {
+                              "size": "Double"
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 274,
+                      "end_line": 2,
+                      "start_col": 240,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "i",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "i",
+                            "span": {
+                              "end_col": 284,
+                              "end_line": 2,
+                              "start_col": 281,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 296,
+                          "end_line": 2,
+                          "start_col": 276,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Float": {
+                              "size": "Bits16"
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 301,
+                      "end_line": 2,
+                      "start_col": 276,
+                      "start_line": 2
+                    }
+                  }
+                ],
+                "kind": "items"
+              },
+              "span": {
+                "end_col": 301,
+                "end_line": 2,
+                "start_col": 0,
+                "start_line": 2
+              }
+            },
+            "span": {
+              "end_col": 301,
+              "end_line": 2,
+              "start_col": 0,
+              "start_line": 2
+            }
+          }
+        },
+        "span": {
+          "end_col": 301,
+          "end_line": 2,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

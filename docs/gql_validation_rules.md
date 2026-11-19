@@ -236,7 +236,14 @@ type is unknown.
 
 - `CAST` validates source expression.
 - Typed LIST cast with dynamic parameters cannot be statically validated: error.
-- Source-to-target conversion must be compatible according to is_cast_compatible matrix.
+- Source-to-target conversion must be compatible according to is_cast_compatible matrix,
+  evaluated on the base type of the target `ValueType`.
+- `CAST(NULL AS T NOT NULL)` is rejected.
+- Only unknown values can be cast to `NULL` or `NOTHING`; `PROPERTY VALUE` accepts any source.
+- Types of the same family with different parameters (lengths, fields, closed reference
+  descriptions) are compatible; the parameters are checked at runtime.
+- Invalid type parameters are rejected earlier, by the builder (`INVALID_TYPE_PARAMETER`,
+  see [gql_ast_builder.md](gql_ast_builder.md)).
 
 ### Array
 

@@ -233,11 +233,10 @@ const TRIM_SPECIFICATIONS: &[&str] = &["LEADING", "TRAILING", "BOTH"];
 const DURATION_QUALIFIERS: &[&str] = &["YEAR TO MONTH", "DAY TO SECOND"];
 
 const PATH_TYPING: &str = "path variables are not typed until the semantic context of issue #12";
-const BYTE_TYPING: &str = "byte string values have no literal representation until issue #10";
 const COMPARABLE_TYPING: &str =
     "comparable-type constraints need the typed semantic context of issue #12";
 const TEMPORAL_STRING: &str =
-    "temporal string contents and record fields need the literal representations of issue #10";
+    "the contents of temporal strings and the fields of temporal records are not checked";
 
 macro_rules! builtin {
     (
@@ -608,8 +607,8 @@ pub(crate) static BUILTIN_FUNCTIONS: &[BuiltinFunction] = &[
         Exact(1),
         Positional(&[A::ByteString]),
         ReturnRule::Integer,
-        Partial(BYTE_TYPING),
-        "MATCH (n) RETURN BYTE_LENGTH(n.payload)"
+        Complete,
+        "MATCH (n) RETURN BYTE_LENGTH(X'00FF'), BYTE_LENGTH(n.payload)"
     ),
     builtin!(
         fn_names::OCTET_LENGTH,
@@ -618,8 +617,8 @@ pub(crate) static BUILTIN_FUNCTIONS: &[BuiltinFunction] = &[
         Exact(1),
         Positional(&[A::ByteString]),
         ReturnRule::Integer,
-        Partial(BYTE_TYPING),
-        "MATCH (n) RETURN OCTET_LENGTH(n.payload)"
+        Complete,
+        "MATCH (n) RETURN OCTET_LENGTH(X'00FF'), OCTET_LENGTH(n.payload)"
     ),
     // Character or byte string functions.
     builtin!(
@@ -961,14 +960,7 @@ fn known_type(
 }
 
 fn is_integral_type(t: &TypeSpec) -> bool {
-    matches!(
-        t,
-        TypeSpec::Integer
-            | TypeSpec::BigInt
-            | TypeSpec::SmallInt
-            | TypeSpec::Int128
-            | TypeSpec::Int256
-    )
+    matches!(t, TypeSpec::Integer { .. })
 }
 
 fn is_datetime_type(t: &TypeSpec) -> bool {
@@ -994,12 +986,12 @@ fn type_satisfies(kind: ArgKind, t: &TypeSpec) -> bool {
             is_string_like_type(t)
                 || matches!(
                     t,
-                    TypeSpec::List { .. } | TypeSpec::Path | TypeSpec::BindingTable
+                    TypeSpec::List { .. } | TypeSpec::Path | TypeSpec::BindingTable { .. }
                 )
         }
         A::Path => matches!(t, TypeSpec::Path),
         A::Datetime => is_datetime_type(t),
-        A::TemporalSource => matches!(t, TypeSpec::String { .. } | TypeSpec::Record),
+        A::TemporalSource => matches!(t, TypeSpec::String { .. } | TypeSpec::Record { .. }),
     }
 }
 
@@ -1030,6 +1022,7 @@ fn numeric_literal_value(argument: &Expression) -> Option<f64> {
     match argument {
         Expression::Literal(Literal::Integer(value)) => Some(*value as f64),
         Expression::Literal(Literal::Float(value)) => Some(*value),
+        Expression::Literal(Literal::Decimal(text)) => text.parse().ok(),
         Expression::Unary(unary) => {
             let value = numeric_literal_value(&unary.expression)?;
             match unary.operator {
@@ -1090,16 +1083,16 @@ fn validate_argument(
             }
         }
         A::NonNegativeInteger
-            if numeric_literal_value(argument).is_some_and(|value| value < 0.0) =>
-        {
-            return reject(kind_description(kind), None);
-        }
+        if numeric_literal_value(argument).is_some_and(|value| value < 0.0) =>
+            {
+                return reject(kind_description(kind), None);
+            }
         A::Fraction
-            if numeric_literal_value(argument)
-                .is_some_and(|value| !(0.0..=1.0).contains(&value)) =>
-        {
-            return reject(kind_description(kind), None);
-        }
+        if numeric_literal_value(argument)
+            .is_some_and(|value| !(0.0..=1.0).contains(&value)) =>
+            {
+                return reject(kind_description(kind), None);
+            }
         _ => {}
     }
 
@@ -1130,8 +1123,8 @@ fn validate_trim_arguments(
         .and_then(|argument| known_type(argument, declared_variables, inferred_types));
     let list_form = call.arguments.len() == 2
         && first_type
-            .as_ref()
-            .is_some_and(|t| matches!(t, TypeSpec::List { .. }));
+        .as_ref()
+        .is_some_and(|t| matches!(t, TypeSpec::List { .. }));
 
     let kinds: &[ArgKind] = match call.arguments.len() {
         1 => &[A::CharacterOrByteString],
@@ -1262,43 +1255,39 @@ pub(crate) fn infer_builtin_return_type(
 
     match entry.returns {
         ReturnRule::Boolean => Some(TypeSpec::Boolean),
-        ReturnRule::Integer => Some(TypeSpec::Integer),
-        ReturnRule::Float => Some(TypeSpec::Float { precision: None }),
-        ReturnRule::CharacterString => Some(TypeSpec::String { max_length: None }),
+        ReturnRule::Integer => Some(TypeSpec::integer()),
+        ReturnRule::Float => Some(TypeSpec::float()),
+        ReturnRule::CharacterString => Some(TypeSpec::string()),
         ReturnRule::Date => Some(TypeSpec::Date),
-        ReturnRule::ZonedTime => Some(TypeSpec::ZonedTime { precision: None }),
-        ReturnRule::LocalTime => Some(TypeSpec::LocalTime { precision: None }),
-        ReturnRule::ZonedDateTime => Some(TypeSpec::ZonedDateTime { precision: None }),
-        ReturnRule::LocalDateTime => Some(TypeSpec::LocalDateTime { precision: None }),
-        ReturnRule::Duration => Some(TypeSpec::Duration {
-            precision: None,
-            qualifier: None,
-        }),
+        ReturnRule::ZonedTime => Some(TypeSpec::ZonedTime),
+        ReturnRule::LocalTime => Some(TypeSpec::LocalTime),
+        ReturnRule::ZonedDateTime => Some(TypeSpec::ZonedDateTime),
+        ReturnRule::LocalDateTime => Some(TypeSpec::LocalDateTime),
+        ReturnRule::Duration => Some(TypeSpec::duration()),
         ReturnRule::DurationWithQualifier => Some(TypeSpec::Duration {
-            precision: None,
             qualifier: match call.arguments.get(2) {
                 Some(Expression::Literal(Literal::String(qualifier))) => {
-                    Some(qualifier.to_ascii_uppercase())
+                    match qualifier.to_ascii_uppercase().as_str() {
+                        "YEAR TO MONTH" => Some(DurationQualifier::YearToMonth),
+                        "DAY TO SECOND" => Some(DurationQualifier::DayToSecond),
+                        _ => None,
+                    }
                 }
                 _ => None,
             },
         }),
-        ReturnRule::AnyList => Some(TypeSpec::List {
-            element_type: Box::new(TypeSpec::Any),
-            max_length: None,
-        }),
-        ReturnRule::ListOfArgument(position) => Some(TypeSpec::List {
-            element_type: Box::new(argument_type(position).unwrap_or(TypeSpec::Any)),
-            max_length: None,
-        }),
+        ReturnRule::AnyList => Some(TypeSpec::list_of(TypeSpec::Any)),
+        ReturnRule::ListOfArgument(position) => {
+            Some(TypeSpec::list_of(argument_type(position).unwrap_or(TypeSpec::Any)))
+        }
         ReturnRule::SameAsArgument(position) => argument_type(position),
         ReturnRule::StringLikeArgument(position) => match argument_type(position) {
             Some(bytes @ TypeSpec::Bytes { .. }) => Some(bytes),
-            _ => Some(TypeSpec::String { max_length: None }),
+            _ => Some(TypeSpec::string()),
         },
         ReturnRule::Average => match argument_type(0) {
             Some(duration @ TypeSpec::Duration { .. }) => Some(duration),
-            _ => Some(TypeSpec::Float { precision: None }),
+            _ => Some(TypeSpec::float()),
         },
         ReturnRule::CommonArgumentType => {
             let types = (0..call.arguments.len())
@@ -1331,7 +1320,7 @@ pub(crate) fn infer_builtin_return_type(
                 infer_expression_type(argument, inferred_types, declared_variables)
             }) {
                 Some(bytes @ TypeSpec::Bytes { .. }) => Some(bytes),
-                _ => Some(TypeSpec::String { max_length: None }),
+                _ => Some(TypeSpec::string()),
             }
         }
     }

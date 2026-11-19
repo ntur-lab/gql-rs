@@ -29,7 +29,7 @@
 //! - queries and query pipelines: [`Query`], [`BasicQuery`], [`QueryStep`];
 //! - data modification: [`DataStatement`];
 //! - catalog operations: [`CatalogStatement`];
-//! - expressions and types: [`Expression`], [`TypeSpec`];
+//! - expressions and types: [`Expression`], [`ValueType`], [`TypeSpec`];
 //! - graph patterns: [`PathPattern`], [`Node`], [`Edge`];
 //! - session and transaction commands.
 //!

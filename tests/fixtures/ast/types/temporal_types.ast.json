@@ -1,0 +1,306 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "Match": {
+              "match_clause": {
+                "patterns": [
+                  {
+                    "alternation": null,
+                    "elements": [
+                      {
+                        "Node": {
+                          "id": "n",
+                          "labels": null,
+                          "properties": null,
+                          "span": {
+                            "end_col": 9,
+                            "end_line": 1,
+                            "start_col": 6,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      }
+                    ],
+                    "path_mode": null,
+                    "path_search": null,
+                    "simplified_pattern": null,
+                    "span": {
+                      "end_col": 9,
+                      "end_line": 1,
+                      "start_col": 6,
+                      "start_line": 1
+                    },
+                    "variable": null
+                  }
+                ],
+                "span": {
+                  "end_col": 9,
+                  "end_line": 1,
+                  "start_col": 6,
+                  "start_line": 1
+                }
+              },
+              "optional": false,
+              "span": {
+                "end_col": 9,
+                "end_line": 1,
+                "start_col": 6,
+                "start_line": 1
+              }
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "projection": {
+                "items": [
+                  {
+                    "alias": "a",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "a",
+                            "span": {
+                              "end_col": 15,
+                              "end_line": 2,
+                              "start_col": 12,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 24,
+                          "end_line": 2,
+                          "start_col": 7,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": "Date",
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 29,
+                      "end_line": 2,
+                      "start_col": 7,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "b",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "b",
+                            "span": {
+                              "end_col": 39,
+                              "end_line": 2,
+                              "start_col": 36,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 68,
+                          "end_line": 2,
+                          "start_col": 31,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": "ZonedDateTime",
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 73,
+                      "end_line": 2,
+                      "start_col": 31,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "c",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "c",
+                            "span": {
+                              "end_col": 83,
+                              "end_line": 2,
+                              "start_col": 80,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 97,
+                          "end_line": 2,
+                          "start_col": 75,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": "LocalDateTime",
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 102,
+                      "end_line": 2,
+                      "start_col": 75,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "d",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "d",
+                            "span": {
+                              "end_col": 112,
+                              "end_line": 2,
+                              "start_col": 109,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 136,
+                          "end_line": 2,
+                          "start_col": 104,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": "ZonedTime",
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 141,
+                      "end_line": 2,
+                      "start_col": 104,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "e",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "e",
+                            "span": {
+                              "end_col": 151,
+                              "end_line": 2,
+                              "start_col": 148,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 175,
+                          "end_line": 2,
+                          "start_col": 143,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": "LocalTime",
+                          "not_null": true
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 180,
+                      "end_line": 2,
+                      "start_col": 143,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "f",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "f",
+                            "span": {
+                              "end_col": 190,
+                              "end_line": 2,
+                              "start_col": 187,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 218,
+                          "end_line": 2,
+                          "start_col": 182,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Duration": {
+                              "qualifier": "DayToSecond"
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 223,
+                      "end_line": 2,
+                      "start_col": 182,
+                      "start_line": 2
+                    }
+                  }
+                ],
+                "kind": "items"
+              },
+              "span": {
+                "end_col": 223,
+                "end_line": 2,
+                "start_col": 0,
+                "start_line": 2
+              }
+            },
+            "span": {
+              "end_col": 223,
+              "end_line": 2,
+              "start_col": 0,
+              "start_line": 2
+            }
+          }
+        },
+        "span": {
+          "end_col": 223,
+          "end_line": 2,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

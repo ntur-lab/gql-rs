@@ -131,7 +131,7 @@ pub(super) fn validate_basic_query(basic: &BasicQuery, declared_variables: &mut 
 
     let names = match &basic.result_statement {
         PrimitiveResultStatement::Return { return_clause, .. }
-            if matches!(return_clause.projection, ReturnProjection::Wildcard) => declared_variables.clone(),
+        if matches!(return_clause.projection, ReturnProjection::Wildcard) => declared_variables.clone(),
         _ => collect_projected_output_names_from_result(&basic.result_statement),
     };
     Ok(names)
@@ -725,8 +725,8 @@ pub(super) fn validate_order_clause(
             let var_name = name.trim();
             if declared_variables.contains(var_name)
                 || return_aliases
-                    .map(|aliases| aliases.contains(var_name))
-                    .unwrap_or(false)
+                .map(|aliases| aliases.contains(var_name))
+                .unwrap_or(false)
             {
                 continue;
             }
@@ -857,7 +857,7 @@ pub(super) fn validate_predicate_condition_type(
         return Ok(());
     };
 
-    if !is_boolean_type(&cond_type) && !matches!(cond_type, TypeSpec::Any | TypeSpec::BindingTable) {
+    if !is_boolean_type(&cond_type) && !matches!(cond_type, TypeSpec::Any | TypeSpec::BindingTable { .. }) {
         return Err(validation_err(
             format!(
                 "{} requires a BOOLEAN condition, got {}",

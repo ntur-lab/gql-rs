@@ -90,8 +90,8 @@ fn projection_helpers_cover_return_finish_and_wildcard_results() {
     assert_eq!(
         infer_result_projection_types(&result),
         Some(vec![
-            Some(TypeSpec::Integer),
-            Some(TypeSpec::String { max_length: None }),
+            Some(TypeSpec::integer()),
+            Some(TypeSpec::string()),
         ])
     );
 
@@ -134,7 +134,7 @@ fn set_operation_projection_helpers_merge_compatible_branches() {
     );
     assert_eq!(
         infer_query_projection_types(&query),
-        Some(vec![Some(TypeSpec::Integer)])
+        Some(vec![Some(TypeSpec::integer())])
     );
 }
 
@@ -188,24 +188,18 @@ fn set_operation_type_compatibility_covers_any_list_and_union() {
         &TypeSpec::Graph { graph_type_spec: None },
     ));
     assert!(are_set_operation_column_types_compatible(
-        &TypeSpec::Integer,
-        &TypeSpec::Double,
+        &TypeSpec::integer(),
+        &TypeSpec::Float { size: FloatSize::Double },
     ));
     assert!(are_set_operation_column_types_compatible(
-        &TypeSpec::List {
-            element_type: Box::new(TypeSpec::Integer),
-            max_length: None,
-        },
-        &TypeSpec::List {
-            element_type: Box::new(TypeSpec::Double),
-            max_length: None,
-        },
+        &TypeSpec::list_of(TypeSpec::integer()),
+        &TypeSpec::list_of(TypeSpec::Float { size: FloatSize::Double }),
     ));
     assert!(are_set_operation_column_types_compatible(
         &TypeSpec::Union {
-            members: vec![TypeSpec::Integer, TypeSpec::Double],
+            members: vec![TypeSpec::integer(), TypeSpec::Float { size: FloatSize::Double }],
         },
-        &TypeSpec::Integer,
+        &TypeSpec::integer(),
     ));
     assert!(!are_set_operation_column_types_compatible(
         &TypeSpec::Boolean,

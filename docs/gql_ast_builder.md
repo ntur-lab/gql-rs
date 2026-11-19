@@ -149,18 +149,41 @@ used to decode a literal or an identifier; it is never a substitute for a missin
 representation. Built-in function names are canonical upper-case names registered in
 [builtin_functions.md](builtin_functions.md).
 
-## TypeSpec and Cast
+## Value types and Cast
 
-Key functions:
+Declared types are built in `src/ast/builder/types.rs`. `build_value_type` maps every
+alternative of the `valueType` rule by inspecting its CST accessors (never by normalizing
+the source text) and returns a `ValueType`: the base `TypeSpec` plus the `NOT NULL` flag.
+It is used for `CAST` targets, `IS [NOT] TYPED` predicates, `WHEN` type operands, record and
+binding-table fields, list elements and catalog property types.
 
-- `build_type_spec_from_value_type`
-- `build_type_spec_from_predefined`
-- `build_type_spec_from_character_string`
-- `build_type_spec_from_byte_string`
-- `build_type_spec_from_numeric`
-- `build_type_spec_from_temporal`
+Mapping rules:
 
-This is where GQL types (including parameterized types) are mapped into AST `TypeSpec`.
+- `NOT NULL` is kept in `ValueType::not_null`, separately from the base type. A union is
+  `NOT NULL` only when every member is, because it contains null as soon as one member does.
+- Integers become `TypeSpec::Integer { signed, size }`: explicit widths (`INT8` ... `INT256`,
+  `INTEGER8` ..., `UINT8` ...), `SMALL`, regular (with optional binary precision) and `BIG`;
+  `SIGNED`/`UNSIGNED` verbose forms are supported.
+- Approximate numbers become `TypeSpec::Float { size }` (`FLOAT16` ... `FLOAT256`,
+  `FLOAT[(p[, s])]`, `REAL`, `DOUBLE [PRECISION]`); `DECIMAL`/`DEC` keep precision and scale.
+- `STRING`/`BYTES` keep minimum and maximum length; `CHAR(n)`/`BINARY(n)` are fixed-length
+  and become `min = max = n`; `VARCHAR(n)`/`VARBINARY(n)` set the maximum.
+- Temporal types map to `Date`, `ZonedDateTime`, `LocalDateTime` (also bare `TIMESTAMP`),
+  `ZonedTime`, `LocalTime`; `DURATION(...)` keeps its `DurationQualifier`.
+- Reference types: `Node`, `Edge` and `Graph` hold `None` for the open form (`ANY NODE`,
+  `EDGE`, `ANY PROPERTY GRAPH`) and the closed type description otherwise;
+  `BindingTable` and `Record` hold their `FieldType`s (`None` for `ANY RECORD`).
+- `NULL` becomes `TypeSpec::Null`; `NOTHING` and `NULL NOT NULL` become `TypeSpec::Nothing`;
+  `[ANY] PROPERTY VALUE` becomes `TypeSpec::PropertyValue`; `ANY [VALUE]` becomes `TypeSpec::Any`.
+
+Type parameters violating the GQL syntax rules fail with a `GqlError::Parse` whose code is
+`GqlError::INVALID_TYPE_PARAMETER`:
+
+- a minimum length greater than the maximum length;
+- a maximum, fixed or list length of 0, or a precision of 0;
+- a scale greater than the precision (`DECIMAL`, `FLOAT`);
+- a parameter that does not fit the target integer type;
+- duplicate field names in a record or binding-table type.
 
 ## Error Handling
 

@@ -161,6 +161,22 @@ impl GqlError {
     /// replaced by raw text or string literals.
     pub const UNSUPPORTED_CONSTRUCT: &'static str = "UNSUPPORTED_CONSTRUCT";
 
+    /// Creates a parse error for a type declaration whose parameters violate the GQL syntax
+    /// rules (for example a scale greater than the precision or a minimum length greater than
+    /// the maximum length). The error carries [`GqlError::INVALID_TYPE_PARAMETER`] as its code.
+    pub fn invalid_type_parameter(message: impl Into<String>, span: Span) -> Self {
+        Self::Parse {
+            message: message.into(),
+            context: ErrorContext {
+                span: Some(span),
+                code: Some(Self::INVALID_TYPE_PARAMETER.to_string()),
+            },
+        }
+    }
+
+    /// Diagnostic code of builder errors raised for type declarations with invalid parameters.
+    pub const INVALID_TYPE_PARAMETER: &'static str = "INVALID_TYPE_PARAMETER";
+
     /// Creates a new generic error with the given message.
     pub fn generic(message: impl Into<String>) -> Self {
         Self::Generic {

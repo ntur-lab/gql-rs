@@ -48,3 +48,5 @@ mod structural_expressions_it;
 mod syntax_errors_it;
 #[path = "transactions_it.rs"]
 mod transactions_it;
+#[path = "value_types_it.rs"]
+mod value_types_it;

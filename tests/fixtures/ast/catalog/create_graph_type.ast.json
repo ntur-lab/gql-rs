@@ -19,9 +19,13 @@
                             {
                               "name": "name",
                               "parsed_value_type": {
-                                "String": {
-                                  "max_length": null
-                                }
+                                "base": {
+                                  "String": {
+                                    "max_length": null,
+                                    "min_length": null
+                                  }
+                                },
+                                "not_null": false
                               },
                               "span": {
                                 "end_col": 73,

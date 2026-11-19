@@ -1,0 +1,332 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "Match": {
+              "match_clause": {
+                "patterns": [
+                  {
+                    "alternation": null,
+                    "elements": [
+                      {
+                        "Node": {
+                          "id": "n",
+                          "labels": null,
+                          "properties": null,
+                          "span": {
+                            "end_col": 9,
+                            "end_line": 1,
+                            "start_col": 6,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      }
+                    ],
+                    "path_mode": null,
+                    "path_search": null,
+                    "simplified_pattern": null,
+                    "span": {
+                      "end_col": 9,
+                      "end_line": 1,
+                      "start_col": 6,
+                      "start_line": 1
+                    },
+                    "variable": null
+                  }
+                ],
+                "span": {
+                  "end_col": 9,
+                  "end_line": 1,
+                  "start_col": 6,
+                  "start_line": 1
+                }
+              },
+              "optional": false,
+              "span": {
+                "end_col": 9,
+                "end_line": 1,
+                "start_col": 6,
+                "start_line": 1
+              }
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "projection": {
+                "items": [
+                  {
+                    "alias": "a",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "a",
+                            "span": {
+                              "end_col": 15,
+                              "end_line": 2,
+                              "start_col": 12,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 42,
+                          "end_line": 2,
+                          "start_col": 7,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "String": {
+                              "max_length": 10,
+                              "min_length": 2
+                            }
+                          },
+                          "not_null": true
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 47,
+                      "end_line": 2,
+                      "start_col": 7,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "b",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "b",
+                            "span": {
+                              "end_col": 57,
+                              "end_line": 2,
+                              "start_col": 54,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 69,
+                          "end_line": 2,
+                          "start_col": 49,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "String": {
+                              "max_length": 5,
+                              "min_length": 5
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 74,
+                      "end_line": 2,
+                      "start_col": 49,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "c",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "c",
+                            "span": {
+                              "end_col": 84,
+                              "end_line": 2,
+                              "start_col": 81,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 100,
+                          "end_line": 2,
+                          "start_col": 76,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "String": {
+                              "max_length": 64,
+                              "min_length": null
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 105,
+                      "end_line": 2,
+                      "start_col": 76,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "d",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "d",
+                            "span": {
+                              "end_col": 115,
+                              "end_line": 2,
+                              "start_col": 112,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 131,
+                          "end_line": 2,
+                          "start_col": 107,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Bytes": {
+                              "max_length": 8,
+                              "min_length": 1
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 136,
+                      "end_line": 2,
+                      "start_col": 107,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "e",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "e",
+                            "span": {
+                              "end_col": 146,
+                              "end_line": 2,
+                              "start_col": 143,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 160,
+                          "end_line": 2,
+                          "start_col": 138,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Bytes": {
+                              "max_length": 4,
+                              "min_length": 4
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 165,
+                      "end_line": 2,
+                      "start_col": 138,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": "f",
+                    "expression": {
+                      "Cast": {
+                        "expression": {
+                          "PropertyAccess": {
+                            "object": "n",
+                            "property": "f",
+                            "span": {
+                              "end_col": 175,
+                              "end_line": 2,
+                              "start_col": 172,
+                              "start_line": 2
+                            }
+                          }
+                        },
+                        "span": {
+                          "end_col": 193,
+                          "end_line": 2,
+                          "start_col": 167,
+                          "start_line": 2
+                        },
+                        "target_type": {
+                          "base": {
+                            "Bytes": {
+                              "max_length": 16,
+                              "min_length": null
+                            }
+                          },
+                          "not_null": false
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 198,
+                      "end_line": 2,
+                      "start_col": 167,
+                      "start_line": 2
+                    }
+                  }
+                ],
+                "kind": "items"
+              },
+              "span": {
+                "end_col": 198,
+                "end_line": 2,
+                "start_col": 0,
+                "start_line": 2
+              }
+            },
+            "span": {
+              "end_col": 198,
+              "end_line": 2,
+              "start_col": 0,
+              "start_line": 2
+            }
+          }
+        },
+        "span": {
+          "end_col": 198,
+          "end_line": 2,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

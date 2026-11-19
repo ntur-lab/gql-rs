@@ -177,10 +177,7 @@ pub(crate) fn unary(operator: Operator, expression: Expression) -> UnaryExpressi
 }
 
 pub(crate) fn list_type(element_type: TypeSpec) -> TypeSpec {
-    TypeSpec::List {
-        element_type: Box::new(element_type),
-        max_length: None,
-    }
+    TypeSpec::list_of(element_type)
 }
 
 pub(crate) fn return_query(expressions: Vec<Expression>) -> Query {

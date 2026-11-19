@@ -94,7 +94,7 @@ pub enum WhenOperandKind {
         /// True when predicate is negated.
         negated: bool,
         /// Optional target type.
-        target_type: Option<TypeSpec>,
+        target_type: Option<ValueType>,
     },
     /// Normalization-form predicate operand.
     NormalizedPredicate {
@@ -307,7 +307,7 @@ pub enum IsPredicateKind {
     /// IS NULL.
     Null,
     /// IS OF TYPE predicate.
-    Typed(TypeSpec),
+    Typed(ValueType),
 }
 
 /// Represents a subquery expression.
@@ -331,7 +331,7 @@ pub struct CastExpression {
     /// Expression being cast.
     pub expression: Box<Expression>,
     /// Target type.
-    pub target_type: TypeSpec,
+    pub target_type: ValueType,
     /// Source range covered by this AST node.
     pub span: Span,
 }
@@ -354,13 +354,22 @@ pub enum Literal {
     String(String),
     /// Integer literal.
     Integer(i64),
-    /// Floating-point literal.
+    /// Approximate numeric literal, and exact decimals written without the `M` suffix.
     Float(f64),
+    /// Exact numeric literal with the `M` suffix (`1.5M`, `10M`), kept as normalized text
+    /// (underscores and suffix removed) to avoid any precision loss.
+    Decimal(String),
+    /// Byte string literal (`X'0A FF'`).
+    Bytes(Vec<u8>),
     /// Boolean literal.
     Boolean(bool),
     /// NULL literal.
     Null,
-    /// Date/time literal text.
+    /// `DATE '...'` literal text.
+    Date(String),
+    /// `TIME '...'` literal text.
+    Time(String),
+    /// `DATETIME '...'` / `TIMESTAMP '...'` literal text.
     DateTime(String),
     /// Duration literal text.
     Duration(String),
@@ -383,49 +392,157 @@ pub struct ArrayExpression {
     pub span: Span,
 }
 
-/// Represents a type specification.
+/// A declared value type: a [`TypeSpec`] together with its nullability.
+///
+/// GQL attaches `NOT NULL` to a value type independently from its base type, so `INT` and
+/// `INT NOT NULL` share the same [`TypeSpec`] and differ only in [`ValueType::not_null`].
+/// Declared types (CAST targets, `IS TYPED` predicates, record and binding-table fields, list
+/// elements and property types) use this struct; inferred types use bare [`TypeSpec`]s.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct ValueType {
+    /// Base type, without nullability.
+    pub base: TypeSpec,
+    /// True when the declared type excludes the null value (`NOT NULL`).
+    pub not_null: bool,
+}
+
+impl ValueType {
+    /// Creates a value type with explicit nullability.
+    pub fn new(base: TypeSpec, not_null: bool) -> Self {
+        Self { base, not_null }
+    }
+
+    /// Creates a nullable value type (no `NOT NULL` constraint).
+    pub fn nullable(base: TypeSpec) -> Self {
+        Self::new(base, false)
+    }
+}
+
+/// A named field of a closed record type or binding-table type.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct FieldType {
+    /// Field name.
+    pub name: String,
+    /// Declared field type.
+    pub value_type: ValueType,
+}
+
+/// Size of a binary exact numeric (integer) type.
+///
+/// Explicit bit widths (`INT8`, `UINT64`, `INTEGER128`, ...) are kept apart from the
+/// implementation-defined sizes `SMALL`, regular and `BIG`, because GQL does not fix the width
+/// of the latter.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum IntegerSize {
+    /// 8-bit (`INT8`, `INTEGER8`, `UINT8`).
+    Bits8,
+    /// 16-bit (`INT16`, `INTEGER16`, `UINT16`).
+    Bits16,
+    /// 32-bit (`INT32`, `INTEGER32`, `UINT32`).
+    Bits32,
+    /// 64-bit (`INT64`, `INTEGER64`, `UINT64`).
+    Bits64,
+    /// 128-bit (`INT128`, `INTEGER128`, `UINT128`).
+    Bits128,
+    /// 256-bit (`INT256`, `INTEGER256`, `UINT256`).
+    Bits256,
+    /// `SMALLINT`, `SMALL INTEGER`, `USMALLINT`.
+    Small,
+    /// `INT`, `INTEGER`, `UINT`, optionally with a binary precision (`INT(p)`).
+    Regular {
+        /// Optional binary precision.
+        precision: Option<u32>,
+    },
+    /// `BIGINT`, `BIG INTEGER`, `UBIGINT`.
+    Big,
+}
+
+/// Size of an approximate numeric (floating-point) type.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum FloatSize {
+    /// `FLOAT16`.
+    Bits16,
+    /// `FLOAT32`.
+    Bits32,
+    /// `FLOAT64`.
+    Bits64,
+    /// `FLOAT128`.
+    Bits128,
+    /// `FLOAT256`.
+    Bits256,
+    /// `FLOAT`, optionally with precision and scale.
+    Regular {
+        /// Optional precision.
+        precision: Option<u32>,
+        /// Optional scale.
+        scale: Option<u32>,
+    },
+    /// `REAL`.
+    Real,
+    /// `DOUBLE` / `DOUBLE PRECISION`.
+    Double,
+}
+
+/// Qualifier of a `DURATION(...)` type.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub enum DurationQualifier {
+    /// `YEAR TO MONTH`.
+    YearToMonth,
+    /// `DAY TO SECOND`.
+    DayToSecond,
+}
+
+impl DurationQualifier {
+    /// Canonical GQL spelling of the qualifier.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            DurationQualifier::YearToMonth => "YEAR TO MONTH",
+            DurationQualifier::DayToSecond => "DAY TO SECOND",
+        }
+    }
+}
+
+/// Represents a type specification (the base type, without nullability; see [`ValueType`]).
+///
+/// For reference and record types `None` means the open form (`ANY NODE`, `ANY RECORD`, ...)
+/// and `Some` the closed form carrying its structural description.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum TypeSpec {
     /// BOOLEAN type.
     Boolean,
-    /// STRING type.
+    /// Character string type: `STRING[(min,] max)]`, `CHAR(n)` (min = max = n), `VARCHAR(n)`.
     String {
-        /// Optional max length.
+        /// Optional minimum length.
+        min_length: Option<usize>,
+        /// Optional maximum length.
         max_length: Option<usize>,
     },
-    /// BYTES type.
+    /// Byte string type: `BYTES[(min,] max)]`, `BINARY(n)` (min = max = n), `VARBINARY(n)`.
     Bytes {
-        /// Optional max length.
+        /// Optional minimum length.
+        min_length: Option<usize>,
+        /// Optional maximum length.
         max_length: Option<usize>,
+    },
+    /// Binary exact numeric (integer) type, signed or unsigned.
+    Integer {
+        /// False for `UINT*`, `USMALLINT`, `UBIGINT` and `UNSIGNED ...`.
+        signed: bool,
+        /// Declared size.
+        size: IntegerSize,
     },
     /// DECIMAL type.
     Decimal {
         /// Optional precision.
-        precision: Option<u8>,
+        precision: Option<u32>,
         /// Optional scale.
-        scale: Option<u8>,
+        scale: Option<u32>,
     },
-    /// INTEGER type.
-    Integer,
-    /// BIGINT type.
-    BigInt,
-    /// SMALLINT type.
-    SmallInt,
-    /// INT128 type.
-    Int128,
-    /// INT256 type.
-    Int256,
-    /// FLOAT type.
+    /// Approximate numeric (floating-point) type.
     Float {
-        /// Optional precision.
-        precision: Option<u8>,
+        /// Declared size.
+        size: FloatSize,
     },
-    /// FLOAT32 type.
-    Float32,
-    /// REAL type.
-    Real,
-    /// DOUBLE type.
-    Double,
     /// VECTOR type.
     Vector {
         /// Optional vector dimension.
@@ -433,77 +550,133 @@ pub enum TypeSpec {
     },
     /// DATE type.
     Date,
-    /// TIME type.
-    Time {
-        /// Optional fractional precision.
-        precision: Option<u8>,
-        /// Whether timezone is required.
-        with_timezone: bool,
-    },
-    /// TIMESTAMP type.
-    Timestamp {
-        /// Optional fractional precision.
-        precision: Option<u8>,
-        /// Whether timezone is required.
-        with_timezone: bool,
-    },
-    /// ZONED TIME type.
-    ZonedTime {
-        /// Optional precision.
-        precision: Option<u8>,
-    },
-    /// ZONED DATETIME type.
-    ZonedDateTime {
-        /// Optional precision.
-        precision: Option<u8>,
-    },
-    /// LOCAL TIME type.
-    LocalTime {
-        /// Optional precision.
-        precision: Option<u8>,
-    },
-    /// LOCAL DATETIME type.
-    LocalDateTime {
-        /// Optional precision.
-        precision: Option<u8>,
-    },
-    /// DURATION type.
+    /// ZONED TIME / TIME WITH TIME ZONE type.
+    ZonedTime,
+    /// LOCAL TIME / TIME WITHOUT TIME ZONE type.
+    LocalTime,
+    /// ZONED DATETIME / TIMESTAMP WITH TIME ZONE type.
+    ZonedDateTime,
+    /// LOCAL DATETIME / TIMESTAMP [WITHOUT TIME ZONE] type.
+    LocalDateTime,
+    /// DURATION type. `None` is the generic duration produced by inference.
     Duration {
-        /// Optional precision.
-        precision: Option<u8>,
-        /// Optional qualifier text.
-        qualifier: Option<String>,
+        /// Optional duration qualifier.
+        qualifier: Option<DurationQualifier>,
     },
-    /// REFERENCE type.
-    Reference {
-        /// Optional referenced target type.
-        target_type: Option<Box<TypeSpec>>,
+    /// Node reference type: `None` for `[ANY] NODE`, `Some` for a closed node type.
+    Node {
+        /// Closed node type description.
+        node_type: Option<Box<VertexTypeSpec>>,
+    },
+    /// Edge reference type: `None` for `[ANY] EDGE`, `Some` for a closed edge type.
+    Edge {
+        /// Closed edge type description.
+        edge_type: Option<Box<EdgeTypeSpec>>,
+    },
+    /// Graph reference type: `None` for `ANY [PROPERTY] GRAPH`, `Some` for a closed graph type.
+    Graph {
+        /// Optional graph type specification.
+        graph_type_spec: Option<Box<GraphTypeSpec>>,
+    },
+    /// Binding table reference type. `None` is the unspecified table produced by inference.
+    BindingTable {
+        /// Declared fields.
+        fields: Option<Vec<FieldType>>,
     },
     /// PATH type.
     Path,
     /// LIST type.
     List {
-        /// Element type.
-        element_type: Box<TypeSpec>,
+        /// Element type, with its own nullability.
+        element_type: Box<ValueType>,
         /// Optional max length.
         max_length: Option<usize>,
     },
-    /// RECORD type.
-    Record,
-    /// GRAPH type.
-    Graph {
-        /// Optional graph type specification.
-        graph_type_spec: Option<Box<GraphTypeSpec>>,
+    /// RECORD type: `None` for `[ANY] RECORD`, `Some` for a closed record type.
+    Record {
+        /// Declared fields.
+        fields: Option<Vec<FieldType>>,
     },
-    /// BINDING TABLE type.
-    BindingTable,
-    /// UNION type.
+    /// Closed dynamic union type (`A | B`, `ANY <A | B>`).
     Union {
         /// Member types in the union.
         members: Vec<TypeSpec>,
     },
-    /// ANY type.
+    /// NULL type (contains only the null value).
+    Null,
+    /// Empty type (`NOTHING`, `NULL NOT NULL`).
+    Nothing,
+    /// `[ANY] PROPERTY VALUE` type.
+    PropertyValue,
+    /// `ANY [VALUE]` type, also used for unknown inferred types.
     Any,
+}
+
+impl TypeSpec {
+    /// Regular signed integer (`INT`), the type inferred for integer literals.
+    pub fn integer() -> Self {
+        TypeSpec::Integer {
+            signed: true,
+            size: IntegerSize::Regular { precision: None },
+        }
+    }
+
+    /// Regular `FLOAT`, the type inferred for approximate numeric literals.
+    pub fn float() -> Self {
+        TypeSpec::Float {
+            size: FloatSize::Regular {
+                precision: None,
+                scale: None,
+            },
+        }
+    }
+
+    /// Unconstrained `STRING`.
+    pub fn string() -> Self {
+        TypeSpec::String {
+            min_length: None,
+            max_length: None,
+        }
+    }
+
+    /// Unconstrained `BYTES`.
+    pub fn bytes() -> Self {
+        TypeSpec::Bytes {
+            min_length: None,
+            max_length: None,
+        }
+    }
+
+    /// Unconstrained `DECIMAL`.
+    pub fn decimal() -> Self {
+        TypeSpec::Decimal {
+            precision: None,
+            scale: None,
+        }
+    }
+
+    /// Generic `DURATION`.
+    pub fn duration() -> Self {
+        TypeSpec::Duration { qualifier: None }
+    }
+
+    /// Open `RECORD`.
+    pub fn record() -> Self {
+        TypeSpec::Record { fields: None }
+    }
+
+    /// Binding table without declared fields.
+    pub fn binding_table() -> Self {
+        TypeSpec::BindingTable { fields: None }
+    }
+
+    /// List of nullable elements without max length.
+    pub fn list_of(element: TypeSpec) -> Self {
+        TypeSpec::List {
+            element_type: Box::new(ValueType::nullable(element)),
+            max_length: None,
+        }
+    }
 }
 
 /// Represents a graph type specification.
@@ -588,7 +761,7 @@ pub struct PropertyTypeDecl {
     /// Property name.
     pub name: String,
     /// Property type specification.
-    pub type_spec: TypeSpec,
+    pub type_spec: ValueType,
     /// Source range covered by this AST node.
     pub span: Span,
 }
