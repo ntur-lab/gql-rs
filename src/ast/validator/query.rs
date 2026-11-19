@@ -400,6 +400,7 @@ pub(super) fn validate_let_statement(
         }
 
         validate_expression(&def.expression, declared_variables)?;
+        validate_declared_variable_type(def, declared_variables, &HashMap::new())?;
         declared_variables.insert(name.to_string());
     }
 

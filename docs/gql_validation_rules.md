@@ -94,6 +94,12 @@ Node/Edge/PropertyMap:
 - `LET` must contain at least one variable definition.
 - Variable name must be non-empty.
 - Duplicate names in the same `LET` clause are forbidden.
+- `LET VALUE x :: T = expr` (also in inline `LET ... IN ... END`): the initializer must be
+  assignable to `T`. Numeric types are interchangeable (range checks happen at runtime),
+  datetime types are interchangeable with each other, lists are checked on their element type
+  and other types must belong to the same family. A `NOT NULL` type cannot be initialized with
+  `NULL`. Inside an inline `LET`, the declared type is the variable's type for the rest of the
+  expression.
 
 ### FILTER/HAVING
 

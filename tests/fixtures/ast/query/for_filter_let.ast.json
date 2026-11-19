@@ -89,6 +89,7 @@
               },
               "variable_definitions": [
                 {
+                  "declared_type": null,
                   "expression": {
                     "Binary": {
                       "left": {

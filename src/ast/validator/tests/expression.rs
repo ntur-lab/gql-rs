@@ -499,6 +499,7 @@ fn contains_aggregate_function_traverses_expression_variants() {
             variable_definitions: vec![VariableDefinition {
                 variable_name: "x".to_string(),
                 expression: aggregate.clone(),
+                declared_type: None,
                 span: span(),
             }],
             evaluation_expression: Box::new(variable("x")),
@@ -985,6 +986,7 @@ fn dynamic_parameter_detection_traverses_expression_variants() {
             variable_definitions: vec![VariableDefinition {
                 variable_name: "x".to_string(),
                 expression: parameter.clone(),
+                declared_type: None,
                 span: span(),
             }],
             evaluation_expression: Box::new(variable("x")),

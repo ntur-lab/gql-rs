@@ -525,4 +525,67 @@ mod value_type_tests {
             assert!(error.message().contains(message), "query: {query}, error: {error}");
         }
     }
+
+    fn let_definitions(query: &str) -> Vec<VariableDefinition> {
+        let ast = analyze(query).unwrap_or_else(|error| panic!("query: {query}, error: {error}"));
+        let Statement::Query(Query::Basic(basic)) = &ast.statement else {
+            panic!("expected a basic query for: {query}");
+        };
+        basic
+            .pipeline
+            .iter()
+            .find_map(|step| match step {
+                QueryStep::Let(let_statement) => Some(let_statement.variable_definitions.clone()),
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("expected LET for: {query}"))
+    }
+
+    #[test]
+    fn typed_let_variables_keep_their_declared_type() {
+        let definitions = let_definitions("LET VALUE x :: UINT8 NOT NULL = 5, VALUE y TYPED STRING(3) = 'abc', z = 1 RETURN x, y, z");
+        assert_eq!(
+            definitions[0].declared_type,
+            Some(ValueType::new(integer(false, IntegerSize::Bits8), true))
+        );
+        assert_eq!(
+            definitions[1].declared_type,
+            Some(ValueType::nullable(TypeSpec::String {
+                min_length: None,
+                max_length: Some(3)
+            }))
+        );
+        assert_eq!(definitions[2].declared_type, None);
+
+        // An untyped VALUE definition has no declared type either.
+        assert_eq!(let_definitions("LET VALUE w = 1 RETURN w")[0].declared_type, None);
+    }
+
+    #[test]
+    fn typed_let_initializers_are_validated() {
+        for query in [
+            "LET VALUE x :: INT8 = 5 RETURN x",
+            "LET VALUE x :: FLOAT32 = 5 RETURN x",
+            "LET VALUE x :: DECIMAL(5, 2) = 1.5M RETURN x",
+            "LET VALUE x :: ZONED DATETIME = TIMESTAMP '2024-01-31T12:00:00' RETURN x",
+            "LET VALUE x :: LIST<INT> = [1, 2] RETURN x",
+            "LET VALUE x :: INT = NULL RETURN x",
+            "MATCH (n) LET VALUE x :: INT8 NOT NULL = n.age RETURN x",
+            "RETURN LET VALUE x :: INT16 = 1 IN x + 1 END",
+        ] {
+            analyze(query).unwrap_or_else(|error| panic!("query: {query}, error: {error}"));
+        }
+        for (query, message) in [
+            ("LET VALUE x :: INT8 = 'abc' RETURN x", "declared as INT8 cannot be initialized with a value of type STRING"),
+            ("LET VALUE x :: INT NOT NULL = NULL RETURN x", "declared as INTEGER NOT NULL cannot be initialized with NULL"),
+            ("LET VALUE x :: DATE = 1 RETURN x", "declared as DATE cannot be initialized with a value of type INTEGER"),
+            ("LET VALUE x :: LIST<INT> = ['a'] RETURN x", "declared as LIST cannot be initialized with a value of type LIST"),
+            ("RETURN LET VALUE x :: BOOLEAN = 1 IN x END", "declared as BOOLEAN cannot be initialized"),
+        ] {
+            let error = analyze(query).expect_err(&format!("query must fail: {query}"));
+            assert!(matches!(error, GqlError::Validation { .. }), "query: {query}, error: {error}");
+            assert!(error.message().contains(message), "query: {query}, error: {error}");
+        }
+        assert!(analyze("LET VALUE x :: STRING(5, 2) = 'a' RETURN x").is_err());
+    }
 }

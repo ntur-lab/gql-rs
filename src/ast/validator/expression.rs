@@ -140,9 +140,10 @@ pub(super) fn validate_expression_with_types(
 
             for def in &expr.variable_definitions {
                 validate_expression_with_types(&def.expression, &local_scope, &local_types)?;
+                validate_declared_variable_type(def, &local_scope, &local_types)?;
 
                 let trimmed_name = def.variable_name.trim().to_string();
-                if let Some(inferred) = infer_expression_type(&def.expression, &local_types, Some(&local_scope)) {
+                if let Some(inferred) = variable_definition_type(def, &local_types, Some(&local_scope)) {
                     local_types.insert(trimmed_name.clone(), inferred);
                 }
 
@@ -592,6 +593,83 @@ pub(super) fn validate_binary_operator_types(
     Ok(())
 }
 
+/// Returns the type of a LET variable: the declared type when one is written, otherwise the
+/// inferred type of its initializer.
+pub(super) fn variable_definition_type(
+    definition: &VariableDefinition,
+    inferred_types: &HashMap<String, TypeSpec>,
+    declared_variables: Option<&HashSet<String>>,
+) -> Option<TypeSpec> {
+    match &definition.declared_type {
+        Some(declared) => Some(declared.base.clone()),
+        None => infer_expression_type(&definition.expression, inferred_types, declared_variables),
+    }
+}
+
+/// Checks `LET VALUE x :: T = expr`: the initializer must be assignable to `T`, and a `NOT NULL`
+/// type cannot be initialized with the NULL literal.
+pub(super) fn validate_declared_variable_type(
+    definition: &VariableDefinition,
+    declared_variables: &HashSet<String>,
+    inferred_types: &HashMap<String, TypeSpec>,
+) -> Result<(), GqlError> {
+    let Some(declared) = &definition.declared_type else {
+        return Ok(());
+    };
+    let name = definition.variable_name.trim();
+
+    if declared.not_null && matches!(definition.expression, Expression::Literal(Literal::Null)) {
+        return Err(validation_err(
+            format!(
+                "LET variable '{}' declared as {} NOT NULL cannot be initialized with NULL",
+                name,
+                type_name(&declared.base)
+            ),
+            Some(&definition.span.clone()),
+        ));
+    }
+
+    let Some(source_type) = infer_expression_type(&definition.expression, inferred_types, Some(declared_variables))
+    else {
+        return Ok(());
+    };
+    if is_assignable_type(&source_type, &declared.base) {
+        return Ok(());
+    }
+
+    Err(validation_err(
+        format!(
+            "LET variable '{}' declared as {} cannot be initialized with a value of type {}",
+            name,
+            type_name(&declared.base),
+            type_name(&source_type)
+        ),
+        Some(&definition.span.clone()),
+    ))
+}
+
+/// Returns true when a value of type `source` can be stored in a variable declared as `target`
+/// without an explicit CAST. Numeric types are interchangeable (range checks happen at runtime),
+/// datetime types are interchangeable with each other, and other types must belong to the same
+/// family; parameters such as lengths are checked at runtime.
+pub(super) fn is_assignable_type(source: &TypeSpec, target: &TypeSpec) -> bool {
+    match (source, target) {
+        (TypeSpec::Any, _) | (_, TypeSpec::Any | TypeSpec::PropertyValue) => true,
+        (TypeSpec::Union { members }, _) => members.iter().all(|member| is_assignable_type(member, target)),
+        (_, TypeSpec::Union { members }) => members.iter().any(|member| is_assignable_type(source, member)),
+        (s, t) if is_numeric_type(s) && is_numeric_type(t) => true,
+        (s, t) if is_datetime_like_type(s) && is_datetime_like_type(t) => true,
+        (TypeSpec::List { element_type: s, .. }, TypeSpec::List { element_type: t, .. }) => {
+            is_assignable_type(&s.base, &t.base)
+        }
+        (s, t) => std::mem::discriminant(s) == std::mem::discriminant(t),
+    }
+}
+
+fn is_datetime_like_type(t: &TypeSpec) -> bool {
+    is_temporal_like_type(t) && !is_duration_type(t)
+}
+
 /// Function to validate a CAST expression, ensuring that the target type is compatible with the source expression's inferred type. This function checks the inferred type of the source expression and validates it against the target type specified in the CAST, enforcing rules about which types can be cast to which other types, and providing error messages when invalid casts are attempted.
 pub(super) fn validate_cast_target(
     cast_expression: &CastExpression,
@@ -716,7 +794,7 @@ pub(super) fn infer_expression_type(
         Expression::InlineLet(inline_let) => {
             let mut local = inferred_types.clone();
             for def in &inline_let.variable_definitions {
-                if let Some(def_type) = infer_expression_type(&def.expression, &local, declared_variables) {
+                if let Some(def_type) = variable_definition_type(def, &local, declared_variables) {
                     local.insert(def.variable_name.trim().to_string(), def_type);
                 }
             }

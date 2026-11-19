@@ -1,0 +1,175 @@
+{
+  "statement": {
+    "Query": {
+      "Basic": {
+        "pipeline": [
+          {
+            "Let": {
+              "span": {
+                "end_col": 89,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
+              },
+              "variable_definitions": [
+                {
+                  "declared_type": {
+                    "base": {
+                      "Integer": {
+                        "signed": true,
+                        "size": "Bits8"
+                      }
+                    },
+                    "not_null": true
+                  },
+                  "expression": {
+                    "Literal": {
+                      "Integer": 5
+                    }
+                  },
+                  "span": {
+                    "end_col": 35,
+                    "end_line": 1,
+                    "start_col": 4,
+                    "start_line": 1
+                  },
+                  "variable_name": "tiny"
+                },
+                {
+                  "declared_type": {
+                    "base": {
+                      "Decimal": {
+                        "precision": 10,
+                        "scale": 2
+                      }
+                    },
+                    "not_null": false
+                  },
+                  "expression": {
+                    "Literal": {
+                      "Float": 9.99
+                    }
+                  },
+                  "span": {
+                    "end_col": 76,
+                    "end_line": 1,
+                    "start_col": 37,
+                    "start_line": 1
+                  },
+                  "variable_name": "price"
+                },
+                {
+                  "declared_type": null,
+                  "expression": {
+                    "Literal": {
+                      "String": "x"
+                    }
+                  },
+                  "span": {
+                    "end_col": 89,
+                    "end_line": 1,
+                    "start_col": 78,
+                    "start_line": 1
+                  },
+                  "variable_name": "plain"
+                }
+              ]
+            }
+          }
+        ],
+        "result_statement": {
+          "Return": {
+            "group_clause": null,
+            "page_clause": null,
+            "return_clause": {
+              "distinct": "None",
+              "projection": {
+                "items": [
+                  {
+                    "alias": null,
+                    "expression": {
+                      "Variable": {
+                        "name": "tiny",
+                        "span": {
+                          "end_col": 11,
+                          "end_line": 2,
+                          "start_col": 7,
+                          "start_line": 2
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 11,
+                      "end_line": 2,
+                      "start_col": 7,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": null,
+                    "expression": {
+                      "Variable": {
+                        "name": "price",
+                        "span": {
+                          "end_col": 18,
+                          "end_line": 2,
+                          "start_col": 13,
+                          "start_line": 2
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 18,
+                      "end_line": 2,
+                      "start_col": 13,
+                      "start_line": 2
+                    }
+                  },
+                  {
+                    "alias": null,
+                    "expression": {
+                      "Variable": {
+                        "name": "plain",
+                        "span": {
+                          "end_col": 25,
+                          "end_line": 2,
+                          "start_col": 20,
+                          "start_line": 2
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 25,
+                      "end_line": 2,
+                      "start_col": 20,
+                      "start_line": 2
+                    }
+                  }
+                ],
+                "kind": "items"
+              },
+              "span": {
+                "end_col": 25,
+                "end_line": 2,
+                "start_col": 0,
+                "start_line": 2
+              }
+            },
+            "span": {
+              "end_col": 25,
+              "end_line": 2,
+              "start_col": 0,
+              "start_line": 2
+            }
+          }
+        },
+        "span": {
+          "end_col": 25,
+          "end_line": 2,
+          "start_col": 0,
+          "start_line": 1
+        }
+      }
+    }
+  }
+}

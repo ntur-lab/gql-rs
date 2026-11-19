@@ -1815,6 +1815,7 @@ impl GQLAstBuilder {
             return Ok(VariableDefinition {
                 variable_name,
                 expression,
+                declared_type: None,
                 span: span.clone(),
             });
         }
@@ -1825,17 +1826,24 @@ impl GQLAstBuilder {
                 .ok_or_else(|| Self::parse_err("Expected bindingVariable in VALUE definition".to_string()))?
                 .get_text();
 
-            let value_expr = value_def
+            let initializer = value_def
                 .optTypedValueInitializer()
-                .and_then(|init| init.valueInitializer())
+                .ok_or_else(|| Self::parse_err("Expected value initializer in VALUE definition".to_string()))?;
+            let value_expr = initializer
+                .valueInitializer()
                 .and_then(|init| init.valueExpression())
                 .ok_or_else(|| Self::parse_err("Expected value initializer in VALUE definition".to_string()))?;
 
             let expression = Self::build_expression_from_context(&value_expr)?;
+            let declared_type = initializer
+                .valueType()
+                .map(|value_type| Self::build_value_type(&value_type))
+                .transpose()?;
 
             return Ok(VariableDefinition {
                 variable_name,
                 expression,
+                declared_type,
                 span: span.clone(),
             });
         }

@@ -40,8 +40,8 @@ High-level behavior:
 2. Reads programActivity.
 3. If it is sessionActivity, builds Statement::Session.
 4. If it is transactionActivity:
-    - if procedureSpecification is missing, it attempts to build a top-level transaction/catalog Statement;
-    - otherwise it enters the procedure body and builds the statement block.
+  - if procedureSpecification is missing, it attempts to build a top-level transaction/catalog Statement;
+  - otherwise it enters the procedure body and builds the statement block.
 
 Output: QueryAST with a single root Statement.
 
@@ -56,9 +56,9 @@ It routes to:
 - composite query -> Statement::Query
 - linear data modifying -> `Statement::Data` (or query-like statement in compatibility cases)
 - linear catalog modifying:
-    - catalog CALL -> `CatalogStatement::Call`
-    - mappable primitive catalog DDL -> `Statement::Catalog`
-    - non-mappable form -> fallback `CatalogStatement::Raw` (inside `Statement::Catalog`)
+  - catalog CALL -> `CatalogStatement::Call`
+  - mappable primitive catalog DDL -> `Statement::Catalog`
+  - non-mappable form -> fallback `CatalogStatement::Raw` (inside `Statement::Catalog`)
 
 This logic balances strong typing with tolerance for grammar constructs that are not yet fully supported.
 
@@ -155,7 +155,8 @@ Declared types are built in `src/ast/builder/types.rs`. `build_value_type` maps 
 alternative of the `valueType` rule by inspecting its CST accessors (never by normalizing
 the source text) and returns a `ValueType`: the base `TypeSpec` plus the `NOT NULL` flag.
 It is used for `CAST` targets, `IS [NOT] TYPED` predicates, `WHEN` type operands, record and
-binding-table fields, list elements and catalog property types.
+binding-table fields, list elements, catalog property types and typed variable definitions
+(`LET VALUE x :: T = ...`, stored in `VariableDefinition::declared_type`).
 
 Mapping rules:
 
