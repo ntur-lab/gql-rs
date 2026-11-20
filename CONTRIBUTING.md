@@ -72,7 +72,7 @@ For the impatient, if you want to submit a quick pull request (polishing, trivia
     ```
 
 7. Make sure you added yourself as author in the headers of the classes you touched.
-   Amend the date range in the Apache License header if needed.
+   Amend the date range in the EUPL v1.2 License header if needed.
    For new types, add the license header (copy from another file and set the current year only).
 8. Make sure you follow the <<commit-messages>> guidelines.
 9. Make sure you provide your full name and an email address registered with your GitHub account.

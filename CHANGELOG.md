@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4]
+
+### Added
+
+- **Declared value types (`ValueType` and `FieldType`):** Introduced `ValueType { base, not_null }` and `FieldType` to model declared types in `CAST`, `IS [NOT] TYPED`, `WHEN ... IS TYPED`, record and binding-table fields, list elements, catalog property declarations, and typed `LET VALUE` definitions, while keeping bare `TypeSpec` for expression type inference.
+- **Expanded `TypeSpec` representation:**
+  - Signed and unsigned integer widths via `IntegerSize` (`Bits8`, `Bits16`, `Bits32`, `Bits64`, `Bits128`, `Bits256`, `Small`, `Regular { precision }`, `Big`).
+  - Floating-point variants via `FloatSize` (`Bits16`, `Bits32`, `Bits64`, `Bits128`, `Bits256`, `Regular { precision, scale }`, `Real`, `Double`).
+  - `u32` precision and scale on `TypeSpec::Decimal`.
+  - `min_length` and `max_length` constraints on `TypeSpec::String` and `TypeSpec::Bytes` (mapping fixed-length `CHAR(n)` / `BINARY(n)` to `min = max = n`).
+  - Open and closed reference types for `TypeSpec::Node`, `TypeSpec::Edge`, and `TypeSpec::Graph`, plus structural `fields` on `TypeSpec::Record` and `TypeSpec::BindingTable`.
+  - `DurationQualifier` (`YearToMonth`, `DayToSecond`), `TypeSpec::Null`, `TypeSpec::Nothing`, `TypeSpec::PropertyValue`, and convenience constructors (`TypeSpec::integer()`, `float()`, `string()`, `bytes()`, `decimal()`, `duration()`, `record()`, `binding_table()`, `list_of()`).
+- **Dedicated literal variants and numeric decoding:**
+  - Added `Literal::Date`, `Literal::Time`, `Literal::Bytes(Vec<u8>)` (hex byte strings `X'...'`), and `Literal::Decimal(String)` (exact numeric literals with the `M` suffix, preserving normalized digits without precision loss).
+  - Added decoding for hexadecimal (`0x`), octal (`0o`), and binary (`0b`) integers, underscore-separated numeric literals, `F`/`D` approximate float suffixes, and generalized `i64::MIN` magnitude detection across numeric expressions.
+- **Centralized built-in function registry:** Added `src/ast/validator/builtins.rs` covering all 72 grammar built-in function forms across aggregate, numeric, string, byte-string, list, path, temporal, duration, graph-element, conditional, and session families, validating arity, `DISTINCT`/`ALL` modifiers, nested aggregates, structural argument constraints, and return-type inference while preserving user-defined functions and conservative `Any` behavior for unknown types.
+- **Explicit delete modifier (`DeleteMode`):** Added `DeleteMode::{Unspecified, Detach, NoDetach}` to distinguish `DELETE`, `DETACH DELETE`, and `NODETACH DELETE` in standalone and pipeline statements.
+- **Builder and validator diagnostics:**
+  - Added `GqlError::INVALID_TYPE_PARAMETER` to reject invalid type parameters during AST construction (`min > max`, zero lengths or precision, `scale > precision`, out-of-range integer parameters, and duplicate field names in records or binding tables).
+  - Added `GqlError::UNSUPPORTED_CONSTRUCT` to fail explicitly on syntactically valid constructs not yet representable in the `0.0.4` AST (such as chained property access `n.a.b` or catalog/home/current graph and table references) instead of falling back to string literals.
+  - Enforced nullability and type compatibility rules for `CAST` (rejecting `CAST(NULL AS T NOT NULL)`), `NULL`/`NOTHING`/`PROPERTY VALUE` targets, and `LET VALUE x :: T = ...` initializers (including type propagation inside inline `LET ... IN ... END`).
+- **Documentation:** Added `docs/builtin_functions.md` and updated the AST, builder, and validator guides to document all built-in signatures, validation limitations, and explicitly unsupported constructs.
+
+### Changed
+
+- **Structural CST construction:** Replaced text-based fallbacks (`build_expression_from_leaf_text`, `build_literal_from_leaf_text`, `normalize_type_token`, `extract_parenthesized_u8_list`) with structural CST mapping across expressions (`src/ast/builder/expression.rs`), clauses, statements, and declared value types (`src/ast/builder/types.rs`).
+- **AST node signatures (breaking):**
+  - `CastExpression::target_type`, `IsPredicateKind::Typed`, `WhenOperandKind::ValueTypePredicate`, `PropertyTypeDecl::type_spec`, `PropertyTypeSpecification::parsed_value_type`, and `TypeSpec::List::element_type` now use `ValueType` instead of `TypeSpec`.
+  - `VariableDefinition` now includes `declared_type: Option<ValueType>`.
+  - `DeleteClause` now uses `mode: DeleteMode` instead of a boolean `detach` flag.
+  - `UNKNOWN` now builds into `Literal::Null`, `SESSION_USER` into a niladic built-in `FunctionCall`, and `GRAPH $$g` / `TABLE $$t` into `Literal::Parameter`.
+- **Built-in validation coverage:** Upgraded `BYTE_LENGTH` and `OCTET_LENGTH` from `Partial` to `Complete` validation and normalized built-in, aggregate, and keyword modifier names (`NFC`/`NFD`/`NFKC`/`NFKD`, `YEAR TO MONTH`/`DAY TO SECOND`) to canonical uppercase.
+
+### Fixed
+
+- Prevented expressions inside function arguments, `CALL` arguments, `LET` definitions, `ORDER BY`/`RETURN` items, and `SET`/`REMOVE` clauses from silently degrading into `Literal::String` or raw text and bypassing variable or type validation (e.g., `FLOOR(x + 1)`, `FLOOR(n.price * 1.2)`, `PERCENTILE_CONT(DISTINCT n.score, 0.5)`, `LOCAL_TIME('12:30:00.5')`).
+- Validated named `CALL` arguments even when the outer variable scope is empty, catching unbound variables in standalone `CALL` statements.
+- Rejected all grammar aggregate functions (including `STDDEV_*`, `PERCENTILE_*`, and lowercase names) inside `WHERE` clauses.
+- Fixed parsing of verbose `SIGNED`/`UNSIGNED` integer declarations (`SIGNED INTEGER8`, `UNSIGNED INTEGER`), `DURATION_BETWEEN(a, b) YEAR TO MONTH`, non-literal length arguments in `LEFT`/`RIGHT`, and nested aggregate detection for `STDDEV_*` and `PERCENTILE_*`.
+- Propagated errors from invalid catalog property types into `CatalogStatement::Raw.parse_error` instead of silently discarding them.
+- Fixed UTC offset detection on `TIME` and `DATETIME` literals containing surrounding whitespace.
+
+### Removed
+
+- Removed unused `TypeSpec::Time`, `TypeSpec::Timestamp`, and `TypeSpec::Reference` variants.
+
 ## [0.0.3] - 2026-11-17
 
 ### Added

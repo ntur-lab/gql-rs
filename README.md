@@ -6,6 +6,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/gql-rs.svg?style=flat-square)](https://crates.io/crates/gql-rs)
 [![Documentation](https://img.shields.io/docsrs/gql-rs?style=flat-square)](https://docs.rs/gql-rs)
+[![Quality gate status](https://sonarcloud.io/api/project_badges/measure?project=ntur-lab_gql-rs&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ntur-lab_gql-rs)
 [![ISO/IEC 39075:2024](https://img.shields.io/badge/Standard-ISO%2FIEC%2039075-005B94?style=flat-square)](https://www.iso.org/standard/76120.html)
 [![License: EUPL v1.2](https://img.shields.io/badge/License-EUPL_v1.2-blue.svg?style=flat-square)](LICENSE.txt)
 [![Rust Version](https://img.shields.io/badge/Rust-1.99%2B-orange?style=flat-square&logo=rust)](https://www.rust-lang.org)
@@ -14,40 +15,41 @@
 
 ---
 
+`gql-rs` parses and validates GQL queries. It does not execute queries or connect to a graph database.
 
 ## Features
 
-- GQL lexical and syntactic analysis based on ANTLR.
-- Conversion from the ANTLR concrete syntax tree to a typed Rust AST.
-- Semantic validation of variables, expressions, types, graph patterns,
-  queries, catalog statements, and data-modifying statements.
-- Stateless parsing and analysis through `parse()` and `analyze()`.
-- Stateful analysis through `DefaultGQLQueryAnalyzer`.
-- Structured source positions for lexer and parser diagnostics.
-- Source spans for AST nodes and semantic errors when available.
-- Serde serialization and deserialization for AST nodes and error types.
-- Transaction intent classification.
-- Case-insensitive GQL keywords with identifier spelling preservation.
-- Portable behavior coverage through the GQL Technology Compatibility Kit.
-
-`gql-rs` parses and validates GQL queries. It does not execute queries or
-connect to a graph database.
+- **Lexical & syntactic analysis:** ANTLR-based GQL parser with case-insensitive keywords, preserved identifier spelling, and structured error positions.
+- **Typed AST:** Structural conversion from the ANTLR concrete syntax tree into a typed Rust AST covering queries, graph patterns, expressions, declared value types, DML, and catalog/session statements.
+- **Semantic validation:** Static checks for variable scopes, expressions, type compatibility, built-in function signatures, graph patterns, and query clauses.
+- **Stateless & stateful APIs:** One-shot parsing/analysis via `parse()` and `analyze()`, or stateful session tracking via `DefaultGQLQueryAnalyzer`.
+- **Diagnostics & serialization:** Source spans on AST nodes and errors, optional diagnostic codes, transaction intent classification, and full Serde support.
+- **Compatibility:** Verified against the GQL Technology Compatibility Kit (TCK).
 
 ## Installation
 
-Add the crate to your project:
+Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-gql-rs = "0.0.3"
+gql-rs = "0.0.4"
 ```
 
-The Cargo package is named `gql-rs` and its Rust library is imported as
-`gql_rs`.
+The Cargo package is named `gql-rs` and its Rust library is imported as `gql_rs`.
 
-## Quick start
+## Usage
 
-Use `analyze()` to parse a query, build its typed AST, and validate its semantics:
+Choose the entry point that matches your workflow:
+
+| Entry point | Builds typed AST | Validates semantics | Retains query & AST copy |
+| :--- | :---: | :---: | :---: |
+| `parse(query)` | Yes | No | No |
+| `analyze(query)` | Yes | Yes | No |
+| `DefaultGQLQueryAnalyzer::exec(query)` | Yes | Yes | Yes |
+
+### Stateless analysis
+
+Use `analyze()` to parse a query, build its typed AST, and validate its semantics in one step:
 
 ```rust
 use gql_rs::{analyze, GqlError};
@@ -62,15 +64,7 @@ fn main() -> Result<(), GqlError> {
 }
 ```
 
-Choose the entry point according to the required behavior:
-
-| Entry point | Builds a typed AST | Validates semantics | Retains query and an AST copy |
-|---|---|---|---|
-| `parse(query)` | Yes | No | No |
-| `analyze(query)` | Yes | Yes | No |
-| `DefaultGQLQueryAnalyzer::exec(query)` | Yes | Yes | Yes |
-
-`parse()` performs lexical analysis, syntactic analysis, and CST-to-AST conversion. It does not run the semantic validator:
+If you need to inspect or serialize the AST before validating it, use `parse()` and call `ast.validate()` separately:
 
 ```rust
 use gql_rs::{parse, GqlError};
@@ -85,14 +79,9 @@ fn main() -> Result<(), GqlError> {
 }
 ```
 
-Successful parsing does not imply semantic validity or complete support for every construct accepted by the grammar. AST construction may still reject constructs that do not have a supported representation.
+### Stateful analysis
 
-`analyze()` calls `parse()` followed by `ast.validate()`. Neither stateless entry point retains the source query or clones the resulting AST.
-
-## Analyzer state
-
-Use `DefaultGQLQueryAnalyzer` when the most recent successful query and AST
-must remain accessible:
+Use `DefaultGQLQueryAnalyzer` when you want to retain the most recent successful query and AST:
 
 ```rust
 use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError};
@@ -110,25 +99,30 @@ fn main() -> Result<(), GqlError> {
 }
 ```
 
-`exec()` clears the stored state, calls `analyze()`, and stores the query and
-a clone of the successful AST before returning the original AST.
+`exec()` clears any previously stored state, runs `analyze()`, and retains the query together with a clone of the AST on success. If analysis fails, both getters remain empty. Call `clear()` to reset the stored state explicitly.
 
-A failed analysis leaves both getters empty, even if an earlier call succeeded.
-`clear()` explicitly removes the stored query and AST.
+## GQL support
 
-Use `analyze()` when retaining this state is unnecessary.
+`gql-rs` implements a growing subset of ISO/IEC 39075 GQL syntax and semantics, including:
+
+- queries, set operations (`UNION`, `INTERSECT`, `EXCEPT`), and query composition (`NEXT`);
+- graph patterns and path patterns;
+- declared value types (`ValueType` / `TypeSpec`), expressions, predicates, and built-in functions;
+- data modification (`INSERT`, `SET`, `REMOVE`, `DELETE`);
+- catalog DDL, session commands, transactions, and procedure calls;
+- ordering, grouping, and pagination.
+
+Syntactically valid constructs without a dedicated AST representation either fail explicitly during AST construction (`GqlError::UNSUPPORTED_CONSTRUCT`) or, for unmapped catalog statements, fall back to `CatalogStatement::Raw`.
+
+See [Supported features](docs/supported_features.md), [Built-in functions](docs/builtin_functions.md), and the [GQL validation rules](docs/gql_validation_rules.md) for detailed coverage.
 
 ## Errors
 
-The public entry points return `GqlResult<QueryAST>`. 
-
-Errors are represented by:
+All public entry points return `GqlResult<QueryAST>`, with errors categorized into:
 
 - `GqlError::Parse`: lexical, syntactic, or AST construction failures;
 - `GqlError::Validation`: semantic validation failures;
 - `GqlError::Generic`: other crate-level failures.
-
-Lexer and parser listeners share an error collection. After the parser returns, the first collected diagnostic is returned before AST construction, even if ANTLR recovered and produced a CST.
 
 ```rust
 use gql_rs::{analyze, GqlError};
@@ -151,122 +145,61 @@ fn main() {
 }
 ```
 
-Listener-generated diagnostics use zero-width spans: the start and end positions are identical. These identify an error location, including EOF, rather than the full extent of an offending token.
+Diagnostic details:
 
-Lines are one-based and columns are zero-based. Listener columns count Unicode characters, not UTF-8 bytes; they are not display widths or UTF-16 offsets.
-
-`ErrorContext.span` is `None` when the originating error constructor has no known position. `ErrorContext.code` is optional and is not populated by the lexer/parser listener.
-
-`GqlError` and `ErrorContext` support Serde serialization and deserialization.
-
-See the [query analyzer guide](docs/query_analyzer.md) for a JSON example.
-
-## GQL support
-
-The crate implements a growing subset of GQL syntax and semantics.
-
-Currently covered areas include:
-
-- queries and query composition;
-- graph patterns and path patterns;
-- expressions, predicates, functions, and type checks;
-- data modification;
-- catalog and session statements;
-- transactions;
-- procedure calls;
-- set operations;
-- ordering, grouping, and pagination.
-
-Some syntactically valid constructs may not yet have a dedicated typed AST
-representation. Catalog constructs without a specialized representation can
-be preserved as `CatalogStatement::Raw`.
-
-See the [GQL validation rules](docs/gql_validation_rules.md) and the
-[test suite guide](docs/tests.md) for the currently verified behavior. A
-capability overview is available in [Supported features](docs/supported_features.md).
+- **Spans:** Lines are 1-based and columns are 0-based Unicode character offsets (not UTF-8 byte offsets). Lexer/parser listener errors use zero-width spans (`start == end`), while `ErrorContext.span` is `None` when no source position is available.
+- **Diagnostic codes:** `ErrorContext.code` is optional. It is `None` for listener-generated syntax errors, and populated for specific AST construction errors such as `GqlError::UNSUPPORTED_CONSTRUCT` and `GqlError::INVALID_TYPE_PARAMETER`.
+- **Serialization:** Both `GqlError` and `ErrorContext` implement Serde `Serialize` and `Deserialize` (see the [query analyzer guide](docs/query_analyzer.md) for a JSON example).
 
 ## Public API
 
-Main entry points are structured around dedicated traits and core types designed to handle the full lifecycle of an ISO GQL statement:
-- `parse`: builds a typed AST without running semantic validation.
-- `analyze`: builds and semantically validates a typed AST.
-- `GQLQueryAnalyzer`: trait for stateful query analysis.
-- `DefaultGQLQueryAnalyzer`: default stateful implementation.
-- `QueryAST`: root AST node for a parsed GQL program.
-- `GqlError`: error returned by parsing, AST construction, or validation.
-- `ErrorContext`: optional source position and diagnostic code.
-- `GqlResult<T>`: result alias used across the crate.
+Core types and traits are re-exported at the crate root, while the full AST node hierarchy lives in `gql_rs::ast`:
 
-The complete typed AST is re-exported from the crate root and is also available
-through the public `ast` module.
+- `parse` / `analyze`: stateless entry points.
+- `GQLQueryAnalyzer` / `DefaultGQLQueryAnalyzer`: trait and default implementation for stateful analysis.
+- `QueryAST`: root AST node representing a parsed GQL program.
+- `GqlError` / `ErrorContext` / `GqlResult<T>`: error types and result alias used across the crate.
 
 ## Documentation
-If you want to deep-dive on the technical details, please have a look at the following links:
 
-- [ANTLR and grammar guide](docs/antlr_grammar.md)
-- [Parser generation guide](docs/generating_parser.md)
+Full API documentation is published on [docs.rs](https://docs.rs/gql-rs). Additional guides and specifications are available in `docs/`:
+
+**Architecture & Guides**
+- [Query analyzer guide](docs/query_analyzer.md)
 - [AST structural guide](docs/gql_query_ast.md)
 - [AST builder guide](docs/gql_ast_builder.md)
 - [Validator guide](docs/gql_validator.md)
-- [Validation rules](docs/gql_validation_rules.md)
-- [Supported features](docs/supported_features.md)
-- [Query analyzer guide](docs/query_analyzer.md)
+- [ANTLR and grammar guide](docs/antlr_grammar.md)
+- [Parser generation guide](docs/generating_parser.md)
 - [Test suite guide](docs/tests.md)
 
-[API documentation](https://docs.rs/gql-rs) is published on docs.rs.
+**Language & Feature Reference**
+- [Supported features](docs/supported_features.md)
+- [Validation rules](docs/gql_validation_rules.md)
+- [Built-in functions](docs/builtin_functions.md)
 
-## Development
+## Development & Roadmap
 
-Run the complete test suite:
+The project uses the Rust 2024 edition and requires **Rust 1.99 or newer**. Run the complete test suite with:
 
 ```bash
 cargo test
 ```
 
-The project uses the Rust 2024 edition and requires Rust 1.99 or newer.
-
-## Next Steps
-One of the major pain-point is that the current dependency `antlr-rust:0.3.0-beta` it has not been updated since 2022; therefore, for future releases, the team is considering replacing it with an official implementation of [ANTLR](https://github.com/antlr/antlr4/blob/master/doc/cpp-target.md).
-
-Others missing and partially covered features are listed [here](docs/supported_features.md#capability-overview).
+**Next steps:** One of the main pain points is that the current dependency `antlr-rust:0.3.0-beta` has not been updated since 2022; for future releases, the team is evaluating replacing it with an official [ANTLR4](https://github.com/antlr/antlr4/blob/master/doc/cpp-target.md) target. Other planned language and semantic features are tracked in [Supported features](docs/supported_features.md#capability-overview).
 
 ## About NTUR LAB
 
-`gql-rs` is maintained and developed by [NTUR LAB](https://ntur-lab.com).
+`gql-rs` is maintained and developed by [NTUR LAB](https://ntur-lab.com) as part of **Aurea**, an initiative to build a modern, high-performance, open data ecosystem rooted in European open standards and digital sovereignty for the global developer community.
 
-This component is part of **Aurea**, an initiative born out of Europe to build a modern, high-performance, and open data
-ecosystem. While firmly rooted in European open standards and the ethos of digital sovereignty, our technologies are
-built from the ground up for the global developer community. We create open-source software meant to be adopted,
-integrated, and scaled anywhere in the world.
+## Contributing & CLA
 
-## Contribution License Agreement
+We welcome contributions and adhere to the [Contributor Covenant](https://www.contributor-covenant.org/) code of conduct. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE-OF-CONDUCT.md) before submitting a pull request, and report any unacceptable behavior to [code-of-conduct@ntur-lab.com](mailto:code-of-conduct@ntur-lab.com).
 
-In our CLA repository we're hosting the [Contribution License Agreement (CLA)](https://github.com/ntur-lab/cla/blob/master/CONTRIBUTION-LICENSE-AGREEMENT.pdf) in PDF format; a version in Markdown format is also available [here](CONTRIBUTION-LICENSE-AGREEMENT.md).
-
-This contributor agreement documents the rights granted by contributors to Us and because we want to protect Your right, we decided to adopt the [Harmony Contributor Agreement](https://www.harmonyagreements.org/).
-Our CLA is indeed copy-pasted from it.
-
-In order to accept your contribution, you'll have to confirm it via our automated CLA pull request verification.  
-Alternatively you can [download](https://github.com/ntur-lab/cla/blob/master/CONTRIBUTION-LICENSE-AGREEMENT.pdf), sign and send it to [cla@ntur-lab.com](mailto:cla@ntur-lab.com).
-
-> This is a legally binding document, so *please read it carefully before agreeing to it*.
-
-The Agreement may cover one or more software projects managed by Us.
-
-## How to Contribute
-
-As owner, contributors and maintainers of NTUR LAB' projects, and in the interest of fostering an open and welcoming community, we pledge to respect all people who contribute through reporting issues, posting feature requests, updating documentation, submitting pull requests or patches, and other activities.
-
-We are committed to making participation in this project a harassment-free experience for everyone, regardless of level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality.
-
-In that very sense, we adhere to the [Contributor Covenant](https://www.contributor-covenant.org/) code of conduct. By participating, you are expected to uphold this code.
-
-> Please report unacceptable behavior to [code-of-conduct@ntur-lab.com](mailto:code-of-conduct@ntur-lab.com)
-
-> If you want to contribute, please read carefully our contribution terms at [CODE_OF_CONDUCT.md](CODE-OF-CONDUCT.md) and [CONTRIBUTING.md](CONTRIBUTING.md)
+To accept your contribution, you must agree to our [Contribution License Agreement (CLA)](https://github.com/ntur-lab/cla/blob/master/CONTRIBUTION-LICENSE-AGREEMENT.pdf) (also available in [Markdown](CONTRIBUTION-LICENSE-AGREEMENT.md)). You can confirm it via the automated CLA check on your pull request, or sign and send the PDF to [cla@ntur-lab.com](mailto:cla@ntur-lab.com).
 
 ## License
 
-The repository and custom texts are made available under the European Union Public Licence v. 1.2. See the [LICENSE.txt](LICENSE.txt).
+This repository and custom texts are licensed under the **European Union Public Licence v. 1.2** ([LICENSE.txt](LICENSE.txt)).
 
-Individual governance documents incorporate or adapt third-party materials subject to their respective licenses: Contributor Covenant (CC BY 4.0), Harmony Agreements (CC BY 3.0), and Spring Data Contribution Guidelines (Apache 2.0)
+Individual governance documents incorporate or adapt third-party materials under their respective licenses: Contributor Covenant (CC BY 4.0), Harmony Agreements (CC BY 3.0), and Spring Data Contribution Guidelines (Apache 2.0).
