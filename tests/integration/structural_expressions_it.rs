@@ -404,9 +404,16 @@ mod structural_expression_tests {
     }
 
     #[test]
-    fn non_decimal_integer_literals_respect_the_signed_64_bit_range() {
-        let error = analyze("RETURN 0x8000000000000000").expect_err("out of range");
-        assert!(error.message().contains("outside the signed 64-bit range"));
+    fn non_decimal_integer_literals_use_the_narrowest_variant() {
+        let expression = single_return_expression("RETURN 0x7FFFFFFFFFFFFFFF");
+        assert!(matches!(expression, Expression::Literal(Literal::Integer(i64::MAX))), "{expression:?}");
+        let expression = single_return_expression("RETURN 0x8000000000000000");
+        assert!(
+            matches!(expression, Expression::Literal(Literal::BigInteger(value)) if value == 1i128 << 63),
+            "{expression:?}"
+        );
+        let error = analyze("RETURN 0x80000000000000000000000000000000").expect_err("out of range");
+        assert!(error.message().contains("outside the signed 128-bit range"));
 
         for query in [
             "RETURN -0x8000000000000000",

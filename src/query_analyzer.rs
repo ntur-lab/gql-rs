@@ -52,11 +52,14 @@
 
 use crate::antlr::gqllexer::GQLLexer;
 use crate::antlr::gqlparser::GQLParser;
-use crate::ast::model::QueryAST;
+use crate::ast::model::{QueryAST, Span};
 use crate::error_handler::error::GqlError;
 use crate::error_handler::error_listener::GqlErrorListener;
 use crate::types::GqlResult;
 use antlr_rust::common_token_stream::CommonTokenStream;
+use antlr_rust::int_stream::IntStream;
+use antlr_rust::token::{TOKEN_DEFAULT_CHANNEL, TOKEN_EOF, Token};
+use antlr_rust::token_stream::TokenStream;
 use antlr_rust::{InputStream, Parser};
 use std::rc::Rc;
 
@@ -85,7 +88,34 @@ pub fn parse(query: &str) -> GqlResult<QueryAST> {
     lexer.remove_error_listeners();
     lexer.add_error_listener(Box::new(listener.clone()));
 
-    let token_stream = CommonTokenStream::new(lexer);
+    let mut token_stream = CommonTokenStream::new(lexer);
+    // The Java runtime positions the stream on the first default-channel token when it is set
+    // up; antlr-rust 0.3 does not, so hidden tokens at the very start of the input (whitespace,
+    // newlines, comments) reached the parser as "extraneous input" (issue #38). One `consume`
+    // is enough: it also skips every further hidden token before the first real one.
+    let starts_hidden = token_stream
+        .lt(1)
+        .map(|token| token.get_channel() != TOKEN_DEFAULT_CHANNEL && token.get_token_type() != TOKEN_EOF)
+        .unwrap_or(false);
+    if starts_hidden {
+        token_stream.consume();
+    }
+
+    // An input with no statement at all (empty, or only whitespace and comments) is rejected
+    // here: on whitespace-only input the antlr-rust error recovery panics while looking back
+    // for a previous on-channel token that does not exist.
+    if let Some(eof) = token_stream.lt(1).filter(|token| token.get_token_type() == TOKEN_EOF) {
+        let (line, column) = (eof.get_line(), eof.get_column());
+        return Err(GqlError::parse_at(
+            "Empty query: the input contains no GQL statement",
+            Span {
+                start_line: line,
+                start_col: column,
+                end_line: line,
+                end_col: column,
+            },
+        ));
+    }
     let mut parser = GQLParser::new(token_stream);
 
     parser.remove_error_listeners();

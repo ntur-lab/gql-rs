@@ -1021,6 +1021,7 @@ fn kind_description(kind: ArgKind) -> String {
 fn numeric_literal_value(argument: &Expression) -> Option<f64> {
     match argument {
         Expression::Literal(Literal::Integer(value)) => Some(*value as f64),
+        Expression::Literal(Literal::BigInteger(value)) => Some(*value as f64),
         Expression::Literal(Literal::Float(value)) => Some(*value),
         Expression::Literal(Literal::Decimal(text)) => text.parse().ok(),
         Expression::Unary(unary) => {

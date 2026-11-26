@@ -347,13 +347,66 @@ pub struct InlineLetExpression {
     pub span: Span,
 }
 
+/// Serde helper that writes an `i128` as a decimal string and reads it back from a string or
+/// from a JSON number.
+mod i128_as_string {
+    use serde::{Deserializer, Serializer, de::Error, de::Visitor};
+
+    pub fn serialize<S: Serializer>(value: &i128, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_str(value)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<i128, D::Error> {
+        deserializer.deserialize_any(I128Visitor)
+    }
+
+    struct I128Visitor;
+
+    impl Visitor<'_> for I128Visitor {
+        type Value = i128;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("a 128-bit integer as a decimal string or a number")
+        }
+
+        fn visit_str<E: Error>(self, value: &str) -> Result<i128, E> {
+            value.parse().map_err(E::custom)
+        }
+
+        fn visit_i64<E: Error>(self, value: i64) -> Result<i128, E> {
+            Ok(value.into())
+        }
+
+        fn visit_u64<E: Error>(self, value: u64) -> Result<i128, E> {
+            Ok(value.into())
+        }
+
+        fn visit_i128<E: Error>(self, value: i128) -> Result<i128, E> {
+            Ok(value)
+        }
+
+        fn visit_u128<E: Error>(self, value: u128) -> Result<i128, E> {
+            i128::try_from(value).map_err(E::custom)
+        }
+    }
+}
+
 /// Represents a literal value in a GQL query.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum Literal {
     /// String literal.
     String(String),
-    /// Integer literal.
+    /// Integer literal in the signed 64-bit range.
     Integer(i64),
+    /// Integer literal outside the signed 64-bit range but inside the signed 128-bit range.
+    /// Values that fit in `i64` always use [`Literal::Integer`], so the narrowest variant is
+    /// used. As for `i64::MIN`, a minus sign applied to the magnitude of `i128::MIN` is folded
+    /// into the literal; other negative values keep the unary minus node.
+    ///
+    /// Serialized as a decimal string (`{"BigInteger": "170141183460469231731687303715884105727"}`),
+    /// because JSON numbers beyond 64 bits cannot be represented by `serde_json::Value` nor by
+    /// most JSON consumers.
+    BigInteger(#[serde(with = "i128_as_string")] i128),
     /// Approximate numeric literal, and exact decimals written without the `M` suffix.
     Float(f64),
     /// Exact numeric literal with the `M` suffix (`1.5M`, `10M`), kept as normalized text

@@ -23,19 +23,22 @@
 use gql_rs::{DefaultGQLQueryAnalyzer, GQLQueryAnalyzer, GqlError, ast::model::*};
 
 #[test]
-fn rejects_integer_literals_outside_signed_64_bit_range() {
+fn rejects_integer_literals_outside_signed_128_bit_range() {
     for query in [
-        "RETURN 9223372036854775808 AS a",
-        "RETURN -9223372036854775809 AS a",
-        "RETURN +9223372036854775808 AS a",
-        "RETURN [9223372036854775808] AS a",
-        "RETURN {a: 9223372036854775808} AS a",
-        "RETURN 9999999999999999999999999999999999999999 AS a",
+        "RETURN 170141183460469231731687303715884105728 AS a",
+        "RETURN -170141183460469231731687303715884105729 AS a",
+        "RETURN +170141183460469231731687303715884105728 AS a",
+        "RETURN [170141183460469231731687303715884105728] AS a",
+        "RETURN {a: 170141183460469231731687303715884105728} AS a",
+        "RETURN 99999999999999999999999999999999999999999999999999 AS a",
+        "RETURN 0x80000000000000000000000000000000 AS a",
     ] {
         let mut analyzer = DefaultGQLQueryAnalyzer::new();
         let error = analyzer.exec(query).expect_err("out-of-range integer must fail");
         assert!(
-            error.to_string().contains("outside the signed 64-bit range"),
+            error
+                .to_string()
+                .contains("outside the signed 128-bit range (maximum 170141183460469231731687303715884105727)"),
             "query: {query}, error: {error}"
         );
     }
