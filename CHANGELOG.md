@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - 2026-11-26
+
+### Added
+- **128-bit integer literals (`Literal::BigInteger(i128)`):** Support for integer literals outside the signed 64-bit range up to signed 128-bit limits (`i128::MIN` to `i128::MAX`) across decimal, hexadecimal (`0x`), octal (`0o`), and binary (`0b`) notations (#39).
+  - Literals within the `i64` range continue to use `Literal::Integer(i64)` to preserve AST and JSON compatibility.
+  - Unary minus signs immediately preceding the exact magnitude of `i128::MIN` are folded directly into the literal.
+  - `Literal::BigInteger` serializes as a decimal string to remain compatible with `serde_json::Value` and standard JSON consumers, while deserializing from both strings and JSON numbers.
+
+### Fixed
+- **Leading whitespace and comments:** Skip leading hidden-channel tokens (spaces, tabs, newlines, and `//`, `--`, `/* */` comments) before parsing so queries with leading trivia no longer fail with `extraneous input` while preserving original source line/column spans (#38).
+- **Empty or trivia-only queries:** Reject inputs containing no GQL statements (empty, whitespace-only, or comment-only) prior to parsing with a clear `Empty query` parse error instead of triggering an `antlr-rust` error-recovery panic (#38).
+
+### Changed
+- **Breaking (AST):** Added the `Literal::BigInteger(i128)` variant to `gql_rs::ast::model::Literal`; downstream consumers matching exhaustively on `Literal` must handle this variant (#39).
+- **Error message:** Empty query inputs (`""`) now return `Parse error: Empty query: the input contains no GQL statement` instead of `mismatched input '<EOF>'` (#38).
+
 ## [0.0.4]
 
 ### Added

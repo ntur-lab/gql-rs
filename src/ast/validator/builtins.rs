@@ -30,9 +30,6 @@
 //! inference of built-in calls are dispatched exclusively through this registry; names that
 //! are not registered are user-defined functions and keep the generic handling (arguments are
 //! validated, no signature is enforced, the return type is unknown).
-//!
-//! Registry coverage does not imply complete type validation: entries whose checks are
-//! limited by the 0.0.4 type model are marked [`ValidationLevel::Partial`] with the reason.
 
 use super::*;
 
@@ -191,7 +188,7 @@ pub(crate) enum ReturnRule {
     Trim,
 }
 
-/// How completely the registry validates a function within the 0.0.4 models.
+/// How completely the registry validates a function.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ValidationLevel {
     /// Arity, modifiers and argument types are fully checked within the current type model.
