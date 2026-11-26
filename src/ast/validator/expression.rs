@@ -961,7 +961,7 @@ pub(super) fn infer_function_call_type(
 pub(super) fn type_from_literal(literal: &Literal) -> TypeSpec {
     match literal {
         Literal::String(_) => TypeSpec::string(),
-        Literal::Integer(_) => TypeSpec::integer(),
+        Literal::Integer(_) | Literal::BigInteger(_) => TypeSpec::integer(),
         Literal::Float(_) => TypeSpec::float(),
         Literal::Decimal(_) => TypeSpec::decimal(),
         Literal::Bytes(_) => TypeSpec::bytes(),

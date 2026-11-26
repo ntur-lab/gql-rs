@@ -35,9 +35,11 @@ impl GQLAstBuilder {
                     Self::parse_err("CST not valid: operand missing in signed expression".into())
                 })?;
 
-                // The magnitude of i64::MIN is not a valid positive i64 literal.
-                if signed.MINUS_SIGN().is_some() && Self::is_i64_min_magnitude(&inner.get_text()) {
-                    return Ok(Expression::Literal(Literal::Integer(i64::MIN)));
+                // The magnitudes of i64::MIN and i128::MIN are not valid positive literals.
+                if signed.MINUS_SIGN().is_some()
+                    && let Some(minimum) = Self::negated_minimum_literal(&inner.get_text())
+                {
+                    return Ok(Expression::Literal(minimum));
                 }
                 let expression = Self::build_expression_from_context(&inner)?;
                 let operator = if signed.MINUS_SIGN().is_some() {
@@ -711,10 +713,11 @@ impl GQLAstBuilder {
                     );
                 };
 
-                // The magnitude of i64::MIN is not a valid positive i64 literal.
-                if operator == Operator::Minus && Self::is_i64_min_magnitude(&operand.get_text())
+                // The magnitudes of i64::MIN and i128::MIN are not valid positive literals.
+                if operator == Operator::Minus
+                    && let Some(minimum) = Self::negated_minimum_literal(&operand.get_text())
                 {
-                    return Ok(Expression::Literal(Literal::Integer(i64::MIN)));
+                    return Ok(Expression::Literal(minimum));
                 }
 
                 let expression = Self::build_expression_from_numeric_value_expression(operand)?;
@@ -1413,8 +1416,36 @@ impl GQLAstBuilder {
 
     /// Returns true when `text` is an unsigned integer literal whose magnitude is that of
     /// i64::MIN, which is only representable once negated.
-    fn is_i64_min_magnitude(text: &str) -> bool {
-        Self::decode_unsigned_integer_magnitude(text) == Some(1u128 << 63)
+    /// Returns `i64::MIN` or `i128::MIN` when `text` is the magnitude of one of them, so that a
+    /// leading minus sign can be folded into the literal.
+    fn negated_minimum_literal(text: &str) -> Option<Literal> {
+        match Self::decode_unsigned_integer_magnitude(text)? {
+            magnitude if magnitude == 1u128 << 63 => Some(Literal::Integer(i64::MIN)),
+            magnitude if magnitude == 1u128 << 127 => Some(Literal::BigInteger(i128::MIN)),
+            _ => None,
+        }
+    }
+
+    /// Maps the magnitude of an unsigned integer literal to the narrowest literal variant:
+    /// [`Literal::Integer`] up to `i64::MAX`, [`Literal::BigInteger`] up to `i128::MAX`.
+    fn integer_literal_from_magnitude(magnitude: Option<u128>, text: &str) -> GqlResult<Literal> {
+        let Some(magnitude) = magnitude else {
+            return Self::integer_literal_out_of_range(text);
+        };
+        if let Ok(value) = i64::try_from(magnitude) {
+            return Ok(Literal::Integer(value));
+        }
+        match i128::try_from(magnitude) {
+            Ok(value) => Ok(Literal::BigInteger(value)),
+            Err(_) => Self::integer_literal_out_of_range(text),
+        }
+    }
+
+    fn integer_literal_out_of_range<T>(text: &str) -> GqlResult<T> {
+        Self::parse_error(format!(
+            "Integer literal '{text}' is outside the signed 128-bit range (maximum {})",
+            i128::MAX
+        ))
     }
 
     /// Decodes an unsigned integer literal (decimal, 0x, 0o or 0b, with optional underscores)
@@ -2955,24 +2986,6 @@ impl GQLAstBuilder {
         Ok(digits.chunks(2).map(|pair| (pair[0] << 4) | pair[1]).collect())
     }
 
-    /// Rejects integer syntax outside i64 without reinterpreting it as floating point.
-    pub(super) fn validate_integer_literal_range(text: &str) -> GqlResult<()> {
-        let digits = text
-            .strip_prefix('-')
-            .or_else(|| text.strip_prefix('+'))
-            .unwrap_or(text);
-        if !digits.is_empty()
-            && digits.bytes().all(|byte| byte.is_ascii_digit())
-            && text.parse::<i64>().is_err()
-        {
-            return Self::parse_error(format!(
-                "Integer literal '{}' is outside the signed 64-bit range",
-                text
-            ));
-        }
-        Ok(())
-    }
-
     /// Decodes an unsigned numeric literal token: decimal, hexadecimal (`0x`), octal (`0o`) and
     /// binary (`0b`) integers with optional underscores become integer literals; unsuffixed
     /// decimals, scientific notation and the approximate suffixes `F`/`D` become float literals;
@@ -2983,14 +2996,16 @@ impl GQLAstBuilder {
         let lower = cleaned.to_ascii_lowercase();
 
         if lower.starts_with("0x") || lower.starts_with("0o") || lower.starts_with("0b") {
-            let magnitude = Self::decode_unsigned_integer_magnitude(&lower).ok_or_else(|| {
-                Self::parse_err(format!("Invalid integer literal '{trimmed}'"))
-            })?;
-            return i64::try_from(magnitude).map(Literal::Integer).map_err(|_| {
-                Self::parse_err(format!(
-                    "Integer literal '{trimmed}' is outside the signed 64-bit range"
-                ))
-            });
+            let radix = match &lower[..2] {
+                "0x" => 16,
+                "0o" => 8,
+                _ => 2,
+            };
+            let digits = &lower[2..];
+            if digits.is_empty() || !digits.chars().all(|c| c.is_digit(radix)) {
+                return Self::parse_error(format!("Invalid integer literal '{trimmed}'"));
+            }
+            return Self::integer_literal_from_magnitude(Self::decode_unsigned_integer_magnitude(&lower), trimmed);
         }
 
         let (body, approximate, exact_suffix) = match lower.as_bytes().last() {
@@ -3007,11 +3022,7 @@ impl GQLAstBuilder {
         }
 
         if !approximate && !body.is_empty() && body.bytes().all(|byte| byte.is_ascii_digit()) {
-            Self::validate_integer_literal_range(body)?;
-            return body
-                .parse::<i64>()
-                .map(Literal::Integer)
-                .map_err(|_| Self::parse_err(format!("Invalid integer literal '{trimmed}'")));
+            return Self::integer_literal_from_magnitude(body.parse::<u128>().ok(), trimmed);
         }
 
         body.parse::<f64>()

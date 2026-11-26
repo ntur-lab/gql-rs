@@ -30,6 +30,10 @@ Main builder modules:
 For application code, `gql_rs::parse(query)` performs lexing, parsing, and typed AST construction without invoking the semantic validator.
 Use `gql_rs::analyze(query)` to include semantic validation.
 
+Whitespace and comments before the first token are skipped (the `antlr-rust` token stream does
+not do it on its own, issue #38). An input with no statement at all (empty, or only whitespace
+and comments) fails with `Parse error: Empty query: the input contains no GQL statement`.
+
 The functions described below are builder implementation details.
 
 - `build_from_cst_root(cst_root)`
@@ -148,6 +152,13 @@ nested function calls, variable references and spans are preserved. Token text i
 used to decode a literal or an identifier; it is never a substitute for a missing structural
 representation. Built-in function names are canonical upper-case names registered in
 [builtin_functions.md](builtin_functions.md).
+
+Integer literals (decimal, `0x`, `0o`, `0b`, with optional underscores) use the narrowest
+variant: `Literal::Integer(i64)` up to `i64::MAX` and `Literal::BigInteger(i128)` up to
+`i128::MAX`. A minus sign is a separate unary node, except in front of the magnitude of
+`i64::MIN` or `i128::MIN`, where it is folded into the literal. Literals beyond `i128::MAX`
+fail with a parse error that names the limit. `Literal::BigInteger` is serialized as a decimal
+string, so the AST stays representable as `serde_json::Value`.
 
 ## Value types and Cast
 

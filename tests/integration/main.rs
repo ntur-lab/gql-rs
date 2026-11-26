@@ -48,5 +48,9 @@ mod structural_expressions_it;
 mod syntax_errors_it;
 #[path = "transactions_it.rs"]
 mod transactions_it;
+#[path = "big_integer_literals_it.rs"]
+mod big_integer_literals_it;
+#[path = "leading_trivia_it.rs"]
+mod leading_trivia_it;
 #[path = "value_types_it.rs"]
 mod value_types_it;
