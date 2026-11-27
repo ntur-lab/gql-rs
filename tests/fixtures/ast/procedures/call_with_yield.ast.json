@@ -1,103 +1,146 @@
 {
-  "statement": {
-    "Query": {
-      "Basic": {
-        "pipeline": [
-          {
-            "Call": {
-              "arguments": [
-                {
-                  "Literal": {
-                    "Integer": 1
-                  }
-                }
-              ],
-              "inline_procedure_body": null,
-              "inline_procedure_statement": null,
-              "is_optional": false,
-              "procedure_name": "analytics.score",
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "WithBody": {
+            "body": {
+              "at_schema": null,
+              "definitions": [],
               "span": {
-                "end_col": 45,
+                "end_col": 58,
                 "end_line": 1,
                 "start_col": 0,
                 "start_line": 1
               },
-              "yield_items": {
-                "items": [
-                  {
-                    "alias": "score",
-                    "column_name": "result",
-                    "span": {
-                      "end_col": 45,
-                      "end_line": 1,
-                      "start_col": 24,
-                      "start_line": 1
+              "statements": {
+                "continuations": [],
+                "first": {
+                  "Query": {
+                    "Basic": {
+                      "pipeline": [
+                        {
+                          "Call": {
+                            "arguments": [
+                              {
+                                "Literal": {
+                                  "Integer": 1
+                                }
+                              }
+                            ],
+                            "inline_procedure_body": null,
+                            "is_optional": false,
+                            "procedure_name": "analytics.score",
+                            "span": {
+                              "end_col": 45,
+                              "end_line": 1,
+                              "start_col": 0,
+                              "start_line": 1
+                            },
+                            "yield_items": {
+                              "items": [
+                                {
+                                  "alias": "score",
+                                  "column_name": "result",
+                                  "span": {
+                                    "end_col": 45,
+                                    "end_line": 1,
+                                    "start_col": 24,
+                                    "start_line": 1
+                                  }
+                                }
+                              ],
+                              "span": {
+                                "end_col": 45,
+                                "end_line": 1,
+                                "start_col": 24,
+                                "start_line": 1
+                              }
+                            }
+                          }
+                        }
+                      ],
+                      "result_statement": {
+                        "Return": {
+                          "group_clause": null,
+                          "page_clause": null,
+                          "return_clause": {
+                            "distinct": "None",
+                            "projection": {
+                              "items": [
+                                {
+                                  "alias": null,
+                                  "expression": {
+                                    "Variable": {
+                                      "name": "score",
+                                      "span": {
+                                        "end_col": 58,
+                                        "end_line": 1,
+                                        "start_col": 53,
+                                        "start_line": 1
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 58,
+                                    "end_line": 1,
+                                    "start_col": 53,
+                                    "start_line": 1
+                                  }
+                                }
+                              ],
+                              "kind": "items"
+                            },
+                            "span": {
+                              "end_col": 58,
+                              "end_line": 1,
+                              "start_col": 46,
+                              "start_line": 1
+                            }
+                          },
+                          "span": {
+                            "end_col": 58,
+                            "end_line": 1,
+                            "start_col": 46,
+                            "start_line": 1
+                          }
+                        }
+                      },
+                      "span": {
+                        "end_col": 58,
+                        "end_line": 1,
+                        "start_col": 0,
+                        "start_line": 1
+                      }
                     }
                   }
-                ],
+                },
                 "span": {
-                  "end_col": 45,
+                  "end_col": 58,
                   "end_line": 1,
-                  "start_col": 24,
+                  "start_col": 0,
                   "start_line": 1
                 }
               }
-            }
-          }
-        ],
-        "result_statement": {
-          "Return": {
-            "group_clause": null,
-            "page_clause": null,
-            "return_clause": {
-              "distinct": "None",
-              "projection": {
-                "items": [
-                  {
-                    "alias": null,
-                    "expression": {
-                      "Variable": {
-                        "name": "score",
-                        "span": {
-                          "end_col": 58,
-                          "end_line": 1,
-                          "start_col": 53,
-                          "start_line": 1
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 58,
-                      "end_line": 1,
-                      "start_col": 53,
-                      "start_line": 1
-                    }
-                  }
-                ],
-                "kind": "items"
-              },
-              "span": {
-                "end_col": 58,
-                "end_line": 1,
-                "start_col": 46,
-                "start_line": 1
-              }
             },
+            "end": null,
             "span": {
               "end_col": 58,
               "end_line": 1,
-              "start_col": 46,
+              "start_col": 0,
               "start_line": 1
-            }
+            },
+            "start": null
           }
-        },
-        "span": {
-          "end_col": 58,
-          "end_line": 1,
-          "start_col": 0,
-          "start_line": 1
         }
-      }
+      },
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 58,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
   }
 }

@@ -33,11 +33,11 @@ fn span() -> Span {
 
 fn nested_next_statement() -> NextStatement {
     NextStatement {
-        source_statement: Box::new(Statement::Session(SessionStatement {
-            kind: SessionCommandKind::Activity,
-            set_clauses: vec![],
-            reset_clauses: vec![],
-        })),
+        source_statement: Box::new(Statement::Query(Query::Basic(BasicQuery {
+            pipeline: vec![],
+            result_statement: PrimitiveResultStatement::Finish { span: span() },
+            span: span(),
+        }))),
         target_statement: Box::new(Statement::Let(LetStatement {
             variable_definitions: vec![],
             span: span(),

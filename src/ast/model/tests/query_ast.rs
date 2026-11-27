@@ -50,19 +50,37 @@ fn catalog_statement() -> Statement {
     })
 }
 
+fn program(first: Statement, continuations: Vec<NextContinuation>) -> QueryAST {
+    let span = Span::default();
+    QueryAST {
+        body: ProgramBody::Activity {
+            activity: ProgramActivity::Transaction(TransactionActivity::WithBody {
+                start: None,
+                body: ProcedureBody {
+                    at_schema: None,
+                    definitions: vec![],
+                    statements: StatementBlock { first, continuations, span: span.clone() },
+                    span: span.clone(),
+                },
+                end: None,
+                span: span.clone(),
+            }),
+            session_close: None,
+        },
+        span,
+    }
+}
+
 #[test]
 fn validate_accepts_valid_query() {
-    let ast = QueryAST {
-        statement: finish_statement(),
-    };
+    let ast = program(finish_statement(), vec![]);
 
     assert!(ast.validate().is_ok());
 }
 
 #[test]
 fn validate_rejects_unknown_return_variable() {
-    let ast = QueryAST {
-        statement: Statement::Query(Query::Basic(BasicQuery {
+    let ast = program(Statement::Query(Query::Basic(BasicQuery {
             pipeline: vec![],
             result_statement: PrimitiveResultStatement::Return {
                 return_clause: ReturnClause {
@@ -82,8 +100,7 @@ fn validate_rejects_unknown_return_variable() {
                 span: Span::default(),
             },
             span: Span::default(),
-        })),
-    };
+        })), vec![]);
 
     let error = ast
         .validate()
@@ -101,9 +118,7 @@ fn validate_rejects_unknown_return_variable() {
 
 #[test]
 fn validate_rejects_empty_catalog_block() {
-    let ast = QueryAST {
-        statement: Statement::Catalog(CatalogStatementBlock { statements: vec![] }),
-    };
+    let ast = program(Statement::Catalog(CatalogStatementBlock { statements: vec![] }), vec![]);
 
     let error = ast.validate().expect_err("an empty catalog block must fail validation");
 
@@ -115,50 +130,39 @@ fn validate_rejects_empty_catalog_block() {
 
 #[test]
 fn transaction_intent_returns_read_only_for_query() {
-    let ast = QueryAST {
-        statement: finish_statement(),
-    };
+    let ast = program(finish_statement(), vec![]);
 
     assert_eq!(ast.transaction_intent(), TransactionIntent::ReadOnly);
 }
 
 #[test]
 fn transaction_intent_returns_data_write_for_data_statement() {
-    let ast = QueryAST {
-        statement: data_statement(),
-    };
+    let ast = program(data_statement(), vec![]);
 
     assert_eq!(ast.transaction_intent(), TransactionIntent::DataWrite);
 }
 
 #[test]
 fn transaction_intent_returns_catalog_write_for_catalog_statement() {
-    let ast = QueryAST {
-        statement: catalog_statement(),
-    };
+    let ast = program(catalog_statement(), vec![]);
 
     assert_eq!(ast.transaction_intent(), TransactionIntent::CatalogWrite);
 }
 
 #[test]
 fn transaction_intent_combines_data_and_catalog_writes() {
-    let ast = QueryAST {
-        statement: Statement::Next(NextStatement {
-            source_statement: Box::new(data_statement()),
-            target_statement: Box::new(catalog_statement()),
-            yield_clause: None,
-            next: None,
-            span: Span::default(),
-        }),
-    };
+    let ast = program(data_statement(), vec![NextContinuation {
+        statement: catalog_statement(),
+        yield_clause: None,
+        span: Span::default(),
+    }]);
 
     assert_eq!(ast.transaction_intent(), TransactionIntent::DataAndCatalogWrite);
 }
 
 #[test]
 fn transaction_intent_preserves_intent_through_focused_statement() {
-    let ast = QueryAST {
-        statement: Statement::Focused(FocusedStatement {
+    let ast = program(Statement::Focused(FocusedStatement {
             graph_expression: GraphExpressionClause {
                 kind: GraphExpressionKind::GraphReference,
                 text: "social".to_string(),
@@ -168,8 +172,7 @@ fn transaction_intent_preserves_intent_through_focused_statement() {
             },
             statement: Box::new(data_statement()),
             span: Span::default(),
-        }),
-    };
+        }), vec![]);
 
     assert_eq!(ast.transaction_intent(), TransactionIntent::DataWrite);
 }

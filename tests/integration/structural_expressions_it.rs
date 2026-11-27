@@ -35,7 +35,7 @@ mod structural_expression_tests {
     /// Returns the expressions projected by the final RETURN of a basic query.
     fn return_expressions(query: &str) -> Vec<Expression> {
         let ast = analyze(query).unwrap_or_else(|error| panic!("query: {query}, error: {error}"));
-        let Statement::Query(Query::Basic(basic)) = &ast.statement else {
+        let Statement::Query(Query::Basic(basic)) = ast.single_statement().expect("single statement") else {
             panic!("expected a basic query for: {query}");
         };
         let PrimitiveResultStatement::Return { return_clause, .. } = &basic.result_statement else {

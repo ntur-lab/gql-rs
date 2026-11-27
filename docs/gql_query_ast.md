@@ -21,25 +21,35 @@ The public `parse()` function performs steps 1 and 2.
 Applications can invoke `QueryAST::validate()` separately.
 Deserializing an AST through Serde does not automatically run this validation either.
 
-## Root Node
+## Program and statement blocks
 
-- QueryAST
-  - Contains a single field: statement of type Statement.
-  - Represents a complete GQL program.
+`QueryAST` exposes `body: ProgramBody` and the program `span`. An activity is either
+a `SessionActivity` or a `TransactionActivity`, followed by an optional `SESSION CLOSE`.
+A standalone `SESSION CLOSE` has its own root variant.
 
-## Top-Level Layer: Statement
+`TransactionActivity` distinguishes a standalone start command, a body with optional
+start and end commands, and a standalone end command. The body is a `ProcedureBody`.
+This type holds the optional schema context, ordered local definitions, and a
+`StatementBlock`. It is also used for nested queries, nested data procedures, and
+inline calls.
 
-Statement is the main language discriminator in the AST model:
+A `StatementBlock` has one initial statement and a list of explicit `NextContinuation`
+nodes. Each continuation carries its own optional `YIELD`, target statement, and span.
+Currently, `Statement::Next` remains in use for legacy DML pipeline composition (#8).
 
-- Query: query pipelines and set operations.
-- Data: DML operations (`insert`/`set`/`remove`/`delete`/`call`).
-- Next: statement chaining with yield.
-- Let: variable definitions.
-- Session: session commands.
-- Transaction: transaction commands.
-- Catalog: block of typed DDL statements.
+### Migrating from 0.0.x
 
-Fallback behavior for partially unsupported catalog constructs is represented inside Catalog as Raw catalog statements.
+- The signatures of `parse` and `analyze` still return `QueryAST`.
+- Use `ast.single_statement()` for a program consisting of one statement without a
+  preamble, explicit transaction commands, continuations, or session closure. For
+  general execution, match `ast.body`, then traverse the `ProcedureBody` and its
+  statement block in source order. Handle transaction and session commands independently.
+- Match `Query::Nested` for a nested query with its own procedure body. Nested
+  data procedures use `Statement::Nested`. An inline call now carries its
+  structured body in `CallClause::inline_procedure_body`.
+- Serialized programs now have `body` and `span` at the root. For persisted
+  0.0.x ASTs, reparse the original GQL to produce the new representation.
+  Older ASTs can lack context that cannot be recovered from JSON alone.
 
 ## Catalog/DDL Area
 
@@ -62,11 +72,11 @@ Supporting types:
 
 This area models the schema/catalog sub-language.
 
-## Session/Transaction/Command Area
+## Session and transaction commands
 
-- `SessionStatement` + `SessionCommandKind`
-- `TransactionStatement` + `TransactionCommandKind`
-  This separation makes top-level administrative commands explicit.
+`SessionActivity` retains ordered SET and RESET commands with individual spans.
+`StartTransactionCommand` retains its access mode and span. The remaining
+command payload work is tracked by #17.
 
 ## Query Area
 
@@ -155,6 +165,7 @@ Lexer/parser diagnostics use a zero-width `Span` to identify the error position,
 - `CatalogWrite`
 - `DataAndCatalogWrite`
 
-Query and `NEXT` trees merge the intent of their children. Data statements require a data
-write, catalog statements require a catalog write, and
-`QueryAST::requires_write_tx()` exposes the corresponding boolean convenience check.
+The intent combines requirements across the procedure body, including continuations
+and nested bodies. A data statement contributes a data write, and a catalog statement
+contributes a catalog write. Use `ast.transaction_intent().requires_write_tx()`
+for a boolean check.

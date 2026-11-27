@@ -1,65 +1,109 @@
 {
-  "statement": {
-    "Catalog": {
-      "statements": [
-        {
-          "CreateGraphType": {
-            "if_not_exists": false,
-            "or_replace": false,
-            "property_graph_keyword": false,
-            "source": {
-              "NestedSpecification": {
-                "nested_graph_type_specification": {
-                  "element_type_specifications": [
-                    {
-                      "Node": {
-                        "local_alias": "p",
-                        "property_types": {
-                          "properties": [
-                            {
-                              "name": "name",
-                              "parsed_value_type": {
-                                "base": {
-                                  "String": {
-                                    "max_length": null,
-                                    "min_length": null
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "WithBody": {
+            "body": {
+              "at_schema": null,
+              "definitions": [],
+              "span": {
+                "end_col": 76,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
+              },
+              "statements": {
+                "continuations": [],
+                "first": {
+                  "Catalog": {
+                    "statements": [
+                      {
+                        "CreateGraphType": {
+                          "if_not_exists": false,
+                          "or_replace": false,
+                          "property_graph_keyword": false,
+                          "source": {
+                            "NestedSpecification": {
+                              "nested_graph_type_specification": {
+                                "element_type_specifications": [
+                                  {
+                                    "Node": {
+                                      "local_alias": "p",
+                                      "property_types": {
+                                        "properties": [
+                                          {
+                                            "name": "name",
+                                            "parsed_value_type": {
+                                              "base": {
+                                                "String": {
+                                                  "max_length": null,
+                                                  "min_length": null
+                                                }
+                                              },
+                                              "not_null": false
+                                            },
+                                            "span": {
+                                              "end_col": 73,
+                                              "end_line": 1,
+                                              "start_col": 60,
+                                              "start_line": 1
+                                            },
+                                            "typed": false,
+                                            "value_type": "STRING"
+                                          }
+                                        ]
+                                      },
+                                      "text": "NODETYPEPerson(pLABELPerson{nameSTRING})",
+                                      "type_name": "Person"
+                                    }
                                   }
-                                },
-                                "not_null": false
+                                ]
                               },
-                              "span": {
-                                "end_col": 73,
-                                "end_line": 1,
-                                "start_col": 60,
-                                "start_line": 1
-                              },
-                              "typed": false,
-                              "value_type": "STRING"
+                              "with_as_keyword": false
                             }
-                          ]
-                        },
-                        "text": "NODETYPEPerson(pLABELPerson{nameSTRING})",
-                        "type_name": "Person"
+                          },
+                          "target": {
+                            "name": "social",
+                            "parent": null,
+                            "span": {
+                              "end_col": 24,
+                              "end_line": 1,
+                              "start_col": 18,
+                              "start_line": 1
+                            }
+                          }
+                        }
                       }
-                    }
-                  ]
+                    ]
+                  }
                 },
-                "with_as_keyword": false
+                "span": {
+                  "end_col": 76,
+                  "end_line": 1,
+                  "start_col": 0,
+                  "start_line": 1
+                }
               }
             },
-            "target": {
-              "name": "social",
-              "parent": null,
-              "span": {
-                "end_col": 24,
-                "end_line": 1,
-                "start_col": 18,
-                "start_line": 1
-              }
-            }
+            "end": null,
+            "span": {
+              "end_col": 76,
+              "end_line": 1,
+              "start_col": 0,
+              "start_line": 1
+            },
+            "start": null
           }
         }
-      ]
+      },
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 76,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
   }
 }

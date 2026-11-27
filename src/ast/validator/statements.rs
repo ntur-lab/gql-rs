@@ -34,6 +34,15 @@ pub(super) fn validate_query_output(
 ) -> Result<HashSet<String>, GqlError> {
     match query {
         Query::Basic(basic) => validate_basic_query(basic, declared_variables),
+        Query::Nested(nested) => {
+            if !nested.body.statements.iter().all(Statement::is_query) {
+                return Err(validation_err("Nested query must contain query statements", Some(&nested.span)));
+            }
+            if let Some(graph) = &nested.graph_expression {
+                validate_graph_expression_clause(graph)?;
+            }
+            validate_procedure_body(&nested.body, declared_variables)
+        }
         Query::SetOperation(set_op) => validate_set_operation_query(set_op, declared_variables),
     }
 }
@@ -44,90 +53,34 @@ pub(super) fn validate_statement(statement: &Statement, declared_variables: &mut
         Statement::Query(query) => validate_query(query, declared_variables),
         Statement::Data(data) => validate_data_statement(data, declared_variables),
         Statement::Focused(focused) => validate_statement(&focused.statement, declared_variables),
+        Statement::Nested(body) => validate_procedure_body(body, declared_variables).map(|_| ()),
         Statement::Next(next_stmt) => validate_next_statement(next_stmt, declared_variables),
         Statement::Let(let_stmt) => validate_let_statement(let_stmt, declared_variables),
-        Statement::Session(session) => validate_session_statement(session),
-        Statement::Transaction(transaction) => validate_transaction_statement(transaction),
-        Statement::Catalog(catalog_block) => validate_catalog_statement_block(catalog_block),
+        Statement::Catalog(catalog_block) => validate_catalog_statement_block(catalog_block, declared_variables),
     }
-}
-
-/// Function to validate a SESSION statement, ensuring that the command kind is consistent with the presence of set/reset clauses and that each clause is semantically correct according to the GQL specification. This includes checking for empty values, ensuring that parameters are properly specified, and validating any graph expressions used in the clauses.
-pub(super) fn validate_session_statement(session: &SessionStatement) -> Result<(), GqlError> {
-    let has_set = !session.set_clauses.is_empty();
-    let has_reset = !session.reset_clauses.is_empty();
-
-    match session.kind {
-        SessionCommandKind::Set if !has_set || has_reset => {
-            return Err(validation_err(
-                "Session kind SET requires only set_clauses".to_string(),
-                None,
-            ));
-        }
-        SessionCommandKind::Reset if !has_reset => {
-            return Err(validation_err(
-                "Session kind RESET requires reset_clauses".to_string(),
-                None,
-            ));
-        }
-        SessionCommandKind::Close if has_set || has_reset => {
-            return Err(validation_err(
-                "Session kind CLOSE cannot have set/reset payload".to_string(),
-                None,
-            ));
-        }
-        SessionCommandKind::Activity if !(has_set || has_reset) => {
-            return Err(validation_err(
-                "Session kind ACTIVITY requires at least one clause".to_string(),
-                None,
-            ));
-        }
-        _ => {}
-    }
-
-    for clause in &session.set_clauses {
-        validate_session_set_clause(clause)?;
-    }
-    for clause in &session.reset_clauses {
-        validate_session_reset_clause(clause)?;
-    }
-
-    Ok(())
 }
 
 /// Function to validate Catalog statements, ensuring that each statement in the block is semantically correct according to the GQL specification. This includes validating schema and graph names, checking for consistency in CREATE GRAPH clauses, and ensuring that raw Catalog statements are not empty.
-pub(super) fn validate_catalog_statement_block(block: &CatalogStatementBlock) -> Result<(), GqlError> {
+pub(super) fn validate_catalog_statement_block(
+    block: &CatalogStatementBlock,
+    declared_variables: &mut HashSet<String>,
+) -> Result<(), GqlError> {
     if block.statements.is_empty() {
         return Err(validation_err("Catalog block cannot be empty".to_string(), None));
     }
 
     for statement in &block.statements {
-        validate_catalog_statement(statement)?;
-    }
-
-    Ok(())
-}
-
-/// Function to validate a Transaction statement, ensuring that the command kind is consistent with the presence of a transaction mode and that only START transactions can carry a mode. This function enforces the rule that COMMIT, ROLLBACK, and ACTIVITY transaction commands cannot have an associated transaction mode, while START commands can optionally include a mode specification.
-pub(super) fn validate_transaction_statement(transaction: &TransactionStatement) -> Result<(), GqlError> {
-    match transaction.kind {
-        TransactionCommandKind::Start => {}
-        TransactionCommandKind::Commit | TransactionCommandKind::Rollback | TransactionCommandKind::Activity
-            if transaction.mode.is_some() =>
-        {
-            return Err(validation_err(
-                "Only START transaction can carry a transaction mode".to_string(),
-                None,
-            ));
-        }
-        _ => {}
+        validate_catalog_statement(statement, declared_variables)?;
     }
 
     Ok(())
 }
 
 /// Function to validate a Catalog statement, ensuring that the specific type of Catalog statement is semantically correct according to the GQL specification. This includes validating schema and graph names, checking for consistency in CREATE GRAPH clauses, and ensuring that raw Catalog statements are not empty. Each type of Catalog statement has its own set of validation rules that are enforced by this function.
-pub(super) fn validate_catalog_statement(statement: &CatalogStatement) -> Result<(), GqlError> {
+pub(super) fn validate_catalog_statement(
+    statement: &CatalogStatement,
+    declared_variables: &mut HashSet<String>,
+) -> Result<(), GqlError> {
     match statement {
         CatalogStatement::CreateSchema(stmt) => {
             validate_catalog_schema_name(&stmt.target)?;
@@ -175,8 +128,7 @@ pub(super) fn validate_catalog_statement(statement: &CatalogStatement) -> Result
             }
         }
         CatalogStatement::Call(stmt) => {
-            let mut declared_variables = HashSet::new();
-            validate_call_clause(&stmt.call_clause, &mut declared_variables)?;
+            validate_call_clause(&stmt.call_clause, declared_variables)?;
         }
     }
 

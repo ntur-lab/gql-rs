@@ -1,0 +1,1 @@
+CALL { AT /myschemas/social VALUE x = 1 RETURN x NEXT YIELD x RETURN x } RETURN x

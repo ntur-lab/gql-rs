@@ -70,8 +70,8 @@ fn catalog_and_session_types_implement_the_model_contract() {
         PropertyTypeSpecification,
         GraphExpressionClause,
         GraphExpressionKind,
-        SessionStatement,
-        SessionCommandKind,
+        SessionActivity,
+        SessionCommand,
         SessionSetClause,
         SessionResetClause,
         SessionResetTarget,
@@ -80,8 +80,9 @@ fn catalog_and_session_types_implement_the_model_contract() {
         SessionSetParameterKind,
         SessionSetParameterName,
         SessionTimeZoneValue,
-        TransactionStatement,
-        TransactionCommandKind,
+        TransactionActivity,
+        StartTransactionCommand,
+        EndTransactionCommand,
         TransactionMode,
     );
 }

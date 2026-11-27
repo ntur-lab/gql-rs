@@ -21,7 +21,7 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 use super::*;
-use crate::ast::model::Span;
+use crate::ast::model::{ProcedureBody, Span};
 use serde::{Deserialize, Serialize};
 
 /// Top-level GQL statement categories represented by this AST.
@@ -33,30 +33,41 @@ pub enum Statement {
     Data(DataStatement),
     /// Statement evaluated against an explicitly selected graph.
     Focused(FocusedStatement),
-    /// NEXT chained statement.
+    /// A nested procedure block, including its local definitions.
+    Nested(Box<ProcedureBody>),
+    /// Legacy pipeline composition, pending the ordered pipeline redesign.
     Next(NextStatement),
     /// LET variable-definition statement.
     Let(LetStatement),
-    /// Session command statement.
-    Session(SessionStatement),
-    /// Transaction command statement.
-    Transaction(TransactionStatement),
     /// Catalog DDL statement block.
     Catalog(CatalogStatementBlock),
 }
 
 impl Statement {
+    pub(crate) fn is_query(&self) -> bool {
+        match self {
+            Self::Query(_) => true,
+            Self::Focused(focused) => focused.statement.is_query(),
+            Self::Nested(body) => body.statements.iter().all(Self::is_query),
+            _ => false,
+        }
+    }
+
     /// Derives the transaction requirement needed to execute this statement.
     pub fn transaction_intent(&self) -> TransactionIntent {
         match self {
             Statement::Query(query) => query.transaction_intent(),
-            Statement::Data(_) => TransactionIntent::DataWrite,
+            Statement::Data(data) => data.transaction_intent(),
             Statement::Focused(focused) => focused.statement.transaction_intent(),
+            Statement::Nested(body) => body.transaction_intent(),
             Statement::Next(next) => next.transaction_intent(),
-            Statement::Let(_) => TransactionIntent::ReadOnly,
-            Statement::Session(_) => TransactionIntent::ReadOnly,
-            Statement::Transaction(_) => TransactionIntent::ReadOnly,
-            Statement::Catalog(_) => TransactionIntent::CatalogWrite,
+            Statement::Let(let_stmt) => let_stmt.transaction_intent(),
+            Statement::Catalog(block) => block.statements.iter().fold(TransactionIntent::CatalogWrite, |intent, statement| {
+                match statement {
+                    CatalogStatement::Call(call) => intent.merge(call.transaction_intent()),
+                    _ => intent,
+                }
+            }),
         }
     }
 
@@ -387,30 +398,6 @@ pub enum GraphExpressionKind {
     CurrentGraph,
 }
 
-/// Represents a session command statement.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SessionStatement {
-    /// Parsed session command kind.
-    pub kind: SessionCommandKind,
-    /// Optional typed payload for SESSION SET clauses.
-    pub set_clauses: Vec<SessionSetClause>,
-    /// Optional typed payload for SESSION RESET clauses.
-    pub reset_clauses: Vec<SessionResetClause>,
-}
-
-/// Represents supported session command kinds.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum SessionCommandKind {
-    /// SESSION SET command.
-    Set,
-    /// SESSION RESET command.
-    Reset,
-    /// SESSION CLOSE command.
-    Close,
-    /// Generic session activity command.
-    Activity,
-}
-
 /// Represents a SESSION SET clause payload.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SessionSetClause {
@@ -529,32 +516,6 @@ pub struct SessionSetParameterName {
 pub enum SessionTimeZoneValue {
     /// Time zone string literal.
     Literal(String),
-}
-
-/// Represents a transaction command statement.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct TransactionStatement {
-    /// Parsed transaction command kind.
-    pub kind: TransactionCommandKind,
-    /// Optional transaction mode for START TRANSACTION.
-    pub mode: Option<TransactionMode>,
-    /// Optional transaction characteristics for START TRANSACTION.
-    pub body: Option<Box<Statement>>,
-    /// Optional end command kind for START TRANSACTION to link with its closing command in the AST.
-    pub end_command: Option<TransactionCommandKind>,
-}
-
-/// Represents supported transaction command kinds.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum TransactionCommandKind {
-    /// START TRANSACTION command.
-    Start,
-    /// COMMIT command.
-    Commit,
-    /// ROLLBACK command.
-    Rollback,
-    /// Generic transaction activity command.
-    Activity,
 }
 
 /// Represents supported transaction access modes.

@@ -79,7 +79,7 @@ fn test_string_literals_decode_doubled_delimiters_and_preserve_content() {
         analyzer.exec(&query_text).expect("string query should parse");
 
         let ast = analyzer.get_ast().expect("AST must be available");
-        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+        let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
             panic!("expected basic query statement");
         };
         let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
@@ -102,7 +102,7 @@ fn accepts_null_and_nested_lists_without_flattening_the_ast() {
         let mut analyzer = DefaultGQLQueryAnalyzer::new();
         analyzer.exec(query).unwrap_or_else(|error| panic!("{query}: {error}"));
         let ast = analyzer.get_ast().unwrap();
-        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+        let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
             panic!("expected query")
         };
         let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
@@ -138,7 +138,7 @@ fn test_delimited_property_names_are_unquoted_in_property_access() {
         analyzer.exec(query_text).expect("query should parse");
 
         let ast = analyzer.get_ast().expect("ast must be available");
-        let Statement::Query(Query::Basic(query)) = &ast.statement else {
+        let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
             panic!("expected basic query statement");
         };
 
@@ -162,7 +162,7 @@ fn test_delimited_property_names_are_unquoted_in_data_modification() {
         .expect("SET query should parse");
 
     let ast = analyzer.get_ast().expect("SET AST must be available");
-    let Statement::Data(DataStatement::MatchSet(statement)) = &ast.statement else {
+    let Statement::Data(DataStatement::MatchSet(statement)) = ast.single_statement().expect("single statement") else {
         panic!("expected MATCH SET statement");
     };
     let SetItem::Property { property, .. } = &statement.items[0] else {
@@ -175,7 +175,7 @@ fn test_delimited_property_names_are_unquoted_in_data_modification() {
         .expect("REMOVE query should parse");
 
     let ast = analyzer.get_ast().expect("REMOVE AST must be available");
-    let Statement::Data(DataStatement::MatchRemove(statement)) = &ast.statement else {
+    let Statement::Data(DataStatement::MatchRemove(statement)) = ast.single_statement().expect("single statement") else {
         panic!("expected MATCH REMOVE statement");
     };
     let RemoveItem::Property { property, .. } = &statement.remove_clause[0] else {
@@ -192,7 +192,7 @@ fn test_delimited_record_fields_and_return_aliases_are_unquoted() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("AST must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
     let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
@@ -213,7 +213,7 @@ fn test_delimited_pattern_labels_and_property_keys_are_unquoted() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("AST must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
     let QueryStep::Match(match_clause) = &query.pipeline[0] else {
@@ -240,7 +240,7 @@ fn test_delimited_qualified_procedure_names_are_unquoted() {
         .expect("CALL query should parse");
 
     let ast = analyzer.get_ast().expect("AST must be available");
-    match &ast.statement {
+    match ast.single_statement().expect("single statement") {
         Statement::Query(Query::Basic(query)) => {
             let QueryStep::Call(call) = &query.pipeline[0] else {
                 panic!("expected CALL query step");
@@ -268,7 +268,7 @@ fn test_return_record_literal_maps_to_expression_map() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -299,7 +299,7 @@ fn test_cast_duration_preserves_qualifier() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -332,7 +332,7 @@ fn test_cast_graph_reference_type_populates_nested_specification() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -622,7 +622,7 @@ fn test_math_functions_map_to_function_call() {
         .expect("query should parse");
     let ast = analyzer.get_ast().expect("AST must be available");
 
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected query");
     };
     let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
@@ -644,7 +644,7 @@ fn test_arithmetic_subtraction_builds_binary_minus() {
     analyzer.exec("RETURN 20 - 5").expect("query should parse");
     let ast = analyzer.get_ast().expect("AST must be available");
 
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected query");
     };
     let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
@@ -680,7 +680,7 @@ fn test_modulus_function_builds_function_call() {
     analyzer.exec("RETURN MOD(10, 3)").expect("query should parse");
     let ast = analyzer.get_ast().expect("AST must be available");
 
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected query");
     };
     let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
@@ -701,7 +701,7 @@ fn test_trim_with_explicit_spec_builds_call() {
         .expect("query should parse");
     let ast = analyzer.get_ast().expect("AST must be available");
 
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected query");
     };
     let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {
@@ -740,7 +740,7 @@ fn test_searched_case_expression_branches_in_ast() {
         .expect("query should parse");
     let ast = analyzer.get_ast().expect("AST must be available");
 
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected query");
     };
     let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {

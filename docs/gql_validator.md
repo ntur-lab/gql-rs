@@ -29,37 +29,16 @@ Both `gql_rs::analyze(query)` and `DefaultGQLQueryAnalyzer::exec(query)`invoke v
 The internal validation entry point is:
 - `validate_query_ast(ast)`
 
-Flow:
+The validator dispatches on the program activity. A standalone session close or
+transaction boundary carries no procedure body to validate. Session activities
+validate SET and RESET commands in source order, including a bare RESET.
 
-1. Initializes declared-variable scope (`HashSet`).
-2. Dispatches by Statement type.
-3. Invokes branch-specific validators.
-
-## Top-Level Dispatch
-
-Main handled branches:
-
-- `Statement::Query` -> validate_query
-- `Statement::Data` -> validate_data_statement
-- `Statement::Next` -> validate_next_statement
-- `Statement::Let` -> validate_let_statement
-- `Statement::Session` -> validate_session_statement
-- `Statement::Transaction` -> validate_transaction_statement
-- `Statement::Catalog` -> validate_catalog_statement_block
-
-The validator covers all typed top-level statement branches.
-
-## Session and Transaction Validation
-
-Key functions:
-
-- validate_session_statement
-- validate_transaction_statement
-
-Typical checks:
-
-- consistency between command kind and payload (SET/RESET/CLOSE, START/COMMIT/ROLLBACK, etc.);
-- consistency between the typed command kind and its payload.
+Each procedure body starts a local scope. Initializers are validated in declaration
+order, before adding the new variable to the scope. The statement block then
+validates its first statement and each explicit `NEXT` continuation once, adding
+its `YIELD` bindings before the following statement. Nested queries, nested
+data procedures, and inline calls reuse this traversal. A nested body's local
+definitions stay in that body.
 
 ## Catalog/DDL Validation
 

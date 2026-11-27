@@ -24,53 +24,26 @@ use super::super::statements::*;
 use crate::ast::model::*;
 use crate::ast::validator::tests::common_tests::*;
 
+fn validate_catalog_test_statement(statement: &CatalogStatement) -> Result<(), crate::GqlError> {
+    validate_catalog_statement(statement, &mut std::collections::HashSet::new())
+}
+
 #[test]
-fn session_statement_enforces_kind_and_payload_consistency() {
-    let invalid_set = SessionStatement {
-        kind: SessionCommandKind::Set,
-        set_clauses: vec![],
-        reset_clauses: vec![],
+fn session_activity_enforces_nonempty_commands_and_set_before_reset() {
+    use super::super::program::validate_session_activity;
+    let set = SessionCommand::Set {
+        clause: SessionSetClause::Schema { schema_reference: "CURRENT_SCHEMA".to_string() },
+        span: span(),
     };
-    assert!(validate_session_statement(&invalid_set).is_err());
-
-    let invalid_reset = SessionStatement {
-        kind: SessionCommandKind::Reset,
-        set_clauses: vec![],
-        reset_clauses: vec![],
-    };
-    assert!(validate_session_statement(&invalid_reset).is_err());
-
-    let invalid_close = SessionStatement {
-        kind: SessionCommandKind::Close,
-        set_clauses: vec![SessionSetClause::Schema {
-            schema_reference: "CURRENT_SCHEMA".to_string(),
-        }],
-        reset_clauses: vec![],
-    };
-    assert!(validate_session_statement(&invalid_close).is_err());
-
-    let invalid_activity = SessionStatement {
-        kind: SessionCommandKind::Activity,
-        set_clauses: vec![],
-        reset_clauses: vec![],
-    };
-    assert!(validate_session_statement(&invalid_activity).is_err());
-
-    let valid_set = SessionStatement {
-        kind: SessionCommandKind::Set,
-        set_clauses: vec![SessionSetClause::Schema {
-            schema_reference: "CURRENT_SCHEMA".to_string(),
-        }],
-        reset_clauses: vec![],
-    };
-    assert!(validate_session_statement(&valid_set).is_ok());
-
-    let valid_reset = SessionStatement {
-        kind: SessionCommandKind::Reset,
-        set_clauses: vec![],
-        reset_clauses: vec![reset(SessionResetTarget::Schema)],
-    };
-    assert!(validate_session_statement(&valid_reset).is_ok());
+    let reset = SessionCommand::Reset { clause: None, span: span() };
+    for (commands, valid) in [
+        (vec![], false),
+        (vec![set.clone(), reset.clone()], true),
+        (vec![reset.clone()], true),
+        (vec![reset, set], false),
+    ] {
+        assert_eq!(validate_session_activity(&SessionActivity { commands, span: span() }).is_ok(), valid);
+    }
 }
 
 #[test]
@@ -150,40 +123,15 @@ fn session_reset_parameter_requires_a_name() {
 }
 
 #[test]
-fn transaction_mode_is_only_valid_for_start() {
-    let start = TransactionStatement {
-        kind: TransactionCommandKind::Start,
-        mode: Some(TransactionMode::ReadWrite),
-        body: None,
-        end_command: None,
-    };
-    assert!(validate_transaction_statement(&start).is_ok());
-
-    for kind in [
-        TransactionCommandKind::Commit,
-        TransactionCommandKind::Rollback,
-        TransactionCommandKind::Activity,
-    ] {
-        let invalid = TransactionStatement {
-            kind,
-            mode: Some(TransactionMode::ReadOnly),
-            body: None,
-            end_command: None,
-        };
-        assert!(validate_transaction_statement(&invalid).is_err());
-    }
-}
-
-#[test]
 fn catalog_block_and_raw_statement_cannot_be_empty() {
-    assert!(validate_catalog_statement_block(&CatalogStatementBlock { statements: vec![] }).is_err());
+    assert!(validate_catalog_statement_block(&CatalogStatementBlock { statements: vec![] }, &mut std::collections::HashSet::new()).is_err());
 
     let raw = CatalogStatement::Raw(RawCatalogStatement {
         text: " ".to_string(),
         parse_error: None,
         span: span(),
     });
-    assert!(validate_catalog_statement(&raw).is_err());
+    assert!(validate_catalog_test_statement(&raw).is_err());
 
     let valid = CatalogStatementBlock {
         statements: vec![CatalogStatement::Raw(RawCatalogStatement {
@@ -192,7 +140,7 @@ fn catalog_block_and_raw_statement_cannot_be_empty() {
             span: span(),
         })],
     };
-    assert!(validate_catalog_statement_block(&valid).is_ok());
+    assert!(validate_catalog_statement_block(&valid, &mut std::collections::HashSet::new()).is_ok());
 }
 
 #[test]
@@ -348,7 +296,7 @@ fn catalog_create_graph_rejects_conflicting_modifiers() {
         }),
         graph_source: None,
     });
-    assert!(validate_catalog_statement(&statement).is_err());
+    assert!(validate_catalog_test_statement(&statement).is_err());
 
     let graph_type = CatalogStatement::CreateGraphType(CreateGraphType {
         or_replace: true,
@@ -360,7 +308,7 @@ fn catalog_create_graph_rejects_conflicting_modifiers() {
             graph_type_reference: "base".to_string(),
         },
     });
-    assert!(validate_catalog_statement(&graph_type).is_err());
+    assert!(validate_catalog_test_statement(&graph_type).is_err());
 }
 
 #[test]

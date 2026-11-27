@@ -30,6 +30,7 @@ pub(crate) mod builtins;
 mod data;
 mod expression;
 mod query;
+mod program;
 mod statements;
 #[cfg(test)]
 mod tests;
@@ -38,40 +39,21 @@ use builtins::*;
 use data::*;
 use expression::*;
 use query::*;
+use program::*;
 use statements::*;
-
-/// Shared mutable validation context propagated across statement traversal.
-pub(super) struct ValidationContext {
-    pub(super) declared_variables: HashSet<String>,
-}
-
-impl ValidationContext {
-    pub(super) fn new() -> Self {
-        Self {
-            declared_variables: HashSet::new(),
-        }
-    }
-}
 
 /// Validates the complete QueryAST semantic invariants.
 pub fn validate_query_ast(ast: &QueryAST) -> Result<(), GqlError> {
-    let mut ctx = ValidationContext::new();
-
-    validate_dispatch(&ast.statement, &mut ctx)
-}
-
-/// Dispatches validation to the correct statement-specific routine.
-pub(super) fn validate_dispatch(statement: &Statement, ctx: &mut ValidationContext) -> Result<(), GqlError> {
-    // Each top-level statement family has its own semantic validation path.
-    match statement {
-        Statement::Query(query) => validate_query(query, &mut ctx.declared_variables),
-        Statement::Data(data) => validate_data_statement(data, &mut ctx.declared_variables),
-        Statement::Focused(focused) => validate_dispatch(&focused.statement, ctx),
-        Statement::Next(next_stmt) => validate_next_statement(next_stmt, &mut ctx.declared_variables),
-        Statement::Let(let_stmt) => validate_let_statement(let_stmt, &mut ctx.declared_variables),
-        Statement::Session(session) => validate_session_statement(session),
-        Statement::Transaction(transaction) => validate_transaction_statement(transaction),
-        Statement::Catalog(catalog_block) => validate_catalog_statement_block(catalog_block),
+    if let ProgramBody::Activity { activity, .. } = &ast.body {
+        match activity {
+            ProgramActivity::Session(session) => validate_session_activity(session),
+            ProgramActivity::Transaction(TransactionActivity::WithBody { body, .. }) => {
+                validate_procedure_body(body, &HashSet::new()).map(|_| ())
+            }
+            ProgramActivity::Transaction(_) => Ok(()),
+        }
+    } else {
+        Ok(())
     }
 }
 

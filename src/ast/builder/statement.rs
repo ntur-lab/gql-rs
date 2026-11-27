@@ -37,6 +37,9 @@ impl GQLAstBuilder {
             let query = Self::build_query_from_composite_expression(&composite_expr)?;
             Ok(Statement::Query(query))
         } else if let Some(linear_data) = statement.linearDataModifyingStatement() {
+            if let Some(nested) = Self::try_build_nested_data_statement(&linear_data)? {
+                return Ok(nested);
+            }
             if let Some(query_like_statement) = Self::try_build_query_like_statement_from_linear_data(&linear_data)? {
                 return Ok(query_like_statement);
             }
@@ -141,8 +144,7 @@ impl GQLAstBuilder {
             let Some(nested) = ambient.nestedQuerySpecification() else {
                 return Ok(None);
             };
-            let statement = Self::build_statement_from_nested_query_spec(&nested)?;
-            return Ok(Some(statement));
+            return Ok(Some(Self::build_nested_statement(&nested, None, Self::extract_span(&*nested))?));
         }
 
         let Some(focused) = linear.focusedLinearQueryStatement() else {
@@ -154,7 +156,6 @@ impl GQLAstBuilder {
         let nested = focused_nested.nestedQuerySpecification().ok_or_else(|| {
             Self::parse_err("Query not valid: missing nestedQuerySpecification in focused nested query".into())
         })?;
-        let statement = Self::build_statement_from_nested_query_spec(&nested)?;
         let use_clause = focused_nested
             .useGraphClause()
             .ok_or_else(|| Self::parse_err("Focused nested statement is missing useGraphClause".into()))?;
@@ -163,16 +164,9 @@ impl GQLAstBuilder {
             .ok_or_else(|| Self::parse_err("Focused nested statement is missing graphExpression".into()))?;
         let graph_clause = Self::build_graph_expression_clause(&graph_expression);
 
-        if let Statement::Query(mut query) = statement {
-            Self::inject_use_graph_into_query(&mut query, &graph_clause);
-            return Ok(Some(Statement::Query(query)));
-        }
-
-        Ok(Some(Statement::Focused(FocusedStatement {
-            graph_expression: graph_clause,
-            statement: Box::new(statement),
-            span: Self::extract_span(&*focused_nested),
-        })))
+        Ok(Some(Self::build_nested_statement(
+            &nested, Some(graph_clause), Self::extract_span(&*focused_nested),
+        )?))
     }
 
     /// Preserves the graph selected by a focused data-modifying statement.
@@ -200,133 +194,8 @@ impl GQLAstBuilder {
         }))
     }
 
-    /// Builds a SessionStatement from a SessionActivityContext and preserves typed SET/RESET payloads.
-    pub(super) fn build_session_command_from_context(cst: &SessionActivityContextAll) -> GqlResult<SessionStatement> {
-        let set_clauses = cst
-            .sessionSetCommand_all()
-            .iter()
-            .map(|cmd| Self::build_session_set_clause(cmd))
-            .collect::<Vec<_>>();
-        let reset_clauses = cst
-            .sessionResetCommand_all()
-            .iter()
-            .filter_map(|cmd| Self::build_session_reset_clause(cmd))
-            .collect::<Vec<_>>();
-
-        let kind = match (!set_clauses.is_empty(), !reset_clauses.is_empty()) {
-            (true, false) => SessionCommandKind::Set,
-            (false, true) => SessionCommandKind::Reset,
-            (true, true) => SessionCommandKind::Activity,
-            (false, false) => {
-                return Self::parse_error("CST not valid: sessionActivity without SET/RESET commands");
-            }
-        };
-
-        Ok(SessionStatement {
-            kind,
-            set_clauses,
-            reset_clauses,
-        })
-    }
-
-    /// Builds a TransactionStatement from a TransactionActivityContext and preserves the transaction mode when present.
-    pub(super) fn build_transaction_or_catalog_statement_from_context(
-        cst: &TransactionActivityContextAll,
-    ) -> GqlResult<Statement> {
-        let mut kind = TransactionCommandKind::Activity;
-        let mut mode = None;
-
-        if let Some(start) = cst.startTransactionCommand() {
-            kind = TransactionCommandKind::Start;
-            mode = Self::build_transaction_mode_from_start_command(&start);
-        }
-
-        let end_command = if let Some(end) = cst.endTransactionCommand() {
-            if end.commitCommand().is_some() {
-                Some(TransactionCommandKind::Commit)
-            } else if end.rollbackCommand().is_some() {
-                Some(TransactionCommandKind::Rollback)
-            } else {
-                None
-            }
-        } else {
-            None
-        };
-
-        let body = if let Some(procedure) = cst.procedureSpecification() {
-            let procedure_body = procedure
-                .procedureBody()
-                .ok_or_else(|| Self::parse_err("CST not valid: missing procedureBody".into()))?;
-            let statement_block = procedure_body
-                .statementBlock()
-                .ok_or_else(|| Self::parse_err("CST not valid: missing statementBlock".into()))?;
-
-            Some(Box::new(Self::build_statement_block_from_context(&statement_block)?))
-        } else {
-            None
-        };
-
-        if cst.startTransactionCommand().is_none()
-            && body.is_none()
-            && let Some(end_kind) = end_command
-        {
-            return Ok(Statement::Transaction(TransactionStatement {
-                kind: end_kind,
-                mode: None,
-                body: None,
-                end_command: None,
-            }));
-        }
-
-        if kind == TransactionCommandKind::Activity && body.is_none() && end_command.is_none() {
-            return Self::parse_error(format!(
-                "CST not valid: unsupported transactionActivity variant: {}",
-                cst.get_text()
-            ));
-        }
-
-        Ok(Statement::Transaction(TransactionStatement {
-            kind,
-            mode,
-            body,
-            end_command,
-        }))
-    }
-
-    /// Builds a START TRANSACTION statement from its CST node.
-    pub(super) fn build_start_transaction_statement(start: &StartTransactionCommandContextAll) -> Statement {
-        Statement::Transaction(TransactionStatement {
-            kind: TransactionCommandKind::Start,
-            mode: Self::build_transaction_mode_from_start_command(start),
-            body: None,
-            end_command: None,
-        })
-    }
-
-    /// Builds a COMMIT/ROLLBACK statement from its CST node.
-    pub(super) fn build_end_transaction_statement(end: &EndTransactionCommandContextAll) -> GqlResult<Statement> {
-        if end.commitCommand().is_some() {
-            return Ok(Statement::Transaction(TransactionStatement {
-                kind: TransactionCommandKind::Commit,
-                mode: None,
-                body: None,
-                end_command: None,
-            }));
-        }
-        if end.rollbackCommand().is_some() {
-            return Ok(Statement::Transaction(TransactionStatement {
-                kind: TransactionCommandKind::Rollback,
-                mode: None,
-                body: None,
-                end_command: None,
-            }));
-        }
-
-        Self::parse_error("CST not valid: endTransactionCommand without COMMIT/ROLLBACK")
-    }
-
     /// Builds a typed SESSION SET clause from the CST branch.
-    fn build_session_set_clause(cst: &SessionSetCommandContextAll) -> SessionSetClause {
+    pub(super) fn build_session_set_clause(cst: &SessionSetCommandContextAll) -> SessionSetClause {
         let span = Self::extract_span(cst);
 
         if let Some(schema) = cst.sessionSetSchemaClause() {
@@ -459,7 +328,7 @@ impl GQLAstBuilder {
         }
     }
 
-    fn build_session_reset_clause(cst: &SessionResetCommandContextAll) -> Option<SessionResetClause> {
+    pub(super) fn build_session_reset_clause(cst: &SessionResetCommandContextAll) -> Option<SessionResetClause> {
         let args = cst.sessionResetArguments()?;
 
         let target = if args.PARAMETERS().is_some() || args.CHARACTERISTICS().is_some() {
@@ -493,7 +362,7 @@ impl GQLAstBuilder {
     }
 
     /// Builds a TransactionMode from a StartTransactionCommandContext by examining the transaction characteristics specified in the CST and determining if a transaction mode (read-only, read-write) is explicitly defined. It checks for the presence of specific CST patterns that correspond to each transaction mode and returns the appropriate TransactionMode variant if a match is found, or None if no explicit transaction mode is defined.
-    fn build_transaction_mode_from_start_command(cst: &StartTransactionCommandContextAll) -> Option<TransactionMode> {
+    pub(super) fn build_transaction_mode_from_start_command(cst: &StartTransactionCommandContextAll) -> Option<TransactionMode> {
         let characteristics = cst.transactionCharacteristics()?;
 
         for mode in characteristics.transactionMode_all() {
@@ -1126,67 +995,6 @@ impl GQLAstBuilder {
         Self::build_query_from_composite_primary(&primary)
     }
 
-    /// Builds a Statement from a StatementBlockContext, handling both single statements and chains of statements connected by NEXT, and extracting the relevant components from the CST.
-    pub(super) fn build_statement_block_from_context(block: &StatementBlockContextAll) -> GqlResult<Statement> {
-        let first_ctx = block
-            .statement()
-            .ok_or_else(|| Self::parse_err("Query not valid: missing statement".into()))?;
-        let first_statement = Self::build_statement_from_context(&first_ctx)?;
-
-        let next_list = block.nextStatement_all();
-        if next_list.is_empty() {
-            return Ok(first_statement);
-        }
-
-        let chain = Self::build_next_chain(first_statement, &next_list, 0)?;
-        Ok(Statement::Next(chain))
-    }
-
-    /// Builds a NextStatement from a chain of NextStatementContext, recursively processing the list of NEXT statements and extracting the relevant components from the CST for each step in the chain.
-    pub(super) fn build_next_chain(
-        source_statement: Statement,
-        next_list: &[Rc<NextStatementContextAll>],
-        index: usize,
-    ) -> GqlResult<NextStatement> {
-        let span = if let Some(next_ctx) = next_list.get(index) {
-            Self::extract_span(&**next_ctx)
-        } else {
-            Span::default()
-        };
-
-        let next_ctx = next_list
-            .get(index)
-            .ok_or_else(|| Self::parse_err("NEXT chain index out of bounds".into()))?;
-
-        let target_ctx = next_ctx
-            .statement()
-            .ok_or_else(|| Self::parse_err("Query not valid: missing statement after NEXT".into()))?;
-        let target_statement = Self::build_statement_from_context(&target_ctx)?;
-
-        let yield_clause = next_ctx
-            .yieldClause()
-            .map(|y| Self::build_yield_clause_from_context(&y))
-            .transpose()?;
-
-        let next = if index + 1 < next_list.len() {
-            Some(Box::new(Self::build_next_chain(
-                target_statement.clone(),
-                next_list,
-                index + 1,
-            )?))
-        } else {
-            None
-        };
-
-        Ok(NextStatement {
-            source_statement: Box::new(source_statement),
-            target_statement: Box::new(target_statement),
-            yield_clause,
-            next,
-            span: span.clone(),
-        })
-    }
-
     /// Builds a Query from a CompositeQueryPrimaryContext, handling both simple queries and set operations, and extracting the relevant components from the CST.
     pub(super) fn build_query_from_composite_primary(primary: &CompositeQueryPrimaryContextAll) -> GqlResult<Query> {
         let linear = primary
@@ -1247,16 +1055,16 @@ impl GQLAstBuilder {
             let nested = focused_nested.nestedQuerySpecification().ok_or_else(|| {
                 Self::parse_err("Query not valid: missing nestedQuerySpecification in focused nested query".into())
             })?;
-            let mut query = Self::build_query_from_nested_query_spec(&nested)?;
-
-            if let Some(use_clause) = focused_nested.useGraphClause()
-                && let Some(graph_expr) = use_clause.graphExpression()
-            {
-                let graph_clause = Self::build_graph_expression_clause(&graph_expr);
-                Self::inject_use_graph_into_query(&mut query, &graph_clause);
-            }
-
-            return Ok(query);
+            let graph = Self::required(
+                focused_nested.useGraphClause().and_then(|clause| clause.graphExpression()),
+                "focused nested query graph",
+            )?;
+            return match Self::build_nested_statement(
+                &nested, Some(Self::build_graph_expression_clause(&graph)), Self::extract_span(&*focused_nested),
+            )? {
+                Statement::Query(query) => Ok(query),
+                _ => Self::parse_error("Focused nested query specification must contain query statements"),
+            };
         }
 
         if let Some(focused_primitive) = focused.focusedPrimitiveResultStatement() {
@@ -1322,40 +1130,6 @@ impl GQLAstBuilder {
     }
 
     /// Builds a Query from a NestedQuerySpecificationContext, extracting the procedure body and statement block from the CST, and constructing the corresponding AST nodes for the nested query. It performs validation to ensure that the expected structure of the CST is present and returns an error if any required component is missing or if the structure is not as expected.
-    pub(super) fn build_query_from_nested_query_spec(nested: &NestedQuerySpecificationContextAll) -> GqlResult<Query> {
-        let statement = Self::build_statement_from_nested_query_spec(nested)?;
-        match statement {
-            Statement::Query(query) => Ok(query),
-            _ => Self::parse_error("Nested query specification must contain a query statement"),
-        }
-    }
-
-    /// Builds the statement contained in syntactically ambiguous nested procedure syntax.
-    fn build_statement_from_nested_query_spec(nested: &NestedQuerySpecificationContextAll) -> GqlResult<Statement> {
-        let procedure_body = nested
-            .procedureBody()
-            .ok_or_else(|| Self::parse_err("Query not valid: missing procedureBody in nested query".into()))?;
-
-        let statement_block = procedure_body
-            .statementBlock()
-            .ok_or_else(|| Self::parse_err("Query not valid: missing statementBlock in nested query".into()))?;
-
-        Self::build_statement_block_from_context(&statement_block)
-    }
-
-    /// Helper function to inject a UseGraph clause into a Query, recursively traversing the structure of the query to find the appropriate location to insert the UseGraph step at the beginning of the pipeline for basic queries, or to propagate it down to both sides of a set operation for composite queries. It modifies the query in place and does not return a value.
-    pub(super) fn inject_use_graph_into_query(query: &mut Query, graph_clause: &GraphExpressionClause) {
-        match query {
-            Query::Basic(basic) => {
-                basic.pipeline.insert(0, QueryStep::UseGraph(graph_clause.clone()));
-            }
-            Query::SetOperation(set_op) => {
-                Self::inject_use_graph_into_query(&mut set_op.left, graph_clause);
-                Self::inject_use_graph_into_query(&mut set_op.right, graph_clause);
-            }
-        }
-    }
-
     /// Builds a pipeline of QuerySteps from a SimpleLinearQueryStatementContext, handling different types of simple query statements (e.g., MATCH, OPTIONAL MATCH, LET, FILTER, FOR, ORDER BY) and extracting the relevant components from the CST to construct the corresponding AST nodes for each step in the pipeline. It performs validation to ensure that the expected structure of the CST is present and returns an error if any required component is missing or if the structure is not as expected.
     pub(super) fn build_pipeline_from_simple_linear_query_statement(
         simple_linear_query: &SimpleLinearQueryStatementContextAll,
@@ -1748,7 +1522,6 @@ impl GQLAstBuilder {
                 yield_items,
                 is_optional,
                 inline_procedure_body: None,
-                inline_procedure_statement: None,
                 span: span.clone(),
             })
         } else if let Some(inline_call) = proc_call.inlineProcedureCall() {
@@ -1763,11 +1536,7 @@ impl GQLAstBuilder {
                 .procedureBody()
                 .ok_or_else(|| Self::parse_err("CST not valid: missing procedureBody in inline CALL".into()))?;
 
-            let statement_block = procedure_body
-                .statementBlock()
-                .ok_or_else(|| Self::parse_err("CST not valid: missing statementBlock in inline CALL".into()))?;
-
-            let inline_statement = Self::build_statement_block_from_context(&statement_block)?;
+            let body = Self::build_procedure_body(&procedure_body)?;
 
             let mut arguments = Vec::new();
 
@@ -1787,8 +1556,7 @@ impl GQLAstBuilder {
                 arguments,
                 yield_items: None,
                 is_optional,
-                inline_procedure_body: None,
-                inline_procedure_statement: Some(Box::new(inline_statement)),
+                inline_procedure_body: Some(Box::new(body)),
                 span: span.clone(),
             })
         } else {

@@ -101,7 +101,6 @@ fn read_only_call_clause() -> CallClause {
         yield_items: None,
         is_optional: false,
         inline_procedure_body: None,
-        inline_procedure_statement: None,
         span: span(),
     }
 }
@@ -112,10 +111,16 @@ fn catalog_write_call_clause() -> CallClause {
         arguments: vec![],
         yield_items: None,
         is_optional: false,
-        inline_procedure_body: None,
-        inline_procedure_statement: Some(Box::new(Statement::Catalog(CatalogStatementBlock {
-            statements: vec![],
-        }))),
+        inline_procedure_body: Some(Box::new(ProcedureBody {
+            at_schema: None,
+            definitions: vec![],
+            statements: StatementBlock {
+                first: Statement::Catalog(CatalogStatementBlock { statements: vec![] }),
+                continuations: vec![],
+                span: span(),
+            },
+            span: span(),
+        })),
         span: span(),
     }
 }

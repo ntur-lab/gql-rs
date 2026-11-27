@@ -24,7 +24,7 @@
 //!
 //! # Structure
 //!
-//! A [`QueryAST`] contains one root [`Statement`]. The model is divided into:
+//! A [`QueryAST`] represents a complete GQL program through [`ProgramBody`]. The model is divided into:
 //!
 //! - queries and query pipelines: [`Query`], [`BasicQuery`], [`QueryStep`];
 //! - data modification: [`DataStatement`];

@@ -1,108 +1,152 @@
 {
-  "statement": {
-    "Query": {
-      "Basic": {
-        "pipeline": [],
-        "result_statement": {
-          "Return": {
-            "group_clause": null,
-            "page_clause": null,
-            "return_clause": {
-              "distinct": "None",
-              "projection": {
-                "items": [
-                  {
-                    "alias": "max_value",
-                    "expression": {
-                      "Literal": {
-                        "BigInteger": "170141183460469231731687303715884105727"
-                      }
-                    },
-                    "span": {
-                      "end_col": 59,
-                      "end_line": 1,
-                      "start_col": 7,
-                      "start_line": 1
-                    }
-                  },
-                  {
-                    "alias": "min_value",
-                    "expression": {
-                      "Literal": {
-                        "BigInteger": "-170141183460469231731687303715884105728"
-                      }
-                    },
-                    "span": {
-                      "end_col": 114,
-                      "end_line": 1,
-                      "start_col": 61,
-                      "start_line": 1
-                    }
-                  },
-                  {
-                    "alias": "below_i64",
-                    "expression": {
-                      "Unary": {
-                        "expression": {
-                          "Literal": {
-                            "BigInteger": "9223372036854775809"
-                          }
-                        },
-                        "operator": "Minus",
-                        "span": {
-                          "end_col": 136,
-                          "end_line": 1,
-                          "start_col": 116,
-                          "start_line": 1
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 149,
-                      "end_line": 1,
-                      "start_col": 116,
-                      "start_line": 1
-                    }
-                  },
-                  {
-                    "alias": "i64_max",
-                    "expression": {
-                      "Literal": {
-                        "Integer": 9223372036854775807
-                      }
-                    },
-                    "span": {
-                      "end_col": 181,
-                      "end_line": 1,
-                      "start_col": 151,
-                      "start_line": 1
-                    }
-                  }
-                ],
-                "kind": "items"
-              },
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "WithBody": {
+            "body": {
+              "at_schema": null,
+              "definitions": [],
               "span": {
                 "end_col": 181,
                 "end_line": 1,
                 "start_col": 0,
                 "start_line": 1
+              },
+              "statements": {
+                "continuations": [],
+                "first": {
+                  "Query": {
+                    "Basic": {
+                      "pipeline": [],
+                      "result_statement": {
+                        "Return": {
+                          "group_clause": null,
+                          "page_clause": null,
+                          "return_clause": {
+                            "distinct": "None",
+                            "projection": {
+                              "items": [
+                                {
+                                  "alias": "max_value",
+                                  "expression": {
+                                    "Literal": {
+                                      "BigInteger": "170141183460469231731687303715884105727"
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 59,
+                                    "end_line": 1,
+                                    "start_col": 7,
+                                    "start_line": 1
+                                  }
+                                },
+                                {
+                                  "alias": "min_value",
+                                  "expression": {
+                                    "Literal": {
+                                      "BigInteger": "-170141183460469231731687303715884105728"
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 114,
+                                    "end_line": 1,
+                                    "start_col": 61,
+                                    "start_line": 1
+                                  }
+                                },
+                                {
+                                  "alias": "below_i64",
+                                  "expression": {
+                                    "Unary": {
+                                      "expression": {
+                                        "Literal": {
+                                          "BigInteger": "9223372036854775809"
+                                        }
+                                      },
+                                      "operator": "Minus",
+                                      "span": {
+                                        "end_col": 136,
+                                        "end_line": 1,
+                                        "start_col": 116,
+                                        "start_line": 1
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 149,
+                                    "end_line": 1,
+                                    "start_col": 116,
+                                    "start_line": 1
+                                  }
+                                },
+                                {
+                                  "alias": "i64_max",
+                                  "expression": {
+                                    "Literal": {
+                                      "Integer": 9223372036854775807
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 181,
+                                    "end_line": 1,
+                                    "start_col": 151,
+                                    "start_line": 1
+                                  }
+                                }
+                              ],
+                              "kind": "items"
+                            },
+                            "span": {
+                              "end_col": 181,
+                              "end_line": 1,
+                              "start_col": 0,
+                              "start_line": 1
+                            }
+                          },
+                          "span": {
+                            "end_col": 181,
+                            "end_line": 1,
+                            "start_col": 0,
+                            "start_line": 1
+                          }
+                        }
+                      },
+                      "span": {
+                        "end_col": 181,
+                        "end_line": 1,
+                        "start_col": 0,
+                        "start_line": 1
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "end_col": 181,
+                  "end_line": 1,
+                  "start_col": 0,
+                  "start_line": 1
+                }
               }
             },
+            "end": null,
             "span": {
               "end_col": 181,
               "end_line": 1,
               "start_col": 0,
               "start_line": 1
-            }
+            },
+            "start": null
           }
-        },
-        "span": {
-          "end_col": 181,
-          "end_line": 1,
-          "start_col": 0,
-          "start_line": 1
         }
-      }
+      },
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 181,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
   }
 }

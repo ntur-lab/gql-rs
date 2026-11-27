@@ -21,7 +21,7 @@
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
 use super::*;
-use crate::ast::model::Span;
+use crate::ast::model::{ProcedureBody, Span};
 use serde::{Deserialize, Serialize};
 
 /// Represents a GQL query statement.
@@ -29,6 +29,8 @@ use serde::{Deserialize, Serialize};
 pub enum Query {
     /// Basic single-pipeline query.
     Basic(BasicQuery),
+    /// Query in a nested procedure scope.
+    Nested(NestedQuery),
     /// Set operation between two queries.
     SetOperation(SetOperation),
 }
@@ -38,9 +40,17 @@ impl Query {
     pub fn transaction_intent(&self) -> TransactionIntent {
         match self {
             Query::Basic(basic) => basic.transaction_intent(),
+            Query::Nested(nested) => nested.body.transaction_intent(),
             Query::SetOperation(set_op) => set_op.transaction_intent(),
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct NestedQuery {
+    pub body: Box<ProcedureBody>,
+    pub graph_expression: Option<GraphExpressionClause>,
+    pub span: Span,
 }
 
 /// Represents a basic query,
@@ -98,12 +108,12 @@ impl QueryStep {
     /// Returns the transaction requirement introduced by this query step.
     pub fn transaction_intent(&self) -> TransactionIntent {
         match self {
-            QueryStep::Match(_) => TransactionIntent::ReadOnly,
-            QueryStep::Let(_) => TransactionIntent::ReadOnly,
-            QueryStep::Filter(_) => TransactionIntent::ReadOnly,
-            QueryStep::Having(_) => TransactionIntent::ReadOnly,
-            QueryStep::For(_) => TransactionIntent::ReadOnly,
-            QueryStep::Page(_) => TransactionIntent::ReadOnly,
+            QueryStep::Match(clause) => clause.transaction_intent(),
+            QueryStep::Let(statement) => statement.transaction_intent(),
+            QueryStep::Filter(filter) => filter.condition.transaction_intent(),
+            QueryStep::Having(filter) => filter.condition.transaction_intent(),
+            QueryStep::For(clause) => clause.expression.transaction_intent(),
+            QueryStep::Page(clause) => clause.transaction_intent(),
             QueryStep::Call(call) => call.transaction_intent(),
             QueryStep::UseGraph(_) => TransactionIntent::ReadOnly,
             QueryStep::FromSubquery(query) => query.transaction_intent(),
@@ -137,7 +147,17 @@ impl PrimitiveResultStatement {
     pub fn transaction_intent(&self) -> TransactionIntent {
         match self {
             PrimitiveResultStatement::Finish { .. } => TransactionIntent::ReadOnly,
-            PrimitiveResultStatement::Return { .. } => TransactionIntent::ReadOnly,
+            PrimitiveResultStatement::Return { return_clause, page_clause, .. } => {
+                let projection = match &return_clause.projection {
+                    ReturnProjection::Wildcard => TransactionIntent::ReadOnly,
+                    ReturnProjection::Items(items) => TransactionIntent::combine(items.iter().map(|item| {
+                        item.expression.transaction_intent()
+                    })),
+                };
+                projection.merge(page_clause.as_deref().map_or(
+                    TransactionIntent::ReadOnly, OrderByAndPageStatement::transaction_intent,
+                ))
+            }
         }
     }
 }
@@ -151,6 +171,12 @@ pub struct OrderByAndPageStatement {
     pub limit_clause: Option<LimitClause>,
     /// Source range covered by this AST node.
     pub span: Span,
+}
+
+impl OrderByAndPageStatement {
+    fn transaction_intent(&self) -> TransactionIntent {
+        self.order_clause.as_ref().map_or(TransactionIntent::ReadOnly, OrderClause::transaction_intent)
+    }
 }
 
 /// Represents a CALL statement in a data/query pipeline.
@@ -180,11 +206,8 @@ pub struct CallClause {
     pub yield_items: Option<YieldClause>,
     /// True when OPTIONAL keyword is present.
     pub is_optional: bool,
-    /// Optional legacy/debug payload for inline CALL body text.
-    /// The authoritative semantic representation is inline_procedure_statement.
-    pub inline_procedure_body: Option<String>,
-    /// Structured inline procedure statement, as defined by nestedProcedureSpecification.
-    pub inline_procedure_statement: Option<Box<Statement>>,
+    /// Complete local scope of an inline CALL.
+    pub inline_procedure_body: Option<Box<ProcedureBody>>,
     /// Source range covered by this AST node.
     pub span: Span,
 }
@@ -192,10 +215,8 @@ pub struct CallClause {
 impl CallClause {
     /// Inline procedure body can force write mode when it contains mutations.
     pub fn transaction_intent(&self) -> TransactionIntent {
-        match &self.inline_procedure_statement {
-            Some(statement) => statement.transaction_intent(),
-            None => TransactionIntent::ReadOnly,
-        }
+        let arguments = TransactionIntent::combine(self.arguments.iter().map(Expression::transaction_intent));
+        self.inline_procedure_body.as_ref().map_or(arguments, |body| arguments.merge(body.transaction_intent()))
     }
 }
 
@@ -222,7 +243,9 @@ pub struct SetOperation {
 impl SetOperation {
     /// A set operation requires the strongest mode across both branches.
     pub fn transaction_intent(&self) -> TransactionIntent {
-        self.left.transaction_intent().merge(self.right.transaction_intent())
+        self.left.transaction_intent().merge(self.right.transaction_intent()).merge(
+            self.order_clause.as_ref().map_or(TransactionIntent::ReadOnly, OrderClause::transaction_intent),
+        )
     }
 }
 
@@ -258,6 +281,12 @@ pub struct LetStatement {
     pub variable_definitions: Vec<VariableDefinition>,
     /// Source range covered by this AST node.
     pub span: Span,
+}
+
+impl LetStatement {
+    pub(crate) fn transaction_intent(&self) -> TransactionIntent {
+        TransactionIntent::combine(self.variable_definitions.iter().map(|definition| definition.expression.transaction_intent()))
+    }
 }
 
 /// Represents a variable definition in a LET statement.

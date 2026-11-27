@@ -20,121 +20,66 @@
 //   Nicola Miotto <nicola.miotto@ntur-lab.com>,
 //   Matteo Boscolo <matteo.boscolo@ntur-lab.com>
 
-use gql_rs::{
-    DefaultGQLQueryAnalyzer, GQLQueryAnalyzer,
-    ast::{Query, SessionCommandKind, Statement, TransactionCommandKind, TransactionIntent},
-};
+use gql_rs::{analyze, ast::*};
 
-test_transaction_statement!(
-    test_start_txn_read_only_typed,
-    "START TRANSACTION READ ONLY",
-    expected_mode: |txn: &gql_rs::ast::TransactionStatement| {
-        use gql_rs::ast::TransactionMode;
-        txn.mode.as_ref().map(|m| matches!(m, TransactionMode::ReadOnly)).unwrap_or(false)
-    }
-);
+fn transaction(ast: &QueryAST) -> (&TransactionActivity, Option<&SessionCloseCommand>) {
+    let ProgramBody::Activity { activity: ProgramActivity::Transaction(activity), session_close } = &ast.body else {
+        panic!("expected transaction activity");
+    };
+    (activity, session_close.as_ref())
+}
 
-test_transaction_statement!(
-    test_start_txn_read_write_typed,
-    "START TRANSACTION READ WRITE",
-    expected_mode: |txn: &gql_rs::ast::TransactionStatement| {
-        use gql_rs::ast::TransactionMode;
-        txn.mode.as_ref().map(|m| matches!(m, TransactionMode::ReadWrite)).unwrap_or(false)
+#[test]
+fn standalone_transaction_commands_preserve_their_modes_and_spans() {
+    for (source, expected_mode) in [
+        ("START TRANSACTION READ ONLY", TransactionMode::ReadOnly),
+        ("START TRANSACTION READ WRITE", TransactionMode::ReadWrite),
+    ] {
+        let ast = analyze(source).unwrap();
+        let (TransactionActivity::StartOnly(start), None) = transaction(&ast) else {
+            panic!("expected standalone START");
+        };
+        assert_eq!(std::mem::discriminant(start.mode.as_ref().unwrap()), std::mem::discriminant(&expected_mode));
+        assert_eq!(start.span, ast.span);
     }
-);
 
-test_transaction_statement!(
-    test_commit_no_mode,
-    "COMMIT",
-    expected_mode: |txn: &gql_rs::ast::TransactionStatement| {
-        txn.mode.is_none()
-    }
-);
-
-test_transaction_statement!(
-    test_rollback_no_mode,
-    "ROLLBACK",
-    expected_mode: |txn: &gql_rs::ast::TransactionStatement| {
-        txn.mode.is_none()
-    }
-);
+    let commit = analyze("COMMIT").unwrap();
+    let rollback = analyze("ROLLBACK").unwrap();
+    assert!(matches!(transaction(&commit), (TransactionActivity::EndOnly(EndTransactionCommand::Commit { .. }), None)));
+    assert!(matches!(transaction(&rollback), (TransactionActivity::EndOnly(EndTransactionCommand::Rollback { .. }), None)));
+}
 
 #[test]
 fn test_transaction_activity_start_body_commit_preserved_in_ast() {
-    let mut analyzer = DefaultGQLQueryAnalyzer::new();
-    analyzer
-        .exec("START TRANSACTION RETURN 1 COMMIT")
-        .expect("query should parse");
-
-    let ast = analyzer.get_ast().expect("ast must be available");
-
-    let Statement::Next(outer_next) = &ast.statement else {
-        panic!("expected outer NEXT statement wrapping transaction activity");
-    };
-
-    let Statement::Transaction(start_tx) = outer_next.source_statement.as_ref() else {
-        panic!("expected START TRANSACTION as first statement");
-    };
-    assert!(matches!(start_tx.kind, TransactionCommandKind::Start));
-
-    let Statement::Next(inner_next) = outer_next.target_statement.as_ref() else {
-        panic!("expected inner NEXT chaining body and COMMIT");
-    };
-
-    let Statement::Query(Query::Basic(_)) = inner_next.source_statement.as_ref() else {
-        panic!("expected query body in transaction activity");
-    };
-
-    let Statement::Transaction(commit_tx) = inner_next.target_statement.as_ref() else {
-        panic!("expected COMMIT as final statement");
-    };
-    assert!(matches!(commit_tx.kind, TransactionCommandKind::Commit));
+    let ast = analyze("START TRANSACTION RETURN 1 COMMIT").unwrap();
+    let (TransactionActivity::WithBody { start: Some(start), body, end: Some(EndTransactionCommand::Commit { span }), .. }, None) =
+        transaction(&ast) else {
+            panic!("expected transaction body with START and COMMIT");
+        };
+    assert!(matches!(body.statements.first, Statement::Query(Query::Basic(_))));
+    assert!(body.statements.continuations.is_empty());
+    assert!(start.span.end_col < body.span.start_col);
+    assert!(body.span.end_col < span.start_col);
+    assert!(ast.single_statement().is_none());
 }
 
 #[test]
 fn test_transaction_activity_body_rollback_preserved_in_ast() {
-    let mut analyzer = DefaultGQLQueryAnalyzer::new();
-    analyzer.exec("RETURN 1 ROLLBACK").expect("query should parse");
-
-    let ast = analyzer.get_ast().expect("ast must be available");
-
-    let Statement::Next(next_stmt) = &ast.statement else {
-        panic!("expected NEXT statement wrapping body and ROLLBACK");
-    };
-
-    let Statement::Query(Query::Basic(_)) = next_stmt.source_statement.as_ref() else {
-        panic!("expected query body before rollback");
-    };
-
-    let Statement::Transaction(rollback_tx) = next_stmt.target_statement.as_ref() else {
-        panic!("expected rollback transaction statement");
-    };
-    assert!(matches!(rollback_tx.kind, TransactionCommandKind::Rollback));
+    let ast = analyze("RETURN 1 ROLLBACK").unwrap();
+    assert!(matches!(transaction(&ast),
+        (TransactionActivity::WithBody { start: None, end: Some(EndTransactionCommand::Rollback { .. }), .. }, None)
+    ));
+    assert!(analyze("START TRANSACTION COMMIT").is_err());
+    assert!(analyze("").is_err());
 }
 
 #[test]
 fn test_write_transaction_activity_followed_by_close_preserves_both_nodes_and_intent() {
-    let mut analyzer = DefaultGQLQueryAnalyzer::new();
-    analyzer
-        .exec("START TRANSACTION MATCH (n) SET n.active = TRUE FINISH COMMIT SESSION CLOSE")
-        .expect("write transaction activity followed by close should parse");
-
-    let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Next(sequence) = &ast.statement else {
-        panic!("expected transaction activity and close sequence");
-    };
-
-    assert!(matches!(sequence.source_statement.as_ref(), Statement::Next(_)));
-    let Statement::Session(close) = sequence.target_statement.as_ref() else {
-        panic!("expected SESSION CLOSE after transaction activity");
-    };
-    assert!(matches!(close.kind, SessionCommandKind::Close));
+    let ast = analyze("START TRANSACTION MATCH (n) SET n.active = TRUE FINISH COMMIT SESSION CLOSE").unwrap();
+    let (TransactionActivity::WithBody { end: Some(EndTransactionCommand::Commit { .. }), .. }, Some(close)) =
+        transaction(&ast) else {
+            panic!("expected transaction body with COMMIT and trailing SESSION CLOSE");
+        };
+    assert_eq!(close.span.end_col, ast.span.end_col);
     assert_eq!(ast.transaction_intent(), TransactionIntent::DataWrite);
-
-    let serialized = serde_json::to_value(ast).expect("ast should serialize");
-    assert!(serialized["statement"]["Next"]["source_statement"]["Next"].is_object());
-    assert_eq!(
-        serialized["statement"]["Next"]["target_statement"]["Session"]["kind"],
-        "Close"
-    );
 }

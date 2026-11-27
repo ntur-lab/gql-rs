@@ -1,85 +1,129 @@
 {
-  "statement": {
-    "Data": {
-      "MatchDelete": {
-        "delete_clause": {
-          "expressions": [
-            {
-              "Variable": {
-                "name": "n",
-                "span": {
-                  "end_col": 18,
-                  "end_line": 1,
-                  "start_col": 17,
-                  "start_line": 1
-                }
-              }
-            }
-          ],
-          "mode": "Unspecified",
-          "span": {
-            "end_col": 18,
-            "end_line": 1,
-            "start_col": 0,
-            "start_line": 1
-          }
-        },
-        "match_clause": {
-          "match_clause": {
-            "patterns": [
-              {
-                "alternation": null,
-                "elements": [
-                  {
-                    "Node": {
-                      "id": "n",
-                      "labels": null,
-                      "properties": null,
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "WithBody": {
+            "body": {
+              "at_schema": null,
+              "definitions": [],
+              "span": {
+                "end_col": 18,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
+              },
+              "statements": {
+                "continuations": [],
+                "first": {
+                  "Data": {
+                    "MatchDelete": {
+                      "delete_clause": {
+                        "expressions": [
+                          {
+                            "Variable": {
+                              "name": "n",
+                              "span": {
+                                "end_col": 18,
+                                "end_line": 1,
+                                "start_col": 17,
+                                "start_line": 1
+                              }
+                            }
+                          }
+                        ],
+                        "mode": "Unspecified",
+                        "span": {
+                          "end_col": 18,
+                          "end_line": 1,
+                          "start_col": 0,
+                          "start_line": 1
+                        }
+                      },
+                      "match_clause": {
+                        "match_clause": {
+                          "patterns": [
+                            {
+                              "alternation": null,
+                              "elements": [
+                                {
+                                  "Node": {
+                                    "id": "n",
+                                    "labels": null,
+                                    "properties": null,
+                                    "span": {
+                                      "end_col": 9,
+                                      "end_line": 1,
+                                      "start_col": 6,
+                                      "start_line": 1
+                                    },
+                                    "where_clause": null
+                                  }
+                                }
+                              ],
+                              "path_mode": null,
+                              "path_search": null,
+                              "simplified_pattern": null,
+                              "span": {
+                                "end_col": 9,
+                                "end_line": 1,
+                                "start_col": 6,
+                                "start_line": 1
+                              },
+                              "variable": null
+                            }
+                          ],
+                          "span": {
+                            "end_col": 9,
+                            "end_line": 1,
+                            "start_col": 6,
+                            "start_line": 1
+                          }
+                        },
+                        "optional": false,
+                        "span": {
+                          "end_col": 9,
+                          "end_line": 1,
+                          "start_col": 6,
+                          "start_line": 1
+                        }
+                      },
                       "span": {
-                        "end_col": 9,
+                        "end_col": 18,
                         "end_line": 1,
-                        "start_col": 6,
+                        "start_col": 0,
                         "start_line": 1
                       },
                       "where_clause": null
                     }
                   }
-                ],
-                "path_mode": null,
-                "path_search": null,
-                "simplified_pattern": null,
-                "span": {
-                  "end_col": 9,
-                  "end_line": 1,
-                  "start_col": 6,
-                  "start_line": 1
                 },
-                "variable": null
+                "span": {
+                  "end_col": 18,
+                  "end_line": 1,
+                  "start_col": 0,
+                  "start_line": 1
+                }
               }
-            ],
+            },
+            "end": null,
             "span": {
-              "end_col": 9,
+              "end_col": 18,
               "end_line": 1,
-              "start_col": 6,
+              "start_col": 0,
               "start_line": 1
-            }
-          },
-          "optional": false,
-          "span": {
-            "end_col": 9,
-            "end_line": 1,
-            "start_col": 6,
-            "start_line": 1
+            },
+            "start": null
           }
-        },
-        "span": {
-          "end_col": 18,
-          "end_line": 1,
-          "start_col": 0,
-          "start_line": 1
-        },
-        "where_clause": null
-      }
+        }
+      },
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 18,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
   }
 }

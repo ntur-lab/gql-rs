@@ -71,7 +71,7 @@ fn wildcard_return_builds_valid_explicit_projection() {
         ("RETURN DISTINCT *", "Distinct"),
     ] {
         let ast = analyze(query).expect("wildcard RETURN should analyze");
-        let Statement::Query(Query::Basic(basic)) = &ast.statement else {
+        let Statement::Query(Query::Basic(basic)) = ast.single_statement().expect("single statement") else {
             panic!("expected basic query for {query}");
         };
         let PrimitiveResultStatement::Return { return_clause, .. } = &basic.result_statement else {

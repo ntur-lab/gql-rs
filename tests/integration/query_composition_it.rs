@@ -31,12 +31,15 @@ fn focused_nested_data_modifying_procedure_preserves_graph_scope() {
         .expect("focused nested data-modifying procedure should analyze");
 
     let ast = analyzer.get_ast().expect("analysis should produce an AST");
-    let Statement::Focused(focused) = &ast.statement else {
-        panic!("expected focused statement, got: {:?}", ast.statement);
+    let Statement::Focused(focused) = ast.single_statement().expect("single statement") else {
+        panic!("expected focused statement, got: {:?}", ast.single_statement());
     };
     assert_eq!(focused.graph_expression.text, "social");
 
-    let Statement::Next(next) = focused.statement.as_ref() else {
+    let Statement::Nested(body) = focused.statement.as_ref() else {
+        panic!("expected nested procedure body");
+    };
+    let Statement::Next(next) = &body.statements.first else {
         panic!("expected data statement followed by FINISH");
     };
     assert!(matches!(

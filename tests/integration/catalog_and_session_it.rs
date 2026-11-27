@@ -97,37 +97,21 @@ test_session_statement!(
 
 #[test]
 fn test_session_activity_followed_by_close_preserves_source_order() {
-    use gql_rs::ast::SessionCommandKind;
+    use gql_rs::ast::{ProgramActivity, ProgramBody, SessionCommand};
 
-    let mut analyzer = DefaultGQLQueryAnalyzer::new();
-    analyzer
-        .exec("SESSION SET SCHEMA CURRENT_SCHEMA SESSION CLOSE")
-        .expect("session activity followed by close should parse");
-
-    let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Next(sequence) = &ast.statement else {
-        panic!("expected session activity and close sequence");
+    let ast = gql_rs::analyze("SESSION SET SCHEMA CURRENT_SCHEMA SESSION RESET SESSION CLOSE").unwrap();
+    let ProgramBody::Activity {
+        activity: ProgramActivity::Session(activity),
+        session_close: Some(close),
+    } = &ast.body else {
+        panic!("expected session activity followed by SESSION CLOSE");
     };
-
-    let Statement::Session(activity) = sequence.source_statement.as_ref() else {
-        panic!("expected session activity first");
-    };
-    assert!(matches!(activity.kind, SessionCommandKind::Set));
-
-    let Statement::Session(close) = sequence.target_statement.as_ref() else {
-        panic!("expected SESSION CLOSE second");
-    };
-    assert!(matches!(close.kind, SessionCommandKind::Close));
-
-    let serialized = serde_json::to_value(ast).expect("ast should serialize");
-    assert_eq!(
-        serialized["statement"]["Next"]["source_statement"]["Session"]["kind"],
-        "Set"
-    );
-    assert_eq!(
-        serialized["statement"]["Next"]["target_statement"]["Session"]["kind"],
-        "Close"
-    );
+    let [SessionCommand::Set { span: set_span, .. }, SessionCommand::Reset { span: reset_span, clause: None }] =
+        activity.commands.as_slice() else {
+            panic!("expected ordered SET and bare RESET");
+        };
+    assert!(set_span.end_col < reset_span.start_col);
+    assert!(reset_span.end_col < close.span.start_col);
 }
 
 test_graph_type_specification!(
@@ -150,7 +134,7 @@ fn test_catalog_create_schema_is_typed_not_raw() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Catalog(block) = &ast.statement else {
+    let Statement::Catalog(block) = ast.single_statement().expect("single statement") else {
         panic!("expected catalog statement block");
     };
 
@@ -174,7 +158,7 @@ fn test_catalog_create_graph_type_like_is_typed_not_raw() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Catalog(block) = &ast.statement else {
+    let Statement::Catalog(block) = ast.single_statement().expect("single statement") else {
         panic!("expected catalog statement block");
     };
 
@@ -198,7 +182,7 @@ fn test_create_graph_of_typed_reference_maps_to_of_typed_reference_clause() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Catalog(block) = &ast.statement else {
+    let Statement::Catalog(block) = ast.single_statement().expect("single statement") else {
         panic!("expected catalog statement block");
     };
 
@@ -220,7 +204,7 @@ fn test_create_graph_type_copy_of_maps_to_copy_of_source_clause() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Catalog(block) = &ast.statement else {
+    let Statement::Catalog(block) = ast.single_statement().expect("single statement") else {
         panic!("expected catalog statement block");
     };
 
@@ -242,7 +226,7 @@ fn test_create_graph_type_like_maps_to_like_source_clause() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Catalog(block) = &ast.statement else {
+    let Statement::Catalog(block) = ast.single_statement().expect("single statement") else {
         panic!("expected catalog statement block");
     };
 
@@ -264,7 +248,7 @@ fn test_create_graph_type_nested_spec_maps_to_nested_source_clause() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Catalog(block) = &ast.statement else {
+    let Statement::Catalog(block) = ast.single_statement().expect("single statement") else {
         panic!("expected catalog statement block");
     };
 
@@ -286,7 +270,7 @@ fn test_create_graph_type_as_nested_spec_maps_to_nested_source_clause() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Catalog(block) = &ast.statement else {
+    let Statement::Catalog(block) = ast.single_statement().expect("single statement") else {
         panic!("expected catalog statement block");
     };
 
@@ -304,12 +288,9 @@ fn test_create_graph_type_as_nested_spec_maps_to_nested_source_clause() {
 fn activity_close_span_excludes_eof_and_round_trips() {
     let query = "RETURN 1 SESSION CLOSE /* trailing comment */\n";
     let ast = gql_rs::analyze(query).expect("activity and close should analyze");
-    let Statement::Next(sequence) = &ast.statement else {
-        panic!("expected activity and close");
-    };
-    assert_eq!(sequence.span.start_col, 0);
-    assert_eq!(sequence.span.end_line, 1);
-    assert_eq!(sequence.span.end_col, "RETURN 1 SESSION CLOSE".len() as isize);
+    assert_eq!(ast.span.start_col, 0);
+    assert_eq!(ast.span.end_line, 1);
+    assert_eq!(ast.span.end_col, "RETURN 1 SESSION CLOSE".len() as isize);
     let encoded = serde_json::to_value(&ast).unwrap();
     let decoded: gql_rs::ast::QueryAST = serde_json::from_value(encoded.clone()).unwrap();
     assert_eq!(serde_json::to_value(decoded).unwrap(), encoded);

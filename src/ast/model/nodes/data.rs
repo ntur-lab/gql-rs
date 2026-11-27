@@ -45,6 +45,44 @@ pub enum DataStatement {
     Call(CallStatement),
 }
 
+impl DataStatement {
+    pub(crate) fn transaction_intent(&self) -> TransactionIntent {
+        let matched = |clause: &MatchClause, condition: Option<&WhereClause>| {
+            clause.transaction_intent().merge(condition.map_or(TransactionIntent::ReadOnly, |clause| {
+                clause.condition.transaction_intent()
+            }))
+        };
+        let sets = |items: &[SetItem]| TransactionIntent::combine(items.iter().map(|item| match item {
+            SetItem::Property { value, .. } | SetItem::Variable { value, .. } => value.transaction_intent(),
+            SetItem::Label { labels, .. } => labels.transaction_intent(),
+        }));
+        let removes = |items: &[RemoveItem]| TransactionIntent::combine(items.iter().filter_map(|item| match item {
+            RemoveItem::Label { labels, .. } => Some(labels.transaction_intent()),
+            _ => None,
+        }));
+        let deletes = |clause: &DeleteClause| {
+            TransactionIntent::combine(clause.expressions.iter().map(Expression::transaction_intent))
+        };
+        let nested_intent = match self {
+            Self::Insert(statement) => TransactionIntent::combine(statement.patterns.iter().map(PathPattern::transaction_intent)),
+            Self::Set(statement) => sets(&statement.items),
+            Self::MatchSet(statement) => TransactionIntent::combine(
+                statement.match_clauses.iter().map(MatchClause::transaction_intent)
+            ).merge(statement.where_clause.as_ref().map_or(TransactionIntent::ReadOnly, |clause| {
+                clause.condition.transaction_intent()
+            })).merge(sets(&statement.items)),
+            Self::Remove(statement) => removes(&statement.remove_clause),
+            Self::MatchRemove(statement) => matched(&statement.match_clause, statement.where_clause.as_ref())
+                .merge(removes(&statement.remove_clause)),
+            Self::Delete(statement) => deletes(&statement.delete_clause),
+            Self::MatchDelete(statement) => matched(&statement.match_clause, statement.where_clause.as_ref())
+                .merge(deletes(&statement.delete_clause)),
+            Self::Call(statement) => statement.transaction_intent(),
+        };
+        TransactionIntent::DataWrite.merge(nested_intent)
+    }
+}
+
 /// Represents an INSERT statement.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InsertStatement {
@@ -262,6 +300,12 @@ pub struct MatchClause {
     pub span: Span,
 }
 
+impl MatchClause {
+    pub(crate) fn transaction_intent(&self) -> TransactionIntent {
+        TransactionIntent::combine(self.match_clause.patterns.iter().map(PathPattern::transaction_intent))
+    }
+}
+
 /// Represents a pattern in a MATCH clause.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MatchClauseItem {
@@ -340,6 +384,12 @@ pub struct OrderClause {
     pub items: Vec<OrderItem>,
     /// Source range covered by this AST node.
     pub span: Span,
+}
+
+impl OrderClause {
+    pub(crate) fn transaction_intent(&self) -> TransactionIntent {
+        TransactionIntent::combine(self.items.iter().map(|item| item.expression.transaction_intent()))
+    }
 }
 
 /// Represents an individual order item in an ORDER BY clause.

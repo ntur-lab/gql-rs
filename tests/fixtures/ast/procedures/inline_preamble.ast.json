@@ -1,0 +1,333 @@
+{
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "WithBody": {
+            "body": {
+              "at_schema": null,
+              "definitions": [],
+              "span": {
+                "end_col": 81,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
+              },
+              "statements": {
+                "continuations": [],
+                "first": {
+                  "Query": {
+                    "Basic": {
+                      "pipeline": [
+                        {
+                          "Call": {
+                            "arguments": [],
+                            "inline_procedure_body": {
+                              "at_schema": {
+                                "schema": {
+                                  "Absolute": {
+                                    "path": [
+                                      "myschemas",
+                                      "social"
+                                    ]
+                                  }
+                                },
+                                "schema_span": {
+                                  "end_col": 27,
+                                  "end_line": 1,
+                                  "start_col": 10,
+                                  "start_line": 1
+                                },
+                                "span": {
+                                  "end_col": 27,
+                                  "end_line": 1,
+                                  "start_col": 7,
+                                  "start_line": 1
+                                }
+                              },
+                              "definitions": [
+                                {
+                                  "Value": {
+                                    "declared_type": null,
+                                    "initializer": {
+                                      "Expression": {
+                                        "Literal": {
+                                          "Integer": 1
+                                        }
+                                      }
+                                    },
+                                    "initializer_span": {
+                                      "end_col": 39,
+                                      "end_line": 1,
+                                      "start_col": 38,
+                                      "start_line": 1
+                                    },
+                                    "name": "x",
+                                    "span": {
+                                      "end_col": 39,
+                                      "end_line": 1,
+                                      "start_col": 28,
+                                      "start_line": 1
+                                    }
+                                  }
+                                }
+                              ],
+                              "span": {
+                                "end_col": 70,
+                                "end_line": 1,
+                                "start_col": 7,
+                                "start_line": 1
+                              },
+                              "statements": {
+                                "continuations": [
+                                  {
+                                    "span": {
+                                      "end_col": 70,
+                                      "end_line": 1,
+                                      "start_col": 49,
+                                      "start_line": 1
+                                    },
+                                    "statement": {
+                                      "Query": {
+                                        "Basic": {
+                                          "pipeline": [],
+                                          "result_statement": {
+                                            "Return": {
+                                              "group_clause": null,
+                                              "page_clause": null,
+                                              "return_clause": {
+                                                "distinct": "None",
+                                                "projection": {
+                                                  "items": [
+                                                    {
+                                                      "alias": null,
+                                                      "expression": {
+                                                        "Variable": {
+                                                          "name": "x",
+                                                          "span": {
+                                                            "end_col": 70,
+                                                            "end_line": 1,
+                                                            "start_col": 69,
+                                                            "start_line": 1
+                                                          }
+                                                        }
+                                                      },
+                                                      "span": {
+                                                        "end_col": 70,
+                                                        "end_line": 1,
+                                                        "start_col": 69,
+                                                        "start_line": 1
+                                                      }
+                                                    }
+                                                  ],
+                                                  "kind": "items"
+                                                },
+                                                "span": {
+                                                  "end_col": 70,
+                                                  "end_line": 1,
+                                                  "start_col": 62,
+                                                  "start_line": 1
+                                                }
+                                              },
+                                              "span": {
+                                                "end_col": 70,
+                                                "end_line": 1,
+                                                "start_col": 62,
+                                                "start_line": 1
+                                              }
+                                            }
+                                          },
+                                          "span": {
+                                            "end_col": 70,
+                                            "end_line": 1,
+                                            "start_col": 62,
+                                            "start_line": 1
+                                          }
+                                        }
+                                      }
+                                    },
+                                    "yield_clause": {
+                                      "items": [
+                                        {
+                                          "alias": null,
+                                          "column_name": "x",
+                                          "span": {
+                                            "end_col": 61,
+                                            "end_line": 1,
+                                            "start_col": 54,
+                                            "start_line": 1
+                                          }
+                                        }
+                                      ],
+                                      "span": {
+                                        "end_col": 61,
+                                        "end_line": 1,
+                                        "start_col": 54,
+                                        "start_line": 1
+                                      }
+                                    }
+                                  }
+                                ],
+                                "first": {
+                                  "Query": {
+                                    "Basic": {
+                                      "pipeline": [],
+                                      "result_statement": {
+                                        "Return": {
+                                          "group_clause": null,
+                                          "page_clause": null,
+                                          "return_clause": {
+                                            "distinct": "None",
+                                            "projection": {
+                                              "items": [
+                                                {
+                                                  "alias": null,
+                                                  "expression": {
+                                                    "Variable": {
+                                                      "name": "x",
+                                                      "span": {
+                                                        "end_col": 48,
+                                                        "end_line": 1,
+                                                        "start_col": 47,
+                                                        "start_line": 1
+                                                      }
+                                                    }
+                                                  },
+                                                  "span": {
+                                                    "end_col": 48,
+                                                    "end_line": 1,
+                                                    "start_col": 47,
+                                                    "start_line": 1
+                                                  }
+                                                }
+                                              ],
+                                              "kind": "items"
+                                            },
+                                            "span": {
+                                              "end_col": 48,
+                                              "end_line": 1,
+                                              "start_col": 40,
+                                              "start_line": 1
+                                            }
+                                          },
+                                          "span": {
+                                            "end_col": 48,
+                                            "end_line": 1,
+                                            "start_col": 40,
+                                            "start_line": 1
+                                          }
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 48,
+                                        "end_line": 1,
+                                        "start_col": 40,
+                                        "start_line": 1
+                                      }
+                                    }
+                                  }
+                                },
+                                "span": {
+                                  "end_col": 70,
+                                  "end_line": 1,
+                                  "start_col": 40,
+                                  "start_line": 1
+                                }
+                              }
+                            },
+                            "is_optional": false,
+                            "procedure_name": "__INLINE_CALL__",
+                            "span": {
+                              "end_col": 72,
+                              "end_line": 1,
+                              "start_col": 0,
+                              "start_line": 1
+                            },
+                            "yield_items": null
+                          }
+                        }
+                      ],
+                      "result_statement": {
+                        "Return": {
+                          "group_clause": null,
+                          "page_clause": null,
+                          "return_clause": {
+                            "distinct": "None",
+                            "projection": {
+                              "items": [
+                                {
+                                  "alias": null,
+                                  "expression": {
+                                    "Variable": {
+                                      "name": "x",
+                                      "span": {
+                                        "end_col": 81,
+                                        "end_line": 1,
+                                        "start_col": 80,
+                                        "start_line": 1
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 81,
+                                    "end_line": 1,
+                                    "start_col": 80,
+                                    "start_line": 1
+                                  }
+                                }
+                              ],
+                              "kind": "items"
+                            },
+                            "span": {
+                              "end_col": 81,
+                              "end_line": 1,
+                              "start_col": 73,
+                              "start_line": 1
+                            }
+                          },
+                          "span": {
+                            "end_col": 81,
+                            "end_line": 1,
+                            "start_col": 73,
+                            "start_line": 1
+                          }
+                        }
+                      },
+                      "span": {
+                        "end_col": 81,
+                        "end_line": 1,
+                        "start_col": 0,
+                        "start_line": 1
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "end_col": 81,
+                  "end_line": 1,
+                  "start_col": 0,
+                  "start_line": 1
+                }
+              }
+            },
+            "end": null,
+            "span": {
+              "end_col": 81,
+              "end_line": 1,
+              "start_col": 0,
+              "start_line": 1
+            },
+            "start": null
+          }
+        }
+      },
+      "session_close": null
+    }
+  },
+  "span": {
+    "end_col": 81,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
+  }
+}
