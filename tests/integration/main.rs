@@ -34,6 +34,8 @@ mod data_modification_it;
 mod expressions_it;
 #[path = "graph_patterns_it.rs"]
 mod graph_patterns_it;
+#[path = "program_it.rs"]
+mod program_it;
 #[path = "query_composition_it.rs"]
 mod query_composition_it;
 #[path = "set_operations_it.rs"]

@@ -36,6 +36,10 @@ pub enum TransactionIntent {
 }
 
 impl TransactionIntent {
+    pub(crate) fn combine(intents: impl IntoIterator<Item = Self>) -> Self {
+        intents.into_iter().fold(Self::ReadOnly, Self::merge)
+    }
+
     /// Combines two intents, preserving the strongest requirement.
     pub fn merge(self, other: Self) -> Self {
         match (self, other) {

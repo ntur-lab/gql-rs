@@ -1390,7 +1390,7 @@ impl GQLAstBuilder {
 
     /// Builds an Expression from an ObjectExpressionPrimaryContext (`VARIABLE <primary>`, a
     /// parenthesized expression, or a non-parenthesized primary special case).
-    fn build_object_expression_primary_from_context(
+    pub(super) fn build_object_expression_primary_from_context(
         object: &ObjectExpressionPrimaryContextAll,
     ) -> GqlResult<Expression> {
         if let Some(primary) = object.valueExpressionPrimary() {

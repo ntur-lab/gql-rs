@@ -87,6 +87,14 @@ fn compare_ast(query_path: &Path, expected_path: &Path) -> Result<(), Failed> {
     let actual =
         serde_json::to_value(ast).map_err(|error| format!("cannot serialize AST for {}: {error}", query_path.display()))?;
 
+    let decoded: gql_rs::QueryAST = serde_json::from_value(actual.clone())
+        .map_err(|error| format!("cannot deserialize AST for {}: {error}", query_path.display()))?;
+    let round_trip = serde_json::to_value(decoded)
+        .map_err(|error| format!("cannot reserialize AST for {}: {error}", query_path.display()))?;
+    if round_trip != actual {
+        return Err(format!("AST round trip changed {}", query_path.display()).into());
+    }
+
     if std::env::var_os("UPDATE_AST_FIXTURES").is_some() {
         let mut serialized = serde_json::to_string_pretty(&actual)
             .map_err(|error| format!("cannot format AST for {}: {error}", query_path.display()))?;

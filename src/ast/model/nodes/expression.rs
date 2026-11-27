@@ -64,6 +64,48 @@ pub enum Expression {
     WhenOperand(WhenOperandExpression),
 }
 
+impl Expression {
+    pub(crate) fn transaction_intent(&self) -> TransactionIntent {
+        let combine = |expressions: &[Expression]| {
+            TransactionIntent::combine(expressions.iter().map(Self::transaction_intent))
+        };
+        let optional = |expression: Option<&Expression>| {
+            expression.map_or(TransactionIntent::ReadOnly, Self::transaction_intent)
+        };
+        match self {
+            Self::Binary(expr) => expr.left.transaction_intent().merge(expr.right.transaction_intent()),
+            Self::Unary(expr) => expr.expression.transaction_intent(),
+            Self::IsPredicate(expr) => expr.expression.transaction_intent(),
+            Self::FunctionCall(expr) => combine(&expr.arguments),
+            Self::Array(expr) => combine(&expr.elements),
+            Self::Map(items) => TransactionIntent::combine(items.iter().map(|item| item.value.transaction_intent())),
+            Self::Case(expr) => match &expr.case_type {
+                CaseType::Simple(case) => case.when_branches.iter().fold(
+                    case.test_expression.transaction_intent().merge(optional(case.else_expression.as_deref())),
+                    |intent, branch| intent.merge(combine(&branch.when_values)).merge(branch.then_expression.transaction_intent()),
+                ),
+                CaseType::Searched(case) => case.when_branches.iter().fold(
+                    optional(case.else_expression.as_deref()),
+                    |intent, branch| intent.merge(branch.condition.transaction_intent()).merge(branch.then_expression.transaction_intent()),
+                ),
+            },
+            Self::Subquery(expr) => expr.query.transaction_intent().merge(optional(expr.expression.as_deref())),
+            Self::Cast(expr) => expr.expression.transaction_intent(),
+            Self::InlineLet(expr) => expr.variable_definitions.iter().fold(
+                expr.evaluation_expression.transaction_intent(),
+                |intent, definition| intent.merge(definition.expression.transaction_intent()),
+            ),
+            Self::PathConstructor(expressions) => combine(expressions),
+            Self::WhenOperand(WhenOperandExpression { kind: WhenOperandKind::Comparison { right, .. }, .. }) => {
+                right.transaction_intent()
+            }
+            Self::WhenOperand(_) | Self::PropertyAccess(_) | Self::Literal(_) | Self::Variable { .. } => {
+                TransactionIntent::ReadOnly
+            }
+        }
+    }
+}
+
 /// Represents a WHEN operand expression.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct WhenOperandExpression {

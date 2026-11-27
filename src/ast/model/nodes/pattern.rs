@@ -43,6 +43,27 @@ pub struct PathPattern {
     pub span: Span,
 }
 
+impl PathPattern {
+    pub(crate) fn transaction_intent(&self) -> TransactionIntent {
+        let element_intent = |element: &PatternElement| {
+            let (labels, properties, condition) = match element {
+                PatternElement::Node(node) => (&node.labels, &node.properties, &node.where_clause),
+                PatternElement::Edge(edge) => (&edge.labels, &edge.properties, &edge.where_clause),
+            };
+            TransactionIntent::combine(
+                labels.iter().chain(condition.as_deref()).chain(
+                    properties.iter().flat_map(|map| map.properties.iter().map(|item| &item.value))
+                ).map(Expression::transaction_intent)
+            )
+        };
+        TransactionIntent::combine(
+            self.elements.iter().chain(
+                self.alternation.iter().flat_map(|alternation| alternation.alternatives.iter().flatten())
+            ).map(element_intent)
+        )
+    }
+}
+
 /// Represents explicit alternation metadata for a path pattern expression.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PathAlternation {

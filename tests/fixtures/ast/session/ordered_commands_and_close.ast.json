@@ -1,0 +1,75 @@
+{
+  "body": {
+    "Activity": {
+      "activity": {
+        "Session": {
+          "commands": [
+            {
+              "Set": {
+                "clause": {
+                  "Schema": {
+                    "schema_reference": "CURRENT_SCHEMA"
+                  }
+                },
+                "span": {
+                  "end_col": 33,
+                  "end_line": 1,
+                  "start_col": 0,
+                  "start_line": 1
+                }
+              }
+            },
+            {
+              "Reset": {
+                "clause": {
+                  "target": {
+                    "Graph": {
+                      "property_graph_keyword": false
+                    }
+                  }
+                },
+                "span": {
+                  "end_col": 19,
+                  "end_line": 2,
+                  "start_col": 0,
+                  "start_line": 2
+                }
+              }
+            },
+            {
+              "Reset": {
+                "clause": null,
+                "span": {
+                  "end_col": 13,
+                  "end_line": 3,
+                  "start_col": 0,
+                  "start_line": 3
+                }
+              }
+            }
+          ],
+          "span": {
+            "end_col": 13,
+            "end_line": 3,
+            "start_col": 0,
+            "start_line": 1
+          }
+        }
+      },
+      "session_close": {
+        "span": {
+          "end_col": 13,
+          "end_line": 4,
+          "start_col": 0,
+          "start_line": 4
+        }
+      }
+    }
+  },
+  "span": {
+    "end_col": 13,
+    "end_line": 4,
+    "start_col": 0,
+    "start_line": 1
+  }
+}

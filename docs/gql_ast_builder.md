@@ -38,16 +38,11 @@ The functions described below are builder implementation details.
 
 - `build_from_cst_root(cst_root)`
 
-High-level behavior:
-
-1. Handles early return for simple top-level cases.
-2. Reads programActivity.
-3. If it is sessionActivity, builds Statement::Session.
-4. If it is transactionActivity:
-  - if procedureSpecification is missing, it attempts to build a top-level transaction/catalog Statement;
-  - otherwise it enters the procedure body and builds the statement block.
-
-Output: QueryAST with a single root Statement.
+The builder preserves the program activity and trailing session close in
+`QueryAST.body`. It maps transaction boundaries to explicit commands.
+`build_procedure_body` serves the top-level body as well as nested queries,
+data procedures, and inline calls. It preserves schema context and the order
+of local definitions, and maps each explicit `NEXT` to one continuation.
 
 ## Main Statement Routing
 
@@ -71,7 +66,7 @@ This logic balances strong typing with tolerance for grammar constructs that are
 Relevant blocks:
 
 - `build_query_from_composite_expression`
-- `build_statement_block_from_context`
+- `build_procedure_body`
 - `build_query_from_ambient_linear_query_statement`
 - `build_query_from_focused_linear_query_statement`
 - `build_pipeline_from_simple_linear_query_statement`

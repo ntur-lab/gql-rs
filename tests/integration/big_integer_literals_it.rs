@@ -30,7 +30,7 @@ mod big_integer_literal_tests {
 
     fn return_expression(query: &str) -> Expression {
         let ast = analyze(query).unwrap_or_else(|error| panic!("query: {query}, error: {error}"));
-        let Statement::Query(Query::Basic(basic)) = &ast.statement else {
+        let Statement::Query(Query::Basic(basic)) = ast.single_statement().expect("single statement") else {
             panic!("expected a basic query for: {query}");
         };
         let PrimitiveResultStatement::Return { return_clause, .. } = &basic.result_statement else {

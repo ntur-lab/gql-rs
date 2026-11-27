@@ -30,7 +30,7 @@ fn test_path_quantifier_exact_maps_to_exact_quantifier() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -64,7 +64,7 @@ fn test_path_quantifier_at_least_maps_to_at_least_quantifier() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -98,7 +98,7 @@ fn test_path_quantifier_at_most_maps_to_at_most_quantifier() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -132,7 +132,7 @@ fn test_path_quantifier_plus_maps_to_at_least_one() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -166,7 +166,7 @@ fn test_path_quantifier_star_maps_to_unbounded_range() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -203,7 +203,7 @@ fn test_path_quantifier_bounded_range_maps_to_range_quantifier() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -240,7 +240,7 @@ fn test_parenthesized_path_with_optional_quantifier_maps_to_optional_edge() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -274,7 +274,7 @@ fn test_parenthesized_path_with_plus_quantifier_maps_to_at_least_one() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -376,7 +376,7 @@ fn test_simplified_negated_label_maps_to_unary_not_expression() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -418,7 +418,7 @@ fn test_simplified_conjunction_and_negation_map_to_binary_and_expression() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -470,7 +470,7 @@ fn test_simplified_parenthesized_union_maps_to_binary_or_expression() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -517,7 +517,7 @@ fn test_simplified_multihop_union_merges_labels_per_hop() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -583,7 +583,7 @@ fn test_exists_optional_block_preserves_all_nested_matches() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -633,7 +633,7 @@ fn test_path_pattern_union_sets_alternation_metadata() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 
@@ -661,7 +661,7 @@ fn test_path_pattern_multiset_sets_alternation_metadata() {
         .expect("query should parse");
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
 

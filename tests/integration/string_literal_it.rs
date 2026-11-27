@@ -32,7 +32,7 @@ fn returned_string(literal: &str) -> String {
         .unwrap_or_else(|error| panic!("{query_text} should parse: {error:?}"));
 
     let ast = analyzer.get_ast().expect("ast must be available");
-    let Statement::Query(Query::Basic(query)) = &ast.statement else {
+    let Statement::Query(Query::Basic(query)) = ast.single_statement().expect("single statement") else {
         panic!("expected basic query statement");
     };
     let PrimitiveResultStatement::Return { return_clause, .. } = &query.result_statement else {

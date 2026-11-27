@@ -1,133 +1,177 @@
 {
-  "statement": {
-    "Data": {
-      "Insert": {
-        "patterns": [
-          {
-            "alternation": null,
-            "elements": [
-              {
-                "Node": {
-                  "id": "person",
-                  "labels": {
-                    "Literal": {
-                      "String": "Person"
-                    }
-                  },
-                  "properties": {
-                    "properties": [
-                      {
-                        "key": "name",
-                        "span": {
-                          "end_col": 37,
-                          "end_line": 1,
-                          "start_col": 22,
-                          "start_line": 1
-                        },
-                        "value": {
-                          "Literal": {
-                            "String": "Alice"
-                          }
-                        }
-                      }
-                    ],
-                    "span": {
-                      "end_col": 37,
-                      "end_line": 1,
-                      "start_col": 22,
-                      "start_line": 1
-                    }
-                  },
-                  "span": {
-                    "end_col": 38,
-                    "end_line": 1,
-                    "start_col": 7,
-                    "start_line": 1
-                  },
-                  "where_clause": null
-                }
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "WithBody": {
+            "body": {
+              "at_schema": null,
+              "definitions": [],
+              "span": {
+                "end_col": 83,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
               },
-              {
-                "Edge": {
-                  "direction": "Outgoing",
-                  "id": "knows",
-                  "labels": {
-                    "Literal": {
-                      "String": "KNOWS"
-                    }
-                  },
-                  "properties": null,
-                  "quantifier": null,
-                  "span": {
-                    "end_col": 54,
-                    "end_line": 1,
-                    "start_col": 38,
-                    "start_line": 1
-                  },
-                  "where_clause": null
-                }
-              },
-              {
-                "Node": {
-                  "id": "friend",
-                  "labels": {
-                    "Literal": {
-                      "String": "Person"
-                    }
-                  },
-                  "properties": {
-                    "properties": [
-                      {
-                        "key": "name",
-                        "span": {
-                          "end_col": 82,
-                          "end_line": 1,
-                          "start_col": 69,
-                          "start_line": 1
-                        },
-                        "value": {
-                          "Literal": {
-                            "String": "Bob"
-                          }
+              "statements": {
+                "continuations": [],
+                "first": {
+                  "Data": {
+                    "Insert": {
+                      "patterns": [
+                        {
+                          "alternation": null,
+                          "elements": [
+                            {
+                              "Node": {
+                                "id": "person",
+                                "labels": {
+                                  "Literal": {
+                                    "String": "Person"
+                                  }
+                                },
+                                "properties": {
+                                  "properties": [
+                                    {
+                                      "key": "name",
+                                      "span": {
+                                        "end_col": 37,
+                                        "end_line": 1,
+                                        "start_col": 22,
+                                        "start_line": 1
+                                      },
+                                      "value": {
+                                        "Literal": {
+                                          "String": "Alice"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "span": {
+                                    "end_col": 37,
+                                    "end_line": 1,
+                                    "start_col": 22,
+                                    "start_line": 1
+                                  }
+                                },
+                                "span": {
+                                  "end_col": 38,
+                                  "end_line": 1,
+                                  "start_col": 7,
+                                  "start_line": 1
+                                },
+                                "where_clause": null
+                              }
+                            },
+                            {
+                              "Edge": {
+                                "direction": "Outgoing",
+                                "id": "knows",
+                                "labels": {
+                                  "Literal": {
+                                    "String": "KNOWS"
+                                  }
+                                },
+                                "properties": null,
+                                "quantifier": null,
+                                "span": {
+                                  "end_col": 54,
+                                  "end_line": 1,
+                                  "start_col": 38,
+                                  "start_line": 1
+                                },
+                                "where_clause": null
+                              }
+                            },
+                            {
+                              "Node": {
+                                "id": "friend",
+                                "labels": {
+                                  "Literal": {
+                                    "String": "Person"
+                                  }
+                                },
+                                "properties": {
+                                  "properties": [
+                                    {
+                                      "key": "name",
+                                      "span": {
+                                        "end_col": 82,
+                                        "end_line": 1,
+                                        "start_col": 69,
+                                        "start_line": 1
+                                      },
+                                      "value": {
+                                        "Literal": {
+                                          "String": "Bob"
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "span": {
+                                    "end_col": 82,
+                                    "end_line": 1,
+                                    "start_col": 69,
+                                    "start_line": 1
+                                  }
+                                },
+                                "span": {
+                                  "end_col": 83,
+                                  "end_line": 1,
+                                  "start_col": 54,
+                                  "start_line": 1
+                                },
+                                "where_clause": null
+                              }
+                            }
+                          ],
+                          "path_mode": null,
+                          "path_search": null,
+                          "simplified_pattern": null,
+                          "span": {
+                            "end_col": 83,
+                            "end_line": 1,
+                            "start_col": 7,
+                            "start_line": 1
+                          },
+                          "variable": null
                         }
+                      ],
+                      "span": {
+                        "end_col": 83,
+                        "end_line": 1,
+                        "start_col": 0,
+                        "start_line": 1
                       }
-                    ],
-                    "span": {
-                      "end_col": 82,
-                      "end_line": 1,
-                      "start_col": 69,
-                      "start_line": 1
                     }
-                  },
-                  "span": {
-                    "end_col": 83,
-                    "end_line": 1,
-                    "start_col": 54,
-                    "start_line": 1
-                  },
-                  "where_clause": null
+                  }
+                },
+                "span": {
+                  "end_col": 83,
+                  "end_line": 1,
+                  "start_col": 0,
+                  "start_line": 1
                 }
               }
-            ],
-            "path_mode": null,
-            "path_search": null,
-            "simplified_pattern": null,
+            },
+            "end": null,
             "span": {
               "end_col": 83,
               "end_line": 1,
-              "start_col": 7,
+              "start_col": 0,
               "start_line": 1
             },
-            "variable": null
+            "start": null
           }
-        ],
-        "span": {
-          "end_col": 83,
-          "end_line": 1,
-          "start_col": 0,
-          "start_line": 1
         }
-      }
+      },
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 83,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
   }
 }

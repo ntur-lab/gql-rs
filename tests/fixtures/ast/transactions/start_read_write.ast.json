@@ -1,10 +1,26 @@
 {
-  "statement": {
-    "Transaction": {
-      "body": null,
-      "end_command": null,
-      "kind": "Start",
-      "mode": "ReadWrite"
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "StartOnly": {
+            "mode": "ReadWrite",
+            "span": {
+              "end_col": 28,
+              "end_line": 1,
+              "start_col": 0,
+              "start_line": 1
+            }
+          }
+        }
+      },
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 28,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
   }
 }

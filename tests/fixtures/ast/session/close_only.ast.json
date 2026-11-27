@@ -1,0 +1,18 @@
+{
+  "body": {
+    "CloseOnly": {
+      "span": {
+        "end_col": 13,
+        "end_line": 1,
+        "start_col": 0,
+        "start_line": 1
+      }
+    }
+  },
+  "span": {
+    "end_col": 13,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
+  }
+}

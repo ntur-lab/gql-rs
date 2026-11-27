@@ -1,406 +1,450 @@
 {
-  "statement": {
-    "Query": {
-      "Basic": {
-        "pipeline": [
-          {
-            "Match": {
-              "match_clause": {
-                "patterns": [
-                  {
-                    "alternation": null,
-                    "elements": [
-                      {
-                        "Node": {
-                          "id": "n",
-                          "labels": null,
-                          "properties": null,
-                          "span": {
-                            "end_col": 9,
-                            "end_line": 1,
-                            "start_col": 6,
-                            "start_line": 1
-                          },
-                          "where_clause": null
-                        }
-                      }
-                    ],
-                    "path_mode": null,
-                    "path_search": null,
-                    "simplified_pattern": null,
-                    "span": {
-                      "end_col": 9,
-                      "end_line": 1,
-                      "start_col": 6,
-                      "start_line": 1
-                    },
-                    "variable": null
-                  }
-                ],
-                "span": {
-                  "end_col": 9,
-                  "end_line": 1,
-                  "start_col": 6,
-                  "start_line": 1
-                }
-              },
-              "optional": false,
-              "span": {
-                "end_col": 9,
-                "end_line": 1,
-                "start_col": 6,
-                "start_line": 1
-              }
-            }
-          }
-        ],
-        "result_statement": {
-          "Return": {
-            "group_clause": null,
-            "page_clause": null,
-            "return_clause": {
-              "distinct": "None",
-              "projection": {
-                "items": [
-                  {
-                    "alias": "a",
-                    "expression": {
-                      "Cast": {
-                        "expression": {
-                          "PropertyAccess": {
-                            "object": "n",
-                            "property": "a",
-                            "span": {
-                              "end_col": 15,
-                              "end_line": 2,
-                              "start_col": 12,
-                              "start_line": 2
-                            }
-                          }
-                        },
-                        "span": {
-                          "end_col": 68,
-                          "end_line": 2,
-                          "start_col": 7,
-                          "start_line": 2
-                        },
-                        "target_type": {
-                          "base": {
-                            "Record": {
-                              "fields": [
-                                {
-                                  "name": "id",
-                                  "value_type": {
-                                    "base": {
-                                      "Integer": {
-                                        "signed": true,
-                                        "size": {
-                                          "Regular": {
-                                            "precision": null
-                                          }
-                                        }
-                                      }
-                                    },
-                                    "not_null": false
-                                  }
-                                },
-                                {
-                                  "name": "tags",
-                                  "value_type": {
-                                    "base": {
-                                      "List": {
-                                        "element_type": {
-                                          "base": {
-                                            "String": {
-                                              "max_length": null,
-                                              "min_length": null
-                                            }
-                                          },
-                                          "not_null": true
-                                        },
-                                        "max_length": 8
-                                      }
-                                    },
-                                    "not_null": false
-                                  }
-                                }
-                              ]
-                            }
-                          },
-                          "not_null": false
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 73,
-                      "end_line": 2,
-                      "start_col": 7,
-                      "start_line": 2
-                    }
-                  },
-                  {
-                    "alias": "b",
-                    "expression": {
-                      "Cast": {
-                        "expression": {
-                          "PropertyAccess": {
-                            "object": "n",
-                            "property": "b",
-                            "span": {
-                              "end_col": 83,
-                              "end_line": 2,
-                              "start_col": 80,
-                              "start_line": 2
-                            }
-                          }
-                        },
-                        "span": {
-                          "end_col": 98,
-                          "end_line": 2,
-                          "start_col": 75,
-                          "start_line": 2
-                        },
-                        "target_type": {
-                          "base": {
-                            "Record": {
-                              "fields": null
-                            }
-                          },
-                          "not_null": false
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 103,
-                      "end_line": 2,
-                      "start_col": 75,
-                      "start_line": 2
-                    }
-                  },
-                  {
-                    "alias": "c",
-                    "expression": {
-                      "Cast": {
-                        "expression": {
-                          "PropertyAccess": {
-                            "object": "n",
-                            "property": "c",
-                            "span": {
-                              "end_col": 113,
-                              "end_line": 2,
-                              "start_col": 110,
-                              "start_line": 2
-                            }
-                          }
-                        },
-                        "span": {
-                          "end_col": 139,
-                          "end_line": 2,
-                          "start_col": 105,
-                          "start_line": 2
-                        },
-                        "target_type": {
-                          "base": {
-                            "Union": {
-                              "members": [
-                                {
-                                  "Integer": {
-                                    "signed": true,
-                                    "size": {
-                                      "Regular": {
-                                        "precision": null
-                                      }
-                                    }
-                                  }
-                                },
-                                {
-                                  "String": {
-                                    "max_length": null,
-                                    "min_length": null
-                                  }
-                                }
-                              ]
-                            }
-                          },
-                          "not_null": false
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 144,
-                      "end_line": 2,
-                      "start_col": 105,
-                      "start_line": 2
-                    }
-                  },
-                  {
-                    "alias": "d",
-                    "expression": {
-                      "Cast": {
-                        "expression": {
-                          "PropertyAccess": {
-                            "object": "n",
-                            "property": "d",
-                            "span": {
-                              "end_col": 154,
-                              "end_line": 2,
-                              "start_col": 151,
-                              "start_line": 2
-                            }
-                          }
-                        },
-                        "span": {
-                          "end_col": 177,
-                          "end_line": 2,
-                          "start_col": 146,
-                          "start_line": 2
-                        },
-                        "target_type": {
-                          "base": "PropertyValue",
-                          "not_null": false
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 182,
-                      "end_line": 2,
-                      "start_col": 146,
-                      "start_line": 2
-                    }
-                  },
-                  {
-                    "alias": "e",
-                    "expression": {
-                      "Cast": {
-                        "expression": {
-                          "PropertyAccess": {
-                            "object": "n",
-                            "property": "e",
-                            "span": {
-                              "end_col": 192,
-                              "end_line": 2,
-                              "start_col": 189,
-                              "start_line": 2
-                            }
-                          }
-                        },
-                        "span": {
-                          "end_col": 201,
-                          "end_line": 2,
-                          "start_col": 184,
-                          "start_line": 2
-                        },
-                        "target_type": {
-                          "base": "Null",
-                          "not_null": false
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 206,
-                      "end_line": 2,
-                      "start_col": 184,
-                      "start_line": 2
-                    }
-                  },
-                  {
-                    "alias": "f",
-                    "expression": {
-                      "Cast": {
-                        "expression": {
-                          "PropertyAccess": {
-                            "object": "n",
-                            "property": "f",
-                            "span": {
-                              "end_col": 216,
-                              "end_line": 2,
-                              "start_col": 213,
-                              "start_line": 2
-                            }
-                          }
-                        },
-                        "span": {
-                          "end_col": 228,
-                          "end_line": 2,
-                          "start_col": 208,
-                          "start_line": 2
-                        },
-                        "target_type": {
-                          "base": "Nothing",
-                          "not_null": true
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 233,
-                      "end_line": 2,
-                      "start_col": 208,
-                      "start_line": 2
-                    }
-                  },
-                  {
-                    "alias": "g",
-                    "expression": {
-                      "IsPredicate": {
-                        "expression": {
-                          "PropertyAccess": {
-                            "object": "n",
-                            "property": "g",
-                            "span": {
-                              "end_col": 238,
-                              "end_line": 2,
-                              "start_col": 235,
-                              "start_line": 2
-                            }
-                          }
-                        },
-                        "negated": false,
-                        "predicate": {
-                          "Typed": {
-                            "base": "Path",
-                            "not_null": true
-                          }
-                        },
-                        "span": {
-                          "end_col": 261,
-                          "end_line": 2,
-                          "start_col": 235,
-                          "start_line": 2
-                        }
-                      }
-                    },
-                    "span": {
-                      "end_col": 266,
-                      "end_line": 2,
-                      "start_col": 235,
-                      "start_line": 2
-                    }
-                  }
-                ],
-                "kind": "items"
-              },
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "WithBody": {
+            "body": {
+              "at_schema": null,
+              "definitions": [],
               "span": {
                 "end_col": 266,
                 "end_line": 2,
                 "start_col": 0,
-                "start_line": 2
+                "start_line": 1
+              },
+              "statements": {
+                "continuations": [],
+                "first": {
+                  "Query": {
+                    "Basic": {
+                      "pipeline": [
+                        {
+                          "Match": {
+                            "match_clause": {
+                              "patterns": [
+                                {
+                                  "alternation": null,
+                                  "elements": [
+                                    {
+                                      "Node": {
+                                        "id": "n",
+                                        "labels": null,
+                                        "properties": null,
+                                        "span": {
+                                          "end_col": 9,
+                                          "end_line": 1,
+                                          "start_col": 6,
+                                          "start_line": 1
+                                        },
+                                        "where_clause": null
+                                      }
+                                    }
+                                  ],
+                                  "path_mode": null,
+                                  "path_search": null,
+                                  "simplified_pattern": null,
+                                  "span": {
+                                    "end_col": 9,
+                                    "end_line": 1,
+                                    "start_col": 6,
+                                    "start_line": 1
+                                  },
+                                  "variable": null
+                                }
+                              ],
+                              "span": {
+                                "end_col": 9,
+                                "end_line": 1,
+                                "start_col": 6,
+                                "start_line": 1
+                              }
+                            },
+                            "optional": false,
+                            "span": {
+                              "end_col": 9,
+                              "end_line": 1,
+                              "start_col": 6,
+                              "start_line": 1
+                            }
+                          }
+                        }
+                      ],
+                      "result_statement": {
+                        "Return": {
+                          "group_clause": null,
+                          "page_clause": null,
+                          "return_clause": {
+                            "distinct": "None",
+                            "projection": {
+                              "items": [
+                                {
+                                  "alias": "a",
+                                  "expression": {
+                                    "Cast": {
+                                      "expression": {
+                                        "PropertyAccess": {
+                                          "object": "n",
+                                          "property": "a",
+                                          "span": {
+                                            "end_col": 15,
+                                            "end_line": 2,
+                                            "start_col": 12,
+                                            "start_line": 2
+                                          }
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 68,
+                                        "end_line": 2,
+                                        "start_col": 7,
+                                        "start_line": 2
+                                      },
+                                      "target_type": {
+                                        "base": {
+                                          "Record": {
+                                            "fields": [
+                                              {
+                                                "name": "id",
+                                                "value_type": {
+                                                  "base": {
+                                                    "Integer": {
+                                                      "signed": true,
+                                                      "size": {
+                                                        "Regular": {
+                                                          "precision": null
+                                                        }
+                                                      }
+                                                    }
+                                                  },
+                                                  "not_null": false
+                                                }
+                                              },
+                                              {
+                                                "name": "tags",
+                                                "value_type": {
+                                                  "base": {
+                                                    "List": {
+                                                      "element_type": {
+                                                        "base": {
+                                                          "String": {
+                                                            "max_length": null,
+                                                            "min_length": null
+                                                          }
+                                                        },
+                                                        "not_null": true
+                                                      },
+                                                      "max_length": 8
+                                                    }
+                                                  },
+                                                  "not_null": false
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "not_null": false
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 73,
+                                    "end_line": 2,
+                                    "start_col": 7,
+                                    "start_line": 2
+                                  }
+                                },
+                                {
+                                  "alias": "b",
+                                  "expression": {
+                                    "Cast": {
+                                      "expression": {
+                                        "PropertyAccess": {
+                                          "object": "n",
+                                          "property": "b",
+                                          "span": {
+                                            "end_col": 83,
+                                            "end_line": 2,
+                                            "start_col": 80,
+                                            "start_line": 2
+                                          }
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 98,
+                                        "end_line": 2,
+                                        "start_col": 75,
+                                        "start_line": 2
+                                      },
+                                      "target_type": {
+                                        "base": {
+                                          "Record": {
+                                            "fields": null
+                                          }
+                                        },
+                                        "not_null": false
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 103,
+                                    "end_line": 2,
+                                    "start_col": 75,
+                                    "start_line": 2
+                                  }
+                                },
+                                {
+                                  "alias": "c",
+                                  "expression": {
+                                    "Cast": {
+                                      "expression": {
+                                        "PropertyAccess": {
+                                          "object": "n",
+                                          "property": "c",
+                                          "span": {
+                                            "end_col": 113,
+                                            "end_line": 2,
+                                            "start_col": 110,
+                                            "start_line": 2
+                                          }
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 139,
+                                        "end_line": 2,
+                                        "start_col": 105,
+                                        "start_line": 2
+                                      },
+                                      "target_type": {
+                                        "base": {
+                                          "Union": {
+                                            "members": [
+                                              {
+                                                "Integer": {
+                                                  "signed": true,
+                                                  "size": {
+                                                    "Regular": {
+                                                      "precision": null
+                                                    }
+                                                  }
+                                                }
+                                              },
+                                              {
+                                                "String": {
+                                                  "max_length": null,
+                                                  "min_length": null
+                                                }
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        "not_null": false
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 144,
+                                    "end_line": 2,
+                                    "start_col": 105,
+                                    "start_line": 2
+                                  }
+                                },
+                                {
+                                  "alias": "d",
+                                  "expression": {
+                                    "Cast": {
+                                      "expression": {
+                                        "PropertyAccess": {
+                                          "object": "n",
+                                          "property": "d",
+                                          "span": {
+                                            "end_col": 154,
+                                            "end_line": 2,
+                                            "start_col": 151,
+                                            "start_line": 2
+                                          }
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 177,
+                                        "end_line": 2,
+                                        "start_col": 146,
+                                        "start_line": 2
+                                      },
+                                      "target_type": {
+                                        "base": "PropertyValue",
+                                        "not_null": false
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 182,
+                                    "end_line": 2,
+                                    "start_col": 146,
+                                    "start_line": 2
+                                  }
+                                },
+                                {
+                                  "alias": "e",
+                                  "expression": {
+                                    "Cast": {
+                                      "expression": {
+                                        "PropertyAccess": {
+                                          "object": "n",
+                                          "property": "e",
+                                          "span": {
+                                            "end_col": 192,
+                                            "end_line": 2,
+                                            "start_col": 189,
+                                            "start_line": 2
+                                          }
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 201,
+                                        "end_line": 2,
+                                        "start_col": 184,
+                                        "start_line": 2
+                                      },
+                                      "target_type": {
+                                        "base": "Null",
+                                        "not_null": false
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 206,
+                                    "end_line": 2,
+                                    "start_col": 184,
+                                    "start_line": 2
+                                  }
+                                },
+                                {
+                                  "alias": "f",
+                                  "expression": {
+                                    "Cast": {
+                                      "expression": {
+                                        "PropertyAccess": {
+                                          "object": "n",
+                                          "property": "f",
+                                          "span": {
+                                            "end_col": 216,
+                                            "end_line": 2,
+                                            "start_col": 213,
+                                            "start_line": 2
+                                          }
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 228,
+                                        "end_line": 2,
+                                        "start_col": 208,
+                                        "start_line": 2
+                                      },
+                                      "target_type": {
+                                        "base": "Nothing",
+                                        "not_null": true
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 233,
+                                    "end_line": 2,
+                                    "start_col": 208,
+                                    "start_line": 2
+                                  }
+                                },
+                                {
+                                  "alias": "g",
+                                  "expression": {
+                                    "IsPredicate": {
+                                      "expression": {
+                                        "PropertyAccess": {
+                                          "object": "n",
+                                          "property": "g",
+                                          "span": {
+                                            "end_col": 238,
+                                            "end_line": 2,
+                                            "start_col": 235,
+                                            "start_line": 2
+                                          }
+                                        }
+                                      },
+                                      "negated": false,
+                                      "predicate": {
+                                        "Typed": {
+                                          "base": "Path",
+                                          "not_null": true
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 261,
+                                        "end_line": 2,
+                                        "start_col": 235,
+                                        "start_line": 2
+                                      }
+                                    }
+                                  },
+                                  "span": {
+                                    "end_col": 266,
+                                    "end_line": 2,
+                                    "start_col": 235,
+                                    "start_line": 2
+                                  }
+                                }
+                              ],
+                              "kind": "items"
+                            },
+                            "span": {
+                              "end_col": 266,
+                              "end_line": 2,
+                              "start_col": 0,
+                              "start_line": 2
+                            }
+                          },
+                          "span": {
+                            "end_col": 266,
+                            "end_line": 2,
+                            "start_col": 0,
+                            "start_line": 2
+                          }
+                        }
+                      },
+                      "span": {
+                        "end_col": 266,
+                        "end_line": 2,
+                        "start_col": 0,
+                        "start_line": 1
+                      }
+                    }
+                  }
+                },
+                "span": {
+                  "end_col": 266,
+                  "end_line": 2,
+                  "start_col": 0,
+                  "start_line": 1
+                }
               }
             },
+            "end": null,
             "span": {
               "end_col": 266,
               "end_line": 2,
               "start_col": 0,
-              "start_line": 2
-            }
+              "start_line": 1
+            },
+            "start": null
           }
-        },
-        "span": {
-          "end_col": 266,
-          "end_line": 2,
-          "start_col": 0,
-          "start_line": 1
         }
-      }
+      },
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 266,
+    "end_line": 2,
+    "start_col": 0,
+    "start_line": 1
   }
 }

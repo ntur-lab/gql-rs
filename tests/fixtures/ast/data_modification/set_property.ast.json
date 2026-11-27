@@ -1,167 +1,211 @@
 {
-  "statement": {
-    "Next": {
-      "next": null,
-      "source_statement": {
-        "Data": {
-          "MatchSet": {
-            "items": [
-              {
-                "Property": {
-                  "property": {
-                    "object": "n",
-                    "property": "active",
-                    "span": {
-                      "end_col": 36,
-                      "end_line": 1,
-                      "start_col": 21,
-                      "start_line": 1
-                    }
-                  },
-                  "span": {
-                    "end_col": 36,
-                    "end_line": 1,
-                    "start_col": 21,
-                    "start_line": 1
-                  },
-                  "value": {
-                    "Literal": {
-                      "Boolean": true
-                    }
-                  }
-                }
-              }
-            ],
-            "match_clauses": [
-              {
-                "match_clause": {
-                  "patterns": [
-                    {
-                      "alternation": null,
-                      "elements": [
-                        {
-                          "Node": {
-                            "id": "n",
-                            "labels": {
-                              "Literal": {
-                                "String": "Person"
+  "body": {
+    "Activity": {
+      "activity": {
+        "Transaction": {
+          "WithBody": {
+            "body": {
+              "at_schema": null,
+              "definitions": [],
+              "span": {
+                "end_col": 45,
+                "end_line": 1,
+                "start_col": 0,
+                "start_line": 1
+              },
+              "statements": {
+                "continuations": [],
+                "first": {
+                  "Next": {
+                    "next": null,
+                    "source_statement": {
+                      "Data": {
+                        "MatchSet": {
+                          "items": [
+                            {
+                              "Property": {
+                                "property": {
+                                  "object": "n",
+                                  "property": "active",
+                                  "span": {
+                                    "end_col": 36,
+                                    "end_line": 1,
+                                    "start_col": 21,
+                                    "start_line": 1
+                                  }
+                                },
+                                "span": {
+                                  "end_col": 36,
+                                  "end_line": 1,
+                                  "start_col": 21,
+                                  "start_line": 1
+                                },
+                                "value": {
+                                  "Literal": {
+                                    "Boolean": true
+                                  }
+                                }
                               }
-                            },
-                            "properties": null,
-                            "span": {
-                              "end_col": 16,
-                              "end_line": 1,
-                              "start_col": 6,
-                              "start_line": 1
-                            },
-                            "where_clause": null
+                            }
+                          ],
+                          "match_clauses": [
+                            {
+                              "match_clause": {
+                                "patterns": [
+                                  {
+                                    "alternation": null,
+                                    "elements": [
+                                      {
+                                        "Node": {
+                                          "id": "n",
+                                          "labels": {
+                                            "Literal": {
+                                              "String": "Person"
+                                            }
+                                          },
+                                          "properties": null,
+                                          "span": {
+                                            "end_col": 16,
+                                            "end_line": 1,
+                                            "start_col": 6,
+                                            "start_line": 1
+                                          },
+                                          "where_clause": null
+                                        }
+                                      }
+                                    ],
+                                    "path_mode": null,
+                                    "path_search": null,
+                                    "simplified_pattern": null,
+                                    "span": {
+                                      "end_col": 16,
+                                      "end_line": 1,
+                                      "start_col": 6,
+                                      "start_line": 1
+                                    },
+                                    "variable": null
+                                  }
+                                ],
+                                "span": {
+                                  "end_col": 16,
+                                  "end_line": 1,
+                                  "start_col": 6,
+                                  "start_line": 1
+                                }
+                              },
+                              "optional": false,
+                              "span": {
+                                "end_col": 16,
+                                "end_line": 1,
+                                "start_col": 6,
+                                "start_line": 1
+                              }
+                            }
+                          ],
+                          "span": {
+                            "end_col": 45,
+                            "end_line": 1,
+                            "start_col": 0,
+                            "start_line": 1
+                          },
+                          "where_clause": null
+                        }
+                      }
+                    },
+                    "span": {
+                      "end_col": 45,
+                      "end_line": 1,
+                      "start_col": 0,
+                      "start_line": 1
+                    },
+                    "target_statement": {
+                      "Query": {
+                        "Basic": {
+                          "pipeline": [],
+                          "result_statement": {
+                            "Return": {
+                              "group_clause": null,
+                              "page_clause": null,
+                              "return_clause": {
+                                "distinct": "None",
+                                "projection": {
+                                  "items": [
+                                    {
+                                      "alias": null,
+                                      "expression": {
+                                        "Variable": {
+                                          "name": "n",
+                                          "span": {
+                                            "end_col": 45,
+                                            "end_line": 1,
+                                            "start_col": 44,
+                                            "start_line": 1
+                                          }
+                                        }
+                                      },
+                                      "span": {
+                                        "end_col": 45,
+                                        "end_line": 1,
+                                        "start_col": 44,
+                                        "start_line": 1
+                                      }
+                                    }
+                                  ],
+                                  "kind": "items"
+                                },
+                                "span": {
+                                  "end_col": 45,
+                                  "end_line": 1,
+                                  "start_col": 37,
+                                  "start_line": 1
+                                }
+                              },
+                              "span": {
+                                "end_col": 45,
+                                "end_line": 1,
+                                "start_col": 37,
+                                "start_line": 1
+                              }
+                            }
+                          },
+                          "span": {
+                            "end_col": 45,
+                            "end_line": 1,
+                            "start_col": 37,
+                            "start_line": 1
                           }
                         }
-                      ],
-                      "path_mode": null,
-                      "path_search": null,
-                      "simplified_pattern": null,
-                      "span": {
-                        "end_col": 16,
-                        "end_line": 1,
-                        "start_col": 6,
-                        "start_line": 1
-                      },
-                      "variable": null
-                    }
-                  ],
-                  "span": {
-                    "end_col": 16,
-                    "end_line": 1,
-                    "start_col": 6,
-                    "start_line": 1
+                      }
+                    },
+                    "yield_clause": null
                   }
                 },
-                "optional": false,
                 "span": {
-                  "end_col": 16,
+                  "end_col": 45,
                   "end_line": 1,
-                  "start_col": 6,
+                  "start_col": 0,
                   "start_line": 1
                 }
               }
-            ],
+            },
+            "end": null,
             "span": {
               "end_col": 45,
               "end_line": 1,
               "start_col": 0,
               "start_line": 1
             },
-            "where_clause": null
+            "start": null
           }
         }
       },
-      "span": {
-        "end_col": 45,
-        "end_line": 1,
-        "start_col": 0,
-        "start_line": 1
-      },
-      "target_statement": {
-        "Query": {
-          "Basic": {
-            "pipeline": [],
-            "result_statement": {
-              "Return": {
-                "group_clause": null,
-                "page_clause": null,
-                "return_clause": {
-                  "distinct": "None",
-                  "projection": {
-                    "items": [
-                      {
-                        "alias": null,
-                        "expression": {
-                          "Variable": {
-                            "name": "n",
-                            "span": {
-                              "end_col": 45,
-                              "end_line": 1,
-                              "start_col": 44,
-                              "start_line": 1
-                            }
-                          }
-                        },
-                        "span": {
-                          "end_col": 45,
-                          "end_line": 1,
-                          "start_col": 44,
-                          "start_line": 1
-                        }
-                      }
-                    ],
-                    "kind": "items"
-                  },
-                  "span": {
-                    "end_col": 45,
-                    "end_line": 1,
-                    "start_col": 37,
-                    "start_line": 1
-                  }
-                },
-                "span": {
-                  "end_col": 45,
-                  "end_line": 1,
-                  "start_col": 37,
-                  "start_line": 1
-                }
-              }
-            },
-            "span": {
-              "end_col": 45,
-              "end_line": 1,
-              "start_col": 37,
-              "start_line": 1
-            }
-          }
-        }
-      },
-      "yield_clause": null
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 45,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
   }
 }

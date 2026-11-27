@@ -616,19 +616,31 @@ pub(super) fn validate_declared_variable_type(
     let Some(declared) = &definition.declared_type else {
         return Ok(());
     };
-    let name = definition.variable_name.trim();
-    let source_type = infer_expression_type(&definition.expression, inferred_types, Some(declared_variables));
-    let source_is_null = matches!(definition.expression, Expression::Literal(Literal::Null))
+    validate_initializer_type(
+        &format!("LET variable '{}'", definition.variable_name.trim()),
+        &definition.expression, declared, &definition.span, declared_variables, inferred_types,
+    )
+}
+
+pub(super) fn validate_initializer_type(
+    subject: &str,
+    expression: &Expression,
+    declared: &ValueType,
+    span: &Span,
+    declared_variables: &HashSet<String>,
+    inferred_types: &HashMap<String, TypeSpec>,
+) -> Result<(), GqlError> {
+    let source_type = infer_expression_type(expression, inferred_types, Some(declared_variables));
+    let source_is_null = matches!(expression, Expression::Literal(Literal::Null))
         || matches!(source_type, Some(TypeSpec::Null));
 
     if declared.not_null && source_is_null {
         return Err(validation_err(
             format!(
-                "LET variable '{}' declared as {} NOT NULL cannot be initialized with NULL",
-                name,
+                "{subject} declared as {} NOT NULL cannot be initialized with NULL",
                 type_name(&declared.base)
             ),
-            Some(&definition.span.clone()),
+            Some(span),
         ));
     }
 
@@ -641,12 +653,11 @@ pub(super) fn validate_declared_variable_type(
 
     Err(validation_err(
         format!(
-            "LET variable '{}' declared as {} cannot be initialized with a value of type {}",
-            name,
+            "{subject} declared as {} cannot be initialized with a value of type {}",
             type_name(&declared.base),
             type_name(&source_type)
         ),
-        Some(&definition.span.clone()),
+        Some(span),
     ))
 }
 
@@ -885,6 +896,10 @@ fn infer_scalar_subquery_type(
             infer_expression_type(&items[0].expression, inferred_types, declared_variables)
                 .or(Some(TypeSpec::Any))
         }
+        Query::Nested(nested) => match nested.body.statements.last() {
+            Statement::Query(query) => infer_scalar_subquery_type(query, inferred_types, declared_variables),
+            _ => None,
+        },
         Query::SetOperation(set_op) => {
             let left = infer_scalar_subquery_type(&set_op.left, inferred_types, declared_variables);
             let right = infer_scalar_subquery_type(&set_op.right, inferred_types, declared_variables);
@@ -1393,9 +1408,9 @@ pub(super) fn validate_call_clause(
             ));
         }
 
-        let inline_stmt = call_clause.inline_procedure_statement.as_ref().ok_or_else(|| {
+        let inline_body = call_clause.inline_procedure_body.as_ref().ok_or_else(|| {
             validation_err(
-                "Inline CALL must preserve structured nested statement".to_string(),
+                "Inline CALL must preserve its procedure body".to_string(),
                 Some(&call_clause.span.clone()),
             )
         })?;
@@ -1421,19 +1436,12 @@ pub(super) fn validate_call_clause(
             }
         }
 
-        let mut nested_ctx = ValidationContext {
-            declared_variables: nested_scope,
-        };
-        if let Statement::Query(query) = inline_stmt.as_ref() {
-            for output_name in validate_query_output(query, &mut nested_ctx.declared_variables)? {
-                declared_variables.insert(output_name);
-            }
-        } else {
-            validate_dispatch(inline_stmt, &mut nested_ctx)?;
+        for output_name in validate_procedure_body(inline_body, &nested_scope)? {
+            declared_variables.insert(output_name);
         }
-    } else if call_clause.inline_procedure_statement.is_some() {
+    } else if call_clause.inline_procedure_body.is_some() {
         return Err(validation_err(
-            "Named CALL cannot preserve inline procedure statement".to_string(),
+            "Named CALL cannot carry an inline procedure body".to_string(),
             Some(&call_clause.span.clone()),
         ));
     }

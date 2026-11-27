@@ -42,6 +42,7 @@ mod clause;
 // Expression CST -> AST mapping helpers.
 mod expression;
 mod types;
+mod program;
 
 // Internal AST builder entrypoint.
 pub(crate) struct GQLAstBuilder;
@@ -197,94 +198,6 @@ impl GQLAstBuilder {
         }
 
         decoded
-    }
-
-    /// Builds a QueryAST from the CST root and dispatches top-level statement families.
-    pub(crate) fn build_from_cst_root(cst_root: &GqlProgramContextAll) -> GqlResult<QueryAST> {
-        let session_close = cst_root.sessionCloseCommand().map(|close| {
-            let statement = Statement::Session(SessionStatement {
-                kind: SessionCommandKind::Close,
-                set_clauses: Vec::new(),
-                reset_clauses: Vec::new(),
-            });
-            (statement, Self::extract_span(&*close))
-        });
-
-        let Some(program_activity) = cst_root.programActivity() else {
-            return session_close
-                .map(|(statement, _)| QueryAST { statement })
-                .ok_or_else(|| Self::parse_err("CST not valid: missing programActivity or sessionCloseCommand".into()));
-        };
-
-        let activity = Self::build_program_activity(&program_activity)?;
-        let statement = match session_close {
-            Some((close, close_span)) => Statement::Next(NextStatement {
-                source_statement: Box::new(activity),
-                target_statement: Box::new(close),
-                yield_clause: None,
-                next: None,
-                span: Span {
-                    end_line: close_span.end_line,
-                    end_col: close_span.end_col,
-                    ..Self::extract_span(&*program_activity)
-                },
-            }),
-            None => activity,
-        };
-
-        Ok(QueryAST { statement })
-    }
-
-    /// Builds the activity that precedes an optional top-level SESSION CLOSE command.
-    fn build_program_activity(program_activity: &ProgramActivityContextAll) -> GqlResult<Statement> {
-        if let Some(session_activity) = program_activity.sessionActivity() {
-            return Ok(Statement::Session(Self::build_session_command_from_context(
-                &session_activity,
-            )?));
-        }
-
-        let transaction_activity = program_activity
-            .transactionActivity()
-            .ok_or_else(|| Self::parse_err("Query not valid: missing transactionActivity".into()))?;
-
-        let procedure_spec = match transaction_activity.procedureSpecification() {
-            Some(spec) => spec,
-            None => {
-                return Self::build_transaction_or_catalog_statement_from_context(&transaction_activity);
-            }
-        };
-
-        let statement_block = procedure_spec
-            .procedureBody()
-            .and_then(|b| b.statementBlock())
-            .ok_or_else(|| Self::parse_err("Query not valid: missing statementBlock".into()))?;
-
-        let mut statement = Self::build_statement_block_from_context(&statement_block)?;
-        let tx_span = Self::extract_span(&*statement_block);
-
-        if let Some(end) = transaction_activity.endTransactionCommand() {
-            let end_stmt = Self::build_end_transaction_statement(&end)?;
-            statement = Statement::Next(NextStatement {
-                source_statement: Box::new(statement),
-                target_statement: Box::new(end_stmt),
-                yield_clause: None,
-                next: None,
-                span: tx_span.clone(),
-            });
-        }
-
-        if let Some(start) = transaction_activity.startTransactionCommand() {
-            let start_stmt = Self::build_start_transaction_statement(&start);
-            statement = Statement::Next(NextStatement {
-                source_statement: Box::new(start_stmt),
-                target_statement: Box::new(statement),
-                yield_clause: None,
-                next: None,
-                span: tx_span.clone(),
-            });
-        }
-
-        Ok(statement)
     }
 
     /// Extracts a Span from a given parser context, using the start and stop tokens.

@@ -75,17 +75,6 @@ fn statement_transaction_intent_and_requires_write_tx_cover_all_variants() {
         variable_definitions: vec![],
         span: span(),
     });
-    let session_statement = Statement::Session(SessionStatement {
-        kind: SessionCommandKind::Set,
-        set_clauses: vec![],
-        reset_clauses: vec![],
-    });
-    let transaction_statement = Statement::Transaction(TransactionStatement {
-        kind: TransactionCommandKind::Start,
-        mode: None,
-        body: None,
-        end_command: None,
-    });
     let catalog_statement = Statement::Catalog(CatalogStatementBlock { statements: vec![] });
     let mixed_next_statement = Statement::Next(NextStatement {
         source_statement: Box::new(write_data_statement()),
@@ -109,12 +98,6 @@ fn statement_transaction_intent_and_requires_write_tx_cover_all_variants() {
 
     assert_eq!(let_statement.transaction_intent(), TransactionIntent::ReadOnly);
     assert!(!let_statement.requires_write_tx());
-
-    assert_eq!(session_statement.transaction_intent(), TransactionIntent::ReadOnly);
-    assert!(!session_statement.requires_write_tx());
-
-    assert_eq!(transaction_statement.transaction_intent(), TransactionIntent::ReadOnly);
-    assert!(!transaction_statement.requires_write_tx());
 
     assert_eq!(catalog_statement.transaction_intent(), TransactionIntent::CatalogWrite);
     assert!(catalog_statement.requires_write_tx());

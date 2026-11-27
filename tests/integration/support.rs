@@ -27,89 +27,19 @@ macro_rules! test_session_statement {
     ($test_name:ident, $query:expr, expected_set_count: $set_count:expr, expected_reset_count: $reset_count:expr) => {
         #[test]
         fn $test_name() {
-            use gql_rs::ast::Statement;
+            use gql_rs::ast::{ProgramActivity, ProgramBody, SessionCommand};
 
-            let query_str = $query;
-            println!("Testing SESSION statement: {}", query_str);
-
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            match analyzer.exec(query_str) {
-                Ok(_) => {
-                    if let Some(ast) = analyzer.get_ast() {
-                        match &ast.statement {
-                            Statement::Session(session) => {
-                                println!("Session kind: {:?}", session.kind);
-                                println!("Set clauses count: {}", session.set_clauses.len());
-                                println!("Reset clauses count: {}", session.reset_clauses.len());
-
-                                assert_eq!(
-                                    session.set_clauses.len(),
-                                    $set_count,
-                                    "Expected {} set clauses, got {}",
-                                    $set_count,
-                                    session.set_clauses.len()
-                                );
-                                assert_eq!(
-                                    session.reset_clauses.len(),
-                                    $reset_count,
-                                    "Expected {} reset clauses, got {}",
-                                    $reset_count,
-                                    session.reset_clauses.len()
-                                );
-                            }
-                            other => {
-                                panic!("Expected Session statement, got: {:?}", other);
-                            }
-                        }
-                    } else {
-                        panic!("No AST generated for query: {}", query_str);
-                    }
+            let ast = gql_rs::analyze($query).expect("SESSION statement should analyze");
+            let (sets, resets) = match &ast.body {
+                ProgramBody::Activity { activity: ProgramActivity::Session(session), .. } => {
+                    let sets = session.commands.iter().filter(|cmd| matches!(cmd, SessionCommand::Set { .. })).count();
+                    (sets, session.commands.len() - sets)
                 }
-                Err(e) => {
-                    panic!("Failed to parse SESSION statement: {:?}", e);
-                }
-            }
-        }
-    };
-}
-
-/// Macro for testing TRANSACTION statements with mode verification.
-/// Validates parsing and that the transaction mode matches expected criteria.
-#[macro_export]
-macro_rules! test_transaction_statement {
-    ($test_name:ident, $query:expr, expected_mode: $mode_check:expr) => {
-        #[test]
-        fn $test_name() {
-            use gql_rs::ast::Statement;
-
-            let query_str = $query;
-            println!("Testing TRANSACTION statement: {}", query_str);
-
-            let mut analyzer = DefaultGQLQueryAnalyzer::new();
-            match analyzer.exec(query_str) {
-                Ok(_) => {
-                    if let Some(ast) = analyzer.get_ast() {
-                        match &ast.statement {
-                            Statement::Transaction(transaction) => {
-                                println!("Transaction kind: {:?}", transaction.kind);
-                                println!("Transaction mode: {:?}", transaction.mode);
-
-                                if !$mode_check(transaction) {
-                                    panic!("Transaction mode check failed for: {}", query_str);
-                                }
-                            }
-                            other => {
-                                panic!("Expected Transaction statement, got: {:?}", other);
-                            }
-                        }
-                    } else {
-                        panic!("No AST generated for query: {}", query_str);
-                    }
-                }
-                Err(e) => {
-                    panic!("Failed to parse TRANSACTION statement: {:?}", e);
-                }
-            }
+                ProgramBody::CloseOnly(_) => (0, 0),
+                other => panic!("Expected session program, got: {other:?}"),
+            };
+            assert_eq!(sets, $set_count);
+            assert_eq!(resets, $reset_count);
         }
     };
 }
@@ -130,7 +60,7 @@ macro_rules! test_graph_type_specification {
             match analyzer.exec(query_str) {
                 Ok(_) => {
                     if let Some(ast) = analyzer.get_ast() {
-                        match &ast.statement {
+                        match ast.single_statement().expect("single catalog statement") {
                             Statement::Catalog(block) => {
                                 if let Some(CatalogStatement::CreateGraphType(create_gt)) = block.statements.first() {
                                     if let gql_rs::ast::GraphTypeSourceClause::NestedSpecification {

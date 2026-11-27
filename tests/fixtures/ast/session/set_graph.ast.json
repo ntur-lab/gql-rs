@@ -1,33 +1,58 @@
 {
-  "statement": {
-    "Session": {
-      "kind": "Set",
-      "reset_clauses": [],
-      "set_clauses": [
-        {
-          "Parameter": {
-            "binding_table_initializer": null,
-            "graph_initializer": null,
-            "initializer": "=social",
-            "kind": {
-              "Graph": {
-                "property_graph_keyword": false
+  "body": {
+    "Activity": {
+      "activity": {
+        "Session": {
+          "commands": [
+            {
+              "Set": {
+                "clause": {
+                  "Parameter": {
+                    "binding_table_initializer": null,
+                    "graph_initializer": null,
+                    "initializer": "=social",
+                    "kind": {
+                      "Graph": {
+                        "property_graph_keyword": false
+                      }
+                    },
+                    "parameter_name": {
+                      "if_not_exists": false,
+                      "parameter_specification": "$g",
+                      "span": {
+                        "end_col": 20,
+                        "end_line": 1,
+                        "start_col": 18,
+                        "start_line": 1
+                      }
+                    },
+                    "value_initializer": null
+                  }
+                },
+                "span": {
+                  "end_col": 29,
+                  "end_line": 1,
+                  "start_col": 0,
+                  "start_line": 1
+                }
               }
-            },
-            "parameter_name": {
-              "if_not_exists": false,
-              "parameter_specification": "$g",
-              "span": {
-                "end_col": 20,
-                "end_line": 1,
-                "start_col": 18,
-                "start_line": 1
-              }
-            },
-            "value_initializer": null
+            }
+          ],
+          "span": {
+            "end_col": 29,
+            "end_line": 1,
+            "start_col": 0,
+            "start_line": 1
           }
         }
-      ]
+      },
+      "session_close": null
     }
+  },
+  "span": {
+    "end_col": 29,
+    "end_line": 1,
+    "start_col": 0,
+    "start_line": 1
   }
 }

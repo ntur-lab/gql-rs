@@ -243,6 +243,10 @@ pub(super) fn query_produces_return_rows(query: &Query) -> bool {
         Query::Basic(basic) => {
             matches!(basic.result_statement, PrimitiveResultStatement::Return { .. })
         }
+        Query::Nested(nested) => match nested.body.statements.last() {
+            Statement::Query(query) => query_produces_return_rows(query),
+            _ => false,
+        },
         Query::SetOperation(set_op) => {
             query_produces_return_rows(&set_op.left) && query_produces_return_rows(&set_op.right)
         }
@@ -253,6 +257,10 @@ pub(super) fn query_produces_return_rows(query: &Query) -> bool {
 pub(super) fn infer_query_projection_arity(query: &Query) -> Option<usize> {
     match query {
         Query::Basic(basic) => infer_result_projection_arity(&basic.result_statement),
+        Query::Nested(nested) => match nested.body.statements.last() {
+            Statement::Query(query) => infer_query_projection_arity(query),
+            _ => None,
+        },
         Query::SetOperation(set_op) => {
             let left = infer_query_projection_arity(&set_op.left);
             let right = infer_query_projection_arity(&set_op.right);
@@ -280,6 +288,10 @@ pub(super) fn infer_result_projection_arity(result: &PrimitiveResultStatement) -
 pub(super) fn infer_query_projection_signature(query: &Query) -> Option<Vec<String>> {
     match query {
         Query::Basic(basic) => infer_result_projection_signature(&basic.result_statement),
+        Query::Nested(nested) => match nested.body.statements.last() {
+            Statement::Query(query) => infer_query_projection_signature(query),
+            _ => None,
+        },
         Query::SetOperation(set_op) => {
             let left = infer_query_projection_signature(&set_op.left);
             let right = infer_query_projection_signature(&set_op.right);
@@ -324,6 +336,10 @@ pub(super) fn infer_result_projection_signature(result: &PrimitiveResultStatemen
 pub(super) fn infer_query_projection_types(query: &Query) -> Option<Vec<Option<TypeSpec>>> {
     match query {
         Query::Basic(basic) => infer_result_projection_types(&basic.result_statement),
+        Query::Nested(nested) => match nested.body.statements.last() {
+            Statement::Query(query) => infer_query_projection_types(query),
+            _ => None,
+        },
         Query::SetOperation(set_op) => {
             let left = infer_query_projection_types(&set_op.left);
             let right = infer_query_projection_types(&set_op.right);

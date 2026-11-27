@@ -435,34 +435,10 @@ impl GQLAstBuilder {
 
     fn build_reference_value_type(reference: &ReferenceValueTypeContextAll) -> GqlResult<ValueType> {
         if let Some(graph) = reference.graphReferenceValueType() {
-            if let Some(open) = graph.openGraphReferenceValueType() {
-                return Ok(ValueType::new(
-                    TypeSpec::Graph { graph_type_spec: None },
-                    open.notNull().is_some(),
-                ));
-            }
-            let closed = graph
-                .closedGraphReferenceValueType()
-                .ok_or_else(|| Self::parse_err("CST not valid: graph reference without alternative".into()))?;
-            let spec = Self::build_graph_type_spec_from_closed_graph_reference(&closed)?;
-            return Ok(ValueType::new(
-                TypeSpec::Graph {
-                    graph_type_spec: Some(Box::new(spec)),
-                },
-                closed.notNull().is_some(),
-            ));
+            return Self::build_graph_reference_type(&graph);
         }
         if let Some(table) = reference.bindingTableReferenceValueType() {
-            let fields = table
-                .bindingTableType()
-                .and_then(|t| t.fieldTypesSpecification())
-                .ok_or_else(|| Self::parse_err("CST not valid: binding table type without fields".into()))?;
-            return Ok(ValueType::new(
-                TypeSpec::BindingTable {
-                    fields: Some(Self::build_field_types(&fields)?),
-                },
-                table.notNull().is_some(),
-            ));
+            return Self::build_binding_table_reference_type(&table);
         }
         if let Some(node) = reference.nodeReferenceValueType() {
             if let Some(open) = node.openNodeReferenceValueType() {
@@ -507,6 +483,29 @@ impl GQLAstBuilder {
         Self::parse_error(format!(
             "CST not valid: unsupported reference type {}",
             reference.get_text()
+        ))
+    }
+
+    pub(super) fn build_graph_reference_type(graph: &GraphReferenceValueTypeContextAll) -> GqlResult<ValueType> {
+        if let Some(open) = graph.openGraphReferenceValueType() {
+            return Ok(ValueType::new(TypeSpec::Graph { graph_type_spec: None }, open.notNull().is_some()));
+        }
+
+        let closed = graph.closedGraphReferenceValueType()
+            .ok_or_else(|| Self::parse_err("CST not valid: graph reference without alternative".into()))?;
+        let spec = Self::build_graph_type_spec_from_closed_graph_reference(&closed)?;
+        Ok(ValueType::new(
+            TypeSpec::Graph { graph_type_spec: Some(Box::new(spec)) },
+            closed.notNull().is_some(),
+        ))
+    }
+
+    pub(super) fn build_binding_table_reference_type(table: &BindingTableReferenceValueTypeContextAll) -> GqlResult<ValueType> {
+        let fields = table.bindingTableType().and_then(|t| t.fieldTypesSpecification())
+            .ok_or_else(|| Self::parse_err("CST not valid: binding table type without fields".into()))?;
+        Ok(ValueType::new(
+            TypeSpec::BindingTable { fields: Some(Self::build_field_types(&fields)?) },
+            table.notNull().is_some(),
         ))
     }
 

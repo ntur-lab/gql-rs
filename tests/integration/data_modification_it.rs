@@ -32,8 +32,8 @@ fn match_insert_reuses_matched_node_bindings() {
     analyzer.exec(query).expect("MATCH ... INSERT should analyze");
 
     let ast = analyzer.get_ast().expect("analysis should produce an AST");
-    let Statement::Next(sequence) = &ast.statement else {
-        panic!("expected MATCH input feeding INSERT, got {:?}", ast.statement);
+    let Statement::Next(sequence) = ast.single_statement().expect("single statement") else {
+        panic!("expected MATCH input feeding INSERT, got {:?}", ast.single_statement());
     };
 
     let Statement::Query(gql_rs::ast::Query::Basic(input)) = sequence.source_statement.as_ref() else {
@@ -56,15 +56,15 @@ fn match_insert_reuses_matched_node_bindings() {
     assert_eq!(ast.transaction_intent(), TransactionIntent::DataWrite);
 
     let serialized = serde_json::to_value(ast).expect("AST should serialize");
-    assert!(serialized["statement"]["Next"]["source_statement"]["Query"].is_object());
-    assert!(serialized["statement"]["Next"]["target_statement"]["Data"]["Insert"].is_object());
+    assert!(serialized["body"]["Activity"]["activity"]["Transaction"]["WithBody"]["body"]["statements"]["first"]["Next"]["source_statement"]["Query"].is_object());
+    assert!(serialized["body"]["Activity"]["activity"]["Transaction"]["WithBody"]["body"]["statements"]["first"]["Next"]["target_statement"]["Data"]["Insert"].is_object());
 }
 
 #[test]
 fn matched_insert_preserves_terminal_return() {
     use gql_rs::ast::{PrimitiveResultStatement, Query};
     let ast = gql_rs::analyze("MATCH (n) INSERT (m) RETURN m").unwrap();
-    let Statement::Next(sequence) = &ast.statement else {
+    let Statement::Next(sequence) = ast.single_statement().expect("single statement") else {
         panic!("expected input and insert");
     };
     let Statement::Next(insert_and_result) = sequence.target_statement.as_ref() else {
@@ -102,7 +102,7 @@ fn insert_never_silently_discards_following_operations() {
 fn focused_insert_keeps_graph_context_and_write_intent() {
     for query in ["USE social INSERT (m)", "USE social MATCH (n) INSERT (m) RETURN m"] {
         let ast = gql_rs::analyze(query).unwrap();
-        let Statement::Focused(focused) = &ast.statement else {
+        let Statement::Focused(focused) = ast.single_statement().expect("single statement") else {
             panic!("graph context must enclose the write: {query}");
         };
         assert_eq!(focused.graph_expression.text, "social");
@@ -114,7 +114,7 @@ fn focused_insert_keeps_graph_context_and_write_intent() {
 #[test]
 fn matched_insert_preserves_input_pagination_and_explicit_next() {
     let ast = gql_rs::analyze("MATCH (n) ORDER BY n.name LIMIT 1 INSERT (m)").unwrap();
-    let Statement::Next(sequence) = &ast.statement else {
+    let Statement::Next(sequence) = ast.single_statement().expect("single statement") else {
         panic!("expected input sequence");
     };
     let Statement::Query(gql_rs::ast::Query::Basic(input)) = sequence.source_statement.as_ref() else {
@@ -122,10 +122,15 @@ fn matched_insert_preserves_input_pagination_and_explicit_next() {
     };
     assert!(matches!(input.pipeline.last(), Some(gql_rs::ast::QueryStep::Page(_))));
     let ast = gql_rs::analyze("MATCH (n) INSERT (m) RETURN m NEXT RETURN 1").unwrap();
-    let Statement::Next(outer) = &ast.statement else {
-        panic!("expected explicit NEXT");
+    use gql_rs::ast::{ProgramActivity, ProgramBody, TransactionActivity};
+    let ProgramBody::Activity {
+        activity: ProgramActivity::Transaction(TransactionActivity::WithBody { body, .. }), ..
+    } = &ast.body else {
+        panic!("expected transaction body");
     };
-    let Statement::Next(input) = outer.source_statement.as_ref() else {
+    assert_eq!(body.statements.continuations.len(), 1);
+    assert!(matches!(body.statements.continuations[0].statement, Statement::Query(_)));
+    let Statement::Next(input) = &body.statements.first else {
         panic!("expected matched INSERT");
     };
     assert!(matches!(input.target_statement.as_ref(), Statement::Next(_)));
@@ -139,14 +144,14 @@ fn delete_modes_are_preserved_for_standalone_and_pipeline_statements() {
         ("NODETACH ", DeleteMode::NoDetach),
     ] {
         let standalone = gql_rs::parse(&format!("{modifier}DELETE n")).unwrap();
-        let Statement::Data(DataStatement::Delete(delete)) = &standalone.statement else {
+        let Statement::Data(DataStatement::Delete(delete)) = standalone.single_statement().expect("single statement") else {
             panic!("expected standalone DELETE for modifier {modifier:?}");
         };
         assert_eq!(delete.delete_clause.mode, expected_mode);
         assert_eq!(standalone.transaction_intent(), TransactionIntent::DataWrite);
 
         let pipeline = gql_rs::analyze(&format!("MATCH (n) {modifier}DELETE n")).unwrap();
-        let Statement::Data(DataStatement::MatchDelete(delete)) = &pipeline.statement else {
+        let Statement::Data(DataStatement::MatchDelete(delete)) = pipeline.single_statement().expect("single statement") else {
             panic!("expected MATCH ... DELETE for modifier {modifier:?}");
         };
         assert_eq!(delete.delete_clause.mode, expected_mode);
@@ -164,11 +169,11 @@ fn delete_mode_serializes_as_an_explicit_enum() {
         let ast = gql_rs::parse(query).unwrap();
         let serialized = serde_json::to_value(ast).unwrap();
         assert_eq!(
-            serialized["statement"]["Data"]["Delete"]["delete_clause"]["mode"],
+            serialized["body"]["Activity"]["activity"]["Transaction"]["WithBody"]["body"]["statements"]["first"]["Data"]["Delete"]["delete_clause"]["mode"],
             expected_mode
         );
         assert!(
-            serialized["statement"]["Data"]["Delete"]["delete_clause"]
+            serialized["body"]["Activity"]["activity"]["Transaction"]["WithBody"]["body"]["statements"]["first"]["Data"]["Delete"]["delete_clause"]
                 .get("detach")
                 .is_none()
         );
